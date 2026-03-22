@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-02-22T16:13:43.659Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "workflow_present",
+      "pass": true,
+      "detail": ".github/workflows/release-supply-chain.yml"
+    },
+    {
+      "id": "workflow_has_syft_or_sbom_action",
+      "pass": true,
+      "detail": "release-supply-chain workflow includes SBOM generation step"
+    },
+    {
+      "id": "workflow_has_cosign_installer",
+      "pass": true,
+      "detail": "release-supply-chain workflow installs cosign"
+    },
+    {
+      "id": "workflow_has_cosign_sign_or_attest",
+      "pass": true,
+      "detail": "release-supply-chain workflow executes cosign signing/attestation"
+    },
+    {
+      "id": "workflow_uploads_sbom_or_signature_artifacts",
+      "pass": true,
+      "detail": "release-supply-chain workflow uploads SBOM/signing artifacts"
+    },
+    {
+      "id": "workflow_has_oidc_permission_for_keyless",
+      "pass": true,
+      "detail": "workflow permissions include id-token: write"
+    }
+  ]
+}

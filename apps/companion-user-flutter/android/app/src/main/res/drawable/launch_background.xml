@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sven branded launch splash — dark cinematic background with centered S orb -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/sven_splash_bg" />
+    <!-- Centered "S" brand mark -->
+    <item android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="#FF00D9FF" />
+            <size android:width="64dp" android:height="64dp" />
+        </shape>
+    </item>
+</layer-list>

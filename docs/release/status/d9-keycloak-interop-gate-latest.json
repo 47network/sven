@@ -1,0 +1,51 @@
+{
+  "type": "d9_keycloak_oidc_live_interop_gate",
+  "generated_at_utc": "2026-02-23T08:28:50.488Z",
+  "status": "pass",
+  "with_idp_preflight": true,
+  "auto_idp": true,
+  "steps": [
+    {
+      "step": "compose_up",
+      "command": "docker compose -f docker-compose.sso-idp.yml up -d",
+      "status": 0,
+      "stdout": "",
+      "stderr": " Network sven_v010_default Creating \n Network sven_v010_default Created \ntime=\"2026-02-23T10:28:26+02:00\" level=warning msg=\"Found orphan containers ([sven_v010-gateway-api-1 sven_v010-prometheus-1 sven_v010-otel-collector-1 sven_v010-skill-runner-1 sven_v010-agent-runtime-1 sven_v010-egress-proxy-1 sven_v010-postgres-1 sven_v010-nats-1 sven_v010-postgres-maintenance-1 sven_v010-sven-internal-nginx-1 sven_v010-opensearch-1 sven_v010-quickstart-static-1]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.\"\n Container sven_v010-keycloak-sso-1 Creating \n Container sven_v010-keycloak-sso-1 Created \n Container sven_v010-keycloak-sso-1 Starting \n Container sven_v010-keycloak-sso-1 Started \n"
+    },
+    {
+      "step": "keycloak_ready_wait",
+      "command": "wait_for http://127.0.0.1:8081/realms/sven/.well-known/openid-configuration",
+      "status": 0,
+      "stdout": "ready status=200",
+      "stderr": ""
+    },
+    {
+      "step": "preflight_strict",
+      "command": "node scripts/sso-keycloak-interop-preflight.cjs --strict --with-idp",
+      "status": 0,
+      "stdout": "wrote: docs\\release\\status\\d9-keycloak-interop-preflight-latest.json\nwrote: docs\\release\\status\\d9-keycloak-interop-preflight-latest.md\nstatus: pass\n",
+      "stderr": ""
+    },
+    {
+      "step": "live_evidence",
+      "command": "node scripts/sso-keycloak-interop-evidence.cjs",
+      "status": 0,
+      "stdout": "wrote: docs\\release\\evidence\\d9-keycloak-interop-live-20260223-082847Z.json\nwrote: docs\\release\\evidence\\d9-keycloak-interop-live-20260223-082847Z.md\nwrote: docs\\release\\status\\d9-keycloak-interop-live-latest.json\nwrote: docs\\release\\status\\d9-keycloak-interop-live-latest.md\n",
+      "stderr": ""
+    },
+    {
+      "step": "evidence_check_strict",
+      "command": "node scripts/sso-keycloak-evidence-check.cjs --strict",
+      "status": 0,
+      "stdout": "wrote: docs\\release\\status\\d9-keycloak-interop-evidence-check-latest.json\nwrote: docs\\release\\status\\d9-keycloak-interop-evidence-check-latest.md\nstatus: pass\n",
+      "stderr": ""
+    },
+    {
+      "step": "compose_down",
+      "command": "docker compose -f docker-compose.sso-idp.yml down -v",
+      "status": 0,
+      "stdout": "",
+      "stderr": " Container sven_v010-keycloak-sso-1 Stopping \n Container sven_v010-keycloak-sso-1 Stopped \n Container sven_v010-keycloak-sso-1 Removing \n Container sven_v010-keycloak-sso-1 Removed \n Network sven_v010_default Removing \n Network sven_v010_default Removed \n"
+    }
+  ]
+}

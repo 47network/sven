@@ -1,0 +1,69 @@
+{
+  "generated_at": "2026-03-21T02:11:45.582Z",
+  "status": "fail",
+  "evidence_mode": "local",
+  "source_run_id": null,
+  "head_sha": null,
+  "checks": [
+    {
+      "id": "third_checklist_pr_dor_script_present",
+      "pass": true,
+      "detail": "scripts/pr-dor-metadata-check.cjs"
+    },
+    {
+      "id": "third_checklist_traceability_script_present",
+      "pass": true,
+      "detail": "scripts/traceability-matrix-check.cjs"
+    },
+    {
+      "id": "third_checklist_pr_template_dor_fields_present",
+      "pass": false,
+      "detail": ".github/pull_request_template.md"
+    },
+    {
+      "id": "third_checklist_pr_template_dod_evidence_fields_present",
+      "pass": false,
+      "detail": ".github/pull_request_template.md"
+    },
+    {
+      "id": "third_checklist_pr_dor_workflow_wired",
+      "pass": false,
+      "detail": ".github/workflows/pr-dor-metadata.yml"
+    },
+    {
+      "id": "third_checklist_traceability_evidence_present",
+      "pass": true,
+      "detail": "docs/release/evidence/traceability-matrix-latest.json"
+    },
+    {
+      "id": "third_checklist_traceability_release_gates_wired",
+      "pass": true,
+      "detail": ".github/workflows/release-supply-chain.yml + .github/workflows/release-status.yml"
+    },
+    {
+      "id": "third_checklist_authority_config_present",
+      "pass": false,
+      "detail": "docs/release/checklists/checklist-authority.json"
+    },
+    {
+      "id": "third_checklist_scope_labels_declared",
+      "pass": false,
+      "detail": "required labels missing (in_scope_now, planned_later, out_of_scope)"
+    },
+    {
+      "id": "third_checklist_scope_map_present",
+      "pass": false,
+      "detail": "missing scope_map_path"
+    },
+    {
+      "id": "third_checklist_scope_bounded_claims_present",
+      "pass": false,
+      "detail": "missing checklist-authority scope note in master and/or app checklist"
+    },
+    {
+      "id": "third_checklist_reference_mode_explicit",
+      "pass": false,
+      "detail": "missing authority"
+    }
+  ]
+}

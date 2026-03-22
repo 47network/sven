@@ -1,0 +1,1654 @@
+openapi: 3.1.0
+
+info:
+  title: Sven Gateway API
+  version: 1.0.0
+  description: |
+    REST + SSE API for the Sven companion app gateway.
+
+    **Authentication:** All endpoints except `/v1/auth/login`,
+    `/v1/auth/refresh`, and `/v1/config/deployment` require a Bearer token
+    obtained from `/v1/auth/login` or `/v1/auth/refresh`.
+
+    **Envelope format:** Successful responses use a standard envelope:
+    ```json
+    { "data": { ... } }        // single object
+    { "data": { "rows": [...], "has_more": true } }  // paginated list
+    ```
+    Error responses use:
+    ```json
+    { "error": { "code": "ERR_CODE", "message": "Human-readable message" } }
+    ```
+
+    **Base URL:** Configured per environment via `SVEN_API_BASE` dart-define.
+    Production: `https://app.example.com`
+    Development: `https://dev.example.com`
+  contact:
+    name: 47network / openclaw-sven
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://app.example.com
+    description: Production
+  - url: https://dev.example.com
+    description: Development
+
+# ─── Security ──────────────────────────────────────────────────────────────────
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  # ─── Reusable Schemas ────────────────────────────────────────────────────────
+  schemas:
+
+    # ── Error ──
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: UNAUTHORIZED
+            message:
+              type: string
+              example: "Authentication token is missing or invalid"
+
+    # ── Auth ──
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: alice
+        password:
+          type: string
+          format: password
+          example: "s3cr3t!"
+
+    TokenPair:
+      type: object
+      required: [accessToken, userId]
+      properties:
+        accessToken:
+          type: string
+          description: Short-lived JWT access token
+        refreshToken:
+          type: string
+          description: Long-lived refresh token
+        userId:
+          type: string
+          example: usr_01HXXXXX
+        username:
+          type: string
+          example: alice
+
+    TokenPairEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/TokenPair'
+
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    ChangePasswordRequest:
+      type: object
+      required: [current_password, new_password]
+      properties:
+        current_password:
+          type: string
+          format: password
+        new_password:
+          type: string
+          format: password
+          minLength: 8
+
+    # ── Chat Threads ──
+    ChatThread:
+      type: object
+      required: [id, name, type, updated_at]
+      properties:
+        id:
+          type: string
+          example: chat_01HXXXXX
+        name:
+          type: string
+          description: Human-readable title of the chat
+          example: "Trip planning"
+        type:
+          type: string
+          enum: [dm, group, incognito]
+          default: dm
+        channel:
+          type: string
+          nullable: true
+          example: "#general"
+        message_count:
+          type: integer
+          default: 0
+        updated_at:
+          type: string
+          format: date-time
+        last_message_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    ChatThreadsPage:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [rows, has_more]
+          properties:
+            rows:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatThread'
+            has_more:
+              type: boolean
+
+    # ── Chat Messages ──
+    ChatMessage:
+      type: object
+      required: [id, role, text, created_at]
+      properties:
+        id:
+          type: string
+          example: msg_01HXXXXX
+        role:
+          type: string
+          enum: [user, assistant, system]
+        text:
+          type: string
+        content_type:
+          type: string
+          default: text
+          enum: [text, image, file]
+        sender_name:
+          type: string
+          nullable: true
+        chat_id:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        is_edited:
+          type: boolean
+          default: false
+
+    SendMessageRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          description: User message content
+          example: "Explain quantum entanglement simply"
+        mode:
+          type: string
+          enum: [balanced, precise, creative, fast]
+          default: balanced
+        response_length:
+          type: string
+          enum: [short, balanced, detailed]
+          default: balanced
+        personality:
+          type: string
+          enum: [friendly, professional, casual, technical]
+          default: friendly
+        memory_context:
+          type: string
+          nullable: true
+          description: Pre-formatted memory context injected into the system prompt
+
+    ChatMessageEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/ChatMessage'
+
+    MessagesPage:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [rows, has_more]
+          properties:
+            rows:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatMessage'
+            has_more:
+              type: boolean
+
+    RenameChatRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: "New chat title"
+
+    ShareLinkRequest:
+      type: object
+      properties:
+        expires_in_days:
+          type: integer
+          nullable: true
+          description: Optional expiry in days; omit for a permanent link
+          example: 7
+
+    ShareLinkResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [share_url]
+          properties:
+            share_url:
+              type: string
+              format: uri
+              example: "https://app.example.com/share/abc123"
+
+    # ── Incognito ──
+    IncognitoRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+        incognito:
+          type: boolean
+          default: true
+          description: Must be true; signals the server not to persist this exchange
+        stream:
+          type: boolean
+          default: true
+
+    IncognitoResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [text]
+          properties:
+            text:
+              type: string
+
+    # ── One-shot Completion ──
+    CompleteRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+        system_prompt:
+          type: string
+          nullable: true
+
+    CompleteResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [text]
+          properties:
+            text:
+              type: string
+
+    # ── Deployment Config ──
+    DeploymentConfig:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [personal, enterprise, demo]
+          description: Deployment mode controlling auth and feature availability
+        display_name:
+          type: string
+          nullable: true
+          description: Organisation or persona display name
+        logo_url:
+          type: string
+          format: uri
+          nullable: true
+        features:
+          type: object
+          additionalProperties: true
+          description: Feature toggles applied at the deployment level
+
+    DeploymentConfigEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/DeploymentConfig'
+
+    DeploymentSetupRequest:
+      type: object
+      required: [mode, username, password]
+      properties:
+        mode:
+          type: string
+          enum: [personal, enterprise, demo]
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+          minLength: 8
+        display_name:
+          type: string
+          nullable: true
+
+    # ── Devices ──
+    Device:
+      type: object
+      required: [id, name, device_type, status, capabilities, config, created_at]
+      properties:
+        id:
+          type: string
+          example: dev_01HXXXXX
+        name:
+          type: string
+          example: "Living Room Mirror"
+        device_type:
+          type: string
+          enum: [mirror, tablet, kiosk, sensor_hub]
+        status:
+          type: string
+          enum: [online, offline, pairing]
+        capabilities:
+          type: array
+          items:
+            type: string
+          example: [display, audio, camera]
+        config:
+          type: object
+          additionalProperties: true
+          description: Device-specific configuration map
+        last_seen_at:
+          type: string
+          format: date-time
+          nullable: true
+        paired_at:
+          type: string
+          format: date-time
+          nullable: true
+        pairing_code:
+          type: string
+          nullable: true
+          description: Short numeric code shown on the device during pairing
+        pairing_expires:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    DeviceEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Device'
+
+    DevicesPage:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items:
+                $ref: '#/components/schemas/Device'
+            has_more:
+              type: boolean
+
+    RegisterDeviceRequest:
+      type: object
+      required: [name, device_type]
+      properties:
+        name:
+          type: string
+        device_type:
+          type: string
+          enum: [mirror, tablet, kiosk, sensor_hub]
+        capabilities:
+          type: array
+          items:
+            type: string
+          default: []
+        config:
+          type: object
+          additionalProperties: true
+          default: {}
+
+    UpdateDeviceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        config:
+          type: object
+          additionalProperties: true
+          nullable: true
+
+    PairConfirmRequest:
+      type: object
+      required: [pairing_code]
+      properties:
+        pairing_code:
+          type: string
+          description: Short numeric code entered on the physical device
+
+    DeviceCommand:
+      type: object
+      required: [id, command, payload, created_at]
+      properties:
+        id:
+          type: string
+        command:
+          type: string
+          example: "display.showMessage"
+        payload:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+
+    SendCommandRequest:
+      type: object
+      required: [command]
+      properties:
+        command:
+          type: string
+          example: "display.showMessage"
+        payload:
+          type: object
+          additionalProperties: true
+          default: {}
+
+    DeviceCommandEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/DeviceCommand'
+
+    # ── Approvals ──
+    ApprovalItem:
+      type: object
+      required: [id, status, type, created_at]
+      properties:
+        id:
+          type: string
+          example: apr_01HXXXXX
+        status:
+          type: string
+          enum: [pending, approved, rejected, expired]
+        type:
+          type: string
+          description: Tool name or approval category
+          example: file_write
+        title:
+          type: string
+          nullable: true
+        details:
+          type: object
+          additionalProperties: true
+          nullable: true
+          description: Tool-specific context for the approval request
+        created_at:
+          type: string
+          format: date-time
+
+    ApprovalsPage:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [rows]
+          properties:
+            rows:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApprovalItem'
+
+    VoteRequest:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [approve, reject]
+
+    # ── Push Notifications ──
+    RegisterPushRequest:
+      type: object
+      required: [token, platform]
+      properties:
+        token:
+          type: string
+          description: FCM registration token (Android/iOS) or VAPID subscription JSON (web)
+        platform:
+          type: string
+          enum: [android, ios, web]
+        device_id:
+          type: string
+          nullable: true
+          description: Optional device ID for multi-device setups
+
+    UnregisterPushRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+
+    VapidKeyResponse:
+      type: object
+      required: [publicKey]
+      properties:
+        publicKey:
+          type: string
+          description: Base64url-encoded VAPID public key for web push subscriptions
+
+    # ── UI Preferences / Feature Flags ──
+    UiPreferences:
+      type: object
+      description: |
+        Flat map of preference keys to values.  Feature flag keys follow the
+        `feature.<name>` convention (boolean values).  Other keys are
+        app-specific and may hold any JSON value.
+      additionalProperties: true
+      example:
+        feature.rive_avatar: false
+        feature.incognito_mode: true
+        feature.voice_input: true
+
+    UiPreferencesEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/UiPreferences'
+
+    UpdateUiPreferencesRequest:
+      type: object
+      required: [preferences]
+      properties:
+        preferences:
+          $ref: '#/components/schemas/UiPreferences'
+
+    # ── SSE Event ──
+    SseEvent:
+      type: object
+      description: |
+        Server-Sent Event payload emitted by `GET /v1/stream`.
+
+        Event types:
+        - `token`  — incremental text token from the assistant
+        - `done`   — stream finished; `data.chat_id` and `data.message_id` are set
+        - `error`  — stream-level error; `data.message` contains detail
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [token, done, error]
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              description: Incremental token text (type=token)
+            chat_id:
+              type: string
+              description: Chat identifier (type=done)
+            message_id:
+              type: string
+              description: Persisted message identifier (type=done)
+            message:
+              type: string
+              description: Error description (type=error)
+
+  # ── Reusable Parameters ──────────────────────────────────────────────────────
+  parameters:
+    chatId:
+      name: chatId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: chat_01HXXXXX
+
+    deviceId:
+      name: deviceId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: dev_01HXXXXX
+
+    approvalId:
+      name: approvalId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: apr_01HXXXXX
+
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 40
+        minimum: 1
+        maximum: 200
+      description: Maximum number of results to return
+
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      description: Zero-based pagination offset
+
+    before:
+      name: before
+      in: query
+      schema:
+        type: string
+      description: Return messages created before this message ID (cursor-based pagination)
+
+  # ── Reusable Responses ───────────────────────────────────────────────────────
+  responses:
+    Unauthorized:
+      description: Missing or invalid Bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NoContent:
+      description: Request succeeded; no body returned
+
+    Forbidden:
+      description: Authenticated user does not have access to this resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    UnprocessableEntity:
+      description: Validation error — request body is malformed or missing required fields
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+# ─── Paths ─────────────────────────────────────────────────────────────────────
+paths:
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Authentication
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/auth/login:
+    post:
+      operationId: authLogin
+      tags: [Auth]
+      summary: Authenticate with username and password
+      description: |
+        Returns an access token and a refresh token on success.
+        The access token must be included as `Authorization: Bearer <token>`
+        on all subsequent protected requests.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairEnvelope'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /v1/auth/refresh:
+    post:
+      operationId: authRefresh
+      tags: [Auth]
+      summary: Refresh an access token
+      description: |
+        Exchange a valid refresh token for a new access + refresh token pair.
+        The old refresh token is invalidated on use.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: New token pair issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairEnvelope'
+        '401':
+          description: Refresh token is expired or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/auth/logout:
+    post:
+      operationId: authLogout
+      tags: [Auth]
+      summary: Invalidate the current session
+      description: Revokes the current access token on the server side.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/auth/logout-all:
+    post:
+      operationId: authLogoutAll
+      tags: [Auth]
+      summary: Invalidate all active sessions
+      description: Revokes all refresh tokens for the authenticated user, signing out all devices.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Users
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/users/me/password:
+    patch:
+      operationId: changePassword
+      tags: [Users]
+      summary: Change the authenticated user's password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Current password is incorrect or new password is too weak
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/users/me:
+    delete:
+      operationId: deleteAccount
+      tags: [Users]
+      summary: Permanently delete the authenticated account (GDPR erasure)
+      description: |
+        Schedules the account for permanent deletion. All associated data
+        (chats, messages, preferences) is purged. This action is irreversible.
+        The client clears tokens locally regardless of the response.
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Chats
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/chats:
+    get:
+      operationId: listChats
+      tags: [Chats]
+      summary: List chat threads for the authenticated user
+      description: Returns threads ordered by most recently updated, paginated.
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: Paginated list of chat threads
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatThreadsPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      operationId: createChat
+      tags: [Chats]
+      summary: Create a new chat thread
+      description: Creates an empty chat thread and returns it.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Optional initial title (auto-generated if omitted)
+                type:
+                  type: string
+                  enum: [dm, group]
+                  default: dm
+      responses:
+        '201':
+          description: Chat created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChatThread'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/chats/{chatId}:
+    parameters:
+      - $ref: '#/components/parameters/chatId'
+
+    patch:
+      operationId: renameChat
+      tags: [Chats]
+      summary: Rename a chat thread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameChatRequest'
+      responses:
+        '200':
+          description: Chat updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChatThread'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      operationId: deleteChat
+      tags: [Chats]
+      summary: Delete a chat thread and all its messages
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/chats/{chatId}/messages:
+    parameters:
+      - $ref: '#/components/parameters/chatId'
+
+    get:
+      operationId: listMessages
+      tags: [Chats]
+      summary: Fetch messages for a chat (cursor-based pagination)
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/before'
+      responses:
+        '200':
+          description: Paginated list of messages, newest first
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessagesPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      operationId: sendMessage
+      tags: [Chats]
+      summary: Send a message and receive an AI reply
+      description: |
+        Sends a user message to the specified chat thread and returns the
+        AI-generated reply.  Responses for identical prompts within a session
+        may be served from the client-side in-memory cache (max 20 items,
+        10-minute TTL).
+
+        For streaming responses, use `GET /v1/stream` instead.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          description: Message sent and reply received
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageEnvelope'
+        '201':
+          description: Message created (alternate success status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/chats/{chatId}/share:
+    parameters:
+      - $ref: '#/components/parameters/chatId'
+
+    post:
+      operationId: createShareLink
+      tags: [Chats]
+      summary: Create a public share link for a chat
+      description: |
+        Generates a publicly accessible URL for the chat transcript.
+        Anyone with the link can view the conversation without authenticating.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareLinkRequest'
+      responses:
+        '200':
+          description: Share link created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareLinkResponse'
+        '201':
+          description: Share link created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareLinkResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      operationId: revokeShareLink
+      tags: [Chats]
+      summary: Revoke the active share link for a chat
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Incognito
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/incognito/messages:
+    post:
+      operationId: sendIncognitoMessage
+      tags: [Incognito]
+      summary: Send a message that is never persisted
+      description: |
+        Processes a user message in-memory without creating a thread or
+        persisting any data. The response is returned as a single text token
+        (non-streaming fallback), or streamed when `stream: true`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncognitoRequest'
+      responses:
+        '200':
+          description: Reply generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncognitoResponse'
+        '201':
+          description: Reply generated (alternate status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncognitoResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Streaming (SSE)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/stream:
+    get:
+      operationId: streamMessages
+      tags: [Streaming]
+      summary: Open a persistent SSE stream for real-time assistant tokens
+      description: |
+        Establishes a long-lived Server-Sent Events (SSE) connection.
+        The client receives incremental text tokens (`type: token`) as the
+        assistant generates its response, followed by a `type: done` event
+        containing the persisted `chat_id` and `message_id`.
+
+        **Headers:** The client must set `Accept: text/event-stream`.
+
+        **Event format:**
+        ```
+        event: token
+        data: {"type":"token","data":{"token":" Hello"}}
+
+        event: done
+        data: {"type":"done","data":{"chat_id":"chat_01H...","message_id":"msg_01H..."}}
+        ```
+      parameters:
+        - name: chat_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Thread to stream into (omit to auto-create)
+        - name: text
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Initial message text to post (used when initiating from query params)
+      responses:
+        '200':
+          description: SSE stream connected
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/SseEvent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # One-shot Completion
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/complete:
+    post:
+      operationId: complete
+      tags: [Completion]
+      summary: One-shot text completion (no thread created)
+      description: |
+        Sends a prompt and returns a single completion. Used internally by
+        shape-generation features that need a quick AI response without
+        creating a persistent chat thread.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteRequest'
+      responses:
+        '200':
+          description: Completion generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompleteResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Deployment Configuration
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/config/deployment:
+    get:
+      operationId: getDeploymentConfig
+      tags: [Config]
+      summary: Fetch the deployment configuration
+      description: |
+        Returns the server-side deployment configuration used to bootstrap
+        the app (mode, display name, logo, feature flags).  This endpoint is
+        unauthenticated so the app can determine the auth flow before the user
+        has logged in.
+      security: []
+      responses:
+        '200':
+          description: Deployment configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentConfigEnvelope'
+
+  /v1/config/deployment/setup:
+    post:
+      operationId: setupDeployment
+      tags: [Config]
+      summary: One-time deployment initialisation
+      description: |
+        Called once during first-run setup to create the initial admin user and
+        configure the deployment mode. The endpoint is disabled after first use.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentSetupRequest'
+      responses:
+        '200':
+          description: Deployment initialised; admin user created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    description: Newly created admin user info
+        '409':
+          description: Deployment has already been initialised
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Admin — Device Management
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/admin/devices:
+    get:
+      operationId: listDevices
+      tags: [Admin / Devices]
+      summary: List all registered devices
+      responses:
+        '200':
+          description: List of registered devices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicesPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      operationId: registerDevice
+      tags: [Admin / Devices]
+      summary: Register a new device
+      description: |
+        Creates a device record and initiates the pairing flow. The response
+        includes a `pairing_code` that must be confirmed on the physical device
+        via `POST /v1/admin/devices/{deviceId}/pair/confirm`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDeviceRequest'
+      responses:
+        '200':
+          description: Device registered; pairing flow initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceEnvelope'
+        '201':
+          description: Device registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/admin/devices/{deviceId}:
+    parameters:
+      - $ref: '#/components/parameters/deviceId'
+
+    get:
+      operationId: getDevice
+      tags: [Admin / Devices]
+      summary: Get a device by ID
+      responses:
+        '200':
+          description: Device details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      operationId: updateDevice
+      tags: [Admin / Devices]
+      summary: Update a device's name or configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceRequest'
+      responses:
+        '200':
+          description: Device updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      operationId: deleteDevice
+      tags: [Admin / Devices]
+      summary: Remove a device
+      description: Unpairs and permanently removes the device record.
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/admin/devices/{deviceId}/pair/confirm:
+    parameters:
+      - $ref: '#/components/parameters/deviceId'
+
+    post:
+      operationId: confirmDevicePairing
+      tags: [Admin / Devices]
+      summary: Confirm device pairing with the code shown on the device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PairConfirmRequest'
+      responses:
+        '200':
+          description: Device successfully paired; status transitions to online
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceEnvelope'
+        '400':
+          description: Pairing code is incorrect or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/admin/devices/{deviceId}/command:
+    parameters:
+      - $ref: '#/components/parameters/deviceId'
+
+    post:
+      operationId: sendDeviceCommand
+      tags: [Admin / Devices]
+      summary: Send a command to a device
+      description: |
+        Enqueues a command to be delivered to the specified device over its
+        WebSocket or polling channel. Common commands include:
+        - `display.showMessage` — show text on a mirror
+        - `audio.play` — play a sound or TTS utterance
+        - `system.reboot` — reboot the device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendCommandRequest'
+      responses:
+        '200':
+          description: Command enqueued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceCommandEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Approvals
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/approvals:
+    get:
+      operationId: listApprovals
+      tags: [Approvals]
+      summary: List approval requests for the authenticated user
+      description: |
+        Returns pending (and optionally past) approval requests that an
+        autonomous agent has raised for the user's explicit go-ahead.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, approved, rejected, expired]
+          description: Filter by approval status; omit for all statuses
+      responses:
+        '200':
+          description: List of approval items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalsPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/approvals/{approvalId}/vote:
+    parameters:
+      - $ref: '#/components/parameters/approvalId'
+
+    post:
+      operationId: voteOnApproval
+      tags: [Approvals]
+      summary: Approve or reject a pending approval request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoteRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          description: Approval is no longer pending (already voted or expired)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Push Notifications
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/push/register:
+    post:
+      operationId: registerPushToken
+      tags: [Push Notifications]
+      summary: Register a device push token
+      description: |
+        Associates a FCM (Android/iOS) or VAPID subscription (web) token with
+        the authenticated user so the server can deliver push notifications.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterPushRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/push/unregister:
+    post:
+      operationId: unregisterPushToken
+      tags: [Push Notifications]
+      summary: Unregister a device push token
+      description: Removes the token association on logout or device change.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnregisterPushRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/push/vapid-public-key:
+    get:
+      operationId: getVapidPublicKey
+      tags: [Push Notifications]
+      summary: Fetch the VAPID public key for web push subscriptions
+      description: |
+        Returns the server's VAPID public key required to create a
+        `PushSubscription` in the browser's Push API.
+      responses:
+        '200':
+          description: VAPID public key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VapidKeyResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # UI Preferences / Feature Flags
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  /v1/me/ui-preferences:
+    get:
+      operationId: getUiPreferences
+      tags: [Preferences]
+      summary: Fetch user UI preferences and remote feature flags
+      description: |
+        Returns the authenticated user's UI preference map.  Keys with the
+        `feature.` prefix are boolean feature flags used by `FeatureFlagService`
+        and `AbTestService` to gate functionality.  Other keys hold arbitrary
+        preference values (colour theme, font size, etc.).
+      responses:
+        '200':
+          description: User UI preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPreferencesEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      operationId: updateUiPreferences
+      tags: [Preferences]
+      summary: Update user UI preferences
+      description: |
+        Performs a merge-update of the user's preference map.  Keys not
+        present in the request body are left unchanged.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUiPreferencesRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/NoContent'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+# ─── Tags (display order in rendered docs) ────────────────────────────────────
+tags:
+  - name: Auth
+    description: Login, token refresh, and session management
+  - name: Users
+    description: Account management (password change, GDPR deletion)
+  - name: Chats
+    description: Chat thread and message CRUD
+  - name: Incognito
+    description: Ephemeral messages that are never persisted
+  - name: Streaming
+    description: Server-Sent Events for real-time AI token streaming
+  - name: Completion
+    description: One-shot text completion (no thread)
+  - name: Config
+    description: Deployment-level configuration and first-run setup
+  - name: Admin / Devices
+    description: Magic Mirror / Raspberry Pi device management (admin only)
+  - name: Approvals
+    description: Human-in-the-loop approval workflow for autonomous agents
+  - name: Push Notifications
+    description: FCM and Web Push token registration
+  - name: Preferences
+    description: User UI preferences and remote feature flags
+

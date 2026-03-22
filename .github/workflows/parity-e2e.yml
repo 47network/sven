@@ -1,0 +1,691 @@
+name: parity-e2e
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'services/gateway-api/**'
+      - 'packages/cli/**'
+      - 'services/agent-runtime/**'
+      - 'docs/parity/Sven_Parity_Checklist.md'
+      - 'docs/parity/wave5-crewai-workflow-matrix-2026-03-16.md'
+      - 'docs/parity/wave6-letta-workflow-matrix-2026-03-16.md'
+      - 'docs/parity/wave7-autogen-workflow-matrix-2026-03-16.md'
+      - 'docs/parity/wave8-langgraph-workflow-matrix-2026-03-16.md'
+      - '.github/workflows/parity-e2e.yml'
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'services/gateway-api/**'
+      - 'packages/cli/**'
+      - 'services/agent-runtime/**'
+      - 'docs/parity/Sven_Parity_Checklist.md'
+      - 'docs/parity/wave5-crewai-workflow-matrix-2026-03-16.md'
+      - 'docs/parity/wave6-letta-workflow-matrix-2026-03-16.md'
+      - 'docs/parity/wave7-autogen-workflow-matrix-2026-03-16.md'
+      - 'docs/parity/wave8-langgraph-workflow-matrix-2026-03-16.md'
+      - '.github/workflows/parity-e2e.yml'
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: sven
+          POSTGRES_USER: sven
+          POSTGRES_PASSWORD: sven
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U sven -d sven"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: postgresql://sven:sven@localhost:5432/sven
+      NATS_URL: nats://localhost:4222
+      GATEWAY_PORT: '3001'
+      GATEWAY_HOST: '127.0.0.1'
+      SVEN_MIGRATION_ID_MODE: text
+      API_URL: http://127.0.0.1:3001
+      RUN_LIVE_GATEWAY_E2E: 'true'
+      PARITY_E2E_REQUIRED: 'true'
+      ADMIN_TOKEN: '11111111-1111-4111-8111-111111111111'
+      TEST_SESSION_COOKIE: sven_session=11111111-1111-4111-8111-111111111111
+      SVEN_MCP_SERVER_TOKEN: test-mcp-server-token
+      TEST_MCP_SERVER_TOKEN: test-mcp-server-token
+      TEST_A2A_API_KEY: sk-sven-a2a0e2e0live123.paritylivea2akey0000000000000000
+      SVEN_A2A_FORWARD_ALLOWLIST_HOSTS: 127.0.0.1
+      SVEN_A2A_FORWARD_ALLOW_PRIVATE_HOSTS: 'true'
+      SVEN_A2A_FORWARD_ALLOW_HTTP: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start NATS (JetStream)
+        run: |
+          docker run -d --name sven-nats -p 4222:4222 -p 8222:8222 nats:2.10 -js
+          for i in {1..20}; do
+            if bash -c ">/dev/tcp/127.0.0.1/4222" 2>/dev/null; then
+              echo "NATS is reachable"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "NATS failed to start" >&2
+          docker logs sven-nats || true
+          exit 1
+
+      - name: Typecheck
+        run: npx pnpm -r typecheck
+
+      - name: Build
+        run: npx pnpm -r build
+
+      - name: Run migrations
+        run: npm run --workspace services/gateway-api db:migrate
+
+      - name: Seed admin session for parity e2e
+        run: |
+          cat > seed-auth.cjs <<'EOF'
+          const { Client } = require('pg');
+          const bcrypt = require('bcrypt');
+          (async () => {
+            const c = new Client({ connectionString: process.env.DATABASE_URL });
+            await c.connect();
+            const orgId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+            const apiKeyId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+            const a2aKid = 'a2a0e2e0live123';
+            const a2aRawKey = process.env.TEST_A2A_API_KEY;
+            const a2aKeyHash = await bcrypt.hash(a2aRawKey, 10);
+            await c.query(
+              'INSERT INTO users (id, username, display_name, "role", password_hash) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (username) DO NOTHING',
+              ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'admin', 'Admin', 'admin', 'x'],
+            );
+            await c.query(
+              `INSERT INTO organizations (id, slug, name, owner_user_id, created_at, updated_at)
+               VALUES ($1,$2,$3,$4,NOW(),NOW())
+               ON CONFLICT (id) DO UPDATE SET owner_user_id=EXCLUDED.owner_user_id, updated_at=NOW()`,
+              [orgId, 'parity-e2e-org', 'Parity E2E Org', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'],
+            );
+            await c.query(
+              `INSERT INTO organization_memberships (id, organization_id, user_id, role, status, created_at, updated_at)
+               VALUES ($1,$2,$3,$4,$5,NOW(),NOW())
+               ON CONFLICT (organization_id, user_id) DO UPDATE SET role=EXCLUDED.role, status=EXCLUDED.status, updated_at=NOW()`,
+              ['dddddddd-dddd-4ddd-8ddd-dddddddddddd', orgId, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'owner', 'active'],
+            );
+            await c.query('UPDATE users SET active_organization_id=$1 WHERE id=$2', [
+              orgId,
+              'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+            ]);
+            await c.query(
+              "INSERT INTO sessions (id,user_id,status,created_at,expires_at) VALUES ($1,$2,'active',NOW(),NOW()+interval '7 day') ON CONFLICT (id) DO UPDATE SET user_id=EXCLUDED.user_id,status='active',expires_at=NOW()+interval '7 day'",
+              [process.env.ADMIN_TOKEN, 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'],
+            );
+            await c.query(
+              `INSERT INTO api_keys (id, user_id, organization_id, kid, name, prefix, key_hash, scopes, expires_at, revoked_at, created_at)
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8::text[],NULL,NULL,NOW())
+               ON CONFLICT (kid) DO UPDATE SET
+                 user_id=EXCLUDED.user_id,
+                 organization_id=EXCLUDED.organization_id,
+                 name=EXCLUDED.name,
+                 prefix=EXCLUDED.prefix,
+                 key_hash=EXCLUDED.key_hash,
+                 scopes=EXCLUDED.scopes,
+                 expires_at=NULL,
+                 revoked_at=NULL`,
+              [
+                apiKeyId,
+                'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+                orgId,
+                a2aKid,
+                'Parity E2E A2A Key',
+                a2aRawKey.slice(0, 16),
+                a2aKeyHash,
+                ['a2a', 'openai'],
+              ],
+            );
+            await c.end();
+          })().catch((err) => {
+            console.error(err);
+            process.exit(1);
+          });
+          EOF
+          node seed-auth.cjs
+
+      - name: Start gateway API
+        run: |
+          node services/gateway-api/dist/index.js > gateway.log 2>&1 &
+          echo $! > gateway.pid
+
+      - name: Wait for health
+        run: |
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:3001/healthz > /dev/null; then
+              echo "Gateway is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Gateway failed health check" >&2
+          cat gateway.log || true
+          exit 1
+
+      - name: Gateway parity tests
+        id: gateway_parity_tests
+        working-directory: services/gateway-api
+        run: |
+          node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/agents.e2e.ts --runInBand
+          node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/mcp.e2e.ts --runInBand
+
+      - name: MCP/A2A compatibility gates (live)
+        id: compat_live_gates
+        run: |
+          npm run release:mcp:compat:check:live
+          npm run release:a2a:compat:check:peer-live
+
+      - name: CLI e2e
+        id: cli_e2e
+        working-directory: packages/cli
+        run: node ../../node_modules/jest/bin/jest.js __tests__/cli.e2e.test.js --runInBand
+
+      - name: Parity provenance contract tests
+        id: parity_contracts
+        run: |
+          npm run --workspace services/gateway-api test -- --runTestsByPath src/__tests__/langgraph-wave8-parity-e2e-ci-binding.contract.test.ts src/__tests__/parity-all-waves-closeout-contract.test.ts src/__tests__/parity-checklist-verify-wave-closeout.contract.test.ts --runInBand
+
+      - name: OpenHands Wave 1 parity gates
+        id: openhands_wave1
+        run: |
+          npm run -s release:openhands:w01:status
+          npm run -s release:openhands:w02:status
+          npm run -s release:openhands:w03:status
+          npm run -s release:openhands:w04:status
+          npm run -s release:openhands:w05:status
+          npm run -s release:openhands:w06:status
+          npm run -s release:openhands:w07:status
+          npm run -s release:openhands:w08:status
+          npm run -s release:openhands:w09:status
+          npm run -s release:openhands:w10:status
+          npm run -s release:openhands:wave1:rollup
+          npm run -s release:openhands:wave1:closeout
+
+      - name: CrewAI Wave 5 parity gates
+        id: crewai_wave5
+        run: |
+          npm run -s release:crewai:w01:status
+          npm run -s release:crewai:w02:status
+          npm run -s release:crewai:w03:status
+          npm run -s release:crewai:w04:status
+          npm run -s release:crewai:w05:status
+          npm run -s release:crewai:w06:status
+          npm run -s release:crewai:w07:status
+          npm run -s release:crewai:w08:status
+          npm run -s release:crewai:w09:status
+          npm run -s release:crewai:w10:status
+          npm run -s release:crewai:wave5:rollup
+          npm run -s release:crewai:wave5:closeout
+
+      - name: LibreChat Wave 2 parity gates
+        id: librechat_wave2
+        run: |
+          npm run -s release:librechat:w01:status
+          npm run -s release:librechat:w02:status
+          npm run -s release:librechat:w03:status
+          npm run -s release:librechat:w04:status
+          npm run -s release:librechat:w05:status
+          npm run -s release:librechat:w06:status
+          npm run -s release:librechat:w07:status
+          npm run -s release:librechat:w08:status
+          npm run -s release:librechat:w09:status
+          npm run -s release:librechat:w10:status
+          npm run -s release:librechat:wave2:rollup
+          npm run -s release:librechat:wave2:closeout
+
+      - name: n8n Wave 3 parity gates
+        id: n8n_wave3
+        run: |
+          npm run -s release:n8n:w01:status
+          npm run -s release:n8n:w02:status
+          npm run -s release:n8n:w03:status
+          npm run -s release:n8n:w04:status
+          npm run -s release:n8n:w05:status
+          npm run -s release:n8n:w06:status
+          npm run -s release:n8n:w07:status
+          npm run -s release:n8n:w08:status
+          npm run -s release:n8n:w09:status
+          npm run -s release:n8n:w10:status
+          npm run -s release:n8n:wave3:rollup
+          npm run -s release:n8n:wave3:closeout
+
+      - name: Framework Wave 4 parity gates
+        id: framework_wave4
+        run: |
+          npm run -s release:framework:w01:status
+          npm run -s release:framework:w02:status
+          npm run -s release:framework:w03:status
+          npm run -s release:framework:w04:status
+          npm run -s release:framework:w05:status
+          npm run -s release:framework:w06:status
+          npm run -s release:framework:w07:status
+          npm run -s release:framework:w08:status
+          npm run -s release:framework:w09:status
+          npm run -s release:framework:w10:status
+          npm run -s release:framework:wave4:rollup
+          npm run -s release:framework:wave4:closeout
+
+      - name: Letta Wave 6 parity gates
+        id: letta_wave6
+        run: |
+          npm run -s release:letta:w01:status
+          npm run -s release:letta:w02:status
+          npm run -s release:letta:w03:status
+          npm run -s release:letta:w04:status
+          npm run -s release:letta:w05:status
+          npm run -s release:letta:w06:status
+          npm run -s release:letta:w07:status
+          npm run -s release:letta:w08:status
+          npm run -s release:letta:w09:status
+          npm run -s release:letta:w10:status
+          npm run -s release:letta:wave6:rollup
+          npm run -s release:letta:wave6:closeout
+
+      - name: AutoGen Wave 7 parity gates
+        id: autogen_wave7
+        run: |
+          npm run -s release:autogen:w01:status
+          npm run -s release:autogen:w02:status
+          npm run -s release:autogen:w03:status
+          npm run -s release:autogen:w04:status
+          npm run -s release:autogen:w05:status
+          npm run -s release:autogen:w06:status
+          npm run -s release:autogen:w07:status
+          npm run -s release:autogen:w08:status
+          npm run -s release:autogen:w09:status
+          npm run -s release:autogen:w10:status
+          npm run -s release:autogen:wave7:rollup
+          npm run -s release:autogen:wave7:closeout
+
+      - name: LangGraph Wave 8 parity gates
+        id: langgraph_wave8
+        run: |
+          npm run -s release:langgraph:w01:status
+          npm run -s release:langgraph:w02:status
+          npm run -s release:langgraph:w03:status
+          npm run -s release:langgraph:w04:status
+          npm run -s release:langgraph:w05:status
+          npm run -s release:langgraph:w06:status
+          npm run -s release:langgraph:w07:status
+          npm run -s release:langgraph:w08:status
+          npm run -s release:langgraph:w09:status
+          npm run -s release:langgraph:w10:status
+          npm run -s release:langgraph:wave8:rollup
+          npm run -s release:langgraph:wave8:closeout
+
+      - name: Unified parity all-waves closeout
+        id: parity_all_waves_closeout
+        run: |
+          npm run -s release:parity:all-waves:closeout
+
+      - name: Competitor runtime truth gate
+        id: competitor_runtime_truth
+        run: |
+          npm run -s release:competitor:runtime:truth
+
+      - name: Competitor capability proof gate
+        id: competitor_capability_proof
+        run: |
+          npm run -s release:competitor:capability:proof
+
+      - name: Competitive scorecard gate
+        id: competitive_scorecard
+        run: |
+          npm run -s release:competitive:scorecard:status
+
+      - name: Competitive program completion gate
+        id: competitive_program_completion
+        run: |
+          npm run -s release:competitive:program:status:strict
+
+      - name: Emit parity e2e workflow status artifact
+        if: always()
+        run: |
+          node <<'EOF'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const outDir = path.join(process.cwd(), 'docs', 'release', 'status');
+          fs.mkdirSync(outDir, { recursive: true });
+
+          const gatewayOutcome = '${{ steps.gateway_parity_tests.outcome }}';
+          const compatOutcome = '${{ steps.compat_live_gates.outcome }}';
+          const cliOutcome = '${{ steps.cli_e2e.outcome }}';
+          const parityContractsOutcome = '${{ steps.parity_contracts.outcome }}';
+          const openhandsOutcome = '${{ steps.openhands_wave1.outcome }}';
+          const crewaiOutcome = '${{ steps.crewai_wave5.outcome }}';
+          const librechatOutcome = '${{ steps.librechat_wave2.outcome }}';
+          const n8nOutcome = '${{ steps.n8n_wave3.outcome }}';
+          const frameworkOutcome = '${{ steps.framework_wave4.outcome }}';
+          const lettaOutcome = '${{ steps.letta_wave6.outcome }}';
+          const autogenOutcome = '${{ steps.autogen_wave7.outcome }}';
+          const langgraphOutcome = '${{ steps.langgraph_wave8.outcome }}';
+          const allWavesCloseoutOutcome = '${{ steps.parity_all_waves_closeout.outcome }}';
+          const competitorRuntimeTruthOutcome = '${{ steps.competitor_runtime_truth.outcome }}';
+          const competitorCapabilityProofOutcome = '${{ steps.competitor_capability_proof.outcome }}';
+          const competitiveScorecardOutcome = '${{ steps.competitive_scorecard.outcome }}';
+          const competitiveProgramCompletionOutcome = '${{ steps.competitive_program_completion.outcome }}';
+
+          const status = (
+            gatewayOutcome === 'success'
+            && compatOutcome === 'success'
+            && cliOutcome === 'success'
+            && parityContractsOutcome === 'success'
+            && openhandsOutcome === 'success'
+            && crewaiOutcome === 'success'
+            && librechatOutcome === 'success'
+            && n8nOutcome === 'success'
+            && frameworkOutcome === 'success'
+            && lettaOutcome === 'success'
+            && autogenOutcome === 'success'
+            && langgraphOutcome === 'success'
+            && allWavesCloseoutOutcome === 'success'
+            && competitorRuntimeTruthOutcome === 'success'
+            && competitorCapabilityProofOutcome === 'success'
+            && competitiveScorecardOutcome === 'success'
+            && competitiveProgramCompletionOutcome === 'success'
+          ) ? 'pass' : 'fail';
+
+          const runUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+          const checks = [
+            { id: 'gateway_parity_tests', outcome: gatewayOutcome },
+            { id: 'compat_live_gates', outcome: compatOutcome },
+            { id: 'cli_e2e', outcome: cliOutcome },
+            { id: 'parity_contracts', outcome: parityContractsOutcome },
+            { id: 'openhands_wave1', outcome: openhandsOutcome },
+            { id: 'crewai_wave5', outcome: crewaiOutcome },
+            { id: 'librechat_wave2', outcome: librechatOutcome },
+            { id: 'n8n_wave3', outcome: n8nOutcome },
+            { id: 'framework_wave4', outcome: frameworkOutcome },
+            { id: 'letta_wave6', outcome: lettaOutcome },
+            { id: 'autogen_wave7', outcome: autogenOutcome },
+            { id: 'langgraph_wave8', outcome: langgraphOutcome },
+            { id: 'parity_all_waves_closeout', outcome: allWavesCloseoutOutcome },
+            { id: 'competitor_runtime_truth', outcome: competitorRuntimeTruthOutcome },
+            { id: 'competitor_capability_proof', outcome: competitorCapabilityProofOutcome },
+            { id: 'competitive_scorecard', outcome: competitiveScorecardOutcome },
+            { id: 'competitive_program_completion', outcome: competitiveProgramCompletionOutcome },
+          ].map((entry) => ({
+            id: entry.id,
+            status: entry.outcome === 'success' ? 'pass' : 'fail',
+            detail: `outcome=${entry.outcome}`,
+          }));
+
+          const report = {
+            generated_at: new Date().toISOString(),
+            status,
+            workflow: 'parity-e2e',
+            source_run_id: String(process.env.GITHUB_RUN_ID || ''),
+            head_sha: String(process.env.GITHUB_SHA || ''),
+            workflow_run_url: runUrl,
+            checks,
+          };
+
+          fs.writeFileSync(path.join(outDir, 'parity-e2e-latest.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+          const md = [
+            '# Parity E2E Workflow Status',
+            '',
+            `Generated: ${report.generated_at}`,
+            `Status: ${report.status}`,
+            '',
+            '## Provenance',
+            `- workflow: ${report.workflow}`,
+            `- run_id: ${report.source_run_id || '(missing)'}`,
+            `- head_sha: ${report.head_sha || '(missing)'}`,
+            `- workflow_run_url: ${report.workflow_run_url}`,
+            '',
+            '## Checks',
+            ...report.checks.map((check) => `- [${check.status === 'pass' ? 'x' : ' '}] ${check.id}: ${check.detail}`),
+          ].join('\n');
+          fs.writeFileSync(path.join(outDir, 'parity-e2e-latest.md'), `${md}\n`, 'utf8');
+          EOF
+
+      - name: Upload MCP/A2A compatibility artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-e2e-compat-status
+          path: |
+            docs/release/status/parity-e2e-latest.json
+            docs/release/status/parity-e2e-latest.md
+            docs/release/status/openhands-w01-task-plan-execute-latest.json
+            docs/release/status/openhands-w01-task-plan-execute-latest.md
+            docs/release/status/openhands-w02-issue-to-patch-latest.json
+            docs/release/status/openhands-w02-issue-to-patch-latest.md
+            docs/release/status/openhands-w03-multifile-refactor-latest.json
+            docs/release/status/openhands-w03-multifile-refactor-latest.md
+            docs/release/status/openhands-w04-resume-latest.json
+            docs/release/status/openhands-w04-resume-latest.md
+            docs/release/status/openhands-w05-clarification-latest.json
+            docs/release/status/openhands-w05-clarification-latest.md
+            docs/release/status/openhands-w06-approval-gate-latest.json
+            docs/release/status/openhands-w06-approval-gate-latest.md
+            docs/release/status/openhands-w07-retry-recovery-latest.json
+            docs/release/status/openhands-w07-retry-recovery-latest.md
+            docs/release/status/openhands-w08-compaction-fidelity-latest.json
+            docs/release/status/openhands-w08-compaction-fidelity-latest.md
+            docs/release/status/openhands-w09-policy-audit-latest.json
+            docs/release/status/openhands-w09-policy-audit-latest.md
+            docs/release/status/openhands-w10-observability-latest.json
+            docs/release/status/openhands-w10-observability-latest.md
+            docs/release/status/openhands-wave1-rollup-latest.json
+            docs/release/status/openhands-wave1-rollup-latest.md
+            docs/release/status/openhands-wave1-closeout-latest.json
+            docs/release/status/openhands-wave1-closeout-latest.md
+            docs/release/status/crewai-w01-role-task-crew-latest.json
+            docs/release/status/crewai-w01-role-task-crew-latest.md
+            docs/release/status/crewai-w02-sequential-handoff-latest.json
+            docs/release/status/crewai-w02-sequential-handoff-latest.md
+            docs/release/status/crewai-w03-manager-worker-latest.json
+            docs/release/status/crewai-w03-manager-worker-latest.md
+            docs/release/status/crewai-w04-shared-context-latest.json
+            docs/release/status/crewai-w04-shared-context-latest.md
+            docs/release/status/crewai-w05-specialist-tools-latest.json
+            docs/release/status/crewai-w05-specialist-tools-latest.md
+            docs/release/status/crewai-w06-human-checkpoint-latest.json
+            docs/release/status/crewai-w06-human-checkpoint-latest.md
+            docs/release/status/crewai-w07-delegated-retry-latest.json
+            docs/release/status/crewai-w07-delegated-retry-latest.md
+            docs/release/status/crewai-w08-crew-observability-latest.json
+            docs/release/status/crewai-w08-crew-observability-latest.md
+            docs/release/status/crewai-w09-crew-governance-latest.json
+            docs/release/status/crewai-w09-crew-governance-latest.md
+            docs/release/status/crewai-w10-template-packaging-latest.json
+            docs/release/status/crewai-w10-template-packaging-latest.md
+            docs/release/status/crewai-wave5-rollup-latest.json
+            docs/release/status/crewai-wave5-rollup-latest.md
+            docs/release/status/crewai-wave5-closeout-latest.json
+            docs/release/status/crewai-wave5-closeout-latest.md
+            docs/release/status/librechat-w01-model-provider-ux-latest.json
+            docs/release/status/librechat-w01-model-provider-ux-latest.md
+            docs/release/status/librechat-w02-mcp-tool-discovery-latest.json
+            docs/release/status/librechat-w02-mcp-tool-discovery-latest.md
+            docs/release/status/librechat-w03-operator-control-latest.json
+            docs/release/status/librechat-w03-operator-control-latest.md
+            docs/release/status/librechat-w04-session-portability-latest.json
+            docs/release/status/librechat-w04-session-portability-latest.md
+            docs/release/status/librechat-w05-command-ergonomics-latest.json
+            docs/release/status/librechat-w05-command-ergonomics-latest.md
+            docs/release/status/librechat-w06-tool-reliability-latest.json
+            docs/release/status/librechat-w06-tool-reliability-latest.md
+            docs/release/status/librechat-w07-tenant-boundary-latest.json
+            docs/release/status/librechat-w07-tenant-boundary-latest.md
+            docs/release/status/librechat-w08-operator-observability-latest.json
+            docs/release/status/librechat-w08-operator-observability-latest.md
+            docs/release/status/librechat-w09-handoff-continuation-latest.json
+            docs/release/status/librechat-w09-handoff-continuation-latest.md
+            docs/release/status/librechat-w10-enterprise-defaults-latest.json
+            docs/release/status/librechat-w10-enterprise-defaults-latest.md
+            docs/release/status/librechat-wave2-rollup-latest.json
+            docs/release/status/librechat-wave2-rollup-latest.md
+            docs/release/status/librechat-wave2-closeout-latest.json
+            docs/release/status/librechat-wave2-closeout-latest.md
+            docs/release/status/n8n-w01-workflow-orchestration-latest.json
+            docs/release/status/n8n-w01-workflow-orchestration-latest.md
+            docs/release/status/n8n-w02-trigger-scheduling-latest.json
+            docs/release/status/n8n-w02-trigger-scheduling-latest.md
+            docs/release/status/n8n-w03-webhook-trigger-latest.json
+            docs/release/status/n8n-w03-webhook-trigger-latest.md
+            docs/release/status/n8n-w04-retry-backoff-latest.json
+            docs/release/status/n8n-w04-retry-backoff-latest.md
+            docs/release/status/n8n-w05-failure-observability-latest.json
+            docs/release/status/n8n-w05-failure-observability-latest.md
+            docs/release/status/n8n-w06-template-catalog-latest.json
+            docs/release/status/n8n-w06-template-catalog-latest.md
+            docs/release/status/n8n-w07-mapping-branching-latest.json
+            docs/release/status/n8n-w07-mapping-branching-latest.md
+            docs/release/status/n8n-w08-approval-nodes-latest.json
+            docs/release/status/n8n-w08-approval-nodes-latest.md
+            docs/release/status/n8n-w09-integration-runtime-latest.json
+            docs/release/status/n8n-w09-integration-runtime-latest.md
+            docs/release/status/n8n-w10-workflow-ops-latest.json
+            docs/release/status/n8n-w10-workflow-ops-latest.md
+            docs/release/status/n8n-wave3-rollup-latest.json
+            docs/release/status/n8n-wave3-rollup-latest.md
+            docs/release/status/n8n-wave3-closeout-latest.json
+            docs/release/status/n8n-wave3-closeout-latest.md
+            docs/release/status/framework-w01-multi-agent-control-plane-latest.json
+            docs/release/status/framework-w01-multi-agent-control-plane-latest.md
+            docs/release/status/framework-w02-delegated-handoff-latest.json
+            docs/release/status/framework-w02-delegated-handoff-latest.md
+            docs/release/status/framework-w03-memory-profile-latest.json
+            docs/release/status/framework-w03-memory-profile-latest.md
+            docs/release/status/framework-w04-graph-state-latest.json
+            docs/release/status/framework-w04-graph-state-latest.md
+            docs/release/status/framework-w05-conflict-resolution-latest.json
+            docs/release/status/framework-w05-conflict-resolution-latest.md
+            docs/release/status/framework-w06-autonomous-loop-safety-latest.json
+            docs/release/status/framework-w06-autonomous-loop-safety-latest.md
+            docs/release/status/framework-w07-planner-audit-latest.json
+            docs/release/status/framework-w07-planner-audit-latest.md
+            docs/release/status/framework-w08-objective-resume-latest.json
+            docs/release/status/framework-w08-objective-resume-latest.md
+            docs/release/status/framework-w09-fleet-governance-latest.json
+            docs/release/status/framework-w09-fleet-governance-latest.md
+            docs/release/status/framework-w10-pattern-packaging-latest.json
+            docs/release/status/framework-w10-pattern-packaging-latest.md
+            docs/release/status/framework-wave4-rollup-latest.json
+            docs/release/status/framework-wave4-rollup-latest.md
+            docs/release/status/framework-wave4-closeout-latest.json
+            docs/release/status/framework-wave4-closeout-latest.md
+            docs/release/status/letta-w01-memory-block-lifecycle-latest.json
+            docs/release/status/letta-w01-memory-block-lifecycle-latest.md
+            docs/release/status/letta-w02-identity-profile-governance-latest.json
+            docs/release/status/letta-w02-identity-profile-governance-latest.md
+            docs/release/status/letta-w03-memory-scope-separation-latest.json
+            docs/release/status/letta-w03-memory-scope-separation-latest.md
+            docs/release/status/letta-w04-memory-write-gate-latest.json
+            docs/release/status/letta-w04-memory-write-gate-latest.md
+            docs/release/status/letta-w05-memory-retrieval-quality-latest.json
+            docs/release/status/letta-w05-memory-retrieval-quality-latest.md
+            docs/release/status/letta-w06-memory-maintenance-jobs-latest.json
+            docs/release/status/letta-w06-memory-maintenance-jobs-latest.md
+            docs/release/status/letta-w07-memory-inspection-ux-latest.json
+            docs/release/status/letta-w07-memory-inspection-ux-latest.md
+            docs/release/status/letta-w08-compaction-safeguards-latest.json
+            docs/release/status/letta-w08-compaction-safeguards-latest.md
+            docs/release/status/letta-w09-shared-memory-isolation-latest.json
+            docs/release/status/letta-w09-shared-memory-isolation-latest.md
+            docs/release/status/letta-w10-memory-packaging-latest.json
+            docs/release/status/letta-w10-memory-packaging-latest.md
+            docs/release/status/letta-wave6-rollup-latest.json
+            docs/release/status/letta-wave6-rollup-latest.md
+            docs/release/status/letta-wave6-closeout-latest.json
+            docs/release/status/letta-wave6-closeout-latest.md
+            docs/release/status/autogen-w01-agentchat-orchestration-latest.json
+            docs/release/status/autogen-w01-agentchat-orchestration-latest.md
+            docs/release/status/autogen-w02-team-lifecycle-latest.json
+            docs/release/status/autogen-w02-team-lifecycle-latest.md
+            docs/release/status/autogen-w03-speaker-selection-latest.json
+            docs/release/status/autogen-w03-speaker-selection-latest.md
+            docs/release/status/autogen-w04-hitl-checkpoints-latest.json
+            docs/release/status/autogen-w04-hitl-checkpoints-latest.md
+            docs/release/status/autogen-w05-team-tool-use-latest.json
+            docs/release/status/autogen-w05-team-tool-use-latest.md
+            docs/release/status/autogen-w06-code-execution-latest.json
+            docs/release/status/autogen-w06-code-execution-latest.md
+            docs/release/status/autogen-w07-retry-recovery-latest.json
+            docs/release/status/autogen-w07-retry-recovery-latest.md
+            docs/release/status/autogen-w08-transcript-observability-latest.json
+            docs/release/status/autogen-w08-transcript-observability-latest.md
+            docs/release/status/autogen-w09-team-policy-isolation-latest.json
+            docs/release/status/autogen-w09-team-policy-isolation-latest.md
+            docs/release/status/autogen-w10-team-packaging-latest.json
+            docs/release/status/autogen-w10-team-packaging-latest.md
+            docs/release/status/autogen-wave7-rollup-latest.json
+            docs/release/status/autogen-wave7-rollup-latest.md
+            docs/release/status/autogen-wave7-closeout-latest.json
+            docs/release/status/autogen-wave7-closeout-latest.md
+            docs/release/status/langgraph-w01-stateful-graph-orchestration-latest.json
+            docs/release/status/langgraph-w01-stateful-graph-orchestration-latest.md
+            docs/release/status/langgraph-w02-branch-routing-latest.json
+            docs/release/status/langgraph-w02-branch-routing-latest.md
+            docs/release/status/langgraph-w03-checkpoint-resume-latest.json
+            docs/release/status/langgraph-w03-checkpoint-resume-latest.md
+            docs/release/status/langgraph-w04-hitl-interrupt-latest.json
+            docs/release/status/langgraph-w04-hitl-interrupt-latest.md
+            docs/release/status/langgraph-w05-tool-node-policy-latest.json
+            docs/release/status/langgraph-w05-tool-node-policy-latest.md
+            docs/release/status/langgraph-w06-retry-recovery-edges-latest.json
+            docs/release/status/langgraph-w06-retry-recovery-edges-latest.md
+            docs/release/status/langgraph-w07-shared-context-latest.json
+            docs/release/status/langgraph-w07-shared-context-latest.md
+            docs/release/status/langgraph-w08-graph-observability-latest.json
+            docs/release/status/langgraph-w08-graph-observability-latest.md
+            docs/release/status/langgraph-w09-graph-policy-isolation-latest.json
+            docs/release/status/langgraph-w09-graph-policy-isolation-latest.md
+            docs/release/status/langgraph-w10-graph-packaging-latest.json
+            docs/release/status/langgraph-w10-graph-packaging-latest.md
+            docs/release/status/langgraph-wave8-rollup-latest.json
+            docs/release/status/langgraph-wave8-rollup-latest.md
+            docs/release/status/langgraph-wave8-closeout-latest.json
+            docs/release/status/langgraph-wave8-closeout-latest.md
+            docs/release/status/parity-all-waves-closeout-latest.json
+            docs/release/status/parity-all-waves-closeout-latest.md
+            docs/release/status/mcp-server-compat-latest.json
+            docs/release/status/mcp-server-compat-latest.md
+            docs/release/status/a2a-compat-latest.json
+            docs/release/status/a2a-compat-latest.md
+            docs/release/status/competitor-runtime-truth-latest.json
+            docs/release/status/competitor-runtime-truth-latest.md
+            docs/release/status/competitor-executable-smoke-latest.json
+            docs/release/status/competitor-executable-smoke-latest.md
+            docs/release/status/competitor-capability-proof-latest.json
+            docs/release/status/competitor-capability-proof-latest.md
+            docs/release/status/competitive-scorecard-latest.json
+            docs/release/status/competitive-scorecard-latest.md
+            docs/release/status/competitive-reproduction-program-completion-latest.json
+            docs/release/status/competitive-reproduction-program-completion-latest.md
+            docs/release/status/a2a-smoke-latest.json
+            docs/release/status/a2a-live-peer-evidence-latest.json
+
+      - name: Upload gateway log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-log-parity-e2e
+          path: gateway.log
+
+      - name: Stop gateway
+        if: always()
+        run: |
+          if [ -f gateway.pid ]; then kill $(cat gateway.pid) || true; fi
+          docker rm -f sven-nats || true

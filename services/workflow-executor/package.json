@@ -1,0 +1,24 @@
+{
+  "name": "workflow-executor",
+  "version": "0.1.0",
+  "description": "Sven Workflow Execution Engine",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "lint": "eslint src --ext .ts",
+    "test:data-shaping": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json && node --test test/data-shaping.test.cjs"
+  },
+  "dependencies": {
+    "nats": "^2.20.0",
+    "pg": "^8.11.0",
+    "nanoid": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/pg": "^8.11.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}

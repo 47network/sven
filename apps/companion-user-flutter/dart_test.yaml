@@ -1,0 +1,11 @@
+# dart_test.yaml — test runner configuration for companion-user-flutter.
+#
+# Tags defined here suppress the "tag was used that wasn't specified" warning.
+# See: https://pub.dev/packages/test#configuration
+
+tags:
+  golden:
+    description: >
+      Visual regression (golden file) tests.
+      Generated on Windows — skipped on Linux/macOS CI.
+      Regenerate baselines: flutter test test/golden_test.dart --update-goldens

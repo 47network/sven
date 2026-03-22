@@ -1,0 +1,50 @@
+/* ─── Sven Desktop · Design Tokens (always dark) ─── */
+:root {
+  color-scheme: dark;
+
+  /* Primitives */
+  --token-bg: #040712;
+  --token-bg-secondary: #0b1323;
+  --token-fg: #e8edf5;
+  --token-fg-muted: #7a91b0;
+  --token-border: #1f3050;
+  --token-accent: #00d9ff;
+  /* Sven cyan spark */
+  --token-accent-hover: #00b0cc;
+  --token-success: #34d399;
+  --token-warning: #f59e0b;
+  --token-danger: #ef4444;
+
+  /* Radius */
+  --token-radius-sm: 8px;
+  --token-radius-md: 12px;
+  --token-radius-lg: 16px;
+
+  /* Spacing */
+  --token-space-sm: 8px;
+  --token-space-md: 12px;
+  --token-space-lg: 16px;
+
+  /* Shadows */
+  --token-shadow-mid: 0 6px 20px rgba(4, 7, 18, 0.35);
+
+  /* Semantic aliases */
+  --bg: var(--token-bg);
+  --panel: #060e1c;
+  --panel-2: #0b1628;
+  --text: var(--token-fg);
+  --muted: var(--token-fg-muted);
+  --accent: var(--token-accent);
+  --warn: var(--token-warning);
+  --danger: var(--token-danger);
+  --ok: var(--token-success);
+
+  /* Layout */
+  --sidebar-w: 64px;
+  --header-h: 48px;
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}

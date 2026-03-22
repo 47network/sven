@@ -1,0 +1,11 @@
+{
+  "environment": "staging",
+  "required_secrets": [
+    "DATABASE_URL",
+    "COOKIE_SECRET",
+    "NATS_URL",
+    "OPENAI_API_KEY",
+    "TAURI_SIGNING_PRIVATE_KEY",
+    "TAURI_SIGNING_PRIVATE_KEY_PASSWORD"
+  ]
+}

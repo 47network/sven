@@ -1,0 +1,37 @@
+name: legacy-cleanup
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'docs/ops/electron-deprecation-*.md'
+      - 'docs/ops/runbook-index-2026.md'
+      - 'scripts/electron-deprecation-check.cjs'
+      - 'scripts/legacy-cleanup-check.cjs'
+      - '.github/workflows/legacy-cleanup.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Legacy cleanup gate
+        run: node scripts/legacy-cleanup-check.cjs --strict
+
+      - name: Upload legacy cleanup status
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-cleanup-status
+          path: |
+            docs/release/status/legacy-cleanup-latest.json
+            docs/release/status/legacy-cleanup-latest.md

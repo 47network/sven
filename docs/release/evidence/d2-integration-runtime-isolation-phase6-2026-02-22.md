@@ -1,0 +1,235 @@
+# D2 Integration Runtime Isolation - Phase 6 (2026-02-22)
+
+## Scope
+
+Tenant-scoped integration runtime foundation for org-isolated deployments and config/secrets separation.
+
+## Implemented
+
+- Database migration:
+  - `services/gateway-api/src/db/migrations/142_integration_runtime_isolation.sql`
+  - `services/gateway-api/src/db/rollbacks/142_integration_runtime_isolation.sql`
+  - New tables:
+    - `integration_runtime_instances`
+    - `integration_runtime_configs`
+    - `integration_runtime_secret_refs`
+
+- Admin runtime APIs:
+  - `GET /v1/admin/integrations/runtime`
+  - `GET /v1/admin/integrations/runtime/:integrationType`
+  - `PUT /v1/admin/integrations/runtime/:integrationType/config`
+  - `POST /v1/admin/integrations/runtime/:integrationType/deploy`
+  - `POST /v1/admin/integrations/runtime/:integrationType/stop`
+  - Route wired in admin router:
+    - `services/gateway-api/src/routes/admin/index.ts`
+    - `services/gateway-api/src/routes/admin/integration-runtime.ts`
+
+- Skill-runner org-scoped integration setting resolution:
+  - Settings are now read from `organization_settings` (derived by chat -> organization) before fallback to `settings_global` for:
+    - HA
+    - Frigate
+    - Spotify
+    - Sonos
+    - Shazam
+    - Obsidian
+    - Notion
+    - Trello
+    - X
+    - GIF providers (Giphy/Tenor)
+    - Search integration settings (`search.web`/`search.brave` safe-search/engine/key options)
+  - File: `services/skill-runner/src/index.ts`
+- Firecrawl fallback config resolution upgraded to support org scope:
+  - `services/skill-runner/src/web-fetch-firecrawl.ts` now accepts scoped settings loader
+  - `services/skill-runner/src/index.ts` wires loader using chat->org-scoped `organization_settings` fallback chain
+- Tenant-scoped allowlists foundation:
+  - Migration:
+    - `services/gateway-api/src/db/migrations/144_allowlists_org_scope.sql`
+    - `services/gateway-api/src/db/migrations/145_allowlists_org_backfill.sql`
+    - `services/gateway-api/src/db/rollbacks/144_allowlists_org_scope.sql`
+    - `services/gateway-api/src/db/rollbacks/145_allowlists_org_backfill.sql`
+  - Admin routes scoped by active org:
+    - `services/gateway-api/src/routes/admin/allowlists.ts`
+    - `services/gateway-api/src/routes/admin/web.ts`
+  - Added orphan repair endpoints in allowlist admin route:
+    - `GET /v1/admin/allowlists/orphans`
+    - `POST /v1/admin/allowlists/orphans/adopt-current-org` (requires `confirm=true`)
+  - Skill-runner allowlist usage scoped by chat/org:
+    - `services/skill-runner/src/index.ts` (`loadWebAllowlist`, `web.fetch`)
+    - `services/skill-runner/src/media-analysis.ts`
+  - Admin UI repair surface:
+    - `apps/admin-ui/src/lib/api.ts`
+    - `apps/admin-ui/src/lib/hooks.ts`
+    - `apps/admin-ui/src/app/integrations/page.tsx` (Legacy Allowlist Repair card)
+  - Additional runtime allowlist consumers migrated to org scope:
+    - `services/agent-runtime/src/chat-commands.ts` (research web-source allowlist)
+    - `services/agent-runtime/src/policy-engine.ts` (policy allowlist checks)
+    - `services/notification-service/src/index.ts` (HA automation allowlists)
+- Browser automation org scoping:
+    - Migration:
+      - `services/gateway-api/src/db/migrations/146_browser_profiles_org_scope.sql`
+      - `services/gateway-api/src/db/rollbacks/146_browser_profiles_org_scope.sql`
+    - Service-level org-scoped profile access + allowlist enforcement:
+      - `services/gateway-api/src/services/BrowserAutomationService.ts`
+    - Route-level org requirement for browser profile operations:
+      - `services/gateway-api/src/routes/browser-tools.ts`
+- Integration runtime execution path (local-first orchestrator):
+  - Added orchestrator service with opt-in command execution:
+    - `services/gateway-api/src/services/IntegrationRuntimeOrchestrator.ts`
+  - Deploy/stop runtime endpoints now run command hooks (when enabled), transition through `deploying`, and persist `error`/`running`/`stopped` states:
+    - `services/gateway-api/src/routes/admin/integration-runtime.ts`
+  - Catalog template deploy path now uses the same orchestrator flow and failure handling:
+    - `services/gateway-api/src/routes/admin/integrations-catalog.ts`
+  - Runtime execution controls:
+    - `SVEN_INTEGRATION_RUNTIME_EXEC_ENABLED=true` to enable command execution
+    - `SVEN_INTEGRATION_DEPLOY_CMD_TEMPLATE` / `SVEN_INTEGRATION_STOP_CMD_TEMPLATE` for generic command templates
+    - Optional per-integration command overrides:
+      - `SVEN_INTEGRATION_DEPLOY_CMD_<INTEGRATION_TYPE>`
+      - `SVEN_INTEGRATION_STOP_CMD_<INTEGRATION_TYPE>`
+- Runtime reconciliation loop (state drift detection + optional auto-heal):
+  - Added periodic reconciler:
+    - `services/gateway-api/src/services/IntegrationRuntimeReconciler.ts`
+  - Gateway startup/shutdown wiring:
+    - `services/gateway-api/src/index.ts`
+  - Added status probe hooks in orchestrator:
+    - `SVEN_INTEGRATION_STATUS_CMD_TEMPLATE`
+    - `SVEN_INTEGRATION_STATUS_CMD_<INTEGRATION_TYPE>`
+  - Reconciler controls:
+    - `SVEN_INTEGRATION_RUNTIME_RECONCILE_ENABLED=true`
+    - `SVEN_INTEGRATION_RUNTIME_RECONCILE_INTERVAL_MS` (default `60000`)
+    - `SVEN_INTEGRATION_RUNTIME_AUTOHEAL=true` (optional)
+  - Added test coverage for reconciler drift + auto-heal path:
+    - `services/gateway-api/src/__tests__/integration-runtime-reconciler.test.ts`
+    - verifies `running -> error -> running` transition when status probe fails and deploy hook succeeds
+- Added manual reconcile API for active account scope:
+  - `POST /v1/admin/integrations/runtime/reconcile`
+  - returns reconciliation report counters (`scanned`, `drift_detected`, `autoheal_*`, etc.)
+  - file: `services/gateway-api/src/routes/admin/integration-runtime.ts`
+  - Admin UI wiring:
+    - `apps/admin-ui/src/lib/api.ts` (`integrationRuntime.reconcile`)
+    - `apps/admin-ui/src/lib/hooks.ts` (`useReconcileIntegrationRuntime`)
+    - `apps/admin-ui/src/app/integrations/page.tsx` (`Reconcile runtimes` action with summary toast)
+- Environment wiring for runtime hooks/reconciliation:
+  - Gateway compose env passthrough added:
+    - `docker-compose.yml` (`gateway-api` environment)
+    - `SVEN_INTEGRATION_RUNTIME_EXEC_ENABLED`
+    - `SVEN_INTEGRATION_DEPLOY_CMD_TEMPLATE`
+    - `SVEN_INTEGRATION_STOP_CMD_TEMPLATE`
+    - `SVEN_INTEGRATION_STATUS_CMD_TEMPLATE`
+    - `SVEN_INTEGRATION_RUNTIME_RECONCILE_ENABLED`
+    - `SVEN_INTEGRATION_RUNTIME_RECONCILE_INTERVAL_MS`
+    - `SVEN_INTEGRATION_RUNTIME_AUTOHEAL`
+  - Environment templates updated:
+    - `config/env/.env.development.example`
+    - `config/env/.env.staging.example`
+    - `config/env/.env.production.example`
+  - Config governance check extended:
+    - `scripts/environment-config-check.cjs`
+    - strict run produced refreshed status artifacts:
+      - `docs/release/status/environment-config-latest.json`
+      - `docs/release/status/environment-config-latest.md`
+- Runtime hook readiness surfaced in API validation paths:
+  - `GET /v1/admin/integrations/runtime/:integrationType` now returns `runtime_hooks` readiness.
+  - `GET /v1/admin/integrations/catalog` now includes per-integration `runtime_hooks`.
+  - `GET /v1/admin/integrations/catalog/:integrationId/validate` now includes `runtime-hooks` check:
+    - pass when execution is disabled (DB-only mode), or
+    - pass when deploy/stop/status hooks are all configured for that runtime type.
+  - Files:
+    - `services/gateway-api/src/services/IntegrationRuntimeOrchestrator.ts`
+    - `services/gateway-api/src/routes/admin/integration-runtime.ts`
+    - `services/gateway-api/src/routes/admin/integrations-catalog.ts`
+- Tenant runtime isolation e2e now exercises API-level reconciliation endpoint in both account contexts:
+  - `services/gateway-api/src/__tests__/tenant-integration-runtime-isolation.e2e.ts`
+
+- Admin UI one-click runtime controls:
+  - Runtime API client + hooks added.
+  - Integrations page now shows runtime status and exposes deploy/stop actions for key integrations.
+  - Files:
+    - `apps/admin-ui/src/lib/api.ts`
+    - `apps/admin-ui/src/lib/hooks.ts`
+    - `apps/admin-ui/src/app/integrations/page.tsx`
+- Full supported-integration catalog linkage:
+  - New endpoint: `GET /v1/admin/integrations/catalog`
+  - Returns all code-supported integration families, linked tool coverage, required settings readiness, table-backed config counts, and runtime status.
+  - New template/setup endpoints:
+    - `POST /v1/admin/integrations/catalog/:integrationId/apply-template`
+    - `GET /v1/admin/integrations/catalog/:integrationId/validate`
+  - Admin Integrations page now includes an "All Supported Integrations (Code-Linked)" section with:
+    - deploy/stop actions for each runtime type
+    - one-click `Apply template` action (org-scoped config + optional runtime start)
+    - one-click `Validate` action (tools/settings/table/runtime checks)
+  - Files:
+    - `services/gateway-api/src/routes/admin/integrations-catalog.ts`
+    - `apps/admin-ui/src/lib/api.ts`
+    - `apps/admin-ui/src/lib/hooks.ts`
+    - `apps/admin-ui/src/app/integrations/page.tsx`
+- Integration library profiles (prebuilt install sets):
+  - New endpoints:
+    - `GET /v1/admin/integrations/catalog/library`
+    - `POST /v1/admin/integrations/catalog/library/:profileId/install`
+  - Profiles currently shipped:
+    - `recommended-local` (local-first starter pack)
+    - `full-ecosystem` (all code-linked integrations)
+  - Admin UI wiring:
+    - Integrations page adds one-click bulk install actions (`Install recommended stack`, `Install all supported`)
+    - MCP Servers page adds `Install starter pack` (installs local MCP preset + recommended integration profile)
+  - Files:
+    - `services/gateway-api/src/routes/admin/integrations-catalog.ts`
+    - `apps/admin-ui/src/lib/api.ts`
+    - `apps/admin-ui/src/lib/hooks.ts`
+    - `apps/admin-ui/src/app/integrations/page.tsx`
+    - `apps/admin-ui/src/app/mcp-servers/page.tsx`
+- Runtime auto-start on tool use:
+  - `skill-runner` now detects integration tool families and attempts runtime auto-start for stopped runtimes before tool execution.
+  - Controlled by setting key `integrations.runtime.auto_start_on_tool_use` (org/global fallback, default enabled).
+  - Integrations page now exposes one-click enable/disable controls for this setting.
+  - Auto-start lifecycle now emits structured assistant `tool_card` status blocks in chat for integration runtime boot (`running`, then `success`/`error`) to make startup progress visible to end-users.
+  - Added org-scoped runtime boot events API + operator UI feed:
+    - `GET /v1/admin/integrations/runtime/boot-events?limit=N`
+    - Admin Integrations `Integration Boot Queue` panel surfaces recent boot lifecycle events and links to source chats.
+    - Added in-panel recovery actions:
+      - `Retry deploy` (invokes runtime deploy action for the event integration)
+      - `Jump to row` (focus integration entry in supported catalog table)
+  - Added triage filters end-to-end:
+    - API query params: `status`, `integration_type`, `chat_id`, `limit`
+    - Admin UI filter controls wired to server-side query.
+  - Added e2e verification for boot events endpoint/filter behavior:
+    - `services/gateway-api/src/__tests__/integration-runtime-boot-events.e2e.ts`
+  - Files:
+    - `services/skill-runner/src/index.ts`
+    - `services/gateway-api/src/routes/admin/integration-runtime.ts`
+    - `apps/admin-ui/src/lib/api.ts`
+    - `apps/admin-ui/src/lib/hooks.ts`
+    - `apps/admin-ui/src/app/integrations/page.tsx`
+
+## Validation
+
+- `pnpm --dir services/gateway-api run build` succeeded.
+- `pnpm --dir services/skill-runner run build` succeeded.
+- `pnpm --dir apps/admin-ui run build` succeeded.
+- `pnpm --dir apps/admin-ui run typecheck` succeeded.
+- `pnpm --dir services/gateway-api run build` succeeded (post-library-profile additions).
+- `pnpm --dir services/gateway-api run test -- --runInBand src/__tests__/tenant-integration-runtime-isolation.e2e.ts` succeeded (post-library-profile additions).
+- `pnpm --dir services/skill-runner run build` succeeded (post auto-start additions).
+- `pnpm --dir services/gateway-api run test -- --runInBand src/__tests__/integration-runtime-boot-events.e2e.ts` succeeded.
+- `pnpm --dir services/gateway-api run test -- --runInBand src/__tests__/browser-tools.e2e.ts` succeeded.
+- `pnpm --dir services/gateway-api run test -- --runInBand src/__tests__/tenant-integration-runtime-isolation.e2e.ts` succeeded.
+- `pnpm --dir services/gateway-api run test -- --runInBand src/__tests__/integration-runtime-orchestrator.test.ts` succeeded.
+- `pnpm --dir services/gateway-api run test -- --runInBand src/__tests__/integration-runtime-reconciler.test.ts` succeeded.
+- `node scripts/environment-config-check.cjs --strict` succeeded.
+- `pnpm --dir services/gateway-api run test -- --runInBand src/__tests__/integration-runtime-orchestrator.test.ts src/__tests__/integration-runtime-reconciler.test.ts src/__tests__/tenant-integration-runtime-isolation.e2e.ts src/__tests__/browser-tools.e2e.ts` succeeded.
+- `pnpm --dir apps/admin-ui run typecheck` succeeded.
+
+## Runtime Isolation E2E Coverage
+
+- Added dedicated cross-tenant runtime isolation test:
+  - `services/gateway-api/src/__tests__/tenant-integration-runtime-isolation.e2e.ts`
+- Verifies:
+  - account A runtime config/deploy state is visible in A
+  - account B cannot list/view/stop account A runtime instance
+  - account B receives empty runtime config/instance for same integration type
+  - switching back to A preserves A runtime instance/state
+
+## Remaining Work
+
+- Runtime command templates/overrides still need per-integration concrete values in deployed environments (currently wired as configurable templates/placeholders).
+- Runtime reconciliation e2e coverage via live API process + real status/deploy hook scripts (not test-process hooks) is pending.

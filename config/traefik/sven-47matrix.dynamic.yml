@@ -1,0 +1,51 @@
+http:
+  routers:
+    sven-installers:
+      rule: Host(`sven.47matrix.online`)
+      entryPoints:
+        - web
+      service: sven-installers-svc
+      middlewares:
+        - installer-ratelimit
+
+    sven-glyph-api:
+      rule: Host(`sven.glyph.47matrix.online`) && (PathPrefix(`/v1`) || Path(`/healthz`) || Path(`/readyz`))
+      entryPoints:
+        - web
+      service: sven-gateway-svc
+
+    sven-glyph-canvas:
+      rule: Host(`sven.glyph.47matrix.online`) && PathPrefix(`/canvas`)
+      entryPoints:
+        - web
+      service: sven-canvas-svc
+
+    sven-glyph-ui:
+      rule: Host(`sven.glyph.47matrix.online`)
+      entryPoints:
+        - web
+      service: sven-admin-svc
+
+  services:
+    sven-installers-svc:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8089"
+    sven-gateway-svc:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:3000"
+    sven-admin-svc:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:3002"
+    sven-canvas-svc:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:3003"
+
+  middlewares:
+    installer-ratelimit:
+      rateLimit:
+        average: 30
+        burst: 20

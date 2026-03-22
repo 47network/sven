@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-03-16T16:54:54.799Z",
+  "status": "pass",
+  "target_base_url": "https://app.sven.example.com",
+  "checks": [
+    {
+      "id": "legal_host_dns_resolves",
+      "pass": true,
+      "detail": "app.sven.example.com -> 82.137.24.36/IPv4"
+    },
+    {
+      "id": "legal_host_tcp_443_reachable",
+      "pass": true,
+      "detail": "app.sven.example.com reachable (target port)"
+    },
+    {
+      "id": "legal_host_tcp_80_reachable",
+      "pass": true,
+      "detail": "app.sven.example.com:80 reachable"
+    },
+    {
+      "id": "privacy_url_http_2xx_or_3xx",
+      "pass": true,
+      "detail": "https://app.sven.example.com/privacy -> 200 (HEAD)"
+    },
+    {
+      "id": "terms_url_http_2xx_or_3xx",
+      "pass": true,
+      "detail": "https://app.sven.example.com/terms -> 200 (HEAD)"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-03-21T02:11:45.480Z",
+  "api_base": "https://app.sven.systems:44747",
+  "run_id": "",
+  "head_sha": "",
+  "status": "fail",
+  "checks": [
+    {
+      "id": "unauth_denied:/v1/admin/approvals?status=pending&per_page=5",
+      "pass": false,
+      "detail": "fetch failed"
+    },
+    {
+      "id": "forged_session_denied:/v1/admin/approvals?status=pending&per_page=5",
+      "pass": false,
+      "detail": "fetch failed"
+    },
+    {
+      "id": "unauth_denied:/v1/admin/runs?per_page=5",
+      "pass": false,
+      "detail": "fetch failed"
+    },
+    {
+      "id": "forged_session_denied:/v1/admin/runs?per_page=5",
+      "pass": false,
+      "detail": "fetch failed"
+    },
+    {
+      "id": "unauth_denied:/v1/admin/incident/status",
+      "pass": false,
+      "detail": "fetch failed"
+    },
+    {
+      "id": "forged_session_denied:/v1/admin/incident/status",
+      "pass": false,
+      "detail": "fetch failed"
+    },
+    {
+      "id": "unauth_denied:/v1/admin/performance/metrics/summary",
+      "pass": false,
+      "detail": "fetch failed"
+    },
+    {
+      "id": "forged_session_denied:/v1/admin/performance/metrics/summary",
+      "pass": false,
+      "detail": "fetch failed"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+name: ops-shell-ci
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/ops/**'
+      - 'deploy/quickstart/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/ops-shell-ci.yml'
+      - 'package.json'
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'scripts/ops/**'
+      - 'deploy/quickstart/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/ops-shell-ci.yml'
+      - 'package.json'
+
+jobs:
+  shell-ops:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run shell ops checks
+        run: sh scripts/ops/sh/ci-check.sh

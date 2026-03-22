@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-api
+  labels:
+    app.kubernetes.io/name: gateway-api
+    app.kubernetes.io/part-of: sven
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gateway-api
+        app.kubernetes.io/part-of: sven
+    spec:
+      containers:
+        - name: gateway-api
+          image: ghcr.io/47network/thesven-gateway-api:RELEASE_TAG
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: sven-app-config
+            - secretRef:
+                name: sven-app-secrets
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-api
+spec:
+  selector:
+    app.kubernetes.io/name: gateway-api
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: gateway-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: gateway-api
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: gateway-api
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway-api

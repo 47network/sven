@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "description": "Path scope that requires ops-shell-ci enforcement in release gates.",
+  "path_globs": [
+    "scripts/ops/**/*.sh",
+    "scripts/ops/**/*.ps1",
+    "scripts/ops/**/*.cjs",
+    "scripts/ops/**/*.js",
+    "scripts/ops/**/*.md",
+    ".github/workflows/ops-shell-ci.yml"
+  ]
+}

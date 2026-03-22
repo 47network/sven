@@ -1,0 +1,20 @@
+# Copy this file to android/key.properties and fill in your keystore details.
+# NEVER commit key.properties — it is .gitignored.
+#
+# Generate a new release keystore with:
+#   keytool -genkey -v \
+#     -keystore release.keystore \
+#     -alias sven \
+#     -keyalg RSA -keysize 2048 \
+#     -validity 10000
+#
+# For CI, base64-encode the keystore file and store via GitHub Secrets:
+#   base64 -w0 release.keystore   # Linux / macOS
+#   [Convert]::ToBase64String([IO.File]::ReadAllBytes('release.keystore'))  # PowerShell
+# Then set the four secrets: KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+
+storePassword=<YOUR_STORE_PASSWORD>
+keyPassword=<YOUR_KEY_PASSWORD>
+keyAlias=<YOUR_KEY_ALIAS>
+# Path is relative to android/app/  (or use an absolute path)
+storeFile=release.keystore

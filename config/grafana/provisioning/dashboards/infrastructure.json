@@ -1,0 +1,564 @@
+{
+  "uid": "sven-infrastructure",
+  "title": "Sven Infrastructure",
+  "tags": ["sven", "infrastructure", "nodes"],
+  "timezone": "Europe/Bucharest",
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "title": "VM Overview",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "title": "CPU Usage %",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red", "value": 85 }
+            ]
+          },
+          "custom": { "fillOpacity": 15, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "title": "Memory Usage %",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 75 },
+              { "color": "red", "value": 90 }
+            ]
+          },
+          "custom": { "fillOpacity": 15, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "title": "Disk Usage %",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red", "value": 85 }
+            ]
+          },
+          "custom": { "fillOpacity": 15, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "(1 - node_filesystem_avail_bytes{mountpoint=\"/\",fstype!=\"tmpfs\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!=\"tmpfs\"}) * 100",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    },
+    {
+      "title": "Network Traffic",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": { "fillOpacity": 10, "lineWidth": 1 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(node_network_receive_bytes_total{device!~\"lo|veth.*|br-.*|docker.*\"}[5m])",
+          "legendFormat": "{{instance}} rx {{device}}"
+        },
+        {
+          "expr": "-rate(node_network_transmit_bytes_total{device!~\"lo|veth.*|br-.*|docker.*\"}[5m])",
+          "legendFormat": "{{instance}} tx {{device}}"
+        }
+      ]
+    },
+    {
+      "title": "Disk I/O",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": { "fillOpacity": 10, "lineWidth": 1 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(node_disk_read_bytes_total{device!~\"dm-.*\"}[5m])",
+          "legendFormat": "{{instance}} read {{device}}"
+        },
+        {
+          "expr": "-rate(node_disk_written_bytes_total{device!~\"dm-.*\"}[5m])",
+          "legendFormat": "{{instance}} write {{device}}"
+        }
+      ]
+    },
+    {
+      "title": "System Load (1m / 5m / 15m)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "node_load1",
+          "legendFormat": "{{instance}} 1m"
+        },
+        {
+          "expr": "node_load5",
+          "legendFormat": "{{instance}} 5m"
+        },
+        {
+          "expr": "node_load15",
+          "legendFormat": "{{instance}} 15m"
+        }
+      ]
+    },
+    {
+      "title": "PostgreSQL",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
+      "collapsed": false
+    },
+    {
+      "title": "Active Connections by State",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 26 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 30, "lineWidth": 1, "stacking": { "mode": "normal" } }
+        }
+      },
+      "targets": [
+        {
+          "expr": "pg_stat_activity_count",
+          "legendFormat": "{{datname}} ({{state}})"
+        }
+      ]
+    },
+    {
+      "title": "Database Size",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 26 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "decbytes",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5368709120 },
+              { "color": "red", "value": 10737418240 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "pg_database_size_bytes{datname=~\"sven|sven_litellm\"}",
+          "legendFormat": "{{datname}}"
+        }
+      ],
+      "options": { "colorMode": "background", "textMode": "auto" }
+    },
+    {
+      "title": "Cache Hit Ratio",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 26 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.9 },
+              { "color": "green", "value": 0.99 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "pg_stat_database_blks_hit{datname=\"sven\"} / (pg_stat_database_blks_hit{datname=\"sven\"} + pg_stat_database_blks_read{datname=\"sven\"})",
+          "legendFormat": "sven"
+        }
+      ]
+    },
+    {
+      "title": "Transactions/s",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 30 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": { "fillOpacity": 10, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(pg_stat_database_xact_commit{datname=\"sven\"}[5m])",
+          "legendFormat": "commits/s"
+        },
+        {
+          "expr": "rate(pg_stat_database_xact_rollback{datname=\"sven\"}[5m])",
+          "legendFormat": "rollbacks/s"
+        }
+      ]
+    },
+    {
+      "title": "Tuple Operations/s",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 30 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": { "fillOpacity": 10, "lineWidth": 1 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(pg_stat_database_tup_inserted{datname=\"sven\"}[5m])",
+          "legendFormat": "inserts/s"
+        },
+        {
+          "expr": "rate(pg_stat_database_tup_updated{datname=\"sven\"}[5m])",
+          "legendFormat": "updates/s"
+        },
+        {
+          "expr": "rate(pg_stat_database_tup_deleted{datname=\"sven\"}[5m])",
+          "legendFormat": "deletes/s"
+        },
+        {
+          "expr": "rate(pg_stat_database_tup_fetched{datname=\"sven\"}[5m])",
+          "legendFormat": "fetches/s"
+        }
+      ]
+    },
+    {
+      "title": "Deadlocks & Locks",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 34 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "increase(pg_stat_database_deadlocks{datname=\"sven\"}[5m])",
+          "legendFormat": "deadlocks/5m"
+        },
+        {
+          "expr": "pg_locks_count",
+          "legendFormat": "{{datname}} {{mode}}"
+        }
+      ]
+    },
+    {
+      "title": "NATS & JetStream",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 },
+      "collapsed": false
+    },
+    {
+      "title": "NATS Server",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 43 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "CPU %" },
+            "properties": [{ "id": "unit", "value": "percent" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Memory" },
+            "properties": [{ "id": "unit", "value": "decbytes" }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "gnatsd_varz_connections",
+          "legendFormat": "Connections"
+        },
+        {
+          "expr": "gnatsd_varz_cpu",
+          "legendFormat": "CPU %"
+        },
+        {
+          "expr": "gnatsd_varz_mem",
+          "legendFormat": "Memory"
+        }
+      ],
+      "options": { "colorMode": "background", "textMode": "auto" }
+    },
+    {
+      "title": "JetStream Streams & Consumers",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 43 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "blue", "value": null }]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "jetstream_server_total_streams",
+          "legendFormat": "Streams"
+        },
+        {
+          "expr": "jetstream_server_total_consumers",
+          "legendFormat": "Consumers"
+        },
+        {
+          "expr": "jetstream_server_total_messages",
+          "legendFormat": "Total Messages"
+        }
+      ],
+      "options": { "colorMode": "background", "textMode": "auto" }
+    },
+    {
+      "title": "JetStream Storage",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 43 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "decbytes",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1073741824 },
+              { "color": "red", "value": 5368709120 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "jetstream_server_total_message_bytes",
+          "legendFormat": "Message Bytes"
+        },
+        {
+          "expr": "jetstream_server_max_storage",
+          "legendFormat": "Max Storage"
+        }
+      ],
+      "options": { "colorMode": "background", "textMode": "auto" }
+    },
+    {
+      "title": "NATS Message Throughput",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 47 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "fillOpacity": 15, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(gnatsd_varz_in_msgs[5m])",
+          "legendFormat": "msgs in/s"
+        },
+        {
+          "expr": "rate(gnatsd_varz_out_msgs[5m])",
+          "legendFormat": "msgs out/s"
+        }
+      ]
+    },
+    {
+      "title": "JetStream Consumer Pending",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 47 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 2 },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1000 },
+              { "color": "red", "value": 10000 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "jetstream_consumer_num_pending",
+          "legendFormat": "{{stream}} / {{consumer}}"
+        }
+      ]
+    },
+    {
+      "title": "JetStream Stream Messages",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 55 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "jetstream_stream_total_messages",
+          "legendFormat": "{{stream}}"
+        }
+      ]
+    },
+    {
+      "title": "NATS Data Throughput",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 55 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": { "fillOpacity": 10, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(gnatsd_varz_in_bytes[5m])",
+          "legendFormat": "bytes in/s"
+        },
+        {
+          "expr": "rate(gnatsd_varz_out_bytes[5m])",
+          "legendFormat": "bytes out/s"
+        }
+      ]
+    },
+    {
+      "title": "Prometheus & Monitoring",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 63 },
+      "collapsed": false
+    },
+    {
+      "title": "Scrape Targets Status",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 64 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "up",
+          "legendFormat": "{{job}} ({{instance}})"
+        }
+      ],
+      "options": { "colorMode": "background", "textMode": "auto" }
+    },
+    {
+      "title": "Prometheus Scrape Duration",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 64 },
+      "datasource": { "uid": "PBFA97CFB590B2093", "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "fillOpacity": 10, "lineWidth": 1 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "scrape_duration_seconds",
+          "legendFormat": "{{job}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true
+}

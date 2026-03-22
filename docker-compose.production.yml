@@ -1,0 +1,198 @@
+services:
+  egress-proxy:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+
+  nats:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  postgres:
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2G
+
+  gateway-api:
+    environment:
+      NODE_ENV: production
+      SVEN_DEPLOYMENT_MODE: production
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 1G
+
+  otel-collector:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  prometheus:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 1G
+
+  grafana:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  ollama:
+    deploy:
+      resources:
+        limits:
+          cpus: "4.00"
+          memory: 8G
+
+  agent-runtime:
+    environment:
+      NODE_ENV: production
+      SVEN_DEPLOYMENT_MODE: production
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  skill-runner:
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 1G
+
+  registry-worker:
+    environment:
+      NODE_ENV: production
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 512M
+
+  notification-service:
+    environment:
+      NODE_ENV: production
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  piper:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 1G
+
+  opensearch:
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2G
+
+  rag-indexer:
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 1G
+
+  rag-notes-ingestor:
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  rag-nas-ingestor:
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  rag-git-ingestor:
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  searxng:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  sven-internal-nginx:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+
+  wake-word:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M
+
+  faster-whisper:
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2G
+
+  workflow-executor:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 768M

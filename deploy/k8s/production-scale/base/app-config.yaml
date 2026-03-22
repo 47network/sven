@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sven-app-config
+data:
+  ENVIRONMENT: "production"
+  NODE_ENV: "production"
+  SVEN_DEPLOYMENT_MODE: "production-scale"
+  GATEWAY_PORT: "3000"
+  CORS_ORIGIN: "https://sven.systems"
+  SVEN_PUBLIC_BASE_URL: "https://sven.systems"
+  SVEN_ADMIN_BASE_URL: "https://admin.sven.systems"
+  OLLAMA_URL: "http://ollama-inference.sven.svc.cluster.local:11434"
+  OPENSEARCH_URL: "https://opensearch.example.internal:9200"
+  SEARXNG_URL: "https://search.example.internal"
+  SVEN_STORAGE_ROOT: "s3://replace-with-artifact-bucket/sven/artifacts"
+  ARTIFACT_STORAGE_ROOT: "s3://replace-with-artifact-bucket/sven/artifacts"

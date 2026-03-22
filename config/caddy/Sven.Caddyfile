@@ -1,0 +1,49 @@
+# Sven Caddy ingress (HTTP upstreams) for sven.glyph.47matrix.online.
+# Use when Caddy is your ingress instead of nginx/traefik.
+#
+# Scope:
+# - runtime host only (`app`-style surface)
+# - this file does not model the separate static release host for landing/suite/installers
+# - keep the installer/suite host on a dedicated static host or separate Caddy site
+#
+# Service targets:
+# - gateway-api: 127.0.0.1:3000
+# - admin-ui:    127.0.0.1:3100
+# - canvas-ui:   127.0.0.1:3200
+
+sven.glyph.47matrix.online {
+	encode gzip zstd
+
+	@api path /v1/*
+	handle @api {
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	@health path /healthz /readyz
+	handle @health {
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	@manifest path /manifest.json
+	handle @manifest {
+		reverse_proxy 127.0.0.1:3200
+	}
+
+	@canvas_legacy path /canvas /canvas/*
+	redir @canvas_legacy / 301
+
+	@admin path /admin47 /admin47/*
+	handle @admin {
+		# Optional admin lockdown at Sven ingress layer:
+		# @admin_allowed remote_ip 203.0.113.10 10.8.0.0/24
+		# handle @admin_allowed {
+		# 	reverse_proxy 127.0.0.1:3100
+		# }
+		# respond "forbidden" 403
+		reverse_proxy 127.0.0.1:3100
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3200
+	}
+}

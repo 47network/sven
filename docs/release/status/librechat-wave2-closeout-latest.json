@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-03-16T02:21:47.648Z",
+  "status": "pass",
+  "passed": 5,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "librechat_wave2_rollup_status_pass",
+      "pass": true,
+      "detail": "rollup_status=pass"
+    },
+    {
+      "id": "librechat_wave2_rollup_lanes_complete",
+      "pass": true,
+      "detail": "lanes_pass=10/10"
+    },
+    {
+      "id": "librechat_wave2_matrix_rows_implemented",
+      "pass": true,
+      "detail": "Wave 2 matrix rows LC-W01..LC-W10 are present with implemented state anchors"
+    },
+    {
+      "id": "librechat_wave2_aliases_present",
+      "pass": true,
+      "detail": "package.json exposes LibreChat Wave 2 lane/rollup/closeout aliases"
+    },
+    {
+      "id": "librechat_wave2_ci_binding_present",
+      "pass": true,
+      "detail": "parity-e2e workflow binds LibreChat Wave 2 closeout execution and artifact upload"
+    }
+  ]
+}

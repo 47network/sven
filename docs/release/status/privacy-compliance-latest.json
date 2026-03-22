@@ -1,0 +1,54 @@
+{
+  "generated_at": "2026-02-14T01:08:32.177Z",
+  "started_at": "2026-02-14T01:08:31.639Z",
+  "api_base": "https://app.sven.example.com",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "retention_policy_available",
+      "pass": true,
+      "status": 200
+    },
+    {
+      "id": "export_request_create",
+      "pass": true,
+      "status": 202
+    },
+    {
+      "id": "export_request_status_fetch",
+      "pass": true,
+      "status": 200
+    },
+    {
+      "id": "deletion_request_create",
+      "pass": true,
+      "status": 202
+    },
+    {
+      "id": "deletion_request_approve",
+      "pass": true,
+      "status": 200
+    },
+    {
+      "id": "deletion_request_execute",
+      "pass": true,
+      "status": 200
+    },
+    {
+      "id": "pii_detection",
+      "pass": true,
+      "status": 200
+    },
+    {
+      "id": "redaction_endpoint",
+      "pass": true,
+      "status": 200
+    },
+    {
+      "id": "audit_log_sanitized",
+      "pass": true,
+      "status": 200
+    }
+  ],
+  "failures": []
+}

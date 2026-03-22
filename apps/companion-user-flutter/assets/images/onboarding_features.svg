@@ -1,0 +1,34 @@
+<!-- Onboarding page 2 — "Powerful Features" — stylised chat bubble stack -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="320" height="240">
+    <defs>
+        <linearGradient id="bubbleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00D9FF" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#00FFA3" stop-opacity="0.2"/>
+        </linearGradient>
+        <linearGradient id="bubbleStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00D9FF"/>
+            <stop offset="100%" stop-color="#00FFA3"/>
+        </linearGradient>
+    </defs>
+    <!-- User bubble (right-aligned) -->
+    <rect x="140" y="28" width="148" height="44" rx="22" ry="22" fill="url(#bubbleGrad)" stroke="url(#bubbleStroke)" stroke-width="1.2" opacity="0.85"/>
+    <rect x="156" y="42" width="80" height="8" rx="4" fill="#00D9FF" opacity="0.5"/>
+    <rect x="156" y="54" width="52" height="6" rx="3" fill="#00FFA3" opacity="0.35"/>
+    <!-- Tail -->
+    <path d="M288 72 L298 82 L278 78 Z" fill="url(#bubbleGrad)" stroke="url(#bubbleStroke)" stroke-width="1"/>
+    <!-- Assistant bubble (left-aligned) -->
+    <rect x="30" y="98" width="200" height="56" rx="22" ry="22" fill="url(#bubbleGrad)" stroke="url(#bubbleStroke)" stroke-width="1.2" opacity="0.9"/>
+    <rect x="52" y="113" width="112" height="8" rx="4" fill="#00D9FF" opacity="0.5"/>
+    <rect x="52" y="126" width="88" height="6" rx="3" fill="#00FFA3" opacity="0.35"/>
+    <rect x="52" y="138" width="56" height="6" rx="3" fill="#00D9FF" opacity="0.25"/>
+    <!-- Tail -->
+    <path d="M32 154 L22 166 L42 162 Z" fill="url(#bubbleGrad)" stroke="url(#bubbleStroke)" stroke-width="1"/>
+    <!-- Second user bubble -->
+    <rect x="180" y="176" width="108" height="40" rx="20" ry="20" fill="url(#bubbleGrad)" stroke="url(#bubbleStroke)" stroke-width="1.2" opacity="0.7"/>
+    <rect x="196" y="190" width="64" height="7" rx="3.5" fill="#00D9FF" opacity="0.45"/>
+    <rect x="196" y="201" width="40" height="5" rx="2.5" fill="#00FFA3" opacity="0.3"/>
+    <!-- Decorative dots — typing indicator -->
+    <circle cx="56" cy="210" r="5" fill="#00D9FF" opacity="0.5"/>
+    <circle cx="72" cy="210" r="5" fill="#00D9FF" opacity="0.35"/>
+    <circle cx="88" cy="210" r="5" fill="#00D9FF" opacity="0.2"/>
+</svg>

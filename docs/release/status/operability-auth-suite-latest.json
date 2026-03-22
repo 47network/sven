@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-03-21T02:10:21.373Z",
+  "status": "fail",
+  "checks": [
+    {
+      "id": "privacy_compliance_valid_json",
+      "pass": true,
+      "detail": "docs/release/status/privacy-compliance-latest.json"
+    },
+    {
+      "id": "privacy_compliance_status_pass",
+      "pass": true,
+      "detail": "status=pass"
+    },
+    {
+      "id": "privacy_compliance_fresh",
+      "pass": false,
+      "detail": "841.03h > 72h"
+    },
+    {
+      "id": "privacy_compliance_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "performance_capacity_valid_json",
+      "pass": true,
+      "detail": "docs/release/status/performance-capacity-latest.json"
+    },
+    {
+      "id": "performance_capacity_status_pass",
+      "pass": false,
+      "detail": "status=fail"
+    },
+    {
+      "id": "performance_capacity_fresh",
+      "pass": false,
+      "detail": "634.98h > 72h"
+    },
+    {
+      "id": "performance_capacity_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "observability_operability_valid_json",
+      "pass": true,
+      "detail": "docs/release/status/observability-operability-latest.json"
+    },
+    {
+      "id": "observability_operability_status_pass",
+      "pass": true,
+      "detail": "status=pass"
+    },
+    {
+      "id": "observability_operability_fresh",
+      "pass": false,
+      "detail": "840.68h > 72h"
+    },
+    {
+      "id": "observability_operability_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    }
+  ]
+}

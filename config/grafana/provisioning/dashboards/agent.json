@@ -1,0 +1,132 @@
+{
+  "title": "Sven Agent Dashboard",
+  "tags": [
+    "sven",
+    "agent",
+    "llm"
+  ],
+  "timezone": "Europe/Bucharest",
+  "panels": [
+    {
+      "title": "LLM Requests / min",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "rate(llm_requests_total{job=\"agent-runtime\"}[5m]) * 60",
+          "legendFormat": "{{model}}"
+        }
+      ]
+    },
+    {
+      "title": "LLM Latency p50 / p95 / p99",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(llm_request_duration_seconds_bucket{job=\"agent-runtime\"}[5m]))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(llm_request_duration_seconds_bucket{job=\"agent-runtime\"}[5m]))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, rate(llm_request_duration_seconds_bucket{job=\"agent-runtime\"}[5m]))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "title": "Token Usage (Input / Output)",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(llm_tokens_input_total{job=\"agent-runtime\"}[5m]) * 60",
+          "legendFormat": "input {{model}}"
+        },
+        {
+          "expr": "rate(llm_tokens_output_total{job=\"agent-runtime\"}[5m]) * 60",
+          "legendFormat": "output {{model}}"
+        }
+      ]
+    },
+    {
+      "title": "Tool Calls / min",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(tool_calls_total{job=\"agent-runtime\"}[5m]) * 60",
+          "legendFormat": "{{tool}}"
+        }
+      ]
+    },
+    {
+      "title": "Self-Corrections / min",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "targets": [
+        {
+          "expr": "rate(self_corrections_total{job=\"agent-runtime\"}[5m]) * 60",
+          "legendFormat": "{{error_class}}"
+        }
+      ]
+    },
+    {
+      "title": "Budget Usage ($)",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "expr": "llm_budget_used_dollars",
+          "legendFormat": "Used"
+        },
+        {
+          "expr": "llm_budget_limit_dollars",
+          "legendFormat": "Limit"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "textMode": "auto"
+      }
+    }
+  ],
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "refresh": "30s"
+}

@@ -1,0 +1,163 @@
+name: final-dod-e2e
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'services/gateway-api/**'
+      - '.github/workflows/final-dod-e2e.yml'
+  pull_request:
+    paths:
+      - 'services/gateway-api/**'
+      - '.github/workflows/final-dod-e2e.yml'
+
+jobs:
+  final-dod:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: sven
+          POSTGRES_USER: sven
+          POSTGRES_PASSWORD: sven
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U sven -d sven"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: postgresql://sven:sven@localhost:5432/sven
+      NATS_URL: nats://localhost:4222
+      COOKIE_SECRET: ci-cookie-secret-2026-final-dod-e2e-very-strong
+      GATEWAY_PORT: '3001'
+      GATEWAY_HOST: '127.0.0.1'
+      SVEN_MIGRATION_ID_MODE: text
+      RUN_LIVE_GATEWAY_E2E: 'true'
+      API_URL: http://127.0.0.1:3001
+      RELEASE_AUTH_USERNAME: release-admin
+      RELEASE_AUTH_PASSWORD: release-admin-pass
+      RELEASE_AUTH_BOOTSTRAP_IF_EMPTY: '1'
+      RELEASE_AUTH_BOOTSTRAP_ENABLE_TOTP: '0'
+      FINAL_DOD_E2E_REQUIRED: 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Start NATS (JetStream)
+        run: |
+          docker run -d --name sven-nats -p 4222:4222 -p 8222:8222 nats:2.10 -js
+          for i in {1..20}; do
+            if bash -c ">/dev/tcp/127.0.0.1/4222" 2>/dev/null; then
+              echo "NATS is reachable"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "NATS failed to start" >&2
+          docker logs sven-nats || true
+          exit 1
+
+      - name: Build shared package
+        run: npm run --workspace packages/shared build
+
+      - name: Build gateway
+        run: npm run --workspace services/gateway-api build
+
+      - name: Run migrations
+        run: npm run --workspace services/gateway-api db:migrate
+
+      - name: Start gateway API
+        run: |
+          node services/gateway-api/dist/index.js > gateway.log 2>&1 &
+          echo $! > gateway.pid
+
+      - name: Wait for health
+        run: |
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:3001/healthz > /dev/null; then
+              echo "Gateway is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Gateway failed health check" >&2
+          cat gateway.log || true
+          exit 1
+
+      - name: Run release auth readiness check (real login path)
+        run: node scripts/release-auth-readiness-check.cjs --strict
+
+      - name: Export admin token from real login
+        run: |
+          cat > export-admin-token.cjs <<'EOF'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const reportPath = path.join(process.cwd(), 'docs', 'release', 'status', 'auth-release-readiness-latest.json');
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          const token = String(report?.issued_context?.access_token || '').trim();
+          if (!token) {
+            throw new Error('auth-release-readiness-latest.json missing issued_context.access_token');
+          }
+          fs.appendFileSync(process.env.GITHUB_ENV, `ADMIN_TOKEN=${token}\n`);
+          EOF
+          node export-admin-token.cjs
+
+      - name: Run final-dod e2e
+        id: run_final_dod_e2e
+        working-directory: services/gateway-api
+        run: node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/final-dod.e2e.ts --runInBand --json --outputFile ../../docs/release/status/final-dod-e2e-jest-results.json
+
+      - name: Build final-dod execution status artifact
+        id: final_dod_execution_status
+        run: node scripts/final-dod-execution-check.cjs --strict --jest-results docs/release/status/final-dod-e2e-jest-results.json
+
+      - name: Emit final-dod e2e workflow status artifact
+        if: always()
+        run: |
+          node -e "const fs=require('node:fs'); const path=require('node:path'); const outDir=path.join(process.cwd(),'docs','release','status'); fs.mkdirSync(outDir,{recursive:true}); const testOutcome='${{ steps.run_final_dod_e2e.outcome }}'; const execOutcome='${{ steps.final_dod_execution_status.outcome }}'; const status=(testOutcome==='success'&&execOutcome==='success')?'pass':'fail'; const runUrl='https://github.com/'+process.env.GITHUB_REPOSITORY+'/actions/runs/'+process.env.GITHUB_RUN_ID; const report={generated_at:new Date().toISOString(),status,workflow:'final-dod-e2e',source_run_id:String(process.env.GITHUB_RUN_ID||''),head_sha:String(process.env.GITHUB_SHA||''),workflow_run_url:runUrl,checks:[{id:'final_dod_e2e_jest',status:testOutcome==='success'?'pass':'fail',detail:'outcome='+testOutcome},{id:'final_dod_execution_status',status:execOutcome==='success'?'pass':'fail',detail:'outcome='+execOutcome}]}; fs.writeFileSync(path.join(outDir,'final-dod-e2e-latest.json'),JSON.stringify(report,null,2)+'\n','utf8'); const md=['# Final DoD E2E Workflow Status','','Generated: '+report.generated_at,'Status: '+report.status,'','## Provenance','- workflow: '+report.workflow,'- run_id: '+(report.source_run_id||'(missing)'),'- head_sha: '+(report.head_sha||'(missing)'),'- workflow_run_url: '+report.workflow_run_url,'','## Checks',...report.checks.map((c)=>'- ['+(c.status==='pass'?'x':' ')+'] '+c.id+': '+c.detail)].join('\n'); fs.writeFileSync(path.join(outDir,'final-dod-e2e-latest.md'),md+'\n','utf8');"
+
+      - name: Upload gateway log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-log
+          path: gateway.log
+
+      - name: Upload auth readiness status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-dod-auth-readiness-status
+          path: |
+            docs/release/status/auth-release-readiness-latest.json
+            docs/release/status/auth-release-readiness-latest.md
+
+      - name: Upload final-dod execution status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-dod-execution-status
+          path: |
+            docs/release/status/final-dod-execution-latest.json
+            docs/release/status/final-dod-execution-latest.md
+            docs/release/status/final-dod-e2e-latest.json
+            docs/release/status/final-dod-e2e-latest.md
+            docs/release/status/final-dod-e2e-jest-results.json
+
+      - name: Stop gateway
+        if: always()
+        run: |
+          if [ -f gateway.pid ]; then kill $(cat gateway.pid) || true; fi
+          docker rm -f sven-nats || true

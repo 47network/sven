@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-02-13T14:08:20.584Z",
+  "api_url": "http://127.0.0.1:10557",
+  "checks": [
+    {
+      "name": "gateway_healthz",
+      "status": "pass",
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "name": "gateway_readyz",
+      "status": "pass",
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "name": "outbox_queue_lag",
+      "status": "pass",
+      "details": {
+        "pending_count": 0,
+        "oldest_pending_age_seconds": 0
+      }
+    },
+    {
+      "name": "approval_pipeline",
+      "status": "pass",
+      "details": {
+        "pending_approvals": 0
+      }
+    },
+    {
+      "name": "relay_error_rate_15m",
+      "status": "pass",
+      "details": {
+        "skipped": true,
+        "message": "browser_relay_commands table not present in this migration baseline"
+      }
+    }
+  ],
+  "status": "pass"
+}

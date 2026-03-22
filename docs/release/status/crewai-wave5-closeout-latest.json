@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-03-16T04:28:50.966Z",
+  "status": "pass",
+  "passed": 6,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "crewai_wave5_rollup_status_pass",
+      "pass": true,
+      "detail": "rollup_status=pass"
+    },
+    {
+      "id": "crewai_wave5_rollup_lanes_complete",
+      "pass": true,
+      "detail": "lanes_pass=10/10"
+    },
+    {
+      "id": "crewai_wave5_matrix_rows_implemented",
+      "pass": true,
+      "detail": "Wave 5 matrix rows CW-W01..CW-W10 are present and implemented"
+    },
+    {
+      "id": "crewai_wave5_npm_aliases_complete",
+      "pass": true,
+      "detail": "package.json exposes complete Wave 5 lane/rollup/closeout aliases"
+    },
+    {
+      "id": "crewai_wave5_ci_binding_complete",
+      "pass": true,
+      "detail": "parity-e2e workflow binds Wave 5 gates + rollup + closeout and uploads closeout artifacts"
+    },
+    {
+      "id": "crewai_wave5_program_snapshot_present",
+      "pass": true,
+      "detail": "competitive reproduction program snapshot reflects Wave 5 rollup and closeout evidence"
+    }
+  ]
+}

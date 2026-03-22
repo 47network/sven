@@ -1,0 +1,82 @@
+{
+  "name": "Sven — AI Companion",
+  "short_name": "Sven",
+  "description": "Your personal AI companion. Chat, brainstorm, code, and create with an AI that remembers you.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#040712",
+  "theme_color": "#00D9FF",
+  "orientation": "any",
+  "lang": "en",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/Icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/chat_classic.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Sven chat in Classic theme"
+    },
+    {
+      "src": "screenshots/chat_cinematic.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Sven chat in Cinematic theme"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New conversation",
+      "short_name": "New chat",
+      "description": "Start a fresh conversation with Sven",
+      "url": "/?action=new_chat",
+      "icons": [
+        {
+          "src": "icons/Icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Summarise clipboard",
+      "short_name": "Summarise",
+      "description": "Paste clipboard content and ask Sven to summarise it",
+      "url": "/?action=summarise_clipboard",
+      "icons": [
+        {
+          "src": "icons/Icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

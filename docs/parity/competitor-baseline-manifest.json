@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-03-16T14:33:00Z",
+  "baselines": [
+    {
+      "competitor": "openclaw",
+      "repo": "https://github.com/openclaw/openclaw",
+      "baseline_type": "snapshot",
+      "baseline_version": "rev3-2026-02-20",
+      "source_snapshot_date": "2026-02-20"
+    },
+    {
+      "competitor": "agent_zero",
+      "repo": "https://github.com/agent0ai/agent-zero",
+      "baseline_type": "snapshot",
+      "baseline_version": "rev14-2026-02-20",
+      "source_snapshot_date": "2026-02-20"
+    }
+  ]
+}
+

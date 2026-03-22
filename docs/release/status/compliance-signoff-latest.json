@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-02-14T19:49:52.696Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "privacy_compliance_status_pass",
+      "pass": true,
+      "detail": "pass"
+    },
+    {
+      "id": "compliance_signoff_doc_present",
+      "pass": true,
+      "detail": "docs/release/signoffs/compliance-signoff-2026-02-14-rc.md"
+    },
+    {
+      "id": "compliance_signoff_has_approvals",
+      "pass": true,
+      "detail": "expects engineering/security/operations approvals"
+    }
+  ]
+}

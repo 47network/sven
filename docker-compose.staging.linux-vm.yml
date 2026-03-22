@@ -1,0 +1,126 @@
+services:
+  gateway-api:
+    environment:
+      SVEN_STORAGE_ROOT: ${SVEN_STORAGE_ROOT:-/var/lib/sven/artifacts}
+      ARTIFACT_STORAGE_ROOT: ${ARTIFACT_STORAGE_ROOT:-/var/lib/sven/artifacts}
+      SVEN_NAS_ROOT: ${SVEN_NAS_ROOT:-/var/lib/sven/nas}
+      SVEN_INTEGRATION_STORAGE_ROOT: ${SVEN_INTEGRATION_STORAGE_ROOT:-/var/lib/sven/integrations}
+    volumes:
+      - ${SVEN_STAGE_ARTIFACTS_DIR:-/srv/sven/staging/data/artifacts}:${SVEN_STORAGE_ROOT:-/var/lib/sven/artifacts}
+      - ${SVEN_STAGE_NAS_DIR:-/srv/sven/staging/data/nas}:${SVEN_NAS_ROOT:-/var/lib/sven/nas}
+      - ${SVEN_STAGE_INTEGRATIONS_DIR:-/srv/sven/staging/data/integrations}:${SVEN_INTEGRATION_STORAGE_ROOT:-/var/lib/sven/integrations}
+      - ${SVEN_STAGE_BACKUPS_DIR:-/srv/sven/staging/backups}:/var/lib/sven/backups
+
+  agent-runtime:
+    volumes:
+      - ${SVEN_STAGE_ARTIFACTS_DIR:-/srv/sven/staging/data/artifacts}:${SVEN_STORAGE_ROOT:-/var/lib/sven/artifacts}
+      - ${SVEN_STAGE_NAS_DIR:-/srv/sven/staging/data/nas}:${SVEN_NAS_ROOT:-/var/lib/sven/nas}
+      - ${SVEN_STAGE_INTEGRATIONS_DIR:-/srv/sven/staging/data/integrations}:${SVEN_INTEGRATION_STORAGE_ROOT:-/var/lib/sven/integrations}
+
+  skill-runner:
+    environment:
+      SVEN_INTEGRATION_STORAGE_ROOT: ${SVEN_INTEGRATION_STORAGE_ROOT:-/var/lib/sven/integrations}
+    volumes:
+      - ${SVEN_STAGE_INTEGRATIONS_DIR:-/srv/sven/staging/data/integrations}:${SVEN_INTEGRATION_STORAGE_ROOT:-/var/lib/sven/integrations}
+      - ${SVEN_STAGE_GIT_DIR:-/srv/sven/staging/data/git}:${GIT_INGEST_CLONE_ROOT:-/var/lib/sven/git}
+
+  piper:
+    volumes:
+      - ${SVEN_STAGE_TTS_DIR:-/srv/sven/staging/data/tts}:${VOICE_TTS_STORAGE:-/var/lib/sven/tts}
+
+  wake-word:
+    volumes:
+      - ${SVEN_STAGE_WAKE_WORD_DIR:-/srv/sven/staging/data/wake-word}:${WAKE_WORD_STORAGE:-/var/lib/sven/wake-word}
+
+  rag-nas-ingestor:
+    volumes:
+      - ${SVEN_STAGE_NAS_DIR:-/srv/sven/staging/data/nas}:${NAS_INGEST_ROOT:-/var/lib/sven/nas}:ro
+
+  rag-git-ingestor:
+    volumes:
+      - ${SVEN_STAGE_NAS_DIR:-/srv/sven/staging/data/nas}:${GIT_INGEST_LOCAL_ROOT:-/var/lib/sven/nas/git}:ro
+      - ${SVEN_STAGE_GIT_DIR:-/srv/sven/staging/data/git}:${GIT_INGEST_CLONE_ROOT:-/var/lib/sven/git}
+
+  rag-notes-ingestor:
+    volumes:
+      - ${SVEN_STAGE_NAS_DIR:-/srv/sven/staging/data/nas}:${NOTES_INGEST_ROOT:-/var/lib/sven/nas/notes}:ro
+
+volumes:
+  pgdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_POSTGRES_DIR:-/srv/sven/staging/data/postgres}
+  pgwalarchive:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_PGWAL_DIR:-/srv/sven/staging/data/postgres-wal}
+  natsdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_NATS_DIR:-/srv/sven/staging/data/nats}
+  osdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_OPENSEARCH_DIR:-/srv/sven/staging/data/opensearch}
+  sven-browser-profile:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_BROWSER_PROFILE_DIR:-/srv/sven/staging/data/browser-profile}
+  gitdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_GIT_DIR:-/srv/sven/staging/data/git}
+  ollama:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_OLLAMA_DIR:-/srv/sven/staging/data/ollama}
+  prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_PROMETHEUS_DIR:-/srv/sven/staging/data/prometheus}
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_GRAFANA_DIR:-/srv/sven/staging/data/grafana}
+  loki-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_LOKI_DIR:-/srv/sven/staging/data/loki}
+  loki-archive:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_LOKI_ARCHIVE_DIR:-/srv/sven/staging/data/loki-archive}
+  searxng-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_SEARXNG_DIR:-/srv/sven/staging/data/searxng}
+  tunnel-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SVEN_STAGE_TUNNEL_DIR:-/srv/sven/staging/data/tunnel}

@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-02-14T19:57:49.316Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "powershell_installer_dry_run",
+      "pass": true,
+      "detail": "exit=0"
+    },
+    {
+      "id": "cmd_installer_dry_run",
+      "pass": true,
+      "detail": "exit=0"
+    },
+    {
+      "id": "wsl_sh_installer_dry_run",
+      "pass": true,
+      "detail": "exit=0"
+    }
+  ]
+}

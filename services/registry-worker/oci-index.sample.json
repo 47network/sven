@@ -1,0 +1,17 @@
+[
+  {
+    "image": "registry.example.com/sven/weather",
+    "digest": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "name": "weather",
+    "description": "Weather lookup skill",
+    "version": "1.0.0",
+    "publisher": "OpenClaw",
+    "labels": {
+      "org.sven.inputs_schema": "{\"type\":\"object\",\"properties\":{\"location\":{\"type\":\"string\"}},\"required\":[\"location\"]}",
+      "org.sven.outputs_schema": "{\"type\":\"object\",\"properties\":{\"forecast\":{\"type\":\"string\"}}}",
+      "org.sven.permissions_required": "[\"web.fetch\"]",
+      "org.sven.allowlists": "{\"web_domain\":[\"api.weather.example.com\"]}",
+      "org.sven.limits": "{\"timeout_ms\":15000,\"max_bytes\":1048576}"
+    }
+  }
+]

@@ -1,0 +1,256 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Sven Four-VM Deployment — VM5: AI & Voice Services
+# Host: sven-ai (10.47.0.7 / 10.74.47.9)
+# Services: Ollama (GPU), LiteLLM, faster-whisper (GPU), Piper TTS, Wake-word
+# GPU: 2× NVIDIA RTX 3060 (12 GB VRAM each) — requires nvidia-container-toolkit
+#
+# Run:
+#   docker compose -f docker-compose.vm5-ai.yml --env-file .env.vm5 up -d
+#
+# Prerequisites:
+#   - VM4 (platform) must be running first (PostgreSQL, NATS)
+#   - NVIDIA driver 550+ and nvidia-container-toolkit installed
+#   - .env.vm5 populated with secrets (see .env.vm5.example)
+# ─────────────────────────────────────────────────────────────────────────────
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "10"
+
+networks:
+  platform:
+    driver: bridge
+
+volumes:
+  ollama_data:
+
+services:
+  # ─── Ollama (local LLM server with GPU) ───
+  ollama:
+    <<: *common
+    image: ollama/ollama@sha256:0ff452f6a4c3c5bb4ab063a1db190b261d5834741a519189ed5301d50e4434d1
+    container_name: sven-ollama
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      OLLAMA_HOST: "0.0.0.0"
+      OLLAMA_NUM_PARALLEL: "2"
+      OLLAMA_MAX_LOADED_MODELS: "2"
+    ports:
+      - "${VM5_INTERNAL_IP:-10.74.47.9}:11434:11434"
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "6.0"
+          memory: 24G
+          pids: 256
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # ─── LiteLLM Proxy (Multi-Provider LLM Gateway) ───
+  litellm:
+    <<: *common
+    image: ghcr.io/berriai/litellm@sha256:9c1f1889774a973ce650f712ace6753a9b6dd1182d25d837b858dbcac6ea3056
+    container_name: sven-litellm
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?LITELLM_MASTER_KEY is required}
+      # Cross-VM: LiteLLM uses separate database to prevent Prisma baseline_diff destroying TheSven tables
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${VM4_INTERNAL_IP:-10.74.47.8}:5432/sven_litellm?sslmode=require
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      AZURE_API_KEY: ${AZURE_API_KEY:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+    volumes:
+      - ../../services/litellm/config.yaml:/app/config.yaml:ro
+    ports:
+      - "${VM5_INTERNAL_IP:-10.74.47.9}:4000:4000"
+      - "127.0.0.1:4000:4000"
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:4000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+          pids: 256
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  # ─── faster-whisper (Speech-to-Text with GPU) ───
+  faster-whisper:
+    <<: *common
+    image: ${REGISTRY:-sven}/faster-whisper:${FASTER_WHISPER_TAG:-latest}
+    container_name: sven-faster-whisper
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      NODE_ENV: production
+      # Cross-VM: PostgreSQL and NATS on VM4
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${VM4_INTERNAL_IP:-10.74.47.8}:5432/${POSTGRES_DB}?sslmode=require
+      NATS_URL: nats://${VM4_INTERNAL_IP:-10.74.47.8}:4222
+      VOICE_TRANSCRIPT_RETENTION_DAYS: ${VOICE_TRANSCRIPT_RETENTION_DAYS:-30}
+      FASTER_WHISPER_MODEL_PATH: ${FASTER_WHISPER_MODEL_PATH:-}
+      FASTER_WHISPER_LANGUAGE: ${FASTER_WHISPER_LANGUAGE:-auto}
+      FASTER_WHISPER_DEVICE: ${FASTER_WHISPER_DEVICE:-auto}
+      FASTER_WHISPER_PYTHON: ${FASTER_WHISPER_PYTHON:-python3}
+      HF_TOKEN: ${HF_TOKEN:-}
+      # Cross-VM: OTEL on VM6
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://${VM6_INTERNAL_IP:-10.74.47.10}:4318
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+          pids: 256
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ─── Piper TTS (Text-to-Speech) ───
+  piper:
+    <<: *common
+    image: ${REGISTRY:-sven}/piper:${PIPER_TAG:-latest}
+    container_name: sven-piper
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      NODE_ENV: production
+      # Cross-VM: PostgreSQL and NATS on VM4
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${VM4_INTERNAL_IP:-10.74.47.8}:5432/${POSTGRES_DB}?sslmode=require
+      NATS_URL: nats://${VM4_INTERNAL_IP:-10.74.47.8}:4222
+      VOICE_TTS_STORAGE: ${VOICE_TTS_STORAGE:-/var/lib/sven/tts}
+      VOICE_TTS_PORT: ${VOICE_TTS_PORT:-4200}
+      VOICE_TTS_BASE_URL: http://piper:${VOICE_TTS_PORT:-4200}
+      VOICE_TTS_PROVIDER: ${VOICE_TTS_PROVIDER:-piper}
+      VOICE_TTS_CHANNELS: ${VOICE_TTS_CHANNELS:-discord,slack,telegram,teams,google_chat,whatsapp,signal,imessage,webchat}
+      VOICE_TTS_RETENTION_DAYS: ${VOICE_TTS_RETENTION_DAYS:-7}
+      VOICE_TTS_MAX_CHARS: ${VOICE_TTS_MAX_CHARS:-1200}
+      PIPER_URL: ${PIPER_URL:-http://piper:59125/api/tts}
+      PIPER_VOICE: ${PIPER_VOICE:-alloy}
+      PIPER_API_KEY: ${PIPER_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # Cross-VM: OTEL on VM6
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://${VM6_INTERNAL_IP:-10.74.47.10}:4318
+    ports:
+      - "127.0.0.1:${VOICE_TTS_PORT:-4200}:${VOICE_TTS_PORT:-4200}"
+    volumes:
+      - ${SVEN_PROD_TTS_DIR:-/srv/sven/prod/data/tts}:${VOICE_TTS_STORAGE:-/var/lib/sven/tts}
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1G
+          pids: 128
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # ─── Wake-word Detection ───
+  wake-word:
+    <<: *common
+    image: ${REGISTRY:-sven}/wake-word:${WAKE_WORD_TAG:-latest}
+    container_name: sven-wake-word
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      NODE_ENV: production
+      # Cross-VM: PostgreSQL and NATS on VM4, Gateway on VM4
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${VM4_INTERNAL_IP:-10.74.47.8}:5432/${POSTGRES_DB}?sslmode=require
+      NATS_URL: nats://${VM4_INTERNAL_IP:-10.74.47.8}:4222
+      WAKE_WORD_PORT: ${WAKE_WORD_PORT:-4400}
+      WAKE_WORD_HOST: "0.0.0.0"
+      WAKE_WORD_BASE_URL: http://wake-word:${WAKE_WORD_PORT:-4400}
+      WAKE_WORD_STORAGE: ${WAKE_WORD_STORAGE:-/var/lib/sven/wake-word}
+      WAKE_WORD_STORAGE_RETENTION_DAYS: ${WAKE_WORD_STORAGE_RETENTION_DAYS:-7}
+      WAKE_WORD_GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      # Cross-VM: OTEL on VM6
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://${VM6_INTERNAL_IP:-10.74.47.10}:4318
+    ports:
+      - "127.0.0.1:${WAKE_WORD_PORT:-4400}:${WAKE_WORD_PORT:-4400}"
+    volumes:
+      - ${SVEN_PROD_WAKE_WORD_DIR:-/srv/sven/prod/data/wake-word}:${WAKE_WORD_STORAGE:-/var/lib/sven/wake-word}
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+          pids: 128
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  # ─── Promtail (ships Docker logs to Loki on VM6) ───
+  promtail:
+    <<: *common
+    image: grafana/promtail@sha256:45d54f0ebd7a19acbcd4693a3227d84d27d98abe1dc7ea3068d31d5d02dbe696
+    container_name: sven-promtail
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command: ["-config.file=/etc/promtail/config.yml", "-config.expand-env=true"]
+    environment:
+      LOKI_HOST: ${VM6_INTERNAL_IP:-10.74.47.10}
+      VM_NAME: vm5-ai
+    volumes:
+      - ../../config/promtail-remote.yml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+          pids: 64
+        reservations:
+          cpus: "0.1"
+          memory: 32M

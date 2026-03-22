@@ -1,0 +1,82 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  analyze_and_test:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/companion-user-flutter
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed lib/ test/
+
+      - name: Analyze
+        run: flutter analyze --no-pub
+
+      - name: Run tests
+        run: flutter test --no-pub --coverage
+
+      - name: Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v4
+        with:
+          files: apps/companion-user-flutter/coverage/lcov.info
+          flags: flutter
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  build_apk:
+    name: Build APK
+    runs-on: ubuntu-latest
+    needs: analyze_and_test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: apps/companion-user-flutter
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release --no-pub
+          --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+          --dart-define=SVEN_ENV=production
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sven-release-apk
+          path: apps/companion-user-flutter/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14

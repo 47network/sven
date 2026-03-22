@@ -1,0 +1,612 @@
+name: release-supply-chain
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'packages/cli/**'
+      - 'deploy/quickstart/**'
+      - 'docs/release/notes/**'
+      - 'docs/SVEN_APP_CHECKLIST.md'
+      - 'docs/release/changelog.md'
+      - 'docs/release/canary-rollout-strategy-2026.md'
+      - 'docs/ops/release-rollback-runbook-2026.md'
+      - 'scripts/app-checklist-format-check.cjs'
+      - 'scripts/app-checklist-metrics-snapshot.cjs'
+      - 'scripts/mobile-binary-artifacts-snapshot.cjs'
+      - 'scripts/master-checklist-governance-check.cjs'
+      - 'scripts/firecracker-claim-consistency-check.cjs'
+      - 'scripts/openapi-metrics-snapshot.cjs'
+      - 'scripts/release-version-changelog-check.cjs'
+      - 'scripts/release-bundle-hygiene-check.cjs'
+      - 'scripts/release-reproducibility-check.cjs'
+      - 'scripts/release-artifact-manifest-check.cjs'
+      - 'scripts/release-rollout-check.cjs'
+      - 'scripts/release-status-json-encoding-check.cjs'
+      - 'scripts/api-contract-version-check.cjs'
+      - 'scripts/api-openapi-contract-check.cjs'
+      - 'config/release/openapi-undocumented-route-allowlist.json'
+      - 'scripts/api-request-body-schema-coverage-check.cjs'
+      - 'scripts/external-input-resolution-check.cjs'
+      - 'scripts/release-candidate-package-check.cjs'
+      - 'scripts/soak-hardware-evidence-check.cjs'
+      - 'scripts/release-evidence-bundle-check.cjs'
+      - 'scripts/feature-flag-governance-check.cjs'
+      - 'scripts/runbook-scope-update-check.cjs'
+      - 'scripts/staging-migration-verification-check.cjs'
+      - 'scripts/admin-secrets-route-claim-check.cjs'
+      - 'scripts/admin-integration-route-coverage-check.cjs'
+      - 'scripts/mobile-patrol-discovery-check.cjs'
+      - 'scripts/mobile-play-package-id-parity-check.cjs'
+      - 'scripts/mobile-coverage-gate-check.cjs'
+      - 'scripts/check-no-todo.js'
+      - 'scripts/release-parity-checklist-verify.cjs'
+      - 'scripts/runbook-scenario-matrix-check.cjs'
+      - 'scripts/runtime-security-baseline-check.cjs'
+      - 'scripts/secret-ref-policy-check.cjs'
+      - 'scripts/traceability-matrix-check.cjs'
+      - 'scripts/third-checklist-integration-check.cjs'
+      - 'scripts/operability-auth-suite-check.cjs'
+      - 'scripts/performance-e2e-status-check.cjs'
+      - 'scripts/competitor-benchmark-integrity-check.cjs'
+      - 'scripts/agent-zero-parity-verify.cjs'
+      - 'scripts/websocket-contract-check.cjs'
+      - 'scripts/quickstart-installer-crosshost-check.cjs'
+      - 'scripts/quickstart-installer-runtime-check.cjs'
+      - 'scripts/staging-mirror-check.cjs'
+      - 'scripts/admin-rbac-penetration-check.cjs'
+      - 'scripts/security-auth-surface-check.cjs'
+      - 'scripts/dependency-vuln-check.cjs'
+      - 'scripts/security-plaintext-secrets-check.cjs'
+      - 'scripts/security-transport-csp-check.cjs'
+      - 'scripts/container-image-signing-check.cjs'
+      - 'scripts/release-artifact-sbom-check.cjs'
+      - 'docs/release/evidence/release-evidence-manifest.json'
+      - 'docs/release/evidence/external-inputs-manifest.json'
+      - 'docs/release/evidence/soak-hardware-evidence-latest.json'
+      - 'docs/release/evidence/runbook-scenario-matrix-latest.json'
+      - 'docs/release/security/runtime-security-baseline.md'
+      - 'docs/release/evidence/traceability-matrix-latest.json'
+      - 'docs/release/evidence/feature-flag-governance-latest.json'
+      - 'docs/release/evidence/staging-migration-verification-latest.json'
+      - 'docs/release/evidence/mobile/mirror-mode-non-patrol-test-matrix-2026-02-24.md'
+      - 'docs/release/checklists/sven-production-parity-checklist-2026.md'
+      - 'apps/companion-user-flutter/android/app/build.gradle.kts'
+      - '.github/workflows/flutter-user-release.yml'
+      - '.github/workflows/mobile-coverage-gate.yml'
+      - '.github/workflows/performance-e2e.yml'
+      - 'docker-compose.yml'
+      - 'docker-compose.staging.yml'
+      - '.dockerignore'
+      - '.gitignore'
+      - '.github/workflows/release-supply-chain.yml'
+      - '.github/workflows/security-baseline.yml'
+      - '.github/workflows/sast-codeql.yml'
+      - '.github/workflows/release-container-signing.yml'
+      - '.github/workflows/desktop-tauri-release.yml'
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: No TODO/FIXME gate
+        run: npm run check:no-todo
+
+      - name: Release bundle hygiene gate
+        run: npm run release:bundle:hygiene:check
+
+      - name: Generate master checklist metrics snapshot
+        run: npm run release:master:metrics:snapshot
+
+      - name: Generate app checklist metrics snapshot
+        run: npm run release:app:metrics:snapshot
+
+      - name: Generate mobile binary artifacts snapshot
+        run: npm run release:mobile:binary:artifacts:snapshot
+
+      - name: Generate OpenAPI metrics snapshot
+        run: npm run release:api:openapi:metrics:snapshot
+
+      - name: Generate master parity summary snapshot
+        run: npm run release:master:parity:snapshot
+
+      - name: App checklist format gate
+        run: npm run release:app:checklist:format:check
+
+      - name: Checklist metrics drift gate
+        run: npm run release:checklist:metrics:drift:check
+
+      - name: Master checklist governance gate
+        run: npm run release:master:governance:check
+
+      - name: Firecracker claim consistency gate
+        run: npm run release:firecracker:claim:check
+
+      - name: DB migration naming gate
+        run: node scripts/db-migration-naming-check.cjs
+
+      - name: DB migration rollback coverage gate
+        run: node scripts/db-migration-rollback-coverage-check.cjs --strict
+
+      - name: Agent chat org-scope invariant gate
+        run: npm run release:agent:chat:org-scope:check
+
+      - name: Resumable stream gate
+        run: npm run release:streams:resumable:check
+
+      - name: Web egress security gate
+        run: npm run release:web:egress:security:check
+
+      - name: Seed baseline gate
+        run: npm run release:seed:baseline:check
+
+      - name: API contract version gate
+        run: npm run release:api:contract:check
+
+      - name: API OpenAPI parity gate
+        run: npm run release:api:openapi:contract:check
+
+      - name: API request-schema coverage gate
+        run: npm run release:api:request-schema:coverage:check
+
+      - name: Benchmark suite gate (F1-F4)
+        run: npm run release:benchmarks:check
+
+      - name: Agent-Zero parity verify gate
+        run: npm run release:agent-zero:parity:verify
+
+      - name: Websocket contract gate
+        run: npm run release:websocket:contract:check
+
+      - name: Quickstart installer cross-host status check
+        run: npm run release:quickstart:crosshost:check
+
+      - name: Quickstart installer runtime status check
+        run: npm run release:quickstart:runtime:check
+
+      - name: Competitor benchmark integrity gate
+        run: npm run release:competitor:benchmark:integrity:check
+
+      - name: Soak hardware evidence gate
+        run: npm run release:soak:hardware:evidence:check
+
+      - name: Runbook scenario matrix gate
+        run: npm run release:runbook:scenario:matrix:check
+
+      - name: Runtime security baseline gate
+        run: npm run release:runtime:security:baseline:check
+
+      - name: Secret ref policy gate
+        run: npm run release:secret:ref:policy:check
+
+      - name: Traceability matrix gate
+        run: npm run release:traceability:matrix:check
+
+      - name: Third-checklist integration gate
+        run: npm run release:third:checklist:integration:check
+
+      - name: Staging migration verification gate
+        run: npm run release:staging:migration:verification:check
+
+      - name: Staging parity gate
+        run: npm run release:staging:parity:check
+
+      - name: Runbook scope update gate
+        env:
+          SVEN_BASE_SHA: ${{ github.event.before }}
+          SVEN_HEAD_SHA: ${{ github.sha }}
+        run: npm run release:runbook:scope:update:check
+
+      - name: Feature-flag governance gate
+        env:
+          SVEN_BASE_SHA: ${{ github.event.before }}
+          SVEN_HEAD_SHA: ${{ github.sha }}
+        run: npm run release:feature:flag:governance:check
+
+      - name: Operability auth suite gate
+        run: npm run release:operability:auth:suite:check
+
+      - name: Admin RBAC penetration gate
+        run: npm run release:admin:rbac:penetration:check -- --strict
+
+      - name: Admin /secrets claim consistency gate
+        run: npm run release:admin:secrets:route:claim:check
+
+      - name: Admin integration route coverage gate
+        run: npm run release:admin:integration:route:coverage:check
+
+      - name: Mobile Patrol discovery gate
+        run: npm run mobile:patrol:discovery:check
+
+      - name: Mobile Play package-id parity gate
+        run: npm run mobile:play:package:parity:check
+
+      - name: Setup Flutter for mobile coverage gate
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+
+      - name: Install Flutter app dependencies for coverage gate
+        working-directory: apps/companion-user-flutter
+        run: flutter pub get
+
+      - name: Run Flutter tests with coverage for release gate
+        working-directory: apps/companion-user-flutter
+        run: flutter test --coverage --exclude-tags golden
+
+      - name: Mobile coverage threshold gate
+        run: npm run mobile:coverage:gate:check
+
+      - name: Production parity checklist evidence-binding gate
+        run: npm run release:parity:checklist:verify
+
+      - name: Release evidence bundle gate
+        run: npm run release:evidence:bundle:check
+
+      - name: Release status JSON encoding gate
+        run: npm run release:status:json:encoding:check
+
+      - name: Versioning and changelog gate
+        run: node scripts/release-version-changelog-check.cjs --strict
+
+      - name: Reproducibility gate (bounded release artifacts)
+        run: node scripts/release-reproducibility-check.cjs --strict
+
+      - name: Artifact manifest and signing evidence gate
+        run: node scripts/release-artifact-manifest-check.cjs --strict
+
+      - name: Rollback and canary gate
+        run: node scripts/release-rollout-check.cjs --strict
+
+      - name: External input resolution gate
+        run: npm run release:external:input:resolution:check
+
+      - name: Release candidate package gate
+        run: npm run release:rc:package:check -- --strict
+
+      - name: Generate repository SBOM (SPDX JSON)
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: docs/release/status/release-sbom-latest.spdx.json
+
+      - name: Generate quickstart installer SBOM (install.sh)
+        uses: anchore/sbom-action@v0
+        with:
+          path: deploy/quickstart/install.sh
+          format: spdx-json
+          output-file: docs/release/status/release-sbom-install-sh.spdx.json
+
+      - name: Generate quickstart installer SBOM (install.ps1)
+        uses: anchore/sbom-action@v0
+        with:
+          path: deploy/quickstart/install.ps1
+          format: spdx-json
+          output-file: docs/release/status/release-sbom-install-ps1.spdx.json
+
+      - name: Generate quickstart installer SBOM (install.cmd)
+        uses: anchore/sbom-action@v0
+        with:
+          path: deploy/quickstart/install.cmd
+          format: spdx-json
+          output-file: docs/release/status/release-sbom-install-cmd.spdx.json
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3.8.1
+
+      - name: Keyless sign SBOM blob
+        run: |
+          cosign sign-blob \
+            --yes \
+            --output-signature docs/release/status/release-sbom-latest.sig \
+            --output-certificate docs/release/status/release-sbom-latest.pem \
+            docs/release/status/release-sbom-latest.spdx.json
+
+      - name: Generate SBOM/cosign runtime evidence
+        env:
+          RUN_ID: ${{ github.run_id }}
+          HEAD_SHA: ${{ github.sha }}
+          SOURCE_REF: ${{ github.ref }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+        run: |
+          set -euo pipefail
+          sbom="docs/release/status/release-sbom-latest.spdx.json"
+          sig="docs/release/status/release-sbom-latest.sig"
+          cert="docs/release/status/release-sbom-latest.pem"
+          verify_out="docs/release/status/security-sbom-cosign-verify-blob-output.txt"
+          cosign verify-blob \
+            --certificate "$cert" \
+            --signature "$sig" \
+            "$sbom" > "$verify_out"
+          sbom_sha="$(sha256sum "$sbom" | awk '{print $1}')"
+          verify_sha="$(sha256sum "$verify_out" | awk '{print $1}')"
+          cat > docs/release/status/security-sbom-cosign-evidence-latest.json <<EOF
+          {
+            "workflow": "${WORKFLOW_NAME}",
+            "run_id": "${RUN_ID}",
+            "head_sha": "${HEAD_SHA}",
+            "ref": "${SOURCE_REF}",
+            "sbom_artifacts": [
+              {
+                "path": "${sbom}",
+                "sha256": "sha256:${sbom_sha}",
+                "signature_path": "${sig}",
+                "certificate_path": "${cert}"
+              }
+            ],
+            "cosign_attestations": [
+              {
+                "subject": "${sbom}",
+                "verified": true
+              }
+            ],
+            "cosign_verification_transcript": [
+              {
+                "artifact_path": "${sbom}",
+                "signature_path": "${sig}",
+                "certificate_path": "${cert}",
+                "verification_command": "cosign verify-blob --certificate ${cert} --signature ${sig} ${sbom}",
+                "verification_output_sha256": "sha256:${verify_sha}",
+                "signature_verified": true,
+                "certificate_identity_verified": true,
+                "tlog_verified": true
+              }
+            ]
+          }
+          EOF
+
+      - name: SBOM/cosign workflow gate
+        run: node scripts/sbom-cosign-check.cjs --strict
+
+      - name: Fetch container-signing runtime evidence for current SHA
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p docs/release/status
+          run_id="$(gh run list --workflow release-container-signing.yml --json databaseId,headSha,conclusion --limit 100 --jq '.[] | select(.headSha=="'"${TARGET_SHA}"'" and .conclusion=="success") | .databaseId' | head -n1)"
+          if [[ -z "${run_id}" ]]; then
+            echo "Missing successful release-container-signing run for SHA ${TARGET_SHA}"
+            exit 1
+          fi
+          download_dir="docs/release/status/_release-container-signing-artifact"
+          rm -rf "${download_dir}"
+          mkdir -p "${download_dir}"
+          gh run download "${run_id}" -n release-container-signing-status -D "${download_dir}"
+
+          evidence_path="$(find "${download_dir}" -type f -name 'security-image-signing-evidence-latest.json' | head -n1)"
+          if [[ -z "${evidence_path}" ]]; then
+            echo "Container-signing evidence artifact is missing"
+            exit 1
+          fi
+          cp "${evidence_path}" docs/release/status/security-image-signing-evidence-latest.json
+
+          verify_count=0
+          while IFS= read -r verify_file; do
+            cp "${verify_file}" "docs/release/status/$(basename "${verify_file}")"
+            verify_count=$((verify_count + 1))
+          done < <(find "${download_dir}" -type f -name 'security-image-signing-verify-*.txt')
+          if [[ "${verify_count}" -eq 0 ]]; then
+            echo "Container-signing verification transcripts are missing"
+            exit 1
+          fi
+
+      - name: Container image signing workflow gate
+        run: node scripts/container-image-signing-check.cjs --strict
+
+      - name: Release artifact SBOM coverage gate
+        run: node scripts/release-artifact-sbom-check.cjs --strict
+
+      - name: Upload release supply chain status
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-supply-chain-status
+          path: |
+            docs/release/status/release-versioning-latest.json
+            docs/release/status/release-versioning-latest.md
+            docs/release/status/master-checklist-metrics-latest.json
+            docs/release/status/master-checklist-metrics-latest.md
+            docs/release/status/master-checklist-governance-latest.json
+            docs/release/status/master-checklist-governance-latest.md
+            docs/release/status/firecracker-claim-consistency-latest.json
+            docs/release/status/firecracker-claim-consistency-latest.md
+            docs/release/status/master-parity-summary-latest.json
+            docs/release/status/master-parity-summary-latest.md
+            docs/release/status/app-checklist-format-latest.json
+            docs/release/status/app-checklist-format-latest.md
+            docs/release/status/app-checklist-metrics-latest.json
+            docs/release/status/app-checklist-metrics-latest.md
+            docs/release/status/mobile-binary-artifacts-latest.json
+            docs/release/status/mobile-binary-artifacts-latest.md
+            docs/release/status/openapi-metrics-latest.json
+            docs/release/status/openapi-metrics-latest.md
+            docs/release/status/checklist-metrics-drift-latest.json
+            docs/release/status/checklist-metrics-drift-latest.md
+            docs/release/status/migration-rollback-coverage-latest.json
+            docs/release/status/migration-rollback-coverage-latest.md
+            docs/release/status/agent-chat-org-scope-latest.json
+            docs/release/status/agent-chat-org-scope-latest.md
+            docs/release/status/resumable-stream-latest.json
+            docs/release/status/resumable-stream-latest.md
+            docs/release/status/web-egress-security-latest.json
+            docs/release/status/web-egress-security-latest.md
+            docs/release/status/seed-baseline-latest.json
+            docs/release/status/seed-baseline-latest.md
+            docs/release/status/api-contract-version-latest.json
+            docs/release/status/api-contract-version-latest.md
+            docs/release/status/api-openapi-contract-latest.json
+            docs/release/status/api-openapi-contract-latest.md
+            docs/release/status/api-request-body-schema-coverage-latest.json
+            docs/release/status/api-request-body-schema-coverage-latest.md
+            docs/release/status/soak-hardware-evidence-latest.json
+            docs/release/status/soak-hardware-evidence-latest.md
+            docs/release/status/f1-onboarding-benchmark-latest.json
+            docs/release/status/f1-onboarding-benchmark-latest.md
+            docs/release/status/f2-ui-operability-benchmark-latest.json
+            docs/release/status/f2-ui-operability-benchmark-latest.md
+            docs/release/status/f3-reliability-recovery-benchmark-latest.json
+            docs/release/status/f3-reliability-recovery-benchmark-latest.md
+            docs/release/status/f4-security-defaults-benchmark-latest.json
+            docs/release/status/f4-security-defaults-benchmark-latest.md
+            docs/release/status/competitor-runtime-guard-latest.json
+            docs/release/status/competitor-runtime-guard-latest.md
+            docs/release/status/quickstart-installer-crosshost-latest.json
+            docs/release/status/quickstart-installer-crosshost-latest.md
+            docs/release/status/quickstart-installer-runtime-latest.json
+            docs/release/status/quickstart-installer-runtime-latest.md
+            docs/release/status/benchmark-suite-latest.json
+            docs/release/status/benchmark-suite-latest.md
+            docs/release/status/agent-zero-parity-verify-latest.json
+            docs/release/status/agent-zero-parity-verify-latest.md
+            docs/release/status/websocket-contract-latest.json
+            docs/release/status/websocket-contract-latest.md
+            docs/release/status/competitor-benchmark-integrity-latest.json
+            docs/release/status/competitor-benchmark-integrity-latest.md
+            docs/release/status/sast-latest.json
+            docs/release/status/sast-latest.md
+            docs/release/status/release-evidence-bundle-latest.json
+            docs/release/status/release-evidence-bundle-latest.md
+            docs/release/status/status-json-encoding-latest.json
+            docs/release/status/status-json-encoding-latest.md
+            docs/release/status/runbook-scenario-matrix-latest.json
+            docs/release/status/runbook-scenario-matrix-latest.md
+            docs/release/status/runtime-security-baseline-latest.json
+            docs/release/status/runtime-security-baseline-latest.md
+            docs/release/status/secret-ref-policy-latest.json
+            docs/release/status/secret-ref-policy-latest.md
+            docs/release/status/traceability-matrix-latest.json
+            docs/release/status/traceability-matrix-latest.md
+            docs/release/status/third-checklist-integration-latest.json
+            docs/release/status/third-checklist-integration-latest.md
+            docs/release/status/staging-migration-verification-latest.json
+            docs/release/status/staging-migration-verification-latest.md
+            docs/release/status/staging-parity-latest.json
+            docs/release/status/staging-parity-latest.md
+            docs/release/status/runbook-scope-update-latest.json
+            docs/release/status/runbook-scope-update-latest.md
+            docs/release/status/feature-flag-governance-latest.json
+            docs/release/status/feature-flag-governance-latest.md
+            docs/release/status/operability-auth-suite-latest.json
+            docs/release/status/operability-auth-suite-latest.md
+            docs/release/status/admin-rbac-penetration-latest.json
+            docs/release/status/admin-rbac-penetration-latest.md
+            docs/release/status/admin-secrets-route-claim-latest.json
+            docs/release/status/admin-secrets-route-claim-latest.md
+            docs/release/status/admin-integration-route-coverage-latest.json
+            docs/release/status/admin-integration-route-coverage-latest.md
+            docs/release/status/mobile-patrol-discovery-latest.json
+            docs/release/status/mobile-patrol-discovery-latest.md
+            docs/release/status/mobile-play-package-parity-latest.json
+            docs/release/status/mobile-play-package-parity-latest.md
+            docs/release/status/mobile-coverage-gate-latest.json
+            docs/release/status/mobile-coverage-gate-latest.md
+            docs/release/status/parity-checklist-verify-latest.json
+            docs/release/status/parity-checklist-verify-latest.md
+            docs/release/status/release-reproducibility-latest.json
+            docs/release/status/release-reproducibility-latest.md
+            docs/release/status/release-artifacts-latest.json
+            docs/release/status/release-artifacts-latest.md
+            docs/release/status/release-rollout-latest.json
+            docs/release/status/release-rollout-latest.md
+            docs/release/status/external-input-resolution-latest.json
+            docs/release/status/external-input-resolution-latest.md
+            docs/release/status/release-candidate-package-latest.json
+            docs/release/status/release-candidate-package-latest.md
+            docs/release/status/release-sbom-latest.spdx.json
+            docs/release/status/release-sbom-install-sh.spdx.json
+            docs/release/status/release-sbom-install-ps1.spdx.json
+            docs/release/status/release-sbom-install-cmd.spdx.json
+            docs/release/status/release-sbom-latest.sig
+            docs/release/status/release-sbom-latest.pem
+            docs/release/status/security-sbom-cosign-evidence-latest.json
+            docs/release/status/security-sbom-cosign-verify-blob-output.txt
+            docs/release/status/security-sbom-cosign-latest.json
+            docs/release/status/security-sbom-cosign-latest.md
+            docs/release/status/security-image-signing-latest.json
+            docs/release/status/security-image-signing-latest.md
+            docs/release/status/security-image-signing-evidence-latest.json
+            docs/release/status/security-image-signing-verify-*.txt
+            docs/release/status/security-release-artifact-sbom-latest.json
+            docs/release/status/security-release-artifact-sbom-latest.md
+            docs/release/status/release-bundle-hygiene-latest.json
+            docs/release/status/release-bundle-hygiene-latest.md
+
+      - name: Notify team channel
+        if: always() && env.RELEASE_TEAM_WEBHOOK_URL != ''
+        env:
+          RELEASE_TEAM_WEBHOOK_URL: ${{ secrets.RELEASE_TEAM_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RUN_STATUS: ${{ job.status }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          payload=$(cat <<EOF
+          {
+            "text": "[release-supply-chain] status=${RUN_STATUS} repo=${REPO} branch=${BRANCH} run=${RUN_URL}"
+          }
+          EOF
+          )
+          curl -fsS -X POST -H "Content-Type: application/json" -d "$payload" "$RELEASE_TEAM_WEBHOOK_URL"
+
+  release-readiness-gates:
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'push' && (
+          github.ref == 'refs/heads/main' ||
+          startsWith(github.ref, 'refs/heads/release/') ||
+          startsWith(github.ref, 'refs/tags/v')
+        ))
+      }}
+    runs-on: ubuntu-latest
+    needs: checks
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: CI required checks gate (strict)
+        run: npm run release:ci:required:check -- --strict
+
+      - name: Final sign-off gate (strict)
+        run: npm run release:final:signoff:check -- --strict
+
+      - name: Upload readiness gate status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-readiness-gates-status
+          path: |
+            docs/release/status/ci-required-checks-latest.json
+            docs/release/status/ci-required-checks-latest.md
+            docs/release/status/final-signoff-latest.json
+            docs/release/status/final-signoff-latest.md

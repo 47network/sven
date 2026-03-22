@@ -1,0 +1,177 @@
+name: mobile-auth-session-smoke
+# noop-touch: keep workflow path-trigger active for follow-up CI reruns
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'services/gateway-api/**'
+      - '.github/workflows/mobile-auth-session-smoke.yml'
+  pull_request:
+    paths:
+      - 'services/gateway-api/**'
+      - '.github/workflows/mobile-auth-session-smoke.yml'
+
+jobs:
+  mobile-auth-session:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: sven
+          POSTGRES_USER: sven
+          POSTGRES_PASSWORD: sven
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U sven -d sven"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: postgresql://sven:sven@localhost:5432/sven
+      NATS_URL: nats://localhost:4222
+      COOKIE_SECRET: ci-cookie-secret-2026-mobile-auth-smoke-very-strong
+      GATEWAY_PORT: '3001'
+      GATEWAY_HOST: '127.0.0.1'
+      SVEN_MIGRATION_ID_MODE: text
+      API_URL: http://127.0.0.1:3001
+      RUN_LIVE_GATEWAY_E2E: 'true'
+      RELEASE_AUTH_USERNAME: release-admin
+      RELEASE_AUTH_PASSWORD: release-admin-pass
+      RELEASE_AUTH_BOOTSTRAP_IF_EMPTY: '1'
+      RELEASE_AUTH_BOOTSTRAP_ENABLE_TOTP: '0'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Start NATS (JetStream)
+        run: |
+          docker run -d --name sven-nats -p 4222:4222 -p 8222:8222 nats:2.10 -js
+          for i in {1..20}; do
+            if bash -c ">/dev/tcp/127.0.0.1/4222" 2>/dev/null; then
+              echo "NATS is reachable"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "NATS failed to start" >&2
+          docker logs sven-nats || true
+          exit 1
+
+      - name: Build shared package
+        run: npm run --workspace packages/shared build
+
+      - name: Build gateway
+        run: npm run --workspace services/gateway-api build
+
+      - name: Run migrations
+        run: npm run --workspace services/gateway-api db:migrate
+
+      - name: Ensure device OAuth table for smoke test
+        run: |
+          cat > ensure-device-oauth.cjs <<'EOF'
+          const { Client } = require('pg');
+          (async () => {
+            const c = new Client({ connectionString: process.env.DATABASE_URL });
+            await c.connect();
+            await c.query(`
+              CREATE TABLE IF NOT EXISTS device_codes (
+                id           TEXT PRIMARY KEY,
+                device_code  TEXT NOT NULL UNIQUE,
+                user_code    TEXT NOT NULL UNIQUE,
+                status       TEXT NOT NULL DEFAULT 'pending',
+                user_id      TEXT REFERENCES users(id) ON DELETE SET NULL,
+                client_name  TEXT,
+                client_type  TEXT,
+                scope        TEXT,
+                expires_at   TIMESTAMPTZ NOT NULL,
+                approved_at  TIMESTAMPTZ,
+                created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+              );
+            `);
+            await c.query(`
+              CREATE INDEX IF NOT EXISTS idx_device_codes_status
+              ON device_codes(status, expires_at);
+            `);
+            await c.end();
+          })().catch((err) => {
+            console.error(err);
+            process.exit(1);
+          });
+          EOF
+          node ensure-device-oauth.cjs
+
+      - name: Start gateway API
+        run: |
+          node services/gateway-api/dist/index.js > gateway.log 2>&1 &
+          echo $! > gateway.pid
+
+      - name: Wait for health
+        run: |
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:3001/healthz > /dev/null; then
+              echo "Gateway is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Gateway failed health check" >&2
+          cat gateway.log || true
+          exit 1
+
+      - name: Run release auth readiness check (real login path)
+        run: node scripts/release-auth-readiness-check.cjs --strict
+
+      - name: Export session context from real login
+        run: |
+          cat > export-mobile-auth-context.cjs <<'EOF'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const reportPath = path.join(process.cwd(), 'docs', 'release', 'status', 'auth-release-readiness-latest.json');
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          const token = String(report?.issued_context?.access_token || '').trim();
+          const sessionCookie = String(report?.issued_context?.session_cookie || '').trim();
+          if (!token || !sessionCookie) {
+            throw new Error('auth-release-readiness-latest.json missing issued auth context');
+          }
+          fs.appendFileSync(process.env.GITHUB_ENV, `ADMIN_TOKEN=${token}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `TEST_SESSION_COOKIE=${sessionCookie}\n`);
+          EOF
+          node export-mobile-auth-context.cjs
+
+      - name: Run mobile auth/session smoke e2e
+        working-directory: services/gateway-api
+        run: node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/mobile-auth-session.e2e.ts --runInBand
+
+      - name: Upload gateway log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-log-mobile-auth-session
+          path: gateway.log
+
+      - name: Upload auth readiness status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-auth-readiness-status
+          path: |
+            docs/release/status/auth-release-readiness-latest.json
+            docs/release/status/auth-release-readiness-latest.md
+
+      - name: Stop gateway
+        if: always()
+        run: |
+          if [ -f gateway.pid ]; then kill $(cat gateway.pid) || true; fi
+          docker rm -f sven-nats || true

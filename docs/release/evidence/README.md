@@ -1,0 +1,231 @@
+# Release Evidence Directory
+
+This directory contains evidence artifacts for the Flutter User App v1.0 production cutover.
+
+## Directory Structure
+
+```text
+evidence/
+├── README.md (this file)
+├── visual-polish-validation-checklist.md (Section B validation)
+├── section-j-performance-measurement-guide.md (Section J guide)
+├── rollback-testing-procedure.md (Section L rollback testing)
+├── canary-phase0-dogfood-template.md (Section L Phase 0)
+├── canary-phase1-5pct-template.md (Section L Phase 1)
+├── canary-phase2-25pct-template.md (Section L Phase 2)
+├── screenshots/
+│   ├── cinematic/ (cinematic mode captures)
+│   └── classic/ (classic mode captures)
+├── performance/
+│   ├── fps-cinematic-*.md (FPS profiling results)
+│   └── fps-classic-*.md
+├── telemetry/
+│   ├── cold_start_samples.txt (telemetry event samples)
+│   ├── first_token_samples.txt
+│   └── warm_resume_samples.txt
+├── web/
+│   └── lighthouse-report-*.json (web performance audits)
+├── accessibility/
+│   ├── contrast-audit-*.md (WCAG contrast checks)
+│   └── screen-reader-notes-*.md (assistive tech testing)
+└── mobile/
+    └── rc_perf_*_*.txt (ADB performance snapshots)
+```
+
+## Evidence Checklist by Section
+
+### Section B: Visual Direction Lock
+
+**Required Evidence**:
+
+- [ ] Screenshots of cinematic mode (all key screens)
+- [ ] Screenshots of classic mode (all key screens)
+- [ ] Motion level testing notes (off/reduced/full)
+- [ ] Contrast audit results (WCAG AA compliance)
+- [ ] Design lead approvalDocument: `visual-polish-validation-checklist.md`
+
+**Status**: ⚠️ Validation pending
+
+### Section J: Performance and Accessibility
+
+**Required Evidence**:
+
+- [ ] Mobile performance snapshots (gfxinfo, meminfo)
+- [ ] SLO check results (`mobile-perf-slo-latest.json`)
+- [ ] Telemetry event samples (cold start, first token, warm resume)
+- [ ] Percentile calculations (p50, p95, p99)
+- [ ] Web Lighthouse audit results
+- [ ] FPS profiling reports (cinematic and classic)
+- [ ] Contrast audit (WCAG AA)
+- [ ] Screen reader testing notes
+- [ ] Accessibility lead approval
+
+**Document**: `section-j-performance-measurement-guide.md`
+
+**Status**: ⚠️ Measurements pending
+
+### Section L: Rollout Operations
+
+**Required Evidence**:
+
+- [ ] Phase 0 dogfood report (filled template)
+- [ ] Phase 1 5% canary report (filled template)
+- [ ] Phase 2 25% canary report (filled template)
+- [ ] Rollback testing report
+- [ ] SLO monitoring screenshots
+- [ ] Incident log (if any)
+- [ ] Support ticket summary
+- [ ] Operations lead approval
+
+**Templates**:
+
+- `canary-phase0-dogfood-template.md`
+- `canary-phase1-5pct-template.md`
+- `canary-phase2-25pct-template.md`
+- `rollback-testing-procedure.md`
+
+**Status**: ⚠️ Awaiting execution
+
+## How to Use This Directory
+
+### During Local Testing (Section B & J)
+
+1. **Visual Testing**:
+   - Take screenshots of app in cinematic mode
+   - Save to `screenshots/cinematic/`
+   - Take screenshots of app in classic mode
+   - Save to `screenshots/classic/`
+   - Fill out `visual-polish-validation-checklist.md`
+
+2. **Performance Testing**:
+   - Run `.\scripts\ops\mobile\collect-adb-perf-snapshot.ps1`
+   - Artifacts auto-saved to `mobile/`
+   - Run `node scripts/mobile-perf-slo-check.cjs`
+   - Review results in `../status/mobile-perf-slo-latest.md`
+   - Collect telemetry samples, save to `telemetry/`
+   - Run Lighthouse, save to `web/`
+
+3. **Accessibility Testing**:
+   - Perform contrast checks, document in `accessibility/contrast-audit-<date>.md`
+   - Test screen readers, document in `accessibility/screen-reader-notes-<date>.md`
+
+### During Canary Rollout (Section L)
+
+1. **Phase 0 (Dogfood)**:
+   - Copy `canary-phase0-dogfood-template.md` to `canary-phase0-dogfood-<date>.md`
+   - Fill in as dogfood progresses
+   - Document issues, metrics, and gate decision
+
+2. **Phase 1 (5% Canary)**:
+   - Copy `canary-phase1-5pct-template.md` to `canary-phase1-5pct-<date>.md`
+   - Monitor SLOs for 60+ minutes
+   - Document metrics comparison and gate decision
+
+3. **Phase 2 (25% Canary)**:
+   - Copy `canary-phase2-25pct-template.md` to `canary-phase2-25pct-<date>.md`
+   - Monitor for 120+ minutes
+   - Document capacity headroom and gate decision
+
+4. **Rollback Testing**:
+   - Follow `rollback-testing-procedure.md`
+   - Document actual rollback times and findings
+   - Save report as `rollback-test-report-<date>.md`
+
+### For Final Signoff (Section M)
+
+1. Collect all evidence artifacts from this directory
+2. Reference specific files in `../signoffs/flutter-user-app-cutover-signoff.md`
+3. Ensure all required evidence is present and complete
+4. Obtain stakeholder approvals
+
+## File Naming Conventions
+
+- **Dates**: Use `YYYY-MM-DD` format (e.g., `2026-02-18`)
+- **Timestamps**: Use `YYYYMMDD-HHMMSS` format (e.g., `20260218-143022`)
+- **Screenshots**: `<mode>-<screen>-<date>.png` (e.g., `cinematic-chat-2026-02-18.png`)
+- **Reports**: `<type>-<date>.md` (e.g., `contrast-audit-2026-02-18.md`)
+- **ADB artifacts**: Auto-generated by script (e.g., `rc_perf_20260218-143022_<deviceid>_gfxinfo.txt`)
+
+## Evidence Quality Standards
+
+### Screenshots
+
+- **Resolution**: Native device resolution (no scaling)
+- **Format**: PNG (lossless)
+- **Content**: Full screen, actual user flow (not placeholder data)
+- **Naming**: Descriptive, includes mode and date
+
+### Performance Reports
+
+- **Sample Size**: Minimum 20 measurements per metric
+- **Device Spec**: Document actual device model and OS version
+- **Conditions**: Note any atypical conditions (background apps, network state)
+- **Raw Data**: Preserve raw output files (gfxinfo, meminfo, etc.)
+
+### Accessibility Audits
+
+- **Tool Used**: Name and version (e.g., Lighthouse 10.0, WCAG Contrast Checker)
+- **Scope**: List screens and components tested
+- **Findings**: Document pass/fail with specific contrast ratios
+- **Remediation**: Note any issues and fixes applied
+
+### Canary Reports
+
+- **Metrics**: Actual numbers with units (ms, %, count)
+- **Timestamps**: UTC for all start/end times
+- **Incidents**: Full description with severity and resolution
+- **Gate Decision**: Clear pass/fail with approver name and timestamp
+
+## Evidence Review Process
+
+1. **Self-Review**: Engineer verifies evidence completeness
+2. **Peer Review**: Another engineer spot-checks evidence quality
+3. **Lead Review**: Section lead (design, performance, ops) approves their area
+4. **Release Owner Review**: Final review of all evidence before signoff
+
+## Evidence Retention
+
+- **Retention Period**: Minimum 1 year post-release
+- **Backup**: Evidence directory should be backed up with Git repo
+- **Access**: All release stakeholders should have read access
+- **Sensitive Data**: Redact any PII, tokens, or sensitive info before committing
+
+## Common Issues
+
+### "Evidence file not found"
+
+- Ensure scripts ran successfully (check exit codes)
+- Verify output directory path is correct
+- Check file permissions (can write to `docs/release/evidence/`)
+
+### "Performance measurements look wrong"
+
+- Verify app is in release mode (not debug)
+- Check no other heavy apps running on device
+- Ensure device is not in low-power mode
+- Repeat measurement with consistent conditions
+
+### "Screenshots don't capture full UI"
+
+- Use native screenshot (device button combo)
+- Avoid scaled displays or accessibility zoom
+- Ensure status bar and navigation bar are visible
+
+### "Canary metrics incomplete"
+
+- Verify monitoring dashboards are accessible
+- Check metric collection interval (shouldn't be aggregated)
+- Ensure time range matches canary window exactly
+
+## Support
+
+For questions about evidence requirements or quality standards:
+
+- **Release Owner**: See `../signoffs/flutter-user-app-cutover-signoff.md`
+- **Documentation**: See `../status/flutter-release-status-2026-02-18.md`
+- **Local Testing**: See `../LOCAL_TESTING_GUIDE.md`
+
+---
+
+**Last Updated**: 2026-02-18  
+**Maintained By**: Release Engineering Team

@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-03-21T00:28:44.572Z",
+  "status": "fail",
+  "declared_cases": 6,
+  "executed_cases": 0,
+  "guarded_skipped_cases": 0,
+  "jest_success": false,
+  "live_checks_executed": false,
+  "min_executed_cases_required": 6,
+  "max_skipped_cases_allowed": 0,
+  "source_run_id": null,
+  "head_sha": null,
+  "checks": [
+    {
+      "id": "final_dod_declared_cases_present",
+      "pass": true,
+      "detail": "declared_cases=6"
+    },
+    {
+      "id": "final_dod_jest_results_present",
+      "pass": false,
+      "detail": "missing/unparseable docs/release/status/final-dod-e2e-jest-results.json"
+    },
+    {
+      "id": "final_dod_jest_success",
+      "pass": false,
+      "detail": "success=false passed=0 failed=0"
+    },
+    {
+      "id": "final_dod_executed_cases_min",
+      "pass": false,
+      "detail": "executed_cases=0 min_required=6"
+    },
+    {
+      "id": "final_dod_skipped_cases_max",
+      "pass": true,
+      "detail": "skipped_cases=0 max_allowed=0"
+    },
+    {
+      "id": "final_dod_live_checks_executed",
+      "pass": false,
+      "detail": "live_checks_executed=false (executed=0, skipped=0)"
+    }
+  ]
+}

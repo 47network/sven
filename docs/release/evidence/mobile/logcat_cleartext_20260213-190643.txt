@@ -1,0 +1,41 @@
+--------- beginning of kernel
+02-13 19:06:49.193     0     0 I [2:            cmd: 4659] binder: 4659:4659 ioctl 40046210 7ffbb78bd0 returned -22
+--------- beginning of system
+02-13 19:06:52.551  4571  4641 D CoreBackPreview: Window{8ea4492 u0 ai.sven.companion/ai.sven.companion.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@1d6484, mPriority=0}
+02-13 19:06:50.539     0     0 I [3:      watchdogd: 3957] softdog: softdog_ping: 30
+--------- beginning of main
+02-13 19:06:54.021 26371  4672 D TrafficStats: tagSocket(104) with statsTag=0x90000, statsUid=-1
+02-13 19:06:54.122  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:06:52.743     0     0 W [1:       wificond: 4387] slsi_mlme_get_sinfo_mib: 2 callbacks suppressed
+02-13 19:06:56.036 26371  4679 D TrafficStats: tagSocket(104) with statsTag=0x90000, statsUid=-1
+02-13 19:06:56.123  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:06:58.052 26371  4699 D TrafficStats: tagSocket(104) with statsTag=0x90000, statsUid=-1
+02-13 19:06:58.124  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:06:58.756  4714  4714 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+02-13 19:06:58.763  4714  4714 I AndroidRuntime: Using default boot image
+02-13 19:06:58.763  4714  4714 I AndroidRuntime: Leaving lock profiling enabled
+02-13 19:06:58.767  4714  4714 W app_process: ART APEX data files are untrusted.
+02-13 19:06:58.767  4714  4714 I app_process: Core platform API reporting enabled, enforcing=false
+02-13 19:06:58.913  4714  4714 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+02-13 19:06:58.913  4714  4714 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt70l.dat
+02-13 19:06:58.926  4714  4714 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2555718838])
+02-13 19:06:58.960  4714  4714 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+02-13 19:06:55.677     0     0 I [7:           main: 4714] binder: 4714:4714 ioctl 40046210 7fedece230 returned -22
+02-13 19:06:58.975  4571  6021 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:06:58.980  4714  4757 V UiAutomation: Init UiAutomation@5c39399[id=264, flags=0]
+02-13 19:06:58.981  4571  4641 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:06:59.003  4302  4352 W TransactionTracing: Could not find layer handle 0x77e74d84b0
+02-13 19:06:59.988  4714  4714 W libc    : Access denied finding property "qemu.sf.lcd_density"
+02-13 19:06:59.988  4714  4714 W libc    : Access denied finding property "qemu.sf.lcd_density"
+02-13 19:07:00.003  5805 11445 W MediaProvider: isAppCloneUserPair failed. Users: 0 and 0
+02-13 19:07:00.003  5805 11445 W MediaProvider: isAppCloneUserPair for user 0: false
+02-13 19:07:00.007  5805 11445 V MediaProvider: Inserted id:1000001694 less than next row id backup:1000002000.
+02-13 19:07:00.067 26371  4761 D TrafficStats: tagSocket(104) with statsTag=0x90000, statsUid=-1
+02-13 19:07:00.125  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:07:00.179  4714  4714 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@18c61; boundsInParent: Rect(0, 0 - 978, 25); boundsInScreen: Rect(51, 2410 - 1029, 2400); packageName: ai.sven.companion; className: android.widget.TextView; text: Placeholder for local network discovery.; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:07:00.184  4714  4714 W AccessibilityNodeInfoDumper: Fetch time: 192ms
+02-13 19:07:00.193  4571 10182 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:07:00.198  4714  4714 D AndroidRuntime: Shutting down VM
+02-13 19:06:56.914     0     0 I [2:    uiautomator: 4714] binder: 4714:4714 ioctl 40046210 7fedece414 returned -22
+02-13 19:07:00.200  4571  4571 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:07:00.206  4302  4352 W TransactionTracing: Could not find layer handle 0x77e74ce730

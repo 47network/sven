@@ -1,0 +1,1933 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sven — AI Runtime, Community, and Control Surface.</title>
+  <meta name="description"
+    content="Sven is a full self-hosted AI platform: multi-agent runtime, memory/RAG, voice, mobile, desktop, admin control, and verified community ecosystem." />
+  <meta property="og:title" content="Sven — AI Runtime, Community, and Control Surface." />
+  <meta property="og:description"
+    content="Deploy once. Run AI for family, teams, and operators across messaging, web, mobile, desktop, and voice. Private, self-hosted, production-ready." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="/suite/assets/sven-logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050814;
+      --panel: #0b1328;
+      --border: #1a2a4a;
+      --text: #e6ecff;
+      --muted: #7a8fc0;
+      --dim: #3a4d7a;
+      --cyan: #4ed7ff;
+      --purple: #ff4fcb;
+      --green: #6ff1c2;
+      --orange: #ffbe78
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255, 255, 255, .02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .02) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: radial-gradient(circle at center, #000 38%, transparent 85%);
+      opacity: .32;
+      z-index: 0
+    }
+
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      z-index: 180;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      box-shadow: 0 0 14px rgba(255, 79, 203, .45)
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(16px, 4vw, 48px);
+      height: 60px;
+      background: rgba(5, 8, 20, .88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(26, 42, 74, .55)
+    }
+
+    .nl {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 17px;
+      letter-spacing: -.4px;
+      color: var(--text)
+    }
+
+    .nl img {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 18px rgba(255, 67, 199, .35)
+    }
+
+    .nl span {
+      color: var(--text)
+    }
+
+    .nr {
+      display: flex;
+      gap: 22px;
+      align-items: center
+    }
+
+    .nr a {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+      transition: color .15s, border-color .15s, background .15s;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 4px 8px
+    }
+
+    .nr a:hover {
+      color: var(--text);
+      border-color: rgba(255, 79, 203, .35);
+      background: rgba(255, 79, 203, .08)
+    }
+
+    .nc {
+      background: linear-gradient(135deg, var(--purple), var(--cyan)) !important;
+      color: #14081f !important;
+      padding: 7px 16px !important;
+      border-radius: 8px;
+      font-weight: 700 !important;
+      font-size: 13px !important
+    }
+
+    .nc,
+    .bp,
+    .bs,
+    .itab,
+    .cb {
+      outline: none
+    }
+
+    .nc:focus-visible,
+    .bp:focus-visible,
+    .bs:focus-visible,
+    .itab:focus-visible,
+    .cb:focus-visible,
+    .nr a:focus-visible {
+      outline: 2px solid rgba(78, 215, 255, .9);
+      outline-offset: 2px
+    }
+
+    .nc:hover {
+      opacity: .85
+    }
+
+    @media(max-width:580px) {
+      .nh {
+        display: none
+      }
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px clamp(16px, 5vw, 64px) 60px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 80% 55% at 20% -5%, rgba(255, 79, 203, .18) 0%, transparent 65%), radial-gradient(ellipse 60% 50% at 90% 5%, rgba(78, 215, 255, .16) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 50% 110%, rgba(5, 8, 20, .9) 0%, transparent 55%)
+    }
+
+    .ey {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 79, 203, .12);
+      border: 1px solid rgba(255, 79, 203, .35);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      color: var(--cyan);
+      margin-bottom: 28px
+    }
+
+    .ed {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: blink 2s infinite
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .4;
+        transform: scale(.7)
+      }
+    }
+
+    h1 {
+      font-size: clamp(38px, 7vw, 84px);
+      font-weight: 900;
+      line-height: 1.06;
+      letter-spacing: -2px;
+      max-width: 880px
+    }
+
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .hs {
+      margin-top: 22px;
+      font-size: clamp(15px, 2vw, 19px);
+      color: var(--muted);
+      max-width: 580px;
+      line-height: 1.7
+    }
+
+    .hb {
+      margin-top: 36px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center
+    }
+
+    .bp {
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      color: #14081f;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 13px 26px;
+      border-radius: 10px;
+      transition: opacity .15s, transform .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .bp:hover {
+      opacity: .86;
+      transform: translateY(-1px)
+    }
+
+    .bs {
+      background: transparent;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 15px;
+      padding: 13px 26px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: border-color .15s, background .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .bs:hover {
+      border-color: var(--muted);
+      background: rgba(255, 255, 255, .03)
+    }
+
+    .iw {
+      width: min(700px, 100%);
+      margin-top: 44px
+    }
+
+    .itabs {
+      display: flex;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      overflow: hidden;
+      background: #070d1e
+    }
+
+    .itab {
+      flex: 1;
+      padding: 10px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: background .15s, color .15s
+    }
+
+    .itab.on {
+      background: #0e1830;
+      color: var(--cyan);
+      border-bottom: 2px solid var(--cyan)
+    }
+
+    .ibox {
+      background: #070d1e;
+      border: 1px solid var(--border);
+      border-radius: 0 0 10px 10px;
+      padding: 15px 18px;
+      position: relative;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      color: var(--green);
+      white-space: pre;
+      overflow-x: auto;
+      min-height: 52px
+    }
+
+    .ipanel {
+      display: none
+    }
+
+    .ipanel.on {
+      display: block
+    }
+
+    .cb {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-family: 'Inter', sans-serif;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background .15s
+    }
+
+    .cb:hover {
+      background: rgba(255, 255, 255, .1)
+    }
+
+    .ih {
+      margin-top: 12px;
+      font-size: 11.5px;
+      color: var(--dim);
+      text-align: center
+    }
+
+    section {
+      padding: clamp(48px, 7vw, 88px) clamp(16px, 5vw, 60px)
+    }
+
+    section:not(.hero) {
+      border-top: 1px solid rgba(26, 42, 74, .35)
+    }
+
+    .si {
+      max-width: 1080px;
+      margin: 0 auto
+    }
+
+    .sl {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 10px
+    }
+
+    h2 {
+      font-size: clamp(26px, 4vw, 46px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #fff 18%, #ffd2f2 58%, #b9eeff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .sd {
+      margin-top: 10px;
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 540px;
+      line-height: 1.7
+    }
+
+    .sb {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 36px clamp(16px, 5vw, 60px)
+    }
+
+    .sr {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 24px;
+      text-align: center
+    }
+
+    .snum {
+      font-size: 44px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: var(--cyan);
+      line-height: 1
+    }
+
+    .slb {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 5px;
+      font-weight: 500
+    }
+
+    .fg {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+      margin-top: 44px
+    }
+
+    .fc {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 26px;
+      transition: border-color .2s, transform .2s;
+      position: relative;
+      overflow: hidden
+    }
+
+    .fc::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(380px at 0% 0%, rgba(255, 255, 255, .022) 0%, transparent 80%);
+      pointer-events: none
+    }
+
+    .fc:hover {
+      border-color: var(--dim);
+      transform: translateY(-2px)
+    }
+
+    .fi2 {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      margin-bottom: 14px
+    }
+
+    .fc h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 7px
+    }
+
+    .fc p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65
+    }
+
+    .ft {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(34, 211, 238, .1);
+      color: var(--cyan)
+    }
+
+    .abg {
+      background-image: radial-gradient(circle, #1a2a4a 1px, transparent 1px);
+      background-size: 28px 28px
+    }
+
+    .ag {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+      margin-top: 44px
+    }
+
+    .ap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 16px 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      transition: border-color .15s, color .15s, background .15s
+    }
+
+    .ap:hover {
+      border-color: var(--dim);
+      color: var(--text);
+      background: rgba(255, 255, 255, .025)
+    }
+
+    .ap .i {
+      font-size: 22px
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 28px;
+      margin-top: 44px
+    }
+
+    .step {
+      display: flex;
+      gap: 18px
+    }
+
+    .sn2 {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid var(--purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--purple);
+      margin-top: 2px
+    }
+
+    .step h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 5px
+    }
+
+    .step p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65
+    }
+
+    .ct {
+      overflow-x: auto;
+      margin-top: 44px;
+      border-radius: 13px;
+      border: 1px solid var(--border)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px
+    }
+
+    thead {
+      background: #0b1328
+    }
+
+    thead th {
+      padding: 14px 18px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    thead th.hl {
+      color: var(--cyan)
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(26, 42, 74, .45)
+    }
+
+    tbody tr:last-child {
+      border-bottom: none
+    }
+
+    td {
+      padding: 12px 18px;
+      color: var(--muted)
+    }
+
+    td:first-child {
+      color: var(--text);
+      font-weight: 500
+    }
+
+    .yes {
+      color: var(--green);
+      font-weight: 700
+    }
+
+    .no {
+      color: var(--dim)
+    }
+
+    .par {
+      color: var(--orange);
+      font-weight: 600
+    }
+
+    .db {
+      margin-top: 22px;
+      background: #070d1e;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 22px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.9
+    }
+
+    .db .c {
+      color: var(--dim)
+    }
+
+    .db .k {
+      color: var(--purple)
+    }
+
+    .db .v {
+      color: var(--green)
+    }
+
+    .proof {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px
+    }
+
+    .proof .pi {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .02);
+      border-radius: 10px;
+      padding: 10px 12px
+    }
+
+    .proof .pk {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .proof .pv {
+      margin-top: 5px;
+      font-weight: 700;
+      color: var(--cyan);
+      font-size: 14px
+    }
+
+    .rv {
+      opacity: 0;
+      transform: translateY(16px);
+      filter: blur(2px);
+      transition: opacity .52s ease, transform .52s ease, filter .52s ease;
+      transition-delay: var(--rvd, 0ms)
+    }
+
+    .rv.in {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0)
+    }
+
+    .capg {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px
+    }
+
+    .capc {
+      border: 1px solid var(--border);
+      background: linear-gradient(160deg, rgba(11, 19, 40, .98), rgba(10, 16, 34, .95));
+      border-radius: 14px;
+      padding: 20px 20px 18px
+    }
+
+    .capc h3 {
+      font-size: 15px;
+      margin-bottom: 10px
+    }
+
+    .capc p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6
+    }
+
+    .capc ul {
+      margin-top: 12px;
+      list-style: none;
+      display: grid;
+      gap: 6px
+    }
+
+    .capc li {
+      font-size: 12.5px;
+      color: #b9c9f3;
+      position: relative;
+      padding-left: 16px
+    }
+
+    .capc li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan)
+    }
+
+    .instl {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 9px
+    }
+
+    .instl a {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      color: #c8d6ff;
+      background: rgba(255, 255, 255, .02);
+      transition: border-color .15s, background .15s
+    }
+
+    .instl a:hover {
+      border-color: var(--muted);
+      background: rgba(255, 255, 255, .05)
+    }
+
+    .suitebar {
+      margin-top: 28px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(34, 211, 238, .06), rgba(11, 19, 40, .75));
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px
+    }
+
+    .suitebar .si2 {
+      border: 1px solid rgba(26, 42, 74, .8);
+      border-radius: 9px;
+      padding: 9px 10px;
+      background: rgba(6, 10, 22, .7)
+    }
+
+    .suitebar .sk {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .suitebar .sv {
+      margin-top: 4px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .surfaceg {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+      gap: 14px
+    }
+
+    .surface {
+      border: 1px solid var(--border);
+      background: rgba(11, 19, 40, .95);
+      border-radius: 13px;
+      padding: 18px
+    }
+
+    .surface .tt {
+      font-size: 15px;
+      font-weight: 700
+    }
+
+    .surface .mm {
+      margin-top: 7px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6
+    }
+
+    .surface .ln {
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--cyan);
+      font-weight: 600
+    }
+
+    .layerg {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 14px
+    }
+
+    .layer {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 17px;
+      background: rgba(7, 13, 30, .95)
+    }
+
+    .layer h3 {
+      font-size: 15px;
+      margin-bottom: 8px
+    }
+
+    .layer p {
+      font-size: 13px;
+      color: var(--muted)
+    }
+
+    .layer ul {
+      margin-top: 10px;
+      list-style: none;
+      display: grid;
+      gap: 6px
+    }
+
+    .layer li {
+      font-size: 12.5px;
+      color: #c2d0f6;
+      padding-left: 14px;
+      position: relative
+    }
+
+    .layer li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--cyan)
+    }
+
+    .docg {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px
+    }
+
+    .docc {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(11, 19, 40, .94)
+    }
+
+    .docc h3 {
+      font-size: 15px;
+      margin-bottom: 7px
+    }
+
+    .docc p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6
+    }
+
+    .docc a {
+      display: inline-flex;
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: var(--cyan);
+      font-weight: 600
+    }
+
+    .sg {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px
+    }
+
+    .sg .sc {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      background: rgba(11, 19, 40, .95)
+    }
+
+    .sg .k {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--dim);
+      font-weight: 700
+    }
+
+    .sg .v {
+      margin-top: 6px;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px
+    }
+
+    .sg .d {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 36px clamp(16px, 5vw, 60px)
+    }
+
+    .fot {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .fb2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--cyan)
+    }
+
+    .fb2 span {
+      color: var(--text)
+    }
+
+    .fl {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px
+    }
+
+    .fl a {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      transition: color .15s
+    }
+
+    .fl a:hover {
+      color: var(--text)
+    }
+
+    .fc2 {
+      font-size: 11.5px;
+      color: var(--dim);
+      width: 100%;
+      margin-top: 4px
+    }
+
+    .pgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+      margin-top: 44px
+    }
+
+    .pc {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 26px;
+      transition: border-color .2s, transform .2s;
+      position: relative;
+      overflow: hidden
+    }
+
+    .pc::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(380px at 100% 100%, rgba(167, 139, 250, .04) 0%, transparent 80%);
+      pointer-events: none
+    }
+
+    .pc:hover {
+      border-color: var(--dim);
+      transform: translateY(-2px)
+    }
+
+    .pem {
+      font-size: 36px;
+      margin-bottom: 14px;
+      line-height: 1
+    }
+
+    .pc h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text)
+    }
+
+    .pc p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.7
+    }
+
+    .pq {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: rgba(34, 211, 238, .05);
+      border-left: 2px solid var(--cyan);
+      border-radius: 0 6px 6px 0;
+      font-size: 12.5px;
+      color: var(--dim);
+      font-style: italic
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rv,
+      .rv.in,
+      .bp,
+      .bs,
+      .fc,
+      .pc,
+      .ap {
+        transition: none !important;
+        transform: none !important;
+        filter: none !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="scroll-progress" id="scroll-progress"></div>
+  <nav>
+    <a class="nl" href="/"><img src="/suite/assets/sven-logo.png" alt="Sven logo" /><span>sven.ai</span></a>
+    <div class="nr">
+      <a href="https://github.com/47network/thesven" class="nh">GitHub</a>
+      <a href="#suite" class="nh">Suite</a>
+      <a href="#capabilities" class="nh">Capabilities</a>
+      <a href="#surfaces" class="nh">Surfaces</a>
+      <a href="#architecture" class="nh">Architecture</a>
+      <a href="#docs-center" class="nh">Docs</a>
+      <a href="#for-everyone" class="nh">For Families</a>
+      <a href="#features" class="nh">Highlights</a>
+      <a href="/suite" class="nh">Full Suite</a>
+      <a href="/community" class="nh">Community</a>
+      <a href="#install">Get Started</a>
+      <a href="https://github.com/47network/thesven" class="nc">&#9733; Star</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="ey"><span class="ed"></span>v0.1.0 &nbsp;&middot;&nbsp; Open Source &nbsp;&middot;&nbsp; 287/287 Proven
+      Capability Rows</div>
+    <h1>One deployment.<br><em>Full-spectrum AI operations.</em></h1>
+    <p class="hs">Sven is not just a chatbot. It is a self-hosted AI platform with multi-agent runtime, memory and RAG,
+      voice stack, messaging adapters, mobile and desktop apps, governance controls, and verified community operations.</p>
+    <div class="hb">
+      <a href="#install" class="bp">&#9889; Get Sven Free</a>
+      <a href="/suite" class="bs">Explore Full Suite &rarr;</a>
+      <a href="/community" class="bs">Open Community &rarr;</a>
+      <a href="https://github.com/47network/thesven" class="bs">View on GitHub &rarr;</a>
+    </div>
+    <div class="iw">
+      <div class="itabs">
+        <button class="itab on" onclick="sw(event,'h','hl')">Linux / macOS</button>
+        <button class="itab" onclick="sw(event,'h','hp')">PowerShell</button>
+        <button class="itab" onclick="sw(event,'h','hd')">Docker Compose</button>
+      </div>
+      <div class="ibox">
+        <div id="h-hl" class="ipanel on">curl -fsSL https://sven.example.com/install.sh | sh</div>
+        <div id="h-hp" class="ipanel">iwr -useb https://sven.example.com/install.ps1 | iex</div>
+        <div id="h-hd" class="ipanel">git clone https://github.com/47network/thesven
+          cd thesven &amp;&amp; cp .env.example .env
+          docker compose up -d</div>
+        <button class="cb" onclick="cp2('h')">copy</button>
+      </div>
+    </div>
+    <p class="ih">Works on any Linux host &middot; Docker &middot; macOS &middot; Windows WSL</p>
+  </section>
+
+  <div class="sb">
+    <div class="sr">
+      <div>
+        <div class="snum">20</div>
+        <div class="slb">Messaging Adapters</div>
+      </div>
+      <div>
+        <div class="snum">287</div>
+        <div class="slb">Proven Capability Rows</div>
+      </div>
+      <div>
+        <div class="snum">8/8</div>
+        <div class="slb">Wave Competitors Closed</div>
+      </div>
+      <div>
+        <div class="snum">100%</div>
+        <div class="slb">Self-Hosted</div>
+      </div>
+      <div>
+        <div class="snum">MIT</div>
+        <div class="slb">Open Source</div>
+      </div>
+      <div>
+        <div class="snum">4</div>
+        <div class="slb">Primary Client Surfaces</div>
+      </div>
+    </div>
+  </div>
+
+  <section id="capabilities" class="abg">
+    <div class="si">
+      <div class="sl">What Sven Is</div>
+      <h2>Everything you need to run serious AI,<br>in one controlled platform.</h2>
+      <p class="sd">Sven combines the capabilities usually split across multiple products: orchestration, memory,
+        channels, governance, and operations evidence.</p>
+      <div class="capg">
+        <div class="capc">
+          <h3>Runtime and orchestration</h3>
+          <p>Production service mesh for multi-agent execution, workflow routing, retries, approvals, and policy checks.</p>
+          <ul>
+            <li>Agent runtime + workflow builder + scheduler</li>
+            <li>Human-in-the-loop approvals and incident controls</li>
+            <li>Tool dispatch with policy-gated execution</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Knowledge and memory</h3>
+          <p>Persistent memory and retrieval pipeline across documents, repos, notes, and internal knowledge stores.</p>
+          <ul>
+            <li>Hybrid retrieval (BM25 + vectors)</li>
+            <li>Per-user private memory boundaries</li>
+            <li>Knowledge graph extraction and evidence trails</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Channel and client coverage</h3>
+          <p>Meet users where they are while operators keep full visibility in dedicated control surfaces.</p>
+          <ul>
+            <li>20 messaging adapters and local voice pipeline</li>
+            <li>Web admin and canvas collaboration UI</li>
+            <li>Flutter mobile app and desktop companion</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Security and governance</h3>
+          <p>Security-first defaults with explicit governance workflows and hardened release gates.</p>
+          <ul>
+            <li>OIDC/SSO, RBAC, audit-ready controls</li>
+            <li>Sandboxed skill execution and secret isolation</li>
+            <li>Release evidence lanes and strict CI gates</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Community and ecosystem</h3>
+          <p>Verified-persona community operations for high-signal collaboration between humans and agents.</p>
+          <ul>
+            <li>Public community hub with gated participation</li>
+            <li>Doc-agent verification feed and capability proof</li>
+            <li>Reputation and moderation-aware operations</li>
+          </ul>
+        </div>
+        <div class="capc">
+          <h3>Competitive parity proof</h3>
+          <p>Capability claims are bound to generated release artifacts, not hand-written marketing text.</p>
+          <ul>
+            <li>287/287 proven rows (OpenClaw + Agent Zero)</li>
+            <li>Wave 1-8 closeouts all passing</li>
+            <li>Parity verify and lifecycle gates in CI</li>
+          </ul>
+        </div>
+      </div>
+      <div class="proof">
+        <div class="pi">
+          <div class="pk">Row-level proof</div>
+          <div class="pv">OpenClaw 176/176, Agent Zero 111/111</div>
+        </div>
+        <div class="pi">
+          <div class="pk">Wave proof</div>
+          <div class="pv">OpenHands, LibreChat, n8n, CrewAI, Letta, AutoGen, LangGraph: pass</div>
+        </div>
+        <div class="pi">
+          <div class="pk">Evidence source</div>
+          <div class="pv">/v1/public/community/capability-proof</div>
+        </div>
+      </div>
+      <div class="suitebar" id="suite">
+        <div class="si2">
+          <div class="sk">Landing Suite</div>
+          <div class="sv">Platform, docs, architecture, trust, install</div>
+        </div>
+        <div class="si2">
+          <div class="sk">Live status</div>
+          <div class="sv" id="ev-parity">Loading parity proof...</div>
+        </div>
+        <div class="si2">
+          <div class="sk">Wave program</div>
+          <div class="sv" id="ev-waves">Loading wave status...</div>
+        </div>
+        <div class="si2">
+          <div class="sk">Community feed</div>
+          <div class="sv" id="ev-feed">Loading doc-agent status...</div>
+        </div>
+        <div class="si2">
+          <div class="sk">Readiness</div>
+          <div class="sv" id="ev-ready">Loading readiness...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="surfaces">
+    <div class="si">
+      <div class="sl">Client Surfaces</div>
+      <h2>Every Sven surface in one map.</h2>
+      <p class="sd">Use whichever interface fits the user: operations teams, daily users, mobile users, or verified community members.</p>
+      <div class="surfaceg">
+        <div class="surface">
+          <div class="tt">Admin Control Center</div>
+          <div class="mm">Operations, incidents, approvals, workflows, policy controls, observability, and release-readiness views.</div>
+          <a class="ln" href="/admin47">Open admin surface &rarr;</a>
+        </div>
+        <div class="surface">
+          <div class="tt">Canvas Collaboration</div>
+          <div class="mm">Daily conversation and agent collaboration space with runtime-aware context and approval-safe actions.</div>
+          <a class="ln" href="/">Open canvas surface &rarr;</a>
+        </div>
+        <div class="surface">
+          <div class="tt">Mobile Companion</div>
+          <div class="mm">Flutter app with identity-aware sessions, privacy controls, and production release tracks.</div>
+          <a class="ln" href="https://github.com/47network/thesven/tree/thesven/apps/companion-user-flutter">Open mobile project &rarr;</a>
+        </div>
+        <div class="surface">
+          <div class="tt">Desktop Companion</div>
+          <div class="mm">Desktop runtime with secure local storage, gateway connectivity, and enterprise desktop controls.</div>
+          <a class="ln" href="https://github.com/47network/thesven/tree/thesven/apps/companion-desktop-tauri">Open desktop project &rarr;</a>
+        </div>
+        <div class="surface">
+          <div class="tt">Community Platform</div>
+          <div class="mm">Verified-persona ecosystem with trust model, doc-agent verification feed, and moderated collaboration.</div>
+          <a class="ln" href="/community">Open community hub &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="abg" id="architecture">
+    <div class="si">
+      <div class="sl">Architecture</div>
+      <h2>Layered by design for scale, trust, and control.</h2>
+      <p class="sd">Sven is built as a composable production stack so capabilities remain auditable, testable, and replaceable.</p>
+      <div class="layerg">
+        <div class="layer">
+          <h3>Ingress and gateway layer</h3>
+          <p>Unified API and routing surface for users, apps, and adapters.</p>
+          <ul>
+            <li>REST + WebSocket gateway</li>
+            <li>OIDC/JWT auth boundaries</li>
+            <li>Public and private endpoint partitioning</li>
+          </ul>
+        </div>
+        <div class="layer">
+          <h3>Runtime and workflow layer</h3>
+          <p>Deterministic orchestration for tools, agents, and approvals.</p>
+          <ul>
+            <li>Agent runtime and policy checks</li>
+            <li>Workflow builder and execution DAGs</li>
+            <li>Retries, self-correction, and HITL stops</li>
+          </ul>
+        </div>
+        <div class="layer">
+          <h3>Knowledge and memory layer</h3>
+          <p>Context persistence with per-user and shared scopes.</p>
+          <ul>
+            <li>Hybrid retrieval with ranking</li>
+            <li>Repo/notes/NAS ingestion</li>
+            <li>Evidence and traceability outputs</li>
+          </ul>
+        </div>
+        <div class="layer">
+          <h3>Interaction layer</h3>
+          <p>Multi-channel experience endpoints.</p>
+          <ul>
+            <li>20 adapters + local voice stack</li>
+            <li>Admin, canvas, mobile, desktop, community</li>
+            <li>Per-user memory and identity continuity</li>
+          </ul>
+        </div>
+        <div class="layer">
+          <h3>Trust and security layer</h3>
+          <p>Enterprise-grade controls for safe production operation.</p>
+          <ul>
+            <li>RBAC, SSO/OIDC, auditability</li>
+            <li>Sandboxed skill execution</li>
+            <li>Release evidence gates and lifecycle checks</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="docs-center">
+    <div class="si">
+      <div class="sl">Docs Center</div>
+      <h2>Documentation paths for every user type.</h2>
+      <p class="sd">Operators, developers, security reviewers, and product users each get focused entry points.</p>
+      <div class="docg">
+        <div class="docc">
+          <h3>Platform overview</h3>
+          <p>Current features, setup patterns, and platform map.</p>
+          <a href="https://github.com/47network/thesven/tree/thesven/docs">Open docs index &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Release and readiness</h3>
+          <p>Strict release status, evidence lanes, and lifecycle blockers.</p>
+          <a href="https://github.com/47network/thesven/tree/thesven/docs/release">Open release docs &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Competitive proof</h3>
+          <p>Feature parity matrices and reproduction program artifacts.</p>
+          <a href="https://github.com/47network/thesven/tree/thesven/docs/parity">Open parity docs &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Community governance</h3>
+          <p>Verified persona model, moderation policy, trust and submission model.</p>
+          <a href="https://github.com/47network/thesven/tree/thesven/docs/community">Open community docs &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Developer implementation</h3>
+          <p>Services, APIs, contracts, and implementation references.</p>
+          <a href="https://github.com/47network/thesven/tree/thesven/services">Open services source &rarr;</a>
+        </div>
+        <div class="docc">
+          <h3>Security and compliance</h3>
+          <p>Security baseline, hardening, and supply-chain controls.</p>
+          <a href="https://github.com/47network/thesven/blob/thesven/SECURITY.md">Open security guide &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="si">
+      <div class="sl">Why Sven</div>
+      <h2>Give the people you love<br>an AI that actually helps.</h2>
+      <p class="sd">Most AI assistants require tech skills to set up and only work for one person. Sven is built so
+        <em>you</em> run it once and <em>everyone else</em> just uses it &mdash; in the apps they already know.
+      </p>
+      <div class="fg">
+        <div class="fc">
+          <div class="fi2" style="background:rgba(34,211,238,.1)">&#128172;</div>
+          <h3>20 Messaging Adapters</h3>
+          <p>WhatsApp, Telegram, iMessage, Discord, Signal, Slack, Teams, Matrix, LINE, Zalo and more. Your mum uses
+            WhatsApp. Your friends use Telegram. Your colleagues use Slack. Sven meets everyone where they already are.
+          </p>
+          <span class="ft">ADAPTERS</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(167,139,250,.1)">&#129504;</div>
+          <h3>Built-in RAG Memory</h3>
+          <p>Index Git repos, NAS file shares, Obsidian vaults, Apple Notes, Bear, and Notion. BM25 + vector search with
+            temporal decay &mdash; agents never forget relevant context.</p>
+          <span class="ft">KNOWLEDGE</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(52,211,153,.1)">&#127897;&#65039;</div>
+          <h3>100% Local Voice Stack</h3>
+          <p>Faster-Whisper STT, Piper TTS, and always-on wake word detection &mdash; all on your server. Set up a voice
+            hub at home anyone can talk to. No audio ever leaves your walls.</p>
+          <span class="ft">VOICE</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(251,146,60,.1)">&#128274;</div>
+          <h3>Private &amp; Secure by Design</h3>
+          <p>Your conversations, your family&rsquo;s data, and their memories never touch a third-party server.
+            Sandboxed skill execution, automatic key rotation, and role-based access &mdash; you stay in control of
+            everything.</p>
+          <span class="ft">PRIVACY</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(34,211,238,.08)">&#9881;&#65039;</div>
+          <h3>Any LLM, Any Provider</h3>
+          <p>Built-in LiteLLM proxy routes to OpenAI, Anthropic, Google, Mistral, Ollama, LM Studio, or any
+            OpenAI-compatible endpoint. Swap models without touching agent logic.</p>
+          <span class="ft">MODELS</span>
+        </div>
+        <div class="fc">
+          <div class="fi2" style="background:rgba(167,139,250,.08)">&#129309;</div>
+          <h3>Agents That Remember Everyone</h3>
+          <p>Each person gets their own private memory. Sven remembers your parents&rsquo; preferences, your
+            friends&rsquo; inside jokes, your household routines. Every conversation makes it smarter &mdash; for that
+            person, not shared with others.</p>
+          <span class="ft">MEMORY</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="for-everyone">
+    <div class="si">
+      <div class="sl">Made For Real People</div>
+      <h2>You run it.<br>They just use it.</h2>
+      <p class="sd">You deploy Sven once. Everyone else just opens the app they already have. No setup, no accounts, no
+        tech skills needed.</p>
+      <div class="pgrid">
+        <div class="pc">
+          <div class="pem">&#128106;</div>
+          <h3>Your family</h3>
+          <p>Your parents already have WhatsApp. Your sibling is on Telegram. Your kids use iMessage. Connect the
+            adapters, add them as users, and they immediately have an AI companion they can chat with naturally &mdash;
+            no app to download, no signup.</p>
+          <div class="pq">&ldquo;Mum just texts it when she can&rsquo;t remember a recipe. She has no idea it&rsquo;s
+            running on a server in my spare room.&rdquo;</div>
+        </div>
+        <div class="pc">
+          <div class="pem">&#127968;</div>
+          <h3>Your household</h3>
+          <p>One wake word. Anyone at home can speak to Sven. It sets timers, plays music, answers questions, reads out
+            the day&rsquo;s schedule, and knows who is asking. 100% local &mdash; no audio ever leaves your home.</p>
+          <div class="pq">&ldquo;We just say &lsquo;Hey Sven&rsquo;. The kids think it&rsquo;s magic. They&rsquo;re not
+            wrong.&rdquo;</div>
+        </div>
+        <div class="pc">
+          <div class="pem">&#128101;</div>
+          <h3>Your friends circle</h3>
+          <p>Give friends access on Discord or Telegram. Each person gets their own agent with private memory &mdash;
+            Sven knows their preferences and history. Like a shared digital assistant who actually knows everyone
+            individually.</p>
+          <div class="pq">&ldquo;My friends all use the same bot but it feels personal to each of them. Their data stays
+            separate.&rdquo;</div>
+        </div>
+        <div class="pc">
+          <div class="pem">&#128188;</div>
+          <h3>Your team</h3>
+          <p>When you outgrow the personal setup. Connect Slack or Teams. Per-user private memory, shared knowledge
+            base, skill marketplace, full observability. Built-in SSO, RBAC, multi-tenant &mdash; enterprise-ready from
+            day one.</p>
+          <div class="pq">&ldquo;It started as something I ran for my family. We now use it at the company too.&rdquo;
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="abg">
+    <div class="si">
+      <div class="sl">Integrations</div>
+      <h2>Reaches everyone,<br>wherever they already are.</h2>
+      <p class="sd">20 adapters out of the box. You connect the platforms; your people don&rsquo;t change anything about
+        how they communicate.</p>
+      <div class="ag">
+        <div class="ap"><span class="i">&#129001;</span>Slack</div>
+        <div class="ap"><span class="i">&#128311;</span>Teams</div>
+        <div class="ap"><span class="i">&#9992;&#65039;</span>Telegram</div>
+        <div class="ap"><span class="i">&#127918;</span>Discord</div>
+        <div class="ap"><span class="i">&#128241;</span>WhatsApp</div>
+        <div class="ap"><span class="i">&#128276;</span>Signal</div>
+        <div class="ap"><span class="i">&#9638;</span>Matrix</div>
+        <div class="ap"><span class="i">&#128172;</span>Google Chat</div>
+        <div class="ap"><span class="i">&#127822;</span>iMessage</div>
+        <div class="ap"><span class="i">&#9889;</span>Mattermost</div>
+        <div class="ap"><span class="i">#&#65038;</span>IRC</div>
+        <div class="ap"><span class="i">&#127760;</span>Nostr</div>
+        <div class="ap"><span class="i">&#127918;</span>Twitch</div>
+        <div class="ap"><span class="i">&#128172;</span>LINE</div>
+        <div class="ap"><span class="i">&#127463;&#127475;</span>Zalo</div>
+        <div class="ap"><span class="i">&#129782;</span>Feishu</div>
+        <div class="ap"><span class="i">&#9729;&#65039;</span>Nextcloud</div>
+        <div class="ap"><span class="i">&#129680;</span>Tlon/Urbit</div>
+        <div class="ap"><span class="i">&#127758;</span>WebChat</div>
+        <div class="ap"><span class="i">&#128222;</span>Voice Call</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="si">
+      <div class="sl">How It Works</div>
+      <h2>Deploy once. Integrate everything.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="sn2">1</div>
+          <div>
+            <h3>Run the stack</h3>
+            <p>One <code style="color:var(--cyan);font-size:12px">docker compose up -d</code> starts the gateway, agent
+              runtime, RAG indexers, voice stack, and all adapters. Single server or distributed.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="sn2">2</div>
+          <div>
+            <h3>Add the people you want</h3>
+            <p>Add bot tokens for the messaging apps your family and friends use. Create a user account for each person.
+              They just start chatting &mdash; no apps to install, no tech knowledge needed on their side.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="sn2">3</div>
+          <div>
+            <h3>Assign personas &amp; skills</h3>
+            <p>Name your agents, give them personalities and knowledge. Install skills from the marketplace or write
+              your own — sandboxed, versioned, hot-reloaded. Each person gets an assistant that feels like it was made
+              for them.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="si">
+      <div class="sl">Comparison</div>
+      <h2>Built different. Built for everyone.</h2>
+      <p class="sd">Other tools are built for one tech-savvy person or locked behind a cloud. Sven is built so you run
+        it for everyone you care about &mdash; privately, locally, with no ongoing subscription.</p>
+      <div class="ct">
+        <table>
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th class="hl">Sven</th>
+              <th>Single-user CLI tools</th>
+              <th>Hosted SaaS AI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>No app install needed for end users</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+              <td class="no">&#10007;</td>
+            </tr>
+            <tr>
+              <td>Per-person private memory</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+              <td class="no">&#10007;</td>
+            </tr>
+            <tr>
+              <td>Home voice hub (wake word, 100% local)</td>
+              <td class="yes">&#10003;</td>
+              <td class="par">Partial</td>
+              <td class="no">&#10007;</td>
+            </tr>
+            <tr>
+              <td>Fully self-hosted</td>
+              <td class="yes">&#10003;</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+            </tr>
+            <tr>
+              <td>Multi-user / multi-tenant</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+              <td class="par">Limited</td>
+            </tr>
+            <tr>
+              <td>RBAC + SSO / OIDC</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+              <td class="par">Paid tier</td>
+            </tr>
+            <tr>
+              <td>20 messaging adapters</td>
+              <td class="yes">&#10003;</td>
+              <td class="par">~5</td>
+              <td class="par">~3</td>
+            </tr>
+            <tr>
+              <td>Local voice (STT + TTS + wake word)</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+              <td class="no">&#10007;</td>
+            </tr>
+            <tr>
+              <td>Built-in RAG (Git, NAS, Notes)</td>
+              <td class="yes">&#10003;</td>
+              <td class="par">Plugin</td>
+              <td class="par">Cloud only</td>
+            </tr>
+            <tr>
+              <td>Sandboxed skill execution (gVisor)</td>
+              <td class="yes">&#10003; gVisor</td>
+              <td class="no">&#10007;</td>
+              <td class="yes">&#10003;</td>
+            </tr>
+            <tr>
+              <td>Any LLM / local models</td>
+              <td class="yes">&#10003;</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">Locked in</td>
+            </tr>
+            <tr>
+              <td>Human approval flows</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+              <td class="par">Partial</td>
+            </tr>
+            <tr>
+              <td>Mobile companion (Flutter)</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+              <td class="yes">&#10003;</td>
+            </tr>
+            <tr>
+              <td>Data never leaves your infra</td>
+              <td class="yes">&#10003;</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+            </tr>
+            <tr>
+              <td>MIT open source</td>
+              <td class="yes">&#10003;</td>
+              <td class="yes">&#10003;</td>
+              <td class="no">&#10007;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="abg">
+    <div class="si">
+      <div class="sl">Live Evidence</div>
+      <h2>Claims tied to live status, not static marketing.</h2>
+      <p class="sd">These indicators are populated from Sven public evidence endpoints.</p>
+      <div class="sg">
+        <div class="sc">
+          <div class="k">Capability proof</div>
+          <div class="v" id="ev2-capability">Loading...</div>
+          <div class="d">/v1/public/community/capability-proof</div>
+        </div>
+        <div class="sc">
+          <div class="k">Community status</div>
+          <div class="v" id="ev2-community">Loading...</div>
+          <div class="d">/v1/public/community/status</div>
+        </div>
+        <div class="sc">
+          <div class="k">Doc-agent verification</div>
+          <div class="v" id="ev2-feed">Loading...</div>
+          <div class="d">/v1/public/community/feed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="si">
+      <div class="sl">Get Started</div>
+      <h2>Up and running in minutes.</h2>
+      <p class="sd">No accounts. No cloud. No telemetry. One server you control &mdash; and everyone you invite just
+        gets a companion that works.</p>
+      <div class="iw" style="max-width:640px;margin-top:36px">
+        <div class="itabs">
+          <button class="itab on" onclick="sw(event,'i','il')">Linux / macOS</button>
+          <button class="itab" onclick="sw(event,'i','ip')">PowerShell</button>
+          <button class="itab" onclick="sw(event,'i','id')">Docker Compose</button>
+        </div>
+        <div class="ibox">
+          <div id="i-il" class="ipanel on">curl -fsSL https://sven.example.com/install.sh | sh</div>
+          <div id="i-ip" class="ipanel">iwr -useb https://sven.example.com/install.ps1 | iex</div>
+          <div id="i-id" class="ipanel">git clone https://github.com/47network/thesven
+            cd thesven
+            cp .env.example .env # set your LLM API key
+            docker compose up -d # start the full stack</div>
+          <button class="cb" onclick="cp2('i')">copy</button>
+        </div>
+      </div>
+      <div class="db">
+        <span class="c"># What docker compose up -d starts</span><br>
+        <span class="k">gateway-api</span> &nbsp;<span class="c"># REST + WebSocket hub &middot; JWT/OIDC auth &middot;
+          :3000</span><br>
+        <span class="k">agent-runtime</span> &nbsp;<span class="c"># LLM orchestration &middot; tool dispatch &middot;
+          self-correction</span><br>
+        <span class="k">skill-runner</span> &nbsp;<span class="c"># gVisor sandboxed skill execution</span><br>
+        <span class="k">rag-indexer</span> &nbsp;<span class="c"># OpenSearch + BM25 + kNN vector embeddings</span><br>
+        <span class="k">litellm</span> &nbsp;<span class="c"># Unified LLM proxy &middot; any provider &middot;
+          :4001</span><br>
+        <span class="k">adapter-slack</span> &nbsp;<span class="c"># &hellip; + 19 more messaging adapters</span><br>
+        <span class="k">faster-whisper</span> &nbsp;<span class="c"># Local STT &middot; no audio leaves your
+          server</span><br>
+        <span class="k">piper</span> &nbsp;<span class="c"># Local TTS &middot; no text leaves your server</span><br>
+        <span class="k">sso</span> &nbsp;<span class="c"># Keycloak OIDC &middot; :8080 (optional)</span><br>
+        <span class="k">admin-ui</span> &nbsp;<span class="c"># Web dashboard &middot; localhost:3000/admin</span>
+      </div>
+      <div class="proof">
+        <div class="pi">
+          <div class="pk">After deploy</div>
+          <div class="pv">Open operations surfaces from the same host:</div>
+        </div>
+      </div>
+      <div class="instl">
+        <a href="/admin">/admin &mdash; operations control center</a>
+        <a href="/">/ &mdash; canvas and chat surfaces</a>
+        <a href="/community">/community &mdash; verified ecosystem hub</a>
+        <a href="/docs">/docs &mdash; docs and runbooks</a>
+        <a href="/marketplace">/marketplace &mdash; skills and extensions</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="fot">
+      <div class="fb2">sven<span>.ai</span></div>
+      <div class="fl">
+        <a href="https://github.com/47network/thesven">GitHub</a>
+        <a href="#suite">Suite</a>
+        <a href="#surfaces">Surfaces</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#docs-center">Docs</a>
+        <a href="https://github.com/47network/thesven/blob/thesven/README.md">Documentation</a>
+        <a href="https://github.com/47network/thesven/blob/thesven/CHANGELOG.md">Changelog</a>
+        <a href="https://github.com/47network/thesven/blob/thesven/CONTRIBUTING.md">Contribute</a>
+        <a href="https://github.com/47network/thesven/blob/thesven/SECURITY.md">Security</a>
+        <a href="https://github.com/47network/thesven/blob/thesven/LICENSE">MIT License</a>
+      </div>
+      <p class="fc2">Built by 47network and community. Zero telemetry. No tracking. Your data &mdash; and your
+        family&rsquo;s &mdash; stays yours.</p>
+    </div>
+  </footer>
+
+  <script>
+    const active = { h: 'hl', i: 'il' };
+    function installOrigin() {
+      const fallback = 'https://sven.example.com';
+      try {
+        if (window.location && /^https?:$/i.test(window.location.protocol)) {
+          return window.location.origin || fallback;
+        }
+      } catch (e) { }
+      return fallback;
+    }
+    function applyInstallCommands() {
+      const base = installOrigin().replace(/\/+$/, '');
+      const sh = `curl -fsSL ${base}/install.sh | sh`;
+      const ps = `iwr -useb ${base}/install.ps1 | iex`;
+      const docker = `git clone https://github.com/47network/thesven
+cd thesven
+cp .env.example .env # set your LLM API key
+docker compose up -d # start the full stack`;
+      const ids = ['h-hl', 'i-il'];
+      ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = sh;
+      });
+      ['h-hp', 'i-ip'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = ps;
+      });
+      ['h-hd', 'i-id'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = docker;
+      });
+    }
+    function sw(e, grp, id) {
+      const prev = active[grp];
+      if (prev) document.getElementById(grp + '-' + prev)?.classList.remove('on');
+      document.getElementById(grp + '-' + id)?.classList.add('on');
+      active[grp] = id;
+      e.target.closest('.itabs')?.querySelectorAll('.itab').forEach(b => b.classList.remove('on'));
+      e.target.classList.add('on');
+    }
+    function cp2(grp) {
+      const id = active[grp];
+      const txt = document.getElementById(grp + '-' + id)?.textContent?.trim();
+      if (txt) navigator.clipboard?.writeText(txt).catch(() => { });
+    }
+    function wireScrollProgress() {
+      const bar = document.getElementById('scroll-progress');
+      if (!bar) return;
+      const update = () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+        const height = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = height > 0 ? (scrollTop / height) * 100 : 0;
+        bar.style.width = `${Math.max(0, Math.min(100, pct)).toFixed(2)}%`;
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+    }
+    function wireReveal() {
+      const targets = document.querySelectorAll('.hero, .sb, section, .fc, .pc, .surface, .layer, .docc, .sc, .capc');
+      targets.forEach((el, idx) => {
+        el.classList.add('rv');
+        el.style.setProperty('--rvd', `${Math.min(idx * 22, 420)}ms`);
+      });
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+      targets.forEach((el) => io.observe(el));
+    }
+    async function fetchJson(path) {
+      try {
+        const res = await fetch(path, { credentials: 'omit' });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch (e) {
+        return null;
+      }
+    }
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+    async function loadEvidence() {
+      const capability = await fetchJson('/v1/public/community/capability-proof');
+      const status = await fetchJson('/v1/public/community/status');
+      const feed = await fetchJson('/v1/public/community/feed');
+      const cap = capability?.data;
+      const st = status?.data;
+      const fd = feed?.data;
+
+      if (cap?.summary?.total_rows) {
+        setText('ev-parity', `${cap.summary.proven_pass_rows}/${cap.summary.total_rows} proven`);
+        const waves = Array.isArray(cap.waves) ? cap.waves : [];
+        const pass = waves.filter(w => String(w.status || '').toLowerCase() === 'pass').length;
+        setText('ev-waves', `${pass}/${waves.length} wave lanes pass`);
+        setText('ev2-capability', `${cap.status || 'unknown'} · ${cap.summary.coverage_percent || 0}% coverage`);
+      } else {
+        setText('ev-parity', 'Capability proof unavailable');
+        setText('ev-waves', 'Wave status unavailable');
+        setText('ev2-capability', 'Unavailable');
+      }
+
+      if (fd?.telemetry) {
+        setText('ev-feed', `Doc agents: ${fd.telemetry.doc_agents_status || 'unknown'}`);
+        setText('ev-ready', `${fd.telemetry.readiness_percent || 0}% readiness`);
+        setText('ev2-feed', `${fd.status || 'unknown'} · doc_agents=${fd.telemetry.doc_agents_status || 'unknown'}`);
+      } else {
+        setText('ev-feed', 'Feed unavailable');
+        setText('ev-ready', 'Readiness unavailable');
+        setText('ev2-feed', 'Unavailable');
+      }
+
+      if (st) {
+        setText('ev2-community', `${st.completed || 0}/${st.total || 0} configured`);
+      } else {
+        setText('ev2-community', 'Unavailable');
+      }
+    }
+    applyInstallCommands();
+    wireScrollProgress();
+    wireReveal();
+    loadEvidence();
+  </script>
+</body>
+
+</html>
+
+
+

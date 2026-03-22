@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-03-21T02:10:21.289Z",
+  "status": "fail",
+  "manifest": "docs/release/evidence/external-inputs-manifest.json",
+  "checks": [
+    {
+      "id": "external_inputs_manifest_present",
+      "pass": false,
+      "detail": "docs/release/evidence/external-inputs-manifest.json missing"
+    }
+  ]
+}

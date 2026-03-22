@@ -1,0 +1,603 @@
+--------- beginning of main
+02-22 02:31:59.383 I/native  (30437): I0000 00:00:1771720319.383480   30437 android_resource_loader.cc:100] Built resource acoustic_frame_config
+02-22 02:31:59.383 I/native  (30437): I0000 00:00:1771720319.383594   30437 android_resource_loader.cc:116] Loaded resource:acoustic_frame_config
+02-22 02:31:59.383 I/native  (30437): I0000 00:00:1771720319.383657   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/affixes_en_us_android.far" (as: FILE) ...
+02-22 02:31:59.383 I/native  (30437): I0000 00:00:1771720319.383753   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/affixes_en_us_android.far" of size 36782
+02-22 02:31:59.385 I/native  (30437): I0000 00:00:1771720319.385405   30437 android_resource_loader.cc:100] Built resource affix_word_splitter_grm
+02-22 02:31:59.385 I/native  (30437): I0000 00:00:1771720319.385553   30437 android_resource_loader.cc:116] Loaded resource:affix_word_splitter_grm
+02-22 02:31:59.385 I/native  (30437): I0000 00:00:1771720319.385617   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/affixes_params_en_us.pb" (as: FILE) ...
+02-22 02:31:59.385 I/native  (30437): I0000 00:00:1771720319.385716   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/affixes_params_en_us.pb" of size 420
+02-22 02:31:59.386 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386325   30437 affix_word_splitter_data.cc:33] Ambiguous affix entries for spelling ['s] -- their grammars should disambiguate them.
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386458   30437 affix_word_splitter_data.cc:33] Ambiguous affix entries for spelling ['s] -- their grammars should disambiguate them.
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386511   30437 affix_word_splitter_data.cc:33] Ambiguous affix entries for spelling ['s] -- their grammars should disambiguate them.
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386559   30437 affix_word_splitter_data.cc:33] Ambiguous affix entries for spelling [s] -- their grammars should disambiguate them.
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386604   30437 affix_word_splitter_data.cc:33] Ambiguous affix entries for spelling [s] -- their grammars should disambiguate them.
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386640   30437 affix_word_splitter_data.cc:33] Ambiguous affix entries for spelling [s] -- their grammars should disambiguate them.
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386689   30437 affix_word_splitter_data.cc:33] Ambiguous affix entries for spelling [ed] -- their grammars should disambiguate them.
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386729   30437 affix_word_splitter_data.cc:33] Ambiguous affix entries for spelling [ed] -- their grammars should disambiguate them.
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386762   30437 affix_word_splitter_data.cc:33] Ambiguous affix entries for spelling [ed] -- their grammars should disambiguate them.
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386815   30437 affix_word_splitter_data.cc:89] Loaded affixes in [/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/affixes_params_en_us.pb].
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386902   30437 android_resource_loader.cc:100] Built resource affix_word_splitter
+02-22 02:31:59.386 I/native  (30437): I0000 00:00:1771720319.386944   30437 android_resource_loader.cc:116] Loaded resource:affix_word_splitter
+02-22 02:31:59.387 I/native  (30437): I0000 00:00:1771720319.387024   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/roman_numeral_android.far" (as: FILE) ...
+02-22 02:31:59.387 I/native  (30437): I0000 00:00:1771720319.387230   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/roman_numeral_android.far" of size 5112
+02-22 02:31:59.387 I/native  (30437): I0000 00:00:1771720319.387895   30437 android_resource_loader.cc:100] Built resource classify_roman_numerals_grm_fst
+02-22 02:31:59.387 I/native  (30437): I0000 00:00:1771720319.387964   30437 android_resource_loader.cc:116] Loaded resource:classify_roman_numerals_grm_fst
+02-22 02:31:59.388 I/native  (30437): I0000 00:00:1771720319.388016   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_us_pronounce.far" (as: FILE) ...
+02-22 02:31:59.388 I/native  (30437): I0000 00:00:1771720319.388115   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_us_pronounce.far" of size 5040
+02-22 02:31:59.388 I/native  (30437): I0000 00:00:1771720319.388511   30437 android_resource_loader.cc:100] Built resource compound_pronounce_grm_fst
+02-22 02:31:59.388 I/native  (30437): I0000 00:00:1771720319.388620   30437 android_resource_loader.cc:116] Loaded resource:compound_pronounce_grm_fst
+02-22 02:31:59.388 I/native  (30437): I0000 00:00:1771720319.388711   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/disambiguation_rules_en_us.pb" (as: FILE) ...
+02-22 02:31:59.388 I/native  (30437): I0000 00:00:1771720319.388843   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/disambiguation_rules_en_us.pb" of size 317147
+--------- beginning of kernel
+02-22 02:31:59.276 W/        (    0): [3:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.277 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.279 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.281 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.400 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.291 W/        (    0): [3:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.292 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (km_usage_expire_datetime_valid:223) for purpose 0 we shuldn't check KM_TAG_USAGE_EXPIRE_DATETIME
+02-22 02:31:59.292 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.294 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.407 I/FLTFireMsgService(14656): FlutterFirebaseMessagingBackgroundService started!
+02-22 02:31:59.297 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.410 I/flutter (14656): ✅ Android notification channels created
+02-22 02:31:59.412 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.303 W/        (    0): [0:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.303 W/        (    0): [0:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.305 W/        (    0): [0:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.313 W/        (    0): [1:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.427 I/bqwu    ( 6760): onStop
+02-22 02:31:59.429 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.319 W/        (    0): [1:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.319 W/        (    0): [1:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.321 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.322 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.452 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.342 W/        (    0): [2:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.342 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (km_usage_expire_datetime_valid:223) for purpose 0 we shuldn't check KM_TAG_USAGE_EXPIRE_DATETIME
+02-22 02:31:59.342 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.456 I/native  (30437): I0000 00:00:1771720319.456423   30437 android_resource_loader.cc:100] Built resource disambiguation_rules
+02-22 02:31:59.456 I/native  (30437): I0000 00:00:1771720319.456599   30437 android_resource_loader.cc:116] Loaded resource:disambiguation_rules
+02-22 02:31:59.456 I/native  (30437): I0000 00:00:1771720319.456673   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/engine_config_en_us_x_embedded_havoc.pb" (as: FILE) ...
+02-22 02:31:59.456 I/native  (30437): I0000 00:00:1771720319.456771   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/engine_config_en_us_x_embedded_havoc.pb" of size 54
+02-22 02:31:59.456 I/native  (30437): I0000 00:00:1771720319.456932   30437 android_resource_loader.cc:100] Built resource engine_config
+02-22 02:31:59.456 I/native  (30437): I0000 00:00:1771720319.456977   30437 android_resource_loader.cc:116] Loaded resource:engine_config
+02-22 02:31:59.457 I/native  (30437): I0000 00:00:1771720319.457040   30437 android_resource_loader.cc:100] Built resource guided_synthesis
+02-22 02:31:59.457 I/native  (30437): I0000 00:00:1771720319.457074   30437 android_resource_loader.cc:116] Loaded resource:guided_synthesis
+02-22 02:31:59.457 I/native  (30437): I0000 00:00:1771720319.457121   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/mapping_grammar_en.far" (as: FILE) ...
+02-22 02:31:59.457 I/native  (30437): I0000 00:00:1771720319.457204   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/mapping_grammar_en.far" of size 863
+02-22 02:31:59.457 I/native  (30437): I0000 00:00:1771720319.457501   30437 android_resource_loader.cc:100] Built resource homograph_mapping_grammar
+02-22 02:31:59.457 I/native  (30437): I0000 00:00:1771720319.457558   30437 android_resource_loader.cc:116] Loaded resource:homograph_mapping_grammar
+02-22 02:31:59.457 I/native  (30437): I0000 00:00:1771720319.457611   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/lettuce_model.fb" (as: MEMORY) ...
+02-22 02:31:59.457 I/native  (30437): I0000 00:00:1771720319.457749   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/lettuce_model.fb" of size 2100680
+02-22 02:31:59.458 I/native  (30437): I0000 00:00:1771720319.458109   30437 android_resource_loader.cc:100] Built resource lettuce_model_resource
+02-22 02:31:59.458 I/native  (30437): I0000 00:00:1771720319.458199   30437 android_resource_loader.cc:116] Loaded resource:lettuce_model_resource
+02-22 02:31:59.458 I/native  (30437): I0000 00:00:1771720319.458358   30437 android_resource_loader.cc:100] Built resource lettuce_model_scorer
+02-22 02:31:59.458 I/native  (30437): I0000 00:00:1771720319.458403   30437 android_resource_loader.cc:116] Loaded resource:lettuce_model_scorer
+02-22 02:31:59.458 I/native  (30437): I0000 00:00:1771720319.458460   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/lettuce_classify_embedded_us_generated_android.far" (as: FILE) ...
+02-22 02:31:59.458 I/native  (30437): I0000 00:00:1771720319.458599   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/lettuce_classify_embedded_us_generated_android.far" of size 4439801
+02-22 02:31:59.346 W/        (    0): [0:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.350 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.466 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.356 W/        (    0): [2:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.356 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.358 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.362 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.477 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.368 W/        (    0): [2:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.368 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.370 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.371 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.487 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.377 W/        (    0): [2:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.492 I/native  (30437): I0000 00:00:1771720319.491967   30437 android_resource_loader.cc:100] Built resource lettuce_node_generator_grm
+02-22 02:31:59.492 I/native  (30437): I0000 00:00:1771720319.492108   30437 android_resource_loader.cc:116] Loaded resource:lettuce_node_generator_grm
+02-22 02:31:59.492 I/native  (30437): I0000 00:00:1771720319.492179   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/lucid_collection_android.far" (as: FILE) ...
+02-22 02:31:59.492 I/native  (30437): I0000 00:00:1771720319.492291   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/lucid_collection_android.far" of size 306120
+02-22 02:31:59.379 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (km_usage_expire_datetime_valid:223) for purpose 0 we shuldn't check KM_TAG_USAGE_EXPIRE_DATETIME
+02-22 02:31:59.379 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.383 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.495 I/native  (30437): I0000 00:00:1771720319.495200   30437 android_resource_loader.cc:100] Built resource lucid_parser_grm_fst
+02-22 02:31:59.495 I/native  (30437): I0000 00:00:1771720319.495351   30437 android_resource_loader.cc:116] Loaded resource:lucid_parser_grm_fst
+02-22 02:31:59.495 I/native  (30437): I0000 00:00:1771720319.495426   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/markup_triggers.pb" (as: FILE) ...
+02-22 02:31:59.495 I/native  (30437): I0000 00:00:1771720319.495538   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/markup_triggers.pb" of size 930
+02-22 02:31:59.495 I/native  (30437): I0000 00:00:1771720319.495832   30437 android_resource_loader.cc:100] Built resource markup_triggers
+02-22 02:31:59.495 I/native  (30437): I0000 00:00:1771720319.495878   30437 android_resource_loader.cc:116] Loaded resource:markup_triggers
+02-22 02:31:59.495 I/native  (30437): I0000 00:00:1771720319.495937   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/morphosyntactic_mapping.pb" (as: FILE) ...
+02-22 02:31:59.496 I/native  (30437): I0000 00:00:1771720319.496016   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/morphosyntactic_mapping.pb" of size 6
+02-22 02:31:59.496 I/native  (30437): I0000 00:00:1771720319.496157   30437 android_resource_loader.cc:100] Built resource morph_analyzer_attribute_map
+02-22 02:31:59.496 I/native  (30437): I0000 00:00:1771720319.496199   30437 android_resource_loader.cc:116] Loaded resource:morph_analyzer_attribute_map
+02-22 02:31:59.496 I/native  (30437): I0000 00:00:1771720319.496269   30437 android_resource_loader.cc:100] Built resource multilingual_capabilities
+02-22 02:31:59.496 I/native  (30437): I0000 00:00:1771720319.496305   30437 android_resource_loader.cc:116] Loaded resource:multilingual_capabilities
+02-22 02:31:59.496 I/native  (30437): I0000 00:00:1771720319.496355   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_us_phonology.pb" (as: FILE) ...
+02-22 02:31:59.496 I/native  (30437): I0000 00:00:1771720319.496440   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_us_phonology.pb" of size 2196
+02-22 02:31:59.497 W/native  (30437): W0000 00:00:1771720319.497304   30437 phonology.cc:80] Phonemes l, r\ have non-distinctive features. See b/111971558.
+02-22 02:31:59.497 W/native  (30437): W0000 00:00:1771720319.497415   30437 phonology.cc:80] Phonemes @, @` have non-distinctive features. See b/111971558.
+--------- beginning of system
+02-22 02:31:59.497 D/CoreBackPreview( 4589): Window{ce8189e u0 Splash Screen com.example.sven_user_flutter EXITING}: Setting back callback null
+02-22 02:31:59.497 I/native  (30437): I0000 00:00:1771720319.497921   30437 android_resource_loader.cc:100] Built resource phonology
+02-22 02:31:59.385 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.498 I/native  (30437): I0000 00:00:1771720319.497995   30437 android_resource_loader.cc:116] Loaded resource:phonology
+02-22 02:31:59.498 I/native  (30437): I0000 00:00:1771720319.498102   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_morphology" (as: FILE) ...
+02-22 02:31:59.498 I/native  (30437): I0000 00:00:1771720319.498196   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_morphology" of size 2753822
+02-22 02:31:59.498 W/InputManager-JNI( 4589): Input channel object 'ce8189e Splash Screen com.example.sven_user_flutter (client)' was disposed without first being removed with the input manager!
+02-22 02:31:59.499 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.389 W/        (    0): [3:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.389 W/        (    0): [3:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.390 W/        (    0): [0:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.502 I/native  (30437): I0000 00:00:1771720319.502533   30437 model-api.cc:46] Registered model under key morphology
+02-22 02:31:59.392 W/        (    0): [0:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.507 I/native  (30437): I0000 00:00:1771720319.507039   30437 android_resource_loader.cc:100] Built resource analyze_morphology_saft_portable_algo
+02-22 02:31:59.507 I/native  (30437): I0000 00:00:1771720319.507273   30437 android_resource_loader.cc:116] Loaded resource:analyze_morphology_saft_portable_algo
+02-22 02:31:59.507 I/native  (30437): I0000 00:00:1771720319.507439   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/ipa_to_tts_to-en_us.far" (as: FILE) ...
+02-22 02:31:59.507 I/native  (30437): I0000 00:00:1771720319.507607   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/ipa_to_tts_to-en_us.far" of size 465858
+02-22 02:31:59.508 W/keymaster_tee( 4147): [WRN]begin req PARAMS: A32 B32 P1 
+02-22 02:31:59.510 I/native  (30437): I0000 00:00:1771720319.510548   30437 android_resource_loader.cc:100] Built resource ipa_to_tts_phoneme_mapper
+02-22 02:31:59.510 I/native  (30437): I0000 00:00:1771720319.510683   30437 android_resource_loader.cc:116] Loaded resource:ipa_to_tts_phoneme_mapper
+02-22 02:31:59.510 I/native  (30437): I0000 00:00:1771720319.510750   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_us.hlex.bin" (as: MEMORY) ...
+02-22 02:31:59.510 I/native  (30437): I0000 00:00:1771720319.510901   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_us.hlex.bin" of size 5117760
+02-22 02:31:59.511 I/native  (30437): I0000 00:00:1771720319.511150   30437 android_resource_loader.cc:100] Built resource lexicon
+02-22 02:31:59.511 I/native  (30437): I0000 00:00:1771720319.511192   30437 android_resource_loader.cc:116] Loaded resource:lexicon
+02-22 02:31:59.511 I/native  (30437): I0000 00:00:1771720319.511252   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/homographs_model_en_us_embedded.bin" (as: MEMORY) ...
+02-22 02:31:59.511 I/native  (30437): I0000 00:00:1771720319.511352   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/homographs_model_en_us_embedded.bin" of size 399120
+02-22 02:31:59.399 W/        (    0): [2:          tzlog: 1579] SW> keymaster [ERR] (tz_check_oem:72) Device is compromized: status=0, value=1
+02-22 02:31:59.400 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_begin() returns 0
+02-22 02:31:59.402 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_update() returns 0
+02-22 02:31:59.404 W/        (    0): [2:          tzlog: 1579] SW> keymaster [WRN] (swd_run_cb:254) swd_finish() returns 0
+02-22 02:31:59.518 I/native  (30437): I0000 00:00:1771720319.518808   30437 android_resource_loader.cc:100] Built resource homograph_classifier_model_resource
+02-22 02:31:59.518 I/native  (30437): I0000 00:00:1771720319.518917   30437 android_resource_loader.cc:116] Loaded resource:homograph_classifier_model_resource
+02-22 02:31:59.519 I/native  (30437): I0000 00:00:1771720319.518992   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/lettuce_node_generator_params_embedded_us_runtime.pb" (as: FILE) ...
+02-22 02:31:59.519 I/native  (30437): I0000 00:00:1771720319.519081   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/lettuce_node_generator_params_embedded_us_runtime.pb" of size 2599
+02-22 02:31:59.527 D/ConnectivityService( 4589): requestNetwork for uid/pid:10199/14656 activeRequest: null callbackRequest: 4921 [NetworkRequest [ REQUEST id=4922, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10199 RequestorUid: 10199 RequestorPkg: com.example.sven_user_flutter UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647
+02-22 02:31:59.527 D/ConnectivityService( 4589): NetReassign [4922 : null → 104]
+02-22 02:31:59.529 D/WifiNetworkFactory( 4589): got request NetworkRequest [ REQUEST id=4922, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10199 RequestorUid: 10199 RequestorPkg: com.example.sven_user_flutter UnderlyingNetworks: Null] ]
+02-22 02:31:59.529 D/UntrustedWifiNetworkFactory( 4589): got request NetworkRequest [ REQUEST id=4922, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10199 RequestorUid: 10199 RequestorPkg: com.example.sven_user_flutter UnderlyingNetworks: Null] ]
+02-22 02:31:59.529 D/OemPaidWifiNetworkFactory( 4589): got request NetworkRequest [ REQUEST id=4922, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10199 RequestorUid: 10199 RequestorPkg: com.example.sven_user_flutter UnderlyingNetworks: Null] ]
+02-22 02:31:59.529 D/MultiInternetWifiNetworkFactory( 4589): got request NetworkRequest [ REQUEST id=4922, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10199 RequestorUid: 10199 RequestorPkg: com.example.sven_user_flutter UnderlyingNetworks: Null] ]
+02-22 02:31:59.529 D/PhoneSwitcherNetworkRequstListener( 5209): got request NetworkRequest [ REQUEST id=4922, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10199 RequestorUid: 10199 RequestorPkg: com.example.sven_user_flutter UnderlyingNetworks: Null] ]
+02-22 02:31:59.548 W/FrameTracker( 4858): Missed SF frame:JANK_SURFACEFLINGER_DEADLINE_MISSED, 48846804, 6816480, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+02-22 02:31:59.548 W/FrameTracker( 4858): Missed SF frame:SURFACE_FLINGER_SCHEDULING, 48846854, 15755328, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+02-22 02:31:59.548 W/FrameTracker( 4858): Missing HWUI jank callback for vsyncId: 48847100, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+02-22 02:31:59.575 I/FontLog (16782): Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+02-22 02:31:59.575 I/FontLog (16782): Query [emojicompat-emoji-font] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+02-22 02:31:59.576 I/FontLog (16782): Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+02-22 02:31:59.581 I/FontLog (16782): Pulling font file for id = 575, cache size = 9 [CONTEXT service_id=132 ]
+02-22 02:31:59.585 I/FontLog (16782): Pulling font file for id = 575, cache size = 9 [CONTEXT service_id=132 ]
+02-22 02:31:59.604 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a859370
+02-22 02:31:59.604 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a8482d0
+02-22 02:31:59.604 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a865a90
+02-22 02:31:59.604 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a865a90
+02-22 02:31:59.604 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a8482d0
+02-22 02:31:59.687 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a8591f0
+02-22 02:31:59.687 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a856eb0
+02-22 02:32:00.464 I/native  (30437): I0000 00:00:1771720320.464165   30437 exl_node_generator.cc:58] Setting legal word grammar as macro_only: true
+02-22 02:32:00.464 I/native  (30437): I0000 00:00:1771720320.464584   30437 android_resource_loader.cc:100] Built resource lettuce_node_generator
+02-22 02:32:00.464 I/native  (30437): I0000 00:00:1771720320.464637   30437 android_resource_loader.cc:116] Loaded resource:lettuce_node_generator
+02-22 02:32:00.464 I/native  (30437): I0000 00:00:1771720320.464698   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/burdock_model.params.pb" (as: FILE) ...
+02-22 02:32:00.464 I/native  (30437): I0000 00:00:1771720320.464782   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/burdock_model.params.pb" of size 8875
+02-22 02:32:00.466 I/native  (30437): I0000 00:00:1771720320.466094   30437 android_resource_loader.cc:100] Built resource lstm_add_specification_resource
+02-22 02:32:00.466 I/native  (30437): I0000 00:00:1771720320.466167   30437 android_resource_loader.cc:116] Loaded resource:lstm_add_specification_resource
+02-22 02:32:00.466 I/native  (30437): I0000 00:00:1771720320.466228   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/chive_model_fused.pb" (as: FILE) ...
+02-22 02:32:00.466 I/native  (30437): I0000 00:00:1771720320.466302   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/chive_model_fused.pb" of size 1281
+02-22 02:32:00.466 I/native  (30437): I0000 00:00:1771720320.466429   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/burdock_valerian_model.tflite" (as: MEMORY) ...
+02-22 02:32:00.466 I/native  (30437): I0000 00:00:1771720320.466534   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/burdock_valerian_model.tflite" of size 1790608
+02-22 02:32:00.466 E/tflite  (30437): third_party/tensorflow/lite/core/subgraph.cc:1084 tensor.data.raw != nullptr was not true.
+02-22 02:32:00.467 I/native  (30437): I0000 00:00:1771720320.467042   30437 chive_inference_resource.cc:234] Creating new CHiVE model [model graph]: 
+02-22 02:32:00.467 I/native  (30437): I0000 00:00:1771720320.467081   30437 chive_model.cc:179] Creating a single pass CHiVE model
+02-22 02:32:00.468 I/native  (30437): I0000 00:00:1771720320.468713   30437 android_resource_loader.cc:100] Built resource chive_inference_config
+02-22 02:32:00.468 I/native  (30437): I0000 00:00:1771720320.468769   30437 android_resource_loader.cc:116] Loaded resource:chive_inference_config
+02-22 02:32:00.468 I/native  (30437): I0000 00:00:1771720320.468821   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/converter_en_us_android.far" (as: FILE) ...
+02-22 02:32:00.468 I/native  (30437): I0000 00:00:1771720320.468902   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/converter_en_us_android.far" of size 1473
+02-22 02:32:00.469 I/native  (30437): I0000 00:00:1771720320.469312   30437 android_resource_loader.cc:100] Built resource pron_buffet_to_tts_converter
+02-22 02:32:00.469 I/native  (30437): I0000 00:00:1771720320.469347   30437 android_resource_loader.cc:116] Loaded resource:pron_buffet_to_tts_converter
+02-22 02:32:00.469 I/native  (30437): I0000 00:00:1771720320.469387   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/regexp_rewrite_embedded.pb" (as: FILE) ...
+02-22 02:32:00.469 I/native  (30437): I0000 00:00:1771720320.469445   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/regexp_rewrite_embedded.pb" of size 6025
+02-22 02:32:00.469 I/native  (30437): I0000 00:00:1771720320.469665   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/punctuation.pb" (as: FILE) ...
+02-22 02:32:00.469 I/native  (30437): I0000 00:00:1771720320.469721   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/punctuation.pb" of size 452
+02-22 02:32:00.558 E/native  (30437): E0000 00:00:1771720320.558920   30437 re2.cc:250] Error parsing '^|[^\p{Letter}\\]': invalid character class range: \p{Letter}
+02-22 02:32:00.559 E/native  (30437): E0000 00:00:1771720320.559046   30437 replacement_rule.cc:40] Invalid context regexp: invalid character class range: \p{Letter}
+02-22 02:32:00.559 E/native  (30437): E0000 00:00:1771720320.559079   30437 replacement_rule.cc:151] Error creating replacement rule.
+02-22 02:32:00.559 E/native  (30437): E0000 00:00:1771720320.559109   30437 regexp_rewriter.cc:35] Error creating rule MessageLite at 0x74b1239e30.
+02-22 02:32:00.559 I/native  (30437): I0000 00:00:1771720320.559819   30437 android_resource_loader.cc:100] Built resource rewrite_algo
+02-22 02:32:00.559 I/native  (30437): I0000 00:00:1771720320.559876   30437 android_resource_loader.cc:116] Loaded resource:rewrite_algo
+02-22 02:32:00.559 I/native  (30437): I0000 00:00:1771720320.559927   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/roman_numeral_contexts.pb" (as: FILE) ...
+02-22 02:32:00.560 I/native  (30437): I0000 00:00:1771720320.560024   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/roman_numeral_contexts.pb" of size 9114
+02-22 02:32:00.560 I/native  (30437): I0000 00:00:1771720320.560306   30437 android_resource_loader.cc:100] Built resource roman_numeral_context_words
+02-22 02:32:00.560 I/native  (30437): I0000 00:00:1771720320.560347   30437 android_resource_loader.cc:116] Loaded resource:roman_numeral_context_words
+02-22 02:32:00.560 I/native  (30437): I0000 00:00:1771720320.560881   30437 android_resource_loader.cc:100] Built resource classify_roman_numerals_grm_algo
+02-22 02:32:00.560 I/native  (30437): I0000 00:00:1771720320.560919   30437 android_resource_loader.cc:116] Loaded resource:classify_roman_numerals_grm_algo
+02-22 02:32:00.561 I/native  (30437): I0000 00:00:1771720320.561619   30437 android_resource_loader.cc:100] Built resource runtime_override
+02-22 02:32:00.561 I/native  (30437): I0000 00:00:1771720320.561656   30437 android_resource_loader.cc:116] Loaded resource:runtime_override
+02-22 02:32:00.561 I/native  (30437): I0000 00:00:1771720320.561696   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/seanet_model_options.pb" (as: FILE) ...
+02-22 02:32:00.561 I/native  (30437): I0000 00:00:1771720320.561766   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/seanet_model_options.pb" of size 32
+02-22 02:32:00.561 I/native  (30437): I0000 00:00:1771720320.561848   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/seanet_model.tflite" (as: FILE) ...
+02-22 02:32:00.561 I/native  (30437): I0000 00:00:1771720320.561900   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/seanet_model.tflite" of size 2786320
+02-22 02:32:00.567 I/native  (30437): I0000 00:00:1771720320.567251   30437 android_resource_loader.cc:100] Built resource seanet_enhancer
+02-22 02:32:00.567 I/native  (30437): I0000 00:00:1771720320.567364   30437 android_resource_loader.cc:116] Loaded resource:seanet_enhancer
+02-22 02:32:00.567 I/native  (30437): I0000 00:00:1771720320.567415   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/sb_model.bin" (as: MEMORY) ...
+02-22 02:32:00.567 I/native  (30437): I0000 00:00:1771720320.567534   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/sb_model.bin" of size 48272
+02-22 02:32:00.567 I/native  (30437): I0000 00:00:1771720320.567619   30437 android_resource_loader.cc:100] Built resource sentence_boundary_model_resource
+02-22 02:32:00.567 I/native  (30437): I0000 00:00:1771720320.567652   30437 android_resource_loader.cc:116] Loaded resource:sentence_boundary_model_resource
+02-22 02:32:00.567 I/native  (30437): I0000 00:00:1771720320.567691   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_verbalize_spec.pb" (as: FILE) ...
+02-22 02:32:00.567 I/native  (30437): I0000 00:00:1771720320.567748   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/en_verbalize_spec.pb" of size 3984
+02-22 02:32:00.567 I/native  (30437): I0000 00:00:1771720320.567961   30437 android_resource_loader.cc:100] Built resource serialization_spec
+02-22 02:32:00.568 I/native  (30437): I0000 00:00:1771720320.568016   30437 android_resource_loader.cc:116] Loaded resource:serialization_spec
+02-22 02:32:00.568 I/native  (30437): I0000 00:00:1771720320.568056   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/textnorm_params_embedded_en_us.pb" (as: FILE) ...
+02-22 02:32:00.568 I/native  (30437): I0000 00:00:1771720320.568109   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/textnorm_params_embedded_en_us.pb" of size 321
+02-22 02:32:00.568 I/native  (30437): I0000 00:00:1771720320.568197   30437 android_resource_loader.cc:100] Built resource textnorm_params
+02-22 02:32:00.568 I/native  (30437): I0000 00:00:1771720320.568231   30437 android_resource_loader.cc:116] Loaded resource:textnorm_params
+02-22 02:32:00.568 I/native  (30437): I0000 00:00:1771720320.568919   30437 android_resource_loader.cc:100] Built resource icu_transliterator_to_latin
+02-22 02:32:00.568 I/native  (30437): I0000 00:00:1771720320.568954   30437 android_resource_loader.cc:116] Loaded resource:icu_transliterator_to_latin
+02-22 02:32:00.569 I/native  (30437): I0000 00:00:1771720320.569001   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/g2p_m3_syls0_stress0_en-US.fst" (as: FILE) ...
+02-22 02:32:00.569 I/native  (30437): I0000 00:00:1771720320.569056   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/g2p_m3_syls0_stress0_en-US.fst" of size 696736
+02-22 02:32:00.569 I/native  (30437): I0000 00:00:1771720320.569110   30437 compact_fst.cc:20] Loading FST from "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/g2p_m3_syls0_stress0_en-US.fst" ...
+02-22 02:32:00.692 I/native  (30437): I0000 00:00:1771720320.692576   30437 decoder.cc:50] G2P FST loaded (56 graphemes and 41 phonemes).
+02-22 02:32:00.702 I/native  (30437): I0000 00:00:1771720320.702784   30437 android_resource_loader.cc:100] Built resource learned_fst_g2p_mapper
+02-22 02:32:00.702 I/native  (30437): I0000 00:00:1771720320.702892   30437 android_resource_loader.cc:116] Loaded resource:learned_fst_g2p_mapper
+02-22 02:32:00.702 I/native  (30437): I0000 00:00:1771720320.702975   30437 android_resource_loader.cc:100] Built resource spelling_normalizer
+02-22 02:32:00.703 I/native  (30437): I0000 00:00:1771720320.703006   30437 android_resource_loader.cc:116] Loaded resource:spelling_normalizer
+02-22 02:32:00.727 I/native  (30437): I0000 00:00:1771720320.727569   30437 android_resource_loader.cc:100] Built resource token_resolver_algo
+02-22 02:32:00.727 I/native  (30437): I0000 00:00:1771720320.727682   30437 android_resource_loader.cc:116] Loaded resource:token_resolver_algo
+02-22 02:32:00.727 I/native  (30437): I0000 00:00:1771720320.727737   30437 android_resource_loader.cc:100] Built resource utf8_utils
+02-22 02:32:00.727 I/native  (30437): I0000 00:00:1771720320.727768   30437 android_resource_loader.cc:116] Loaded resource:utf8_utils
+02-22 02:32:00.727 I/native  (30437): I0000 00:00:1771720320.727835   30437 android_resource_loader.cc:100] Built resource lexical_classifier
+02-22 02:32:00.727 I/native  (30437): I0000 00:00:1771720320.727866   30437 android_resource_loader.cc:116] Loaded resource:lexical_classifier
+02-22 02:32:00.727 I/native  (30437): I0000 00:00:1771720320.727928   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/universal_carrier_pigeon_config.binarypb" (as: FILE) ...
+02-22 02:32:00.728 I/native  (30437): I0000 00:00:1771720320.728012   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/universal_carrier_pigeon_config.binarypb" of size 52
+02-22 02:32:00.728 I/native  (30437): I0000 00:00:1771720320.728450   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/universal_carrier_pigeon_model.tflite" (as: FILE) ...
+02-22 02:32:00.728 I/native  (30437): I0000 00:00:1771720320.728530   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/universal_carrier_pigeon_model.tflite" of size 638952
+02-22 02:32:00.730 I/native  (30437): I0000 00:00:1771720320.730464   30437 android_resource_loader.cc:100] Built resource carrier_pigeon_algo
+02-22 02:32:00.730 I/native  (30437): I0000 00:00:1771720320.730584   30437 android_resource_loader.cc:116] Loaded resource:carrier_pigeon_algo
+02-22 02:32:00.730 I/native  (30437): I0000 00:00:1771720320.730654   30437 android_resource_loader.cc:100] Built resource icu_transliterator
+02-22 02:32:00.730 I/native  (30437): I0000 00:00:1771720320.730688   30437 android_resource_loader.cc:116] Loaded resource:icu_transliterator
+02-22 02:32:00.730 I/native  (30437): I0000 00:00:1771720320.730730   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/variant_overrides_en_us.pb" (as: FILE) ...
+02-22 02:32:00.730 I/native  (30437): I0000 00:00:1771720320.730813   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/variant_overrides_en_us.pb" of size 1525
+02-22 02:32:00.731 I/native  (30437): I0000 00:00:1771720320.731222   30437 android_resource_loader.cc:100] Built resource variant_overrides
+02-22 02:32:00.731 I/native  (30437): I0000 00:00:1771720320.731262   30437 android_resource_loader.cc:116] Loaded resource:variant_overrides
+02-22 02:32:00.731 I/native  (30437): I0000 00:00:1771720320.731301   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/variant_selection_model_en_us_embedded.bin" (as: MEMORY) ...
+02-22 02:32:00.731 I/native  (30437): I0000 00:00:1771720320.731407   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/variant_selection_model_en_us_embedded.bin" of size 221608
+02-22 02:32:00.731 I/native  (30437): I0000 00:00:1771720320.731456   30437 android_resource_loader.cc:100] Built resource variant_selection_model_data_resource
+02-22 02:32:00.731 I/native  (30437): I0000 00:00:1771720320.731488   30437 android_resource_loader.cc:116] Loaded resource:variant_selection_model_data_resource
+02-22 02:32:00.733 I/native  (30437): I0000 00:00:1771720320.733716   30437 select_variants.cc:128] Word with override has only one variant: her
+02-22 02:32:00.733 I/native  (30437): I0000 00:00:1771720320.733942   30437 android_resource_loader.cc:100] Built resource select_variants_algo
+02-22 02:32:00.733 I/native  (30437): I0000 00:00:1771720320.733979   30437 android_resource_loader.cc:116] Loaded resource:select_variants_algo
+02-22 02:32:00.734 I/native  (30437): I0000 00:00:1771720320.734270   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/us_verbalization_capabilities.pb" (as: FILE) ...
+02-22 02:32:00.734 I/native  (30437): I0000 00:00:1771720320.734358   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/us_verbalization_capabilities.pb" of size 5224
+02-22 02:32:00.734 I/native  (30437): I0000 00:00:1771720320.734829   30437 android_resource_loader.cc:100] Built resource verbalization_capabilities
+02-22 02:32:00.734 I/native  (30437): I0000 00:00:1771720320.734890   30437 android_resource_loader.cc:116] Loaded resource:verbalization_capabilities
+02-22 02:32:00.734 I/native  (30437): I0000 00:00:1771720320.734936   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/verbalize_embedded_android.far" (as: FILE) ...
+02-22 02:32:00.735 I/native  (30437): I0000 00:00:1771720320.735001   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/verbalize_embedded_android.far" of size 2342559
+02-22 02:32:00.740 I/native  (30437): I0000 00:00:1771720320.740695   30437 android_resource_loader.cc:100] Built resource verbalize_grm_fst
+02-22 02:32:00.740 I/native  (30437): I0000 00:00:1771720320.740800   30437 android_resource_loader.cc:116] Loaded resource:verbalize_grm_fst
+02-22 02:32:00.740 I/native  (30437): I0000 00:00:1771720320.740873   30437 android_resource_loader.cc:100] Built resource speller_algo
+02-22 02:32:00.740 I/native  (30437): I0000 00:00:1771720320.740904   30437 android_resource_loader.cc:116] Loaded resource:speller_algo
+02-22 02:32:00.743 I/native  (30437): I0000 00:00:1771720320.743779   30437 android_resource_loader.cc:100] Built resource verbalize_grm_algo
+02-22 02:32:00.743 I/native  (30437): I0000 00:00:1771720320.743849   30437 android_resource_loader.cc:116] Loaded resource:verbalize_grm_algo
+02-22 02:32:00.743 I/native  (30437): I0000 00:00:1771720320.743929   30437 voice_params_resource.cc:33] Voice information: MessageLite at 0x74d16d7dc0
+02-22 02:32:00.743 I/native  (30437): I0000 00:00:1771720320.743968   30437 android_resource_loader.cc:100] Built resource voice_params
+02-22 02:32:00.744 I/native  (30437): I0000 00:00:1771720320.743999   30437 android_resource_loader.cc:116] Loaded resource:voice_params
+02-22 02:32:00.767 I/native  (30437): I0000 00:00:1771720320.767524   30437 android_resource_loader.cc:100] Built resource word_resolver_algo
+02-22 02:32:00.767 I/native  (30437): I0000 00:00:1771720320.767643   30437 android_resource_loader.cc:116] Loaded resource:word_resolver_algo
+02-22 02:32:00.767 I/native  (30437): I0000 00:00:1771720320.767724   30437 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/xsampa_to_tts_to-en_us.far" (as: FILE) ...
+02-22 02:32:00.767 I/native  (30437): I0000 00:00:1771720320.767812   30437 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83/../en-us-x-multi-r83/xsampa_to_tts_to-en_us.far" of size 22132
+02-22 02:32:00.768 I/native  (30437): I0000 00:00:1771720320.768406   30437 android_resource_loader.cc:100] Built resource xsampa_to_tts_phoneme_mapper
+02-22 02:32:00.768 I/native  (30437): I0000 00:00:1771720320.768453   30437 android_resource_loader.cc:116] Loaded resource:xsampa_to_tts_phoneme_mapper
+02-22 02:32:00.768 I/native  (30437): I0000 00:00:1771720320.768492   30437 local_pipeline_runner.cc:49] Done loading all resources from: {/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-seanet-r83}
+02-22 02:32:00.775 I/ComposerWrapperImpl(30437): Done initializing en-us-x-iog-seanet-embedded
+02-22 02:32:00.776 D/TextToSpeechManagerPerUserService( 4589): Connected successfully to TTS engine: com.google.android.tts
+02-22 02:32:00.777 D/TextToSpeechManagerPerUserService( 4589): Connected successfully to TTS engine: com.google.android.tts
+02-22 02:32:00.777 I/TextToSpeech(14656): Connected to TTS engine
+02-22 02:32:00.777 I/TextToSpeech(14656): Connected to TTS engine
+02-22 02:32:00.801 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:01.040 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.284 I/GoogleTTSServiceImpl(30437): For default lang en-us is name en-US-language (en-us-x-iog-server)
+02-22 02:32:01.284 I/TextToSpeech(14656): Setting up the connection to TTS engine...
+02-22 02:32:01.287 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.288 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.289 I/GoogleTTSServiceImpl(30437): For default lang en-us is name en-US-language (en-us-x-iog-server)
+02-22 02:32:01.289 I/TextToSpeech(14656): Setting up the connection to TTS engine...
+02-22 02:32:01.289 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.291 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.292 I/GoogleTTSServiceImpl(30437): For default lang en-us is name en-US-language (en-us-x-iog-server)
+02-22 02:32:01.294 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.558 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.558 I/LocalSynthesizer(30437): Attempting to load synthesizer for voice: en-us-x-hol-seanet-embedded
+02-22 02:32:01.558 I/LocalSynthesizer(30437): Voice en-us-x-hol-seanet-embedded is already supported by loaded synthesizer en-us-x-multi.
+02-22 02:32:01.558 I/ComposerWrapperImpl(30437): Skipping initialization, can already run voice en-us-x-hol-seanet-embedded.
+02-22 02:32:01.560 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.561 I/GoogleTTSServiceImpl(30437): For default lang en-us is name en-US-language (en-us-x-iog-server)
+02-22 02:32:01.602 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.604 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.606 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.607 I/GoogleTTSServiceImpl(30437): For default lang en-us is name en-US-language (en-us-x-iog-server)
+02-22 02:32:01.609 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.611 I/LocalSynthesizer(30437): Attempting to load synthesizer for voice: en-us-x-hol-seanet-embedded
+02-22 02:32:01.611 I/LocalSynthesizer(30437): Voice en-us-x-hol-seanet-embedded is already supported by loaded synthesizer en-us-x-multi.
+02-22 02:32:01.611 I/ComposerWrapperImpl(30437): Skipping initialization, can already run voice en-us-x-hol-seanet-embedded.
+02-22 02:32:01.676 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.678 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.680 I/GoogleTTSServiceImpl(30437): For default lang en-us is name en-US-language (en-us-x-iog-server)
+02-22 02:32:01.756 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.759 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.762 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.764 I/GoogleTTSServiceImpl(30437): For default lang en-us is name en-US-language (en-us-x-iog-server)
+02-22 02:32:01.767 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:32:01.771 I/LocalSynthesizer(30437): Attempting to load synthesizer for voice: en-us-x-hol-seanet-embedded
+02-22 02:32:01.771 I/LocalSynthesizer(30437): Voice en-us-x-hol-seanet-embedded is already supported by loaded synthesizer en-us-x-multi.
+02-22 02:32:01.771 I/ComposerWrapperImpl(30437): Skipping initialization, can already run voice en-us-x-hol-seanet-embedded.
+02-22 02:32:02.802 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:03.173 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:04.111 I/flutter (14656): DeploymentService: TimeoutException after 0:00:05.000000: Future not completed — using cache
+02-22 02:32:04.532 D/ProfileInstaller(14656): Skipping profile installation for com.example.sven_user_flutter
+02-22 02:32:04.802 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:05.927 I/[3:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:32:06.803 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:07.309 I/[6:    logd.reader: 3960] logd(    0): logdr: UID=2000 GID=2000 PID=15847 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+02-22 02:32:07.575 I/[0:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:32:08.804 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:09.328 D/BoundBrokerSvc(16722): onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+02-22 02:32:09.224 W/[2:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:10.016 I/keystore2( 4146): keystore2::watchdog: Watchdog thread idle -> terminating. Have a great day.
+02-22 02:32:10.805 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:12.805 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:14.541 I/flutter (14656): ❌ Failed to register push token: ClientException: The request connection took longer than 0:00:15.000000 and it was aborted. To get rid of this exception, try raising the RequestOptions.connectTimeout above the duration of 0:00:15.000000 or improve the response time of the server., uri=https://app.sven.example.com/v1/push/register
+02-22 02:32:14.541 I/flutter (14656): ✅ FCM Token: eYx6ldAOTZ65FQaMBZCHup:APA91bHOnM_6gK9GXgW-KV6-PjdNsG3HHJKXVsm0vl0RL_bsnehvL9s2BFLQKznYN7fYXjL2Mcn6QVV_nyB7S8yUeqSfxIaUPnc5OjiH9oWvtmUjb-SEHlA
+02-22 02:32:14.541 I/flutter (14656): ✅ PushNotificationManager: initialized
+02-22 02:32:14.806 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:15.281 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:16.807 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:16.935 I/[1:  kworker/u16:0: 2272] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:32:17.575 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:32:18.808 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:20.809 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:21.336 W/[1:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:22.810 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:24.811 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:26.811 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:27.387 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:27.576 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:32:27.764 E/[3:  kworker/u16:3: 2812] sec_bat_get_battery_info(    0): Fail to set psy ((null))
+02-22 02:32:27.765 I/        (    0): [3:  kworker/u16:3: 2812] sec-battery battery: sec_bat_get_value_by_adc:[2] Temp(295), Temp-ADC(1834)
+02-22 02:32:27.766 I/        (    0): [3:  kworker/u16:3: 2812] sec-battery battery: sec_bat_get_value_by_adc:[6] Temp(305), Temp-ADC(1719)
+02-22 02:32:27.768 I/        (    0): [3:  kworker/u16:3: 2812] sm5713-charger sm5713-charger: psy_chg_get_status: STATUS1(0x01), STATUS2(0x00), STATUS3(0x00)
+02-22 02:32:27.788 I/        (    0): [3:  kworker/u16:3: 2812] sec-battery battery: sec_bat_check_recharge: recharging voltage (4280)
+02-22 02:32:27.789 I/        (    0): [3:  kworker/u16:3: 2812] sec-battery battery: sec_bat_set_polling: Polling time 30/30 sec.
+02-22 02:32:27.794 W/[2:android.hardwar: 4232] healthd(    0): battery l=100 v=4305 t=29.5 h=2 st=5 c=0 fc=4000000 chg=u
+02-22 02:32:27.921 D/PowerUI ( 4858): can't show warning due to - plugged: true status unknown: false
+02-22 02:32:27.943 I/[1:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:32:28.812 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:30.813 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:32.814 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:33.441 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:34.814 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:36.815 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:37.576 I/[1:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:32:38.816 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:38.951 I/[3:  kworker/u16:0: 2272] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:32:39.502 W/[1:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:40.817 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:42.818 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:42.794 I/        (    0): [0:    kworker/0:0:29618] sm5713_muic_debug_reg_log DEV_TYPE[0x02 0x00] CNTL:0x34 MAN_SW:0x09 AFC_CNTL:0x00 AFC_TXD:0x00 AFC_STATUS:0x00 VBUS_VOL[0x00 0x00] attached_dev:1
+02-22 02:32:42.795 I/        (    0): [0:    kworker/0:1:17157] sm5713_usbpd_debug_reg_log SYS_CT:0x1d CR_CT[4:0x92 5:0x00] CC_ST:0x21 CC_CT[1:0x80 3:0x80 7:0x00] PD_CT[1:0x03 4:0x00] RX_BUF_ST:0x04 PD_ST[0:0x04 3:0x00 4:0x07 5:0x03]
+02-22 02:32:44.818 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:45.562 W/[3:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:46.819 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:47.577 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:32:48.820 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:49.959 I/[3:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:32:50.821 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:51.612 W/[3:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:52.822 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:54.822 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:56.823 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:32:57.577 I/[1:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:32:57.664 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:32:57.733 W/[3:android.hardwar: 4232] healthd(    0): battery l=100 v=4305 t=29.5 h=2 st=5 c=0 fc=4000000 chg=u
+02-22 02:32:57.793 E/[0:  kworker/u16:3: 2812] sec_bat_get_battery_info(    0): Fail to set psy ((null))
+02-22 02:32:57.794 I/        (    0): [0:  kworker/u16:3: 2812] sec-battery battery: sec_bat_get_value_by_adc:[2] Temp(296), Temp-ADC(1833)
+02-22 02:32:57.795 I/        (    0): [0:  kworker/u16:3: 2812] sec-battery battery: sec_bat_get_value_by_adc:[6] Temp(302), Temp-ADC(1731)
+02-22 02:32:57.796 I/        (    0): [0:  kworker/u16:3: 2812] sm5713-charger sm5713-charger: psy_chg_get_status: STATUS1(0x01), STATUS2(0x00), STATUS3(0x00)
+02-22 02:32:57.806 I/        (    0): [0:  kworker/u16:3: 2812] sec-battery battery: sec_bat_check_recharge: recharging voltage (4280)
+02-22 02:32:57.861 I/        (    0): [0:  kworker/u16:3: 2812] sec-battery battery: sec_bat_set_polling: Polling time 30/30 sec.
+02-22 02:32:57.869 W/[2:android.hardwar: 4232] healthd(    0): battery l=100 v=4305 t=29.6 h=2 st=5 c=0 fc=4000000 chg=u
+02-22 02:32:57.996 D/PowerUI ( 4858): can't show warning due to - plugged: true status unknown: false
+02-22 02:32:58.063 I/GnssLocationProvider( 4589): WakeLock acquired by handleDownloadPsdsData()
+02-22 02:32:58.064 E/GnssPsdsDownloader( 4589): No Long-Term PSDS servers were specified in the GnssConfiguration
+02-22 02:32:58.824 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:00.825 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:00.967 I/[3:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:33:02.826 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:03.725 W/[1:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:04.826 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:06.827 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:07.578 I/[2:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:33:07.699 D/TrafficStats(26514): tagSocket(70) with statsTag=0xffffffff, statsUid=-1
+02-22 02:33:08.828 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:09.782 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:10.829 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:11.975 I/[3:  kworker/u16:0: 2272] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:33:12.830 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:14.831 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:15.830 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:16.831 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:17.578 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:33:18.832 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:20.833 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:21.889 W/[1:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:22.834 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:22.727 I/[0:  kworker/u16:1:14038] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:33:24.835 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:26.836 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:27.579 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:33:27.867 E/[3:  kworker/u16:0: 2272] sec_bat_get_battery_info(    0): Fail to set psy ((null))
+02-22 02:33:27.869 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_get_value_by_adc:[2] Temp(296), Temp-ADC(1832)
+02-22 02:33:27.870 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_get_value_by_adc:[6] Temp(298), Temp-ADC(1747)
+02-22 02:33:27.872 I/        (    0): [3:  kworker/u16:0: 2272] sm5713-charger sm5713-charger: psy_chg_get_status: STATUS1(0x01), STATUS2(0x00), STATUS3(0x00)
+02-22 02:33:27.898 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_check_recharge: recharging voltage (4280)
+02-22 02:33:27.900 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_set_polling: Polling time 30/30 sec.
+02-22 02:33:27.906 W/[1:android.hardwar: 4232] healthd(    0): battery l=100 v=4306 t=29.6 h=2 st=5 c=0 fc=4000000 chg=u
+02-22 02:33:28.033 D/PowerUI ( 4858): can't show warning due to - plugged: true status unknown: false
+02-22 02:33:27.948 W/[2:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:28.837 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:30.837 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:32.838 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:33.735 I/[3:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:33:34.005 W/[1:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:34.839 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:36.840 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:37.579 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:33:38.841 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:40.059 W/[3:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:40.842 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:42.842 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:44.234 I/        (    0): [0:    kworker/0:0:29618] sm5713_muic_debug_reg_log DEV_TYPE[0x02 0x00] CNTL:0x34 MAN_SW:0x09 AFC_CNTL:0x00 AFC_TXD:0x00 AFC_STATUS:0x00 VBUS_VOL[0x00 0x00] attached_dev:1
+02-22 02:33:44.235 I/        (    0): [0:    kworker/0:1:17157] sm5713_usbpd_debug_reg_log SYS_CT:0x1d CR_CT[4:0x92 5:0x00] CC_ST:0x21 CC_CT[1:0x80 3:0x80 7:0x00] PD_CT[1:0x03 4:0x00] RX_BUF_ST:0x04 PD_ST[0:0x04 3:0x00 4:0x07 5:0x03]
+02-22 02:33:44.843 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:44.743 I/[1:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:33:46.116 W/[1:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:46.844 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:47.079 I/GnssLocationProvider( 4589): WakeLock acquired by handleDownloadPsdsData()
+02-22 02:33:47.080 E/GnssPsdsDownloader( 4589): No Long-Term PSDS servers were specified in the GnssConfiguration
+02-22 02:33:47.579 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:33:48.845 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:50.846 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:52.174 W/[1:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:52.847 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:54.847 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:55.751 I/[3:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:33:56.848 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:33:57.580 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:33:57.734 W/[1:android.hardwar: 4232] healthd(    0): battery l=100 v=4306 t=29.6 h=2 st=5 c=0 fc=4000000 chg=u
+02-22 02:33:57.906 E/[3:  kworker/u16:0: 2272] sec_bat_get_battery_info(    0): Fail to set psy ((null))
+02-22 02:33:57.908 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_get_value_by_adc:[2] Temp(296), Temp-ADC(1831)
+02-22 02:33:57.910 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_get_value_by_adc:[6] Temp(296), Temp-ADC(1756)
+02-22 02:33:57.911 I/        (    0): [3:  kworker/u16:0: 2272] sm5713-charger sm5713-charger: psy_chg_get_status: STATUS1(0x01), STATUS2(0x00), STATUS3(0x00)
+02-22 02:33:57.930 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_check_recharge: recharging voltage (4280)
+02-22 02:33:57.933 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_set_polling: Polling time 30/30 sec.
+02-22 02:33:57.943 W/[2:android.hardwar: 4232] healthd(    0): battery l=100 v=4306 t=29.6 h=2 st=5 c=0 fc=4000000 chg=u
+02-22 02:33:58.225 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:33:58.849 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:00.850 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:02.851 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:04.288 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:04.852 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:06.852 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:06.759 I/[3:  kworker/u16:0: 2272] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:34:07.581 I/[1:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:34:08.853 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:10.342 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:10.854 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:12.855 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:14.856 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:16.393 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:16.857 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:17.581 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:34:17.767 I/[3:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:34:18.857 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:20.858 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:22.226 I/[0:            cmd:15898] binder(    0): 15898:15898 ioctl 40046210 7fd497b220 returned -22
+02-22 02:34:22.290 I/[6:            cmd:15902] binder(    0): 15902:15902 ioctl 40046210 7fce1b6a00 returned -22
+02-22 02:34:22.441 W/[1:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:22.859 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:24.860 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:26.861 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:27.581 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:34:27.940 E/[3:  kworker/u16:3: 2812] sec_bat_get_battery_info(    0): Fail to set psy ((null))
+02-22 02:34:27.942 I/        (    0): [3:  kworker/u16:3: 2812] sec-battery battery: sec_bat_get_value_by_adc:[2] Temp(296), Temp-ADC(1831)
+02-22 02:34:27.944 I/        (    0): [3:  kworker/u16:3: 2812] sec-battery battery: sec_bat_get_value_by_adc:[6] Temp(295), Temp-ADC(1761)
+02-22 02:34:27.945 I/        (    0): [3:  kworker/u16:3: 2812] sm5713-charger sm5713-charger: psy_chg_get_status: STATUS1(0x01), STATUS2(0x00), STATUS3(0x00)
+02-22 02:34:27.957 I/        (    0): [3:  kworker/u16:3: 2812] sec-battery battery: sec_bat_check_recharge: recharging voltage (4280)
+02-22 02:34:27.958 I/        (    0): [3:  kworker/u16:3: 2812] sec-battery battery: sec_bat_set_polling: Polling time 30/30 sec.
+02-22 02:34:27.964 W/[2:android.hardwar: 4232] healthd(    0): battery l=100 v=4306 t=29.6 h=2 st=5 c=0 fc=4000000 chg=u
+02-22 02:34:28.498 W/[1:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:28.862 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:28.775 I/[3:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:34:30.862 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:32.863 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:34.558 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:34.864 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:36.865 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:37.582 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:34:38.866 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:39.783 I/[3:  kworker/u16:0: 2272] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:34:40.612 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:40.867 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:42.867 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:44.868 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:44.877 I/FusedLocation(16782): location delivery to 10115/com.google.android.gms[earthquake_alerting]/5592e8df blocked - too close [CONTEXT service_id=6 ]
+02-22 02:34:44.880 I/FusedLocation(16782): location delivery to 10115/com.google.android.gms[earthquake_detection]/1a698abd blocked - too close [CONTEXT service_id=6 ]
+02-22 02:34:44.881 I/FusedLocation(16782): location delivery to 10115/com.google.android.gms[.findmydevice]/5a9c0fef blocked - too fast [CONTEXT service_id=6 ]
+02-22 02:34:45.153 I/QAWController( 4858): Re-creating the QAW client to avoid stale.
+02-22 02:34:45.206 D/ControlsListingControllerImpl( 4858): Subscribing callback, service count: 2
+02-22 02:34:45.239 W/DreamManagerService( 4589): Falling back to default dream ComponentInfo{com.android.deskclock/com.android.deskclock.Screensaver}
+02-22 02:34:45.264 W/DreamManagerService( 4589): Falling back to default dream ComponentInfo{com.android.deskclock/com.android.deskclock.Screensaver}
+02-22 02:34:45.279 D/BoundBrokerSvc(16722): onBind: Intent { act=com.google.android.gms.pay.service.BIND dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsApiService }
+02-22 02:34:45.279 D/BoundBrokerSvc(16722): Loading bound service for intent: Intent { act=com.google.android.gms.pay.service.BIND dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsApiService }
+02-22 02:34:45.298 D/ControlsListingControllerImpl( 4858): Unsubscribing callback
+02-22 02:34:45.322 W/QAWalletSvc(16782): No wallet cards to return. [CONTEXT service_id=79 ]
+02-22 02:34:45.674 I/        (    0): [0:    kworker/0:0:29618] sm5713_muic_debug_reg_log DEV_TYPE[0x02 0x00] CNTL:0x34 MAN_SW:0x09 AFC_CNTL:0x00 AFC_TXD:0x00 AFC_STATUS:0x00 VBUS_VOL[0x00 0x00] attached_dev:1
+02-22 02:34:45.675 I/        (    0): [0:    kworker/0:1:17157] sm5713_usbpd_debug_reg_log SYS_CT:0x1d CR_CT[4:0x92 5:0x00] CC_ST:0x21 CC_CT[1:0x80 3:0x80 7:0x00] PD_CT[1:0x03 4:0x00] RX_BUF_ST:0x04 PD_ST[0:0x04 3:0x00 4:0x07 5:0x03]
+02-22 02:34:46.667 W/[0:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:46.869 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:47.582 I/[3:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:34:48.286 I/[7:            cmd:15923] binder(    0): 15923:15923 ioctl 40046210 7ffcd6e030 returned -22
+02-22 02:34:48.870 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:50.871 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:50.791 I/[3:  kworker/u16:3: 2812] fps_et7xx_work_func_debug(    0): ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-22 02:34:52.729 W/[2:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:52.872 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:54.872 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:54.775 I/[2:            cmd:15930] binder(    0): 15930:15930 ioctl 40046210 7ff66afbc0 returned -22
+02-22 02:34:54.875 I/[3:            cmd:15935] binder(    0): 15935:15935 ioctl 40046210 7fd6f58d40 returned -22
+02-22 02:34:55.541 D/AndroidRuntime(15938): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+02-22 02:34:55.568 I/AndroidRuntime(15938): Using default boot image
+02-22 02:34:55.568 I/AndroidRuntime(15938): Leaving lock profiling enabled
+02-22 02:34:55.579 W/app_process(15938): ART APEX data files are untrusted.
+02-22 02:34:55.579 I/app_process(15938): Core platform API reporting enabled, enforcing=false
+02-22 02:34:55.770 I/keystore2( 4146): keystore2::watchdog: Watchdog thread idle -> terminating. Have a great day.
+02-22 02:34:55.878 D/app_process(15938): Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+02-22 02:34:55.878 D/app_process(15938): I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt70l.dat
+02-22 02:34:55.925 W/app_process(15938): ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2555718838])
+02-22 02:34:55.983 D/AndroidRuntime(15938): Calling main entry com.android.commands.uiautomator.Launcher
+02-22 02:34:55.872 I/[4:           main:15938] binder(    0): 15938:15938 ioctl 40046210 7fd2ebc6b0 returned -22
+02-22 02:34:55.999 W/WindowMagnificationMgr( 4589): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-22 02:34:56.003 V/UiAutomation(15938): Init UiAutomation@3bc415e[id=50, flags=0]
+02-22 02:34:56.006 W/WindowMagnificationMgr( 4589): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-22 02:34:56.027 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a83f630
+02-22 02:34:56.873 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:57.014 W/libc    (15938): Access denied finding property "qemu.sf.lcd_density"
+02-22 02:34:57.014 W/libc    (15938): Access denied finding property "qemu.sf.lcd_density"
+02-22 02:34:57.043 W/AccessibilityNodeInfoDumper(15938): Fetch time: 25ms
+02-22 02:34:57.053 W/WindowMagnificationMgr( 4589): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-22 02:34:56.948 I/[4:    uiautomator:15938] binder(    0): 15938:15938 ioctl 40046210 7fd2ebc894 returned -22
+02-22 02:34:57.059 D/AndroidRuntime(15938): Shutting down VM
+02-22 02:34:57.063 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a8566d0
+02-22 02:34:57.066 W/WindowMagnificationMgr( 4589): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-22 02:34:57.583 I/[2:      watchdogd: 3966] softdog(    0): softdog_ping: 30
+02-22 02:34:57.738 W/[2:android.hardwar: 4232] healthd(    0): battery l=100 v=4306 t=29.6 h=2 st=5 c=0 fc=4000000 chg=u
+02-22 02:34:58.037 I/flutter (14656): {"service":"sven_user_flutter","event":"perf.janky_frames","timestamp":"2026-02-22T02:34:58.036321","janky":3,"total":40,"janky_pct":8}
+02-22 02:34:57.960 E/[3:  kworker/u16:0: 2272] sec_bat_get_battery_info(    0): Fail to set psy ((null))
+02-22 02:34:57.961 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_get_value_by_adc:[2] Temp(297), Temp-ADC(1827)
+02-22 02:34:57.962 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_get_value_by_adc:[6] Temp(295), Temp-ADC(1762)
+02-22 02:34:57.962 I/        (    0): [3:  kworker/u16:0: 2272] sm5713-charger sm5713-charger: psy_chg_get_status: STATUS1(0x01), STATUS2(0x00), STATUS3(0x00)
+02-22 02:34:57.969 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_check_recharge: recharging voltage (4280)
+02-22 02:34:57.971 I/        (    0): [3:  kworker/u16:0: 2272] sec-battery battery: sec_bat_set_polling: Polling time 30/30 sec.
+02-22 02:34:57.975 W/[0:android.hardwar: 4232] healthd(    0): battery l=100 v=4306 t=29.7 h=2 st=5 c=0 fc=4000000 chg=u
+02-22 02:34:58.103 D/PowerUI ( 4858): can't show warning due to - plugged: true status unknown: false
+02-22 02:34:58.125 I/[6:      screencap:15958] binder(    0): 15958:15958 ioctl 40046210 7fe8e3afa0 returned -22
+02-22 02:34:58.240 W/ProcessState(15958): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+02-22 02:34:58.262 I/hwservicemanager( 3956): getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+02-22 02:34:58.149 I/[1: binder:15958_1:15963] binder(    0): 15958:15963 ioctl 40046210 750ac213b4 returned -22
+02-22 02:34:58.263 I/Gralloc4(15958): mapper 4.x is not supported
+02-22 02:34:58.263 I/hwservicemanager( 3956): getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device VINTF manifest.
+02-22 02:34:58.263 W/Gralloc3(15958): mapper 3.x is not supported
+02-22 02:34:58.310 I/gralloc (15958): Arm Module v1.0
+02-22 02:34:58.874 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:34:58.781 W/[3:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:34:59.674 I/[2:            cmd:15966] binder(    0): 15966:15966 ioctl 40046210 7fd05195e0 returned -22
+02-22 02:34:59.820 I/MediaProvider( 7328): Begin Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService }
+02-22 02:34:59.878 V/MediaProvider( 7328): Inserted id:1000001697 less than next row id backup:1000002000.
+02-22 02:34:59.891 I/MediaProvider( 7328): End Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService }
+02-22 02:34:59.859 I/[3:    logd.reader: 3960] logd(    0): logdr: UID=2000 GID=2000 PID=15970 n tail=600 logMask=99 pid=0 start=0ns deadline=0ns

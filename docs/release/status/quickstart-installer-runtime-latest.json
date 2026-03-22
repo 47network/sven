@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-03-21T00:29:01.197Z",
+  "status": "fail",
+  "platform": "linux",
+  "platform_profile": "posix_baseline",
+  "required_check_ids": [
+    "quickstart_runtime_baseline_installer_dry_run",
+    "quickstart_runtime_baseline_install_status_emitted",
+    "quickstart_runtime_stack_healthz_operable",
+    "quickstart_runtime_auth_surface_operable"
+  ],
+  "checks": [
+    {
+      "id": "wsl_sh_installer_exit_and_functional_ready",
+      "pass": true,
+      "detail": "legacy alias for posix baseline compatibility"
+    },
+    {
+      "id": "quickstart_runtime_baseline_installer_dry_run",
+      "pass": true,
+      "detail": "exit=0"
+    },
+    {
+      "id": "quickstart_runtime_baseline_install_status_emitted",
+      "pass": true,
+      "detail": "INSTALL_STATUS_JSON present"
+    },
+    {
+      "id": "powershell_installer_exit_ok",
+      "pass": false,
+      "detail": "not applicable on non-Windows host"
+    },
+    {
+      "id": "powershell_installer_functional_ready",
+      "pass": false,
+      "detail": "not applicable on non-Windows host"
+    },
+    {
+      "id": "quickstart_runtime_stack_healthz_operable",
+      "pass": false,
+      "detail": "docker unavailable: docker version probe failed"
+    },
+    {
+      "id": "quickstart_runtime_auth_surface_operable",
+      "pass": false,
+      "detail": "docker unavailable; auth probe not executed"
+    }
+  ]
+}

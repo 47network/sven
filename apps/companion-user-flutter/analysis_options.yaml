@@ -1,0 +1,21 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - '**/.dart_tool/**'
+    - '**/node_modules/**'
+    - '**/build/**'
+    - '**/dist/**'
+    - '**/.next/**'
+    - '**/coverage/**'
+    - '**/archive/**'
+    - '**/tmp/**'
+    - '**/.runtime/**'
+    - 'patrol_test/**'
+    - 'integration_test/**'
+    - 'test/**'
+    - 'lib/widgetbook_main.dart'
+
+linter:
+  rules:
+    prefer_single_quotes: true

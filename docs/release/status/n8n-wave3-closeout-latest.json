@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-03-16T02:21:47.692Z",
+  "status": "pass",
+  "passed": 5,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "n8n_wave3_rollup_status_pass",
+      "pass": true,
+      "detail": "rollup_status=pass"
+    },
+    {
+      "id": "n8n_wave3_rollup_lanes_complete",
+      "pass": true,
+      "detail": "lanes_pass=10/10"
+    },
+    {
+      "id": "n8n_wave3_matrix_rows_implemented",
+      "pass": true,
+      "detail": "Wave 3 matrix rows NN-W01..NN-W10 are present and implemented"
+    },
+    {
+      "id": "n8n_wave3_aliases_present",
+      "pass": true,
+      "detail": "package.json exposes n8n Wave 3 lane/rollup/closeout aliases"
+    },
+    {
+      "id": "n8n_wave3_ci_binding_present",
+      "pass": true,
+      "detail": "parity-e2e workflow binds n8n Wave 3 closeout execution and artifact upload"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sven Enterprise | Adoption and Operations</title>
+  <meta name="description" content="Sven enterprise rollout, governance, and operating model." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/suite/assets/suite.css" />
+  <link rel="icon" href="/suite/assets/sven-logo.png" type="image/png" />
+</head>
+<body>
+  <header class="top">
+    <div class="wrap row">
+      <a class="brand" href="/"><img src="/suite/assets/sven-logo.png" alt="Sven logo" /><span>Sven</span></a>
+      <nav class="nav">
+        <a href="/suite">Suite</a>
+        <a href="/suite/platform">Platform</a>
+        <a href="/suite/features">Features</a>
+        <a href="/suite/security">Security</a>
+        <a href="/suite/docs">Docs</a>
+        <a href="/suite/enterprise">Enterprise</a>
+        <a href="/suite/roadmap">Roadmap</a>
+      </nav>
+      <a class="cta" href="https://app.sven.example.com/community" data-runtime-path="/community">Community</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero hero-split">
+      <div>
+        <span class="kicker"><span class="dot"></span> Enterprise</span>
+        <h1>Enterprise-grade rollout from day zero.</h1>
+        <p class="sub">Sven supports staged adoption: secure bootstrap, operational hardening, evidence collection, and controlled scale-out across teams and environments.</p>
+      </div>
+      <aside class="hero-panel hero-enterprise">
+        <p class="hero-panel-title">Adoption Program</p>
+        <ul class="list">
+          <li>Foundation hardening: ingress, runtime, access model</li>
+          <li>Governance lanes: parity, checklist, release verification</li>
+          <li>Scale lanes: capability expansion with proof continuity</li>
+          <li>Optimization lanes: reliability, benchmark, observability</li>
+        </ul>
+        <div class="signal-grid">
+          <div class="signal"><span class="k">Foundation</span><span class="v">Hardened</span><span class="bar"></span></div>
+          <div class="signal"><span class="k">Governance</span><span class="v">Strict Gates</span><span class="bar"></span></div>
+          <div class="signal"><span class="k">Scale</span><span class="v">Proof-Linked</span><span class="bar"></span></div>
+        </div>
+        <p class="hero-panel-note">Adoption is staged so operational trust grows with capability scope.</p>
+      </aside>
+    </section>
+
+    <section class="section">
+      <h2>Adoption stages</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Stage</th><th>Objective</th><th>Primary artifacts</th></tr></thead>
+          <tbody>
+            <tr><td>Foundation</td><td>Deploy trusted runtime and ingress</td><td>install bundle, nginx edge config, certs</td></tr>
+            <tr><td>Governance</td><td>Enforce release and parity gates</td><td>release status docs, checklist verifiers</td></tr>
+            <tr><td>Scale</td><td>Expand capabilities and surfaces</td><td>parity reproduction program, wave lanes</td></tr>
+            <tr><td>Optimization</td><td>Improve reliability and UX depth</td><td>benchmark lanes, incident playbooks</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Operational priorities</h2>
+      <div class="grid cols-3" style="margin-top:14px">
+        <article class="card"><span class="badge ok">Reliability</span><h3>Evidence-first operations</h3><p>Keep status documents synchronized with real CI/provenance outputs before claiming lane closure.</p></article>
+        <article class="card"><span class="badge info">Security</span><h3>Harden by default</h3><p>Use identity gates, least privilege routing, and explicit policy controls for privileged lanes.</p></article>
+        <article class="card"><span class="badge warn">Program</span><h3>Competitor-complete parity</h3><p>Track parity roadmap execution by waves and keep CI hard gates aligned to documented claims.</p></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Trust-control cockpit</h2>
+      <p class="lead">Interactive view of the enterprise controls that keep rollout secure, auditable, and reproducible.</p>
+      <div class="topology">
+        <div class="segment-controls" data-segment-group="enterprise-controls">
+          <button class="segment-btn active" type="button" data-segment-target="ctrl-identity">Identity and access</button>
+          <button class="segment-btn" type="button" data-segment-target="ctrl-runtime">Runtime governance</button>
+          <button class="segment-btn" type="button" data-segment-target="ctrl-release">Release provenance</button>
+        </div>
+
+        <div class="segment-panel active" id="ctrl-identity">
+          <div class="control-grid">
+            <article class="control-card"><span class="k">control</span><div class="v">Verified persona model</div><p>Community and privileged paths are identity-gated for trust continuity.</p></article>
+            <article class="control-card"><span class="k">control</span><div class="v">Role-constrained surfaces</div><p>Admin and public routes are split by explicit access and route ownership.</p></article>
+            <article class="control-card"><span class="k">control</span><div class="v">Session discipline</div><p>Operational actions remain auditable with bounded privileges and logs.</p></article>
+          </div>
+        </div>
+
+        <div class="segment-panel" id="ctrl-runtime">
+          <div class="control-grid">
+            <article class="control-card"><span class="k">control</span><div class="v">Single controlled ingress</div><p>All public runtime surfaces are anchored under one controlled TLS edge entry.</p></article>
+            <article class="control-card"><span class="k">control</span><div class="v">Policy-first execution</div><p>Workflow execution is governed through gateway checks and safety rails.</p></article>
+            <article class="control-card"><span class="k">control</span><div class="v">Observable health</div><p>Public evidence endpoints expose readiness and capability posture.</p></article>
+          </div>
+        </div>
+
+        <div class="segment-panel" id="ctrl-release">
+          <div class="control-grid">
+            <article class="control-card"><span class="k">control</span><div class="v">Wave gate enforcement</div><p>Parity and checklist gates must pass before release closure claims.</p></article>
+            <article class="control-card"><span class="k">control</span><div class="v">Checklist verifier</div><p>Release lifecycle lanes are validated against strict runtime checks.</p></article>
+            <article class="control-card"><span class="k">control</span><div class="v">Evidence retention</div><p>Status artifacts are maintained as auditable records for each lane.</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Live evidence</h2>
+      <div class="grid cols-4" style="margin-top:14px">
+        <div class="card"><div class="kv"><span class="k">Capability proof</span><span class="v" id="ev-capability">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Wave lanes</span><span class="v" id="ev-waves">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Doc-agent feed</span><span class="v" id="ev-feed">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Readiness</span><span class="v" id="ev-readiness">Loading...</span></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap foot"><div class="muted">Sven Enterprise • <span id="suite-year"></span></div><div class="muted">Operational adoption with governance lanes</div></div></footer>
+  <script src="/suite/assets/suite.js"></script>
+</body>
+</html>
+
+
+
+

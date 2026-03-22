@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-02-14T17:53:46.829Z",
+  "status": "pass",
+  "latest_evidence": "key-rotation-rehearsal-2026-02-14.md",
+  "checks": [
+    {
+      "id": "rotation_runbook_present",
+      "pass": true,
+      "detail": "docs/ops/key-rotation-and-propagation-runbook-2026.md"
+    },
+    {
+      "id": "post_verify_status_pass",
+      "pass": true,
+      "detail": "post-release status=pass"
+    },
+    {
+      "id": "admin_dashboard_slo_status_pass",
+      "pass": true,
+      "detail": "admin dashboard slo status=pass"
+    },
+    {
+      "id": "rotation_rehearsal_evidence_present",
+      "pass": true,
+      "detail": "key-rotation-rehearsal-2026-02-14.md"
+    },
+    {
+      "id": "rotation_rehearsal_evidence_has_required_fields",
+      "pass": true,
+      "detail": "expects scope/version/validation/propagation/rollback/approver fields"
+    }
+  ]
+}

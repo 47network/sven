@@ -1,0 +1,9 @@
+{
+  "environment": "dev",
+  "required_secrets": [
+    "DATABASE_URL",
+    "COOKIE_SECRET",
+    "NATS_URL",
+    "OPENAI_API_KEY"
+  ]
+}

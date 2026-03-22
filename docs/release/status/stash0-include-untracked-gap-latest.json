@@ -1,0 +1,101 @@
+{
+  "generated_at": "2026-03-16T10:09:15+02:00",
+  "stash_ref": "stash@{0}",
+  "total_paths": 4029,
+  "existing_on_recovery_branch": 665,
+  "missing_on_recovery_branch": 3364,
+  "missing_top_directories": [
+    {
+      "name": "services",
+      "count": 2009
+    },
+    {
+      "name": "docs",
+      "count": 913
+    },
+    {
+      "name": "scripts",
+      "count": 190
+    },
+    {
+      "name": "archive",
+      "count": 151
+    },
+    {
+      "name": "apps",
+      "count": 35
+    },
+    {
+      "name": "skills",
+      "count": 22
+    },
+    {
+      "name": ".github",
+      "count": 18
+    },
+    {
+      "name": "config",
+      "count": 9
+    },
+    {
+      "name": "packages",
+      "count": 3
+    },
+    {
+      "name": "setup.sh",
+      "count": 1
+    },
+    {
+      "name": "setup.cmd",
+      "count": 1
+    },
+    {
+      "name": "RELEASE.md",
+      "count": 1
+    },
+    {
+      "name": "playwright.admin.config.ts",
+      "count": 1
+    },
+    {
+      "name": ".ai",
+      "count": 1
+    },
+    {
+      "name": "MAINTAINERS.md",
+      "count": 1
+    },
+    {
+      "name": "deploy",
+      "count": 1
+    },
+    {
+      "name": ".vscode",
+      "count": 1
+    },
+    {
+      "name": ".tmp_git_status.txt",
+      "count": 1
+    },
+    {
+      "name": ".secrets.baseline",
+      "count": 1
+    },
+    {
+      "name": ".editorconfig",
+      "count": 1
+    },
+    {
+      "name": ".detect-secrets.cfg",
+      "count": 1
+    },
+    {
+      "name": "Makefile",
+      "count": 1
+    },
+    {
+      "name": "tests",
+      "count": 1
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+﻿{
+    "generated_at":  "2026-02-22T18:59:29.7160329+00:00",
+    "recommended_finalize_command":  "npm run ops:mobile:ios:c8:finalize -- -VoiceOverVerdict pass -Auditor \"\u003cauditor\u003e\" -Device \"\u003ciphone model\u003e\" -IosVersion \"\u003cios version\u003e\" -ColdStartSamplesCsv \"2800,2900,3000\" -BackgroundNetworkSamplesCsv \"0,0,12\" -IpaSizeMb \"42.1\" -BuildRef \"\u003cbuild ref\u003e\" -Source \"\u003ctestflight/xcode\u003e\" -VoiceOverNotes \"Manual VoiceOver audit completed\" -MetricsNotes \"Captured during iOS release validation\" -RunCloseout",
+    "fields":  {
+                   "source":  "\u003ctestflight/xcode\u003e",
+                   "build_ref":  "\u003cbuild ref\u003e",
+                   "auto_detect_ipa":  false,
+                   "auditor":  "\u003cauditor\u003e",
+                   "background_network_samples_csv":  "0,0,12",
+                   "use_telemetry_files":  false,
+                   "ipa_size_mb":  "42.1",
+                   "cold_start_samples_csv":  "2800,2900,3000",
+                   "voiceover_notes":  "Manual VoiceOver audit completed",
+                   "device":  "\u003ciphone model\u003e",
+                   "ios_version":  "\u003cios version\u003e",
+                   "metrics_notes":  "Captured during iOS release validation"
+               }
+}

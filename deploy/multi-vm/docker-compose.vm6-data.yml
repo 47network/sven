@@ -1,0 +1,539 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Sven Four-VM Deployment — VM6: Data & Observability
+# Host: sven-data (10.47.0.8 / 10.74.47.10)
+# Services: OpenSearch, RAG Indexer, RAG Ingestors (NAS/Git/Notes),
+#           SearXNG, Egress Proxy, OTEL Collector, Prometheus, Grafana, Loki
+#
+# Run:
+#   docker compose -f docker-compose.vm6-data.yml --env-file .env.vm6 up -d
+#
+# Start VM6 FIRST — VM4 and VM5 depend on OpenSearch and OTEL.
+#
+# Prerequisites:
+#   - .env.vm6 populated with secrets (see .env.vm6.example)
+#   - vm.max_map_count=262144 set on host (for OpenSearch)
+# ─────────────────────────────────────────────────────────────────────────────
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "10"
+
+networks:
+  platform:
+    driver: bridge
+
+volumes:
+  osdata:
+  searxng_data:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+  loki_archive:
+  gitdata:
+  uptime_kuma_data:
+
+services:
+  # ─── OpenSearch 2.18 (RAG vector search + full-text) ───
+  opensearch:
+    <<: *common
+    image: opensearchproject/opensearch@sha256:645d3d9390ade7ebef988d3c9bc61a6616f1863ff41efe97e2347d6bf7972504
+    container_name: sven-opensearch
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=${OPENSEARCH_DISABLE_SECURITY:-false}
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
+      - bootstrap.memory_lock=true
+    ports:
+      - "${VM6_INTERNAL_IP:-10.74.47.10}:9200:9200"
+      - "127.0.0.1:9200:9200"
+    volumes:
+      - osdata:/usr/share/opensearch/data
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+          pids: 256
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+
+  # ─── RAG Indexer ───
+  rag-indexer:
+    <<: *common
+    image: ${REGISTRY:-sven}/rag-indexer:${RAG_INDEXER_TAG:-latest}
+    container_name: sven-rag-indexer
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid,nodev
+    environment:
+      NODE_ENV: production
+      # Cross-VM: PostgreSQL and NATS on VM4
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${VM4_INTERNAL_IP:-10.74.47.8}:5432/${POSTGRES_DB}?sslmode=require
+      NATS_URL: nats://${VM4_INTERNAL_IP:-10.74.47.8}:4222
+      OPENSEARCH_URL: http://opensearch:9200
+      OPENSEARCH_USER: ${OPENSEARCH_USER:-admin}
+      OPENSEARCH_PASSWORD: ${OPENSEARCH_PASSWORD:-}
+      # Cross-VM: Embeddings via Ollama on VM5
+      EMBEDDINGS_ENABLED: ${EMBEDDINGS_ENABLED:-true}
+      EMBEDDINGS_PROVIDER: ${EMBEDDINGS_PROVIDER:-ollama}
+      EMBEDDINGS_URL: http://${VM5_INTERNAL_IP:-10.74.47.9}:11434
+      EMBEDDINGS_MODEL: ${EMBEDDINGS_MODEL:-nomic-embed-text}
+      EMBEDDINGS_DIM: ${EMBEDDINGS_DIM:-768}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1G
+          pids: 128
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # ─── RAG NAS Ingestor ───
+  rag-nas-ingestor:
+    <<: *common
+    image: ${REGISTRY:-sven}/rag-nas-ingestor:${RAG_NAS_INGESTOR_TAG:-latest}
+    container_name: sven-rag-nas-ingestor
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid,nodev
+    environment:
+      NODE_ENV: production
+      NATS_URL: nats://${VM4_INTERNAL_IP:-10.74.47.8}:4222
+      NAS_INGEST_ROOT: ${NAS_INGEST_ROOT:-/nas/shared}
+      NAS_INGEST_INCLUDE: ${NAS_INGEST_INCLUDE:-}
+      NAS_INGEST_EXCLUDE: ${NAS_INGEST_EXCLUDE:-}
+      NAS_INGEST_MAX_FILE_SIZE: ${NAS_INGEST_MAX_FILE_SIZE:-}
+      NAS_INGEST_INTERVAL_MS: ${NAS_INGEST_INTERVAL_MS:-}
+      NAS_INGEST_VISIBILITY: ${NAS_INGEST_VISIBILITY:-}
+    volumes:
+      - ${SVEN_PROD_NAS_DIR:-/srv/sven/prod/data/nas}:${NAS_INGEST_ROOT:-/nas/shared}:ro
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+          pids: 64
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+
+  # ─── RAG Git Ingestor ───
+  rag-git-ingestor:
+    <<: *common
+    image: ${REGISTRY:-sven}/rag-git-ingestor:${RAG_GIT_INGESTOR_TAG:-latest}
+    container_name: sven-rag-git-ingestor
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid,nodev
+    environment:
+      NODE_ENV: production
+      NATS_URL: nats://${VM4_INTERNAL_IP:-10.74.47.8}:4222
+      GIT_INGEST_LOCAL_ROOT: ${GIT_INGEST_LOCAL_ROOT:-/nas/git}
+      GIT_INGEST_REPOS: ${GIT_INGEST_REPOS:-}
+      GIT_INGEST_GITHUB_REPOS: ${GIT_INGEST_GITHUB_REPOS:-}
+      GIT_INGEST_GITHUB_TOKEN: ${GIT_INGEST_GITHUB_TOKEN:-}
+      GIT_INGEST_CLONE_ROOT: ${GIT_INGEST_CLONE_ROOT:-/var/lib/sven/git}
+      GIT_INGEST_INCLUDE: ${GIT_INGEST_INCLUDE:-}
+      GIT_INGEST_EXCLUDE: ${GIT_INGEST_EXCLUDE:-}
+      GIT_INGEST_MAX_FILE_SIZE: ${GIT_INGEST_MAX_FILE_SIZE:-}
+      GIT_INGEST_INTERVAL_MS: ${GIT_INGEST_INTERVAL_MS:-}
+      GIT_INGEST_VISIBILITY: ${GIT_INGEST_VISIBILITY:-}
+    volumes:
+      - ${SVEN_PROD_NAS_DIR:-/srv/sven/prod/data/nas}:${GIT_INGEST_LOCAL_ROOT:-/nas/git}:ro
+      - gitdata:${GIT_INGEST_CLONE_ROOT:-/var/lib/sven/git}
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+          pids: 64
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+
+  # ─── RAG Notes Ingestor ───
+  rag-notes-ingestor:
+    <<: *common
+    image: ${REGISTRY:-sven}/rag-notes-ingestor:${RAG_NOTES_INGESTOR_TAG:-latest}
+    container_name: sven-rag-notes-ingestor
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid,nodev
+    environment:
+      NODE_ENV: production
+      NATS_URL: nats://${VM4_INTERNAL_IP:-10.74.47.8}:4222
+      NOTES_INGEST_ROOT: ${NOTES_INGEST_ROOT:-/notes}
+      NOTES_INGEST_INCLUDE: ${NOTES_INGEST_INCLUDE:-}
+      NOTES_INGEST_EXCLUDE: ${NOTES_INGEST_EXCLUDE:-}
+      NOTES_INGEST_MAX_FILE_SIZE: ${NOTES_INGEST_MAX_FILE_SIZE:-}
+      NOTES_INGEST_INTERVAL_MS: ${NOTES_INGEST_INTERVAL_MS:-}
+      NOTES_INGEST_VISIBILITY: ${NOTES_INGEST_VISIBILITY:-}
+    volumes:
+      - ${SVEN_PROD_NAS_DIR:-/srv/sven/prod/data/nas}:${NOTES_INGEST_ROOT:-/notes}:ro
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+          pids: 64
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+
+  # ─── SearXNG (Private Search Engine) ───
+  searxng:
+    <<: *common
+    image: searxng/searxng@sha256:c5e5aedb70ec4b7ff5b1e8f8ea69253dceb85a98b8757360c1b65fe8652d6066
+    container_name: sven-searxng
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      SEARXNG_BASE_URL: http://searxng:8080/
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?SEARXNG_SECRET is required}
+    ports:
+      - "${VM6_INTERNAL_IP:-10.74.47.10}:8080:8080"
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ../../services/searxng/settings.yml:/etc/searxng/settings.yml:ro
+      - searxng_data:/etc/searxng
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+          pids: 128
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  # ─── Egress Proxy (HTTP forward proxy for skill-runner) ───
+  egress-proxy:
+    <<: *common
+    image: ubuntu/squid@sha256:6a097f68bae708cedbabd6188d68c7e2e7a38cedd05a176e1cc0ba29e3bbe029
+    container_name: sven-egress-proxy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ports:
+      - "${VM6_INTERNAL_IP:-10.74.47.10}:3128:3128"
+      - "127.0.0.1:3128:3128"
+    volumes:
+      - ../../services/egress-proxy/squid.conf:/etc/squid/squid.conf:ro
+      - ../../services/egress-proxy/allowlist.txt:/etc/squid/allowlist.txt:ro
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+          pids: 64
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+  # ─── OpenTelemetry Collector ───
+  otel-collector:
+    <<: *common
+    image: otel/opentelemetry-collector-contrib@sha256:f6e429c1052ab50f85a7afa5f7e32f25931697751622b0e1f453d10f79a1df3c
+    container_name: sven-otel-collector
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command: ["--config=/etc/otelcol/config.yaml"]
+    environment:
+      ENV: production
+      GOGC: "80"
+    ports:
+      - "${VM6_INTERNAL_IP:-10.74.47.10}:4317:4317"
+      - "${VM6_INTERNAL_IP:-10.74.47.10}:4318:4318"
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:4318:4318"
+      - "127.0.0.1:13133:13133"
+      - "127.0.0.1:8888:8888"
+    volumes:
+      - ../../config/otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:13133/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+          pids: 128
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # ─── Prometheus (metrics) ───
+  prometheus:
+    <<: *common
+    image: prom/prometheus@sha256:1f0f50f06acaceb0f5670d2c8a658a599affe7b0d8e78b898c1035653849a702
+    container_name: sven-prometheus
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-remote-write-receiver"
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus-multi-vm.yml:/etc/prometheus/prometheus.yml:ro
+      - ../../config/prometheus-alerts.yml:/etc/prometheus/prometheus-alerts.yml:ro
+      - ./secrets/metrics-token:/etc/prometheus/metrics-token:ro
+    environment:
+      TZ: Europe/Bucharest
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1G
+          pids: 128
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # ─── Grafana (dashboards) ───
+  grafana:
+    <<: *common
+    image: grafana/grafana@sha256:9e1e77ade304069aee3196e9a4f210830e96e80ce9a2640891eccc324b152faf
+    container_name: sven-grafana
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:9091}
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+      GF_DATE_FORMATS_DEFAULT_TIMEZONE: Europe/Bucharest
+      TZ: Europe/Bucharest
+    ports:
+      - "${VM6_INTERNAL_IP:-10.74.47.10}:9091:3000"
+      - "127.0.0.1:9091:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../../config/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 768M
+          pids: 128
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  # ─── Loki (log aggregation — optional) ───
+  loki:
+    <<: *common
+    image: grafana/loki@sha256:8b5bd7748d0e4da66cd741ac276e485517514af0bea32167e27c0e1a95bcf8aa
+    container_name: sven-loki
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command: ["-config.file=/etc/loki/local-config.yml", "-config.expand-env=true"]
+    environment:
+      LOKI_HOT_RETENTION_PERIOD: ${LOKI_HOT_RETENTION_PERIOD:-720h}
+    ports:
+      - "${VM6_INTERNAL_IP:-10.74.47.10}:3100:3100"
+    volumes:
+      - ../../config/loki-config.yml:/etc/loki/local-config.yml:ro
+      - loki_data:/loki
+    networks:
+      - platform
+    profiles: ["monitoring-logs"]
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+          pids: 128
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # ─── Promtail (ships docker logs to Loki) ───
+  promtail:
+    <<: *common
+    image: grafana/promtail@sha256:45d54f0ebd7a19acbcd4693a3227d84d27d98abe1dc7ea3068d31d5d02dbe696
+    container_name: sven-promtail
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command: ["-config.file=/etc/promtail/config.yml"]
+    volumes:
+      - ../../config/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    depends_on:
+      loki:
+        condition: service_started
+    networks:
+      - platform
+    profiles: ["monitoring-logs"]
+
+  # ─── Loki Cold Archive (optional) ───
+  loki-cold-archive:
+    <<: *common
+    image: alpine@sha256:a4f4213abb84c497377b8544c81b3564f313746700372ec4fe84653e4fb03805
+    container_name: sven-loki-cold-archive
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -eu
+        COLD_DAYS="$${LOKI_COLD_RETENTION_DAYS:-90}"
+        INTERVAL="$${LOKI_COLD_ARCHIVE_INTERVAL_SECONDS:-86400}"
+        mkdir -p /archive
+        while true; do
+          ts="$$(date +%Y%m%d-%H%M%S)"
+          tar -czf "/archive/loki-$${ts}.tar.gz" -C /loki .
+          find /archive -type f -name 'loki-*.tar.gz' -mtime "+$${COLD_DAYS}" -delete || true
+          sleep "$${INTERVAL}"
+        done
+    environment:
+      LOKI_COLD_RETENTION_DAYS: ${LOKI_COLD_RETENTION_DAYS:-90}
+      LOKI_COLD_ARCHIVE_INTERVAL_SECONDS: ${LOKI_COLD_ARCHIVE_INTERVAL_SECONDS:-86400}
+    volumes:
+      - loki_data:/loki:ro
+      - loki_archive:/archive
+    depends_on:
+      loki:
+        condition: service_started
+    networks:
+      - platform
+    profiles: ["monitoring-logs"]
+
+  # ─── Uptime Kuma (status monitoring) ───
+  uptime-kuma:
+    <<: *common
+    image: louislam/uptime-kuma:1
+    container_name: sven-uptime-kuma
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETGID
+      - SETUID
+    ports:
+      - "${VM6_INTERNAL_IP:-10.74.47.10}:3001:3001"
+    volumes:
+      - uptime_kuma_data:/app/data
+    environment:
+      TZ: Europe/Bucharest
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+          pids: 128
+        reservations:
+          cpus: "0.1"
+          memory: 64M

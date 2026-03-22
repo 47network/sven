@@ -1,0 +1,33 @@
+{
+  "at": "2026-02-13T17:24:19.919Z",
+  "status": "pass",
+  "passed": 5,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "dep_expo_secure_store",
+      "pass": true,
+      "detail": "~12.8.1"
+    },
+    {
+      "id": "secure_store_usage",
+      "pass": true,
+      "detail": "App.tsx must read/write/delete via SecureStore"
+    },
+    {
+      "id": "insecure_fallback_dev_only",
+      "pass": true,
+      "detail": "AsyncStorage fallback must be dev-only"
+    },
+    {
+      "id": "android_cleartext_disabled_for_release",
+      "pass": true,
+      "detail": "android.usesCleartextTraffic=false"
+    },
+    {
+      "id": "platforms_include_ios_android",
+      "pass": true,
+      "detail": "[\"ios\",\"android\"]"
+    }
+  ]
+}

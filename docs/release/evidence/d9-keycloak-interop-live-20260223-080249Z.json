@@ -1,0 +1,27 @@
+{
+  "type": "d9_keycloak_oidc_live_interop",
+  "generated_at_utc": "2026-02-23T08:02:49.188Z",
+  "success": false,
+  "artifacts": {
+    "timestamped_json": "docs/release/evidence/d9-keycloak-interop-live-20260223-080249Z.json",
+    "timestamped_md": "docs/release/evidence/d9-keycloak-interop-live-20260223-080249Z.md"
+  },
+  "auto_start_idp": false,
+  "environment": {
+    "API_URL": "http://127.0.0.1:3001",
+    "KEYCLOAK_BASE_URL": "(default http://127.0.0.1:8081)",
+    "KEYCLOAK_REALM": "(default sven)",
+    "KEYCLOAK_CLIENT_ID": "(default sven-gateway)",
+    "TEST_BEARER_TOKEN": "1111...11",
+    "TEST_SESSION_COOKIE": "(unset)"
+  },
+  "steps": [
+    {
+      "step": "keycloak_interop_smoke",
+      "command": "node scripts\\sso-keycloak-interop-smoke.cjs",
+      "status": 1,
+      "stdout": "[sso:keycloak] starting smoke interop\n[sso:keycloak] api=http://127.0.0.1:3001\n[sso:keycloak] keycloak=http://127.0.0.1:8081 realm=sven\n[sso:keycloak] acquired admin bearer\n",
+      "stderr": "[sso:keycloak] failed: create account failed (403)\n"
+    }
+  ]
+}

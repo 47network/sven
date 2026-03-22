@@ -1,0 +1,43 @@
+name: client-env-governance
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'apps/companion-user-flutter/**'
+      - 'apps/companion-desktop-tauri/**'
+      - 'apps/admin-ui/**'
+      - 'apps/canvas-ui/**'
+      - 'deploy/quickstart/**'
+      - '.github/workflows/ui-e2e-accessibility.yml'
+      - '.github/workflows/flutter-user-app-device-farm.yml'
+      - '.github/workflows/desktop-tauri-release.yml'
+      - '.github/workflows/onboarding-readiness.yml'
+      - 'scripts/client-env-pipeline-check.cjs'
+      - '.github/workflows/client-env-governance.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Client env pipeline governance gate
+        run: node scripts/client-env-pipeline-check.cjs --strict
+
+      - name: Upload client env governance status
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-env-governance-status
+          path: |
+            docs/release/status/client-env-pipeline-latest.json
+            docs/release/status/client-env-pipeline-latest.md

@@ -1,0 +1,518 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Sven Four-VM Deployment — VM7: Channel Adapters (optional)
+# Host: sven-adapters (10.47.0.9 / 10.47.47.11 / 10.74.47.11)
+# Services: All channel adapters (Discord, Slack, Telegram, Matrix, Teams,
+#           WhatsApp, Signal, iMessage, etc.), Cloudflared tunnel, Mirror agent
+#
+# Run:
+#   docker compose -f docker-compose.vm7-adapters.yml \
+#     --profile discord --profile slack --profile telegram \
+#     --env-file .env.vm7 up -d
+#
+# Prerequisites:
+#   - VM4 (platform) must be running first (Gateway API)
+#   - .env.vm7 populated with adapter tokens (see .env.vm7.example)
+#
+# Note: This VM is optional. For lighter deployments, adapters can run
+#       on VM4 by merging into docker-compose.vm4-platform.yml.
+# ─────────────────────────────────────────────────────────────────────────────
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "10"
+
+x-adapter-base: &adapter-base
+  <<: *common
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  read_only: true
+  tmpfs:
+    - /tmp:size=32m,noexec,nosuid,nodev
+  networks:
+    - platform
+  deploy:
+    resources:
+      limits:
+        cpus: "0.5"
+        memory: 512M
+        pids: 64
+      reservations:
+        cpus: "0.1"
+        memory: 64M
+
+networks:
+  platform:
+    driver: bridge
+
+volumes:
+  tunnel-data:
+  zalo-personal-data:
+  mirror-agent-data:
+
+services:
+  # ─── Discord Adapter ───
+  adapter-discord:
+    <<: *adapter-base
+    profiles: ["adapters", "discord"]
+    image: ${REGISTRY:-sven}/adapter-discord:${ADAPTER_DISCORD_TAG:-latest}
+    container_name: sven-adapter-discord
+    environment:
+      ADAPTER_CHANNEL: discord
+      # Cross-VM: Gateway API on VM4
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      DISCORD_TOKEN: ${DISCORD_TOKEN:?DISCORD_TOKEN is required}
+      DISCORD_TRIGGER_PREFIX: ${DISCORD_TRIGGER_PREFIX:-/sven}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+
+  # ─── Slack Adapter ───
+  adapter-slack:
+    <<: *adapter-base
+    profiles: ["adapters", "slack"]
+    image: ${REGISTRY:-sven}/adapter-slack:${ADAPTER_SLACK_TAG:-latest}
+    container_name: sven-adapter-slack
+    environment:
+      ADAPTER_CHANNEL: slack
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:?SLACK_BOT_TOKEN is required}
+      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:?SLACK_APP_TOKEN is required}
+      SLACK_SIGNING_SECRET: ${SLACK_SIGNING_SECRET:?SLACK_SIGNING_SECRET is required}
+      SLACK_TRIGGER_PREFIX: ${SLACK_TRIGGER_PREFIX:-/sven}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+
+  # ─── Telegram Adapter ───
+  adapter-telegram:
+    <<: *adapter-base
+    profiles: ["adapters", "telegram"]
+    image: ${REGISTRY:-sven}/adapter-telegram:${ADAPTER_TELEGRAM_TAG:-latest}
+    container_name: sven-adapter-telegram
+    environment:
+      ADAPTER_CHANNEL: telegram
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN:?TELEGRAM_TOKEN is required}
+      TELEGRAM_TRIGGER_PREFIX: ${TELEGRAM_TRIGGER_PREFIX:-/sven}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+
+  # ─── Matrix Adapter ───
+  adapter-matrix:
+    <<: *adapter-base
+    profiles: ["adapters", "matrix"]
+    image: ${REGISTRY:-sven}/adapter-matrix:${ADAPTER_MATRIX_TAG:-latest}
+    container_name: sven-adapter-matrix
+    environment:
+      ADAPTER_CHANNEL: matrix
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      MATRIX_HOMESERVER_URL: ${MATRIX_HOMESERVER_URL:?MATRIX_HOMESERVER_URL is required}
+      MATRIX_ACCESS_TOKEN: ${MATRIX_ACCESS_TOKEN:?MATRIX_ACCESS_TOKEN is required}
+      MATRIX_USER_ID: ${MATRIX_USER_ID:?MATRIX_USER_ID is required}
+      MATRIX_BOT_NAME: ${MATRIX_BOT_NAME:-sven}
+      MATRIX_AUTO_JOIN: ${MATRIX_AUTO_JOIN:-true}
+      MATRIX_ALLOWED_ROOM_IDS: ${MATRIX_ALLOWED_ROOM_IDS:-}
+      MATRIX_TRIGGER_PREFIX: ${MATRIX_TRIGGER_PREFIX:-/sven}
+      MATRIX_SYNC_MS: ${MATRIX_SYNC_MS:-1500}
+      MATRIX_E2EE_ENABLED: ${MATRIX_E2EE_ENABLED:-false}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+
+  # ─── Microsoft Teams Adapter ───
+  adapter-teams:
+    <<: *adapter-base
+    profiles: ["adapters", "teams"]
+    image: ${REGISTRY:-sven}/adapter-teams:${ADAPTER_TEAMS_TAG:-latest}
+    container_name: sven-adapter-teams
+    environment:
+      ADAPTER_CHANNEL: teams
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      TEAMS_APP_ID: ${TEAMS_APP_ID:?TEAMS_APP_ID is required}
+      TEAMS_APP_PASSWORD: ${TEAMS_APP_PASSWORD:?TEAMS_APP_PASSWORD is required}
+      TEAMS_TENANT_ID: ${TEAMS_TENANT_ID:-}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${TEAMS_PORT:-3978}:3978"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3978/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ─── WhatsApp Adapter ───
+  adapter-whatsapp:
+    <<: *adapter-base
+    profiles: ["adapters", "whatsapp"]
+    image: ${REGISTRY:-sven}/adapter-whatsapp:${ADAPTER_WHATSAPP_TAG:-latest}
+    container_name: sven-adapter-whatsapp
+    environment:
+      ADAPTER_CHANNEL: whatsapp
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      WHATSAPP_PHONE_NUMBER_ID: ${WHATSAPP_PHONE_NUMBER_ID:?WHATSAPP_PHONE_NUMBER_ID is required}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:?WHATSAPP_ACCESS_TOKEN is required}
+      WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN:?WHATSAPP_VERIFY_TOKEN is required}
+      WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${WHATSAPP_PORT:-8443}:8443"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:8443/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ─── Signal Adapter ───
+  adapter-signal:
+    <<: *adapter-base
+    profiles: ["adapters", "signal"]
+    image: ${REGISTRY:-sven}/adapter-signal:${ADAPTER_SIGNAL_TAG:-latest}
+    container_name: sven-adapter-signal
+    environment:
+      ADAPTER_CHANNEL: signal
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      SIGNAL_CLI_URL: ${SIGNAL_CLI_URL:-http://signal-cli:8080}
+      SIGNAL_NUMBER: ${SIGNAL_NUMBER:?SIGNAL_NUMBER is required}
+      SIGNAL_POLL_INTERVAL: ${SIGNAL_POLL_INTERVAL:-3000}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+
+  # ─── iMessage Adapter ───
+  adapter-imessage:
+    <<: *adapter-base
+    profiles: ["adapters", "imessage"]
+    image: ${REGISTRY:-sven}/adapter-imessage:${ADAPTER_IMESSAGE_TAG:-latest}
+    container_name: sven-adapter-imessage
+    environment:
+      ADAPTER_CHANNEL: imessage
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      BLUEBUBBLES_URL: ${BLUEBUBBLES_URL:?BLUEBUBBLES_URL is required}
+      BLUEBUBBLES_PASSWORD: ${BLUEBUBBLES_PASSWORD:?BLUEBUBBLES_PASSWORD is required}
+      IMESSAGE_POLL_INTERVAL: ${IMESSAGE_POLL_INTERVAL:-3000}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+
+  # ─── WebChat Adapter ───
+  adapter-webchat:
+    <<: *adapter-base
+    profiles: ["adapters", "webchat"]
+    image: ${REGISTRY:-sven}/adapter-webchat:${ADAPTER_WEBCHAT_TAG:-latest}
+    container_name: sven-adapter-webchat
+    environment:
+      ADAPTER_CHANNEL: webchat
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      WEBCHAT_PORT: ${WEBCHAT_PORT:-3100}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${WEBCHAT_PORT:-3100}:${WEBCHAT_PORT:-3100}"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3100/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ─── Google Chat Adapter ───
+  adapter-google-chat:
+    <<: *adapter-base
+    profiles: ["adapters", "google-chat"]
+    image: ${REGISTRY:-sven}/adapter-google-chat:${ADAPTER_GOOGLE_CHAT_TAG:-latest}
+    container_name: sven-adapter-google-chat
+    environment:
+      ADAPTER_CHANNEL: google_chat
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      GOOGLE_SERVICE_ACCOUNT_KEY: ${GOOGLE_SERVICE_ACCOUNT_KEY:-}
+      GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID:-}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${GOOGLE_CHAT_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:8080/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ─── Zalo Adapter ───
+  adapter-zalo:
+    <<: *adapter-base
+    profiles: ["adapters", "zalo"]
+    image: ${REGISTRY:-sven}/adapter-zalo:${ADAPTER_ZALO_TAG:-latest}
+    container_name: sven-adapter-zalo
+    environment:
+      ADAPTER_CHANNEL: zalo
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      ZALO_ACCESS_TOKEN: ${ZALO_ACCESS_TOKEN:-}
+      ZALO_WEBHOOK_SECRET: ${ZALO_WEBHOOK_SECRET:-}
+      ZALO_API_BASE: ${ZALO_API_BASE:-https://openapi.zalo.me/v3.0/oa}
+      ZALO_PORT: ${ZALO_PORT:-8484}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${ZALO_PORT:-8484}:8484"
+
+  # ─── Feishu / Lark Adapter ───
+  adapter-feishu:
+    <<: *adapter-base
+    profiles: ["adapters", "feishu"]
+    image: ${REGISTRY:-sven}/adapter-feishu:${ADAPTER_FEISHU_TAG:-latest}
+    container_name: sven-adapter-feishu
+    environment:
+      ADAPTER_CHANNEL: feishu
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      FEISHU_APP_ID: ${FEISHU_APP_ID:-}
+      FEISHU_APP_SECRET: ${FEISHU_APP_SECRET:-}
+      FEISHU_VERIFY_TOKEN: ${FEISHU_VERIFY_TOKEN:-}
+      FEISHU_ENCRYPT_KEY: ${FEISHU_ENCRYPT_KEY:-}
+      FEISHU_PORT: ${FEISHU_PORT:-8489}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${FEISHU_PORT:-8489}:8489"
+
+  # ─── Mattermost Adapter ───
+  adapter-mattermost:
+    <<: *adapter-base
+    profiles: ["adapters", "mattermost"]
+    image: ${REGISTRY:-sven}/adapter-mattermost:${ADAPTER_MATTERMOST_TAG:-latest}
+    container_name: sven-adapter-mattermost
+    environment:
+      ADAPTER_CHANNEL: mattermost
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      MATTERMOST_URL: ${MATTERMOST_URL:-}
+      MATTERMOST_BOT_TOKEN: ${MATTERMOST_BOT_TOKEN:-}
+      MATTERMOST_WEBHOOK_TOKEN: ${MATTERMOST_WEBHOOK_TOKEN:-}
+      MATTERMOST_PORT: ${MATTERMOST_PORT:-8491}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${MATTERMOST_PORT:-8491}:8491"
+
+  # ─── IRC Adapter ───
+  adapter-irc:
+    <<: *adapter-base
+    profiles: ["adapters", "irc"]
+    image: ${REGISTRY:-sven}/adapter-irc:${ADAPTER_IRC_TAG:-latest}
+    container_name: sven-adapter-irc
+    environment:
+      ADAPTER_CHANNEL: irc
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      IRC_SERVER: ${IRC_SERVER:-}
+      IRC_PORT: ${IRC_PORT:-6667}
+      IRC_NICK: ${IRC_NICK:-sven}
+      IRC_CHANNELS: ${IRC_CHANNELS:-}
+      IRC_TRIGGER_PREFIX: ${IRC_TRIGGER_PREFIX:-/sven}
+      IRC_USE_TLS: ${IRC_USE_TLS:-false}
+      IRC_HEALTH_PORT: ${IRC_HEALTH_PORT:-8496}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${IRC_HEALTH_PORT:-8496}:8496"
+
+  # ─── Nostr Adapter ───
+  adapter-nostr:
+    <<: *adapter-base
+    profiles: ["adapters", "nostr"]
+    image: ${REGISTRY:-sven}/adapter-nostr:${ADAPTER_NOSTR_TAG:-latest}
+    container_name: sven-adapter-nostr
+    environment:
+      ADAPTER_CHANNEL: nostr
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      NOSTR_RELAY_URL: ${NOSTR_RELAY_URL:-}
+      NOSTR_HEALTH_PORT: ${NOSTR_HEALTH_PORT:-8492}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${NOSTR_HEALTH_PORT:-8492}:8492"
+
+  # ─── Twitch Adapter ───
+  adapter-twitch:
+    <<: *adapter-base
+    profiles: ["adapters", "twitch"]
+    image: ${REGISTRY:-sven}/adapter-twitch:${ADAPTER_TWITCH_TAG:-latest}
+    container_name: sven-adapter-twitch
+    environment:
+      ADAPTER_CHANNEL: twitch
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      TWITCH_OAUTH_TOKEN: ${TWITCH_OAUTH_TOKEN:-}
+      TWITCH_BOT_USER: ${TWITCH_BOT_USER:-}
+      TWITCH_CHANNELS: ${TWITCH_CHANNELS:-}
+      TWITCH_TRIGGER_PREFIX: ${TWITCH_TRIGGER_PREFIX:-!sven}
+      TWITCH_HEALTH_PORT: ${TWITCH_HEALTH_PORT:-8494}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${TWITCH_HEALTH_PORT:-8494}:8494"
+
+  # ─── LINE Adapter ───
+  adapter-line:
+    <<: *adapter-base
+    profiles: ["adapters", "line"]
+    image: ${REGISTRY:-sven}/adapter-line:${ADAPTER_LINE_TAG:-latest}
+    container_name: sven-adapter-line
+    environment:
+      ADAPTER_CHANNEL: line
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN:-}
+      LINE_CHANNEL_SECRET: ${LINE_CHANNEL_SECRET:-}
+      LINE_PORT: ${LINE_PORT:-8488}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${LINE_PORT:-8488}:8488"
+
+  # ─── Voice Call Adapter ───
+  adapter-voice-call:
+    <<: *adapter-base
+    profiles: ["adapters", "voice-call"]
+    image: ${REGISTRY:-sven}/adapter-voice-call:${ADAPTER_VOICE_CALL_TAG:-latest}
+    container_name: sven-adapter-voice-call
+    environment:
+      ADAPTER_CHANNEL: voice_call
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      VOICE_CALL_PORT: ${VOICE_CALL_PORT:-8490}
+      VOICE_CALL_HOST: "0.0.0.0"
+      VOICE_CALL_PROVIDER: ${VOICE_CALL_PROVIDER:-mock}
+      VOICE_CALL_REQUIRE_APPROVAL: ${VOICE_CALL_REQUIRE_APPROVAL:-true}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${VOICE_CALL_PORT:-8490}:8490"
+
+  # ─── Tlon / Urbit Adapter ───
+  adapter-tlon:
+    <<: *adapter-base
+    profiles: ["adapters", "tlon"]
+    image: ${REGISTRY:-sven}/adapter-tlon:${ADAPTER_TLON_TAG:-latest}
+    container_name: sven-adapter-tlon
+    environment:
+      ADAPTER_CHANNEL: tlon
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      TLON_API_BASE: ${TLON_API_BASE:-}
+      TLON_API_TOKEN: ${TLON_API_TOKEN:-}
+      TLON_PORT: ${TLON_PORT:-8493}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${TLON_PORT:-8493}:8493"
+
+  # ─── Nextcloud Talk Adapter ───
+  adapter-nextcloud-talk:
+    <<: *adapter-base
+    profiles: ["adapters", "nextcloud-talk"]
+    image: ${REGISTRY:-sven}/adapter-nextcloud-talk:${ADAPTER_NEXTCLOUD_TALK_TAG:-latest}
+    container_name: sven-adapter-nextcloud-talk
+    environment:
+      ADAPTER_CHANNEL: nextcloud_talk
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      NEXTCLOUD_BASE_URL: ${NEXTCLOUD_BASE_URL:-}
+      NEXTCLOUD_USER: ${NEXTCLOUD_USER:-}
+      NEXTCLOUD_APP_PASSWORD: ${NEXTCLOUD_APP_PASSWORD:-}
+      NEXTCLOUD_TALK_PORT: ${NEXTCLOUD_TALK_PORT:-8495}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.74.47.11}:${NEXTCLOUD_TALK_PORT:-8495}:8495"
+
+  # ─── Cloudflare Tunnel (optional) ───
+  cloudflared:
+    <<: *common
+    profiles: ["tunnel"]
+    image: cloudflare/cloudflared@sha256:404528c1cd63c3eb882c257ae524919e4376115e6fe57befca8d603656a91a4c
+    container_name: sven-cloudflared
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command:
+      - tunnel
+      - --no-autoupdate
+      - --metrics
+      - 0.0.0.0:2000
+      - --loglevel
+      - info
+      - --logfile
+      - /var/run/sven-tunnel/cloudflared.log
+      # Cross-VM: Internal nginx on VM4
+      - --url
+      - http://${VM4_INTERNAL_IP:-10.74.47.8}:8088
+    volumes:
+      - tunnel-data:/var/run/sven-tunnel
+    networks:
+      - platform
+
+  # ─── Mirror Agent (optional) ───
+  sven-mirror-agent:
+    <<: *common
+    profiles: ["mirror"]
+    image: ${REGISTRY:-sven}/sven-mirror-agent:${MIRROR_AGENT_TAG:-latest}
+    container_name: sven-mirror-agent
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      SVEN_GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_DEVICE_NAME: ${MIRROR_DEVICE_NAME:-Docker Mirror}
+      SVEN_DEVICE_TYPE: ${MIRROR_DEVICE_TYPE:-mirror}
+      SVEN_API_KEY: ${MIRROR_API_KEY:-}
+    volumes:
+      - mirror-agent-data:/data
+    networks:
+      - platform
+
+  # ─── Promtail (ships Docker logs to Loki on VM6) ───
+  promtail:
+    <<: *common
+    image: grafana/promtail@sha256:45d54f0ebd7a19acbcd4693a3227d84d27d98abe1dc7ea3068d31d5d02dbe696
+    container_name: sven-promtail
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command: ["-config.file=/etc/promtail/config.yml", "-config.expand-env=true"]
+    environment:
+      LOKI_HOST: ${VM6_INTERNAL_IP:-10.74.47.10}
+      VM_NAME: vm7-adapters
+    volumes:
+      - ../../config/promtail-remote.yml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+          pids: 64
+        reservations:
+          cpus: "0.1"
+          memory: 32M

@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-02-21T19:49:13.605Z",
+  "status": "pass",
+  "target_service_count": 9,
+  "target_services": [
+    "gateway-api",
+    "agent-runtime",
+    "skill-runner",
+    "registry-worker",
+    "notification-service",
+    "rag-indexer",
+    "rag-notes-ingestor",
+    "rag-nas-ingestor",
+    "rag-git-ingestor"
+  ],
+  "violations": [],
+  "file": "docker-compose.production.yml"
+}

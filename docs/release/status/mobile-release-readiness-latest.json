@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-02-14T22:21:45.152Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "mobile_perf_slo_pass",
+      "pass": true,
+      "detail": "pass"
+    },
+    {
+      "id": "mobile_crash_anr_pass",
+      "pass": true,
+      "detail": "pass"
+    },
+    {
+      "id": "mobile_device_validation_pass",
+      "pass": true,
+      "detail": "pass"
+    },
+    {
+      "id": "mobile_appstore_privacy_pass",
+      "pass": true,
+      "detail": "pass"
+    },
+    {
+      "id": "mobile_signed_build_evidence_present",
+      "pass": true,
+      "detail": "present"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+groups:
+  - name: sven-production-readiness
+    rules:
+      - alert: SvenGatewayApiDown
+        expr: up{job="gateway-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Gateway API is down"
+          description: "Prometheus has not scraped gateway-api successfully for 2 minutes."
+
+      - alert: SvenAgentRuntimeDown
+        expr: up{job="agent-runtime"} == 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Agent runtime unavailable"
+          description: "agent-runtime target is unavailable for 3 minutes."
+
+      - alert: SvenSkillRunnerDown
+        expr: up{job="skill-runner"} == 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Skill runner unavailable"
+          description: "skill-runner target is unavailable for 3 minutes."
+
+      - alert: SvenNatsExporterDown
+        expr: up{job="nats"} == 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NATS metrics endpoint unavailable"
+          description: "NATS metrics endpoint has been unavailable for 3 minutes."
+
+  - name: sven-error-rate
+    rules:
+      - alert: SvenHighErrorRate
+        expr: (http_errors_total / http_requests_total) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HTTP error rate above 5%"
+          description: "Gateway API error rate has exceeded 5% for 5 minutes (current: {{ $value | humanizePercentage }})."
+
+  - name: sven-latency
+    rules:
+      - alert: SvenHighP95Latency
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job="gateway-api"}[5m])))
+            >
+          2 * clamp_min(
+            histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job="gateway-api"}[1h]))),
+            0.05
+          )
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 latency exceeds 2x baseline"
+          description: "Gateway API p95 latency has been above 2x its 1h baseline for 10 minutes (current short-window p95: {{ $value | humanizeDuration }})."
+
+  - name: sven-nats
+    rules:
+      - alert: SvenNatsConsumerLag
+        expr: nats_consumer_num_pending > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NATS consumer lag above 1000 messages"
+          description: "NATS consumer has {{ $value }} pending messages for 5 minutes."
+
+  - name: sven-postgres
+    rules:
+      - alert: SvenPostgresPoolExhaustion
+        expr: (pg_pool_total - pg_pool_idle) / pg_pool_total > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Postgres connection pool above 80%"
+          description: "Postgres connection pool utilization has been above 80% for 5 minutes."
+
+  - name: sven-service-restarts
+    rules:
+      - alert: SvenServiceRestart
+        expr: changes(process_start_time_seconds[5m]) > 0
+        for: 0m
+        labels:
+          severity: info
+        annotations:
+          summary: "Service restart detected"
+          description: "A Sven service has restarted in the last 5 minutes."
+
+  - name: sven-disk
+    rules:
+      - alert: SvenDiskUsageWarning
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk usage above 85%"
+          description: "Root filesystem disk usage is above 85% (current: {{ $value | humanizePercentage }})."
+
+      - alert: SvenDiskUsageCritical
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk usage above 95%"
+          description: "Root filesystem disk usage is above 95% (current: {{ $value | humanizePercentage }}). Immediate action required."
+
+  - name: sven-memory
+    rules:
+      - alert: SvenHighMemoryUsage
+        expr: process_resident_memory_bytes{job="gateway-api"} > 1073741824
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Gateway API memory usage above 1GB"
+          description: "Gateway API RSS is {{ $value | humanize1024 }}B for 10 minutes."
+
+  - name: sven-incidents
+    rules:
+      - alert: SvenIncidentModeActive
+        expr: sven_incident_mode_active{job="gateway-api",mode=~"kill_switch|lockdown"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kill switch or lockdown is active"
+          description: "Gateway incident mode '{{ $labels.mode }}' has been active for at least 1 minute."

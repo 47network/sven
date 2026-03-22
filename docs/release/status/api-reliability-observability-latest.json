@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-02-13T17:49:46.702Z",
+  "api_base": "http://127.0.0.1:3001",
+  "status": "warn",
+  "warnings": [
+    "TEST_SESSION_COOKIE not set; authenticated latency probes skipped.",
+    "No healthy probe responses observed (gateway may be offline in this environment)."
+  ],
+  "probes": [
+    {
+      "endpoint": "/healthz",
+      "requests": 8,
+      "success": 0,
+      "error": 8,
+      "success_rate": 0,
+      "error_rate": 1,
+      "latency_ms": {
+        "min": 2,
+        "p50": 3,
+        "p95": 40,
+        "p99": 40,
+        "max": 40
+      }
+    }
+  ]
+}

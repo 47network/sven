@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-02-21T22:58:06.739Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "android_custom_scheme_registered",
+      "pass": true,
+      "detail": "apps/companion-user-flutter/android/app/src/main/AndroidManifest.xml"
+    },
+    {
+      "id": "ios_custom_scheme_registered",
+      "pass": true,
+      "detail": "apps/companion-user-flutter/ios/Runner/Info.plist"
+    },
+    {
+      "id": "runtime_deep_link_listener_wired",
+      "pass": true,
+      "detail": "apps/companion-user-flutter/lib/app/sven_user_app.dart"
+    },
+    {
+      "id": "deep_link_parser_supports_expected_routes",
+      "pass": true,
+      "detail": "apps/companion-user-flutter/lib/app/deep_link.dart"
+    },
+    {
+      "id": "deep_link_unit_test_passes",
+      "pass": true,
+      "detail": "flutter test test/deep_link_test.dart passed"
+    }
+  ],
+  "flutter_test": {
+    "exit_code": 0,
+    "stdout_tail": "00:00 +0: loading X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/deep_link_test.dart\n00:00 +0: parseDeepLink parses approvals link\n00:00 +1: parseDeepLink parses chat link\n00:00 +2: parseDeepLink rejects unknown link paths\n00:00 +3: All tests passed!",
+    "stderr_tail": ""
+  }
+}

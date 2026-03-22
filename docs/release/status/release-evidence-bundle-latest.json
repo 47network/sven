@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-03-21T02:11:45.737Z",
+  "status": "fail",
+  "manifest": "docs/release/evidence/release-evidence-manifest.json",
+  "checks": [
+    {
+      "id": "release_evidence_manifest_present",
+      "pass": false,
+      "detail": "docs/release/evidence/release-evidence-manifest.json missing"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+set -eu
+
+ROOT_DIR="${SVEN_STAGE_ROOT:-/srv/sven/staging}"
+ENV_TEMPLATE="${1:-config/env/.env.staging.linux-vm.example}"
+ENV_TARGET="${SVEN_STAGE_ENV_FILE:-$ROOT_DIR/env/.env.staging}"
+
+mkdir -p \
+  "$ROOT_DIR/app" \
+  "$ROOT_DIR/compose" \
+  "$ROOT_DIR/env" \
+  "$ROOT_DIR/backups" \
+  "$ROOT_DIR/logs" \
+  "$ROOT_DIR/data/postgres" \
+  "$ROOT_DIR/data/postgres-wal" \
+  "$ROOT_DIR/data/nats" \
+  "$ROOT_DIR/data/opensearch" \
+  "$ROOT_DIR/data/artifacts" \
+  "$ROOT_DIR/data/nas" \
+  "$ROOT_DIR/data/integrations" \
+  "$ROOT_DIR/data/tts" \
+  "$ROOT_DIR/data/wake-word" \
+  "$ROOT_DIR/data/git" \
+  "$ROOT_DIR/data/browser-profile" \
+  "$ROOT_DIR/data/ollama" \
+  "$ROOT_DIR/data/prometheus" \
+  "$ROOT_DIR/data/grafana" \
+  "$ROOT_DIR/data/loki" \
+  "$ROOT_DIR/data/loki-archive" \
+  "$ROOT_DIR/data/searxng" \
+  "$ROOT_DIR/data/tunnel"
+
+if [ ! -f "$ENV_TARGET" ]; then
+  cp "$ENV_TEMPLATE" "$ENV_TARGET"
+  echo "Created staging env template at $ENV_TARGET"
+else
+  echo "Staging env already exists at $ENV_TARGET"
+fi
+
+echo "Staging Linux VM directories are ready under $ROOT_DIR"

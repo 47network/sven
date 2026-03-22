@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-02-21T19:35:22.725Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "scoped_env_contracts_present",
+      "pass": true,
+      "detail": "config/env/dev.required.json, config/env/staging.required.json, config/env/prod.required.json"
+    },
+    {
+      "id": "no_hardcoded_production_domains_in_runtime_code",
+      "pass": true,
+      "detail": "none"
+    }
+  ]
+}

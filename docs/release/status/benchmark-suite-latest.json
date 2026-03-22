@@ -1,0 +1,199 @@
+{
+  "generated_at": "2026-03-21T00:35:21.855Z",
+  "status": "fail",
+  "max_age_hours": 72,
+  "checks": [
+    {
+      "id": "f1_onboarding_executed",
+      "pass": true,
+      "detail": "benchmark script executed successfully (exit=2)"
+    },
+    {
+      "id": "f1_onboarding_artifact_present",
+      "pass": true,
+      "detail": "docs/release/status/f1-onboarding-benchmark-latest.json"
+    },
+    {
+      "id": "f1_onboarding_status_pass",
+      "pass": true,
+      "detail": "status=inconclusive (accepted in relaxed-local mode)"
+    },
+    {
+      "id": "f1_onboarding_fresh",
+      "pass": true,
+      "detail": "0.00h <= 72h"
+    },
+    {
+      "id": "f1_onboarding_provenance_present",
+      "pass": false,
+      "detail": "run_id=local-1774052940068 evidence_mode=benchmark_runtime_probe head_sha=(missing)"
+    },
+    {
+      "id": "f2_ui_operability_executed",
+      "pass": true,
+      "detail": "benchmark script executed successfully (exit=2)"
+    },
+    {
+      "id": "f2_ui_operability_artifact_present",
+      "pass": true,
+      "detail": "docs/release/status/f2-ui-operability-benchmark-latest.json"
+    },
+    {
+      "id": "f2_ui_operability_status_pass",
+      "pass": true,
+      "detail": "status=inconclusive (accepted in relaxed-local mode)"
+    },
+    {
+      "id": "f2_ui_operability_fresh",
+      "pass": true,
+      "detail": "0.00h <= 72h"
+    },
+    {
+      "id": "f2_ui_operability_provenance_present",
+      "pass": false,
+      "detail": "run_id=local-1774052941432 evidence_mode=csv_benchmark_input head_sha=(missing)"
+    },
+    {
+      "id": "f3_reliability_recovery_executed",
+      "pass": false,
+      "detail": "exit=1 f3-local-runner: preflight token=no policy_cookie=no api=http://127.0.0.1:15811\nf3-reliability-recovery-benchmark: fail (passed=1 failed=1 skipped=2)"
+    },
+    {
+      "id": "f3_reliability_recovery_artifact_present",
+      "pass": true,
+      "detail": "docs/release/status/f3-reliability-recovery-benchmark-latest.json"
+    },
+    {
+      "id": "f3_reliability_recovery_status_pass",
+      "pass": false,
+      "detail": "status=fail"
+    },
+    {
+      "id": "f3_reliability_recovery_fresh",
+      "pass": true,
+      "detail": "0.00h <= 72h"
+    },
+    {
+      "id": "f3_reliability_recovery_provenance_present",
+      "pass": false,
+      "detail": "run_id=local-1774052941502 evidence_mode=local_runner head_sha=(missing)"
+    },
+    {
+      "id": "f4_security_defaults_executed",
+      "pass": true,
+      "detail": "benchmark script executed successfully (exit=2)"
+    },
+    {
+      "id": "f4_security_defaults_artifact_present",
+      "pass": true,
+      "detail": "docs/release/status/f4-security-defaults-benchmark-latest.json"
+    },
+    {
+      "id": "f4_security_defaults_status_pass",
+      "pass": true,
+      "detail": "status=inconclusive (accepted in relaxed-local mode)"
+    },
+    {
+      "id": "f4_security_defaults_fresh",
+      "pass": true,
+      "detail": "0.00h <= 72h"
+    },
+    {
+      "id": "f4_security_defaults_provenance_present",
+      "pass": false,
+      "detail": "run_id=local-1774053302475 evidence_mode=runtime_security_probe head_sha=(missing)"
+    },
+    {
+      "id": "competitor_runtime_guard_executed",
+      "detail": "exit=2 Wrote docs/release/status/competitor-runtime-guard-latest.json\nWrote docs/release/status/competitor-runtime-guard-latest.md\ncompetitor-runtime-guard-check: inconclusive"
+    },
+    {
+      "id": "competitor_runtime_guard_artifact_present",
+      "pass": true,
+      "detail": "docs/release/status/competitor-runtime-guard-latest.json"
+    },
+    {
+      "id": "competitor_runtime_guard_status_pass",
+      "detail": "status=inconclusive"
+    },
+    {
+      "id": "competitor_runtime_guard_fresh",
+      "pass": true,
+      "detail": "0.00h <= 72h"
+    },
+    {
+      "id": "competitor_runtime_guard_provenance_present",
+      "pass": false,
+      "detail": "run_id=local-1774053302738 evidence_mode=runtime_container_inventory_probe head_sha=(missing)"
+    },
+    {
+      "id": "competitor_capability_proof_executed",
+      "detail": "exit=2 Wrote docs/release/status/competitor-capability-proof-latest.json\nWrote docs/release/status/competitor-capability-proof-latest.md"
+    },
+    {
+      "id": "competitor_capability_proof_artifact_present",
+      "pass": true,
+      "detail": "docs/release/status/competitor-capability-proof-latest.json"
+    },
+    {
+      "id": "competitor_capability_proof_status_pass",
+      "detail": "status=fail"
+    },
+    {
+      "id": "competitor_capability_proof_fresh",
+      "pass": true,
+      "detail": "0.00h <= 72h"
+    },
+    {
+      "id": "competitor_capability_proof_provenance_present",
+      "pass": false,
+      "detail": "run_id=local-1774053302835 evidence_mode=competitor_feature_row_proof head_sha=(missing)"
+    },
+    {
+      "id": "competitor_runtime_truth_executed",
+      "detail": "exit=2 Wrote docs/release/status/competitor-executable-smoke-latest.json\nWrote docs/release/status/competitor-executable-smoke-latest.md\nWrote docs/release/status/competitor-runtime-truth-latest.json\nWrote docs/release/status/competitor-runtime-truth-latest.md"
+    },
+    {
+      "id": "competitor_runtime_truth_artifact_present",
+      "pass": true,
+      "detail": "docs/release/status/competitor-runtime-truth-latest.json"
+    },
+    {
+      "id": "competitor_runtime_truth_status_pass",
+      "detail": "status=fail"
+    },
+    {
+      "id": "competitor_runtime_truth_fresh",
+      "pass": true,
+      "detail": "0.00h <= 72h"
+    },
+    {
+      "id": "competitor_runtime_truth_provenance_present",
+      "pass": false,
+      "detail": "run_id=local-1774053302932 evidence_mode=runtime_truth_strict head_sha=(missing)"
+    },
+    {
+      "id": "competitive_scorecard_executed",
+      "detail": "exit=2 Wrote docs/release/status/competitive-scorecard-latest.json\nWrote docs/release/status/competitive-scorecard-latest.md"
+    },
+    {
+      "id": "competitive_scorecard_artifact_present",
+      "pass": true,
+      "detail": "docs/release/status/competitive-scorecard-latest.json"
+    },
+    {
+      "id": "competitive_scorecard_status_pass",
+      "detail": "status=fail"
+    },
+    {
+      "id": "competitive_scorecard_fresh",
+      "pass": true,
+      "detail": "0.00h <= 72h"
+    },
+    {
+      "id": "competitive_scorecard_provenance_present",
+      "pass": false,
+      "detail": "run_id=local-1774053321801 evidence_mode=competitive_weighted_scorecard head_sha=(missing)"
+    }
+  ]
+}

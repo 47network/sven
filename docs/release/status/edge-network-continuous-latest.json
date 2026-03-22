@@ -1,0 +1,123 @@
+{
+  "generated_at": "2026-03-16T13:22:38.684Z",
+  "status": "fail",
+  "config": {
+    "install_host": "https://sven.example.com",
+    "app_host": "https://app.sven.example.com",
+    "cycles": 3,
+    "interval_seconds": 5
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "at": "2026-03-16T13:20:21.065Z",
+      "status": "fail",
+      "checks": [
+        {
+          "id": "install_redirect",
+          "pass": false,
+          "detail": "http://sven.example.com/ -> error: fetch failed"
+        },
+        {
+          "id": "app_redirect",
+          "pass": false,
+          "detail": "http://app.sven.example.com/ -> error: fetch failed"
+        },
+        {
+          "id": "install_sh",
+          "pass": false,
+          "detail": "https://sven.example.com/install.sh -> error: fetch failed"
+        },
+        {
+          "id": "install_ps1",
+          "pass": false,
+          "detail": "https://sven.example.com/install.ps1 -> error: fetch failed"
+        },
+        {
+          "id": "install_cmd",
+          "pass": false,
+          "detail": "https://sven.example.com/install.cmd -> error: fetch failed"
+        },
+        {
+          "id": "app_readyz",
+          "pass": false,
+          "detail": "https://app.sven.example.com/readyz -> error: fetch failed"
+        }
+      ]
+    },
+    {
+      "cycle": 2,
+      "at": "2026-03-16T13:21:29.866Z",
+      "status": "fail",
+      "checks": [
+        {
+          "id": "install_redirect",
+          "pass": false,
+          "detail": "http://sven.example.com/ -> error: fetch failed"
+        },
+        {
+          "id": "app_redirect",
+          "pass": false,
+          "detail": "http://app.sven.example.com/ -> error: fetch failed"
+        },
+        {
+          "id": "install_sh",
+          "pass": false,
+          "detail": "https://sven.example.com/install.sh -> error: fetch failed"
+        },
+        {
+          "id": "install_ps1",
+          "pass": false,
+          "detail": "https://sven.example.com/install.ps1 -> error: fetch failed"
+        },
+        {
+          "id": "install_cmd",
+          "pass": false,
+          "detail": "https://sven.example.com/install.cmd -> error: fetch failed"
+        },
+        {
+          "id": "app_readyz",
+          "pass": false,
+          "detail": "https://app.sven.example.com/readyz -> error: fetch failed"
+        }
+      ]
+    },
+    {
+      "cycle": 3,
+      "at": "2026-03-16T13:22:38.684Z",
+      "status": "fail",
+      "checks": [
+        {
+          "id": "install_redirect",
+          "pass": false,
+          "detail": "http://sven.example.com/ -> error: fetch failed"
+        },
+        {
+          "id": "app_redirect",
+          "pass": false,
+          "detail": "http://app.sven.example.com/ -> error: fetch failed"
+        },
+        {
+          "id": "install_sh",
+          "pass": false,
+          "detail": "https://sven.example.com/install.sh -> error: fetch failed"
+        },
+        {
+          "id": "install_ps1",
+          "pass": false,
+          "detail": "https://sven.example.com/install.ps1 -> error: fetch failed"
+        },
+        {
+          "id": "install_cmd",
+          "pass": false,
+          "detail": "https://sven.example.com/install.cmd -> error: fetch failed"
+        },
+        {
+          "id": "app_readyz",
+          "pass": false,
+          "detail": "https://app.sven.example.com/readyz -> error: fetch failed"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-02-14T21:05:38.706Z",
+  "status": "pass",
+  "sample": {
+    "package": "@sven/cli",
+    "tarball": "sven-cli-0.1.0.tgz",
+    "sha256": "ac28ae5f45f696c6ba44f89e32a478d70951269b2652c7244576b5228a568bd9"
+  },
+  "checks": [
+    {
+      "id": "lockfile_exists",
+      "pass": true,
+      "detail": "package-lock.json"
+    },
+    {
+      "id": "pack_filename_stable",
+      "pass": true,
+      "detail": "sven-cli-0.1.0.tgz vs sven-cli-0.1.0.tgz"
+    },
+    {
+      "id": "pack_sha256_stable",
+      "pass": true,
+      "detail": "ac28ae5f45f696c6ba44f89e32a478d70951269b2652c7244576b5228a568bd9 == ac28ae5f45f696c6ba44f89e32a478d70951269b2652c7244576b5228a568bd9"
+    }
+  ]
+}

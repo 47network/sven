@@ -1,0 +1,57 @@
+{
+  "generated_at": "2026-02-22T19:01:50.7991053+00:00",
+  "status": "blocked",
+  "actions": [
+    {
+      "id": "c8_1_legal_android_probe",
+      "priority": 10,
+      "detail": "https://app.sven.example.com/privacy -> error=timeout",
+      "command_or_step": "From connected phone path rerun: npm run ops:mobile:adb:legal-urls",
+      "executable": "npm run ops:mobile:adb:legal-urls"
+    },
+    {
+      "id": "c8_1_legal_host",
+      "priority": 10,
+      "detail": "https://app.sven.example.com/privacy -> error=timeout (HEAD) [head=timeout; get=timeout]",
+      "command_or_step": "Run edge remediation + rerun: npm run ops:mobile:c8:legal:bundle",
+      "executable": "npm run ops:mobile:c8:legal:bundle"
+    },
+    {
+      "id": "c8_1_legal_matrix",
+      "priority": 10,
+      "detail": "status=fail; app.sven.example.com:host=fail,adb=fail; sven.example.com:host=fail,adb=fail",
+      "command_or_step": "Re-run dual-host checks after edge remediation: npm run ops:mobile:c8:legal:matrix",
+      "executable": "npm run ops:mobile:c8:legal:matrix"
+    },
+    {
+      "id": "c8_2_voiceover_verdict",
+      "priority": 20,
+      "detail": "docs/release/evidence/accessibility/voiceover-audit-2026-02-21.md (requires \"Verdict: pass\")",
+      "command_or_step": "After manual iOS audit run: npm run ops:mobile:ios:voiceover:set-verdict -- -Verdict pass -Auditor \"<name>\" -Device \"<iphone model>\" -IosVersion \"<version>\" -Notes \"<notes>\"",
+      "executable": "npm run ops:mobile:ios:voiceover:set-verdict -- -Verdict pass -Auditor \"<name>\" -Device \"<iphone model>\" -IosVersion \"<version>\" -Notes \"<notes>\""
+    },
+    {
+      "id": "c8_3_ios_metrics",
+      "priority": 30,
+      "detail": "mobile-c8-ios-metrics-capture-latest.md missing required metadata and/or non-zero captured values",
+      "command_or_step": "Capture iOS metrics + provenance: npm run ops:mobile:ios:c8:set-metrics -- -UseTelemetryFiles -AutoDetectIpa -ColdStartSamplesCsv \"2800,2900,3000\" -BackgroundNetworkSamplesCsv \"0,0,12\" -IpaSizeMb \"42.1\" -Device \"<iphone model>\" -IosVersion \"<version>\" -BuildRef \"<build>\" -Source \"<testflight/xcode>\" -Notes \"<notes>\"",
+      "executable": "npm run ops:mobile:ios:c8:set-metrics -- -UseTelemetryFiles -AutoDetectIpa -ColdStartSamplesCsv \"2800,2900,3000\" -BackgroundNetworkSamplesCsv \"0,0,12\" -IpaSizeMb \"42.1\" -Device \"<iphone model>\" -IosVersion \"<version>\" -BuildRef \"<build>\" -Source \"<testflight/xcode>\" -Notes \"<notes>\""
+    },
+    {
+      "id": "c8_ios_template",
+      "priority": 35,
+      "detail": "Generate a pre-filled iOS finalize command template before manual iOS closure.",
+      "command_or_step": "Generate template: npm run ops:mobile:ios:c8:template",
+      "executable": "npm run ops:mobile:ios:c8:template"
+    },
+    {
+      "id": "c8_ios_finalize_input_check",
+      "priority": 40,
+      "detail": "Refresh-only: awaiting manual iOS VoiceOver and iOS metrics inputs. (missing_inputs=device,ios_version,build_ref,source,cold_start_samples_csv,background_network_samples_csv,ipa_size_mb_or_ipa_artifact_path)",
+      "command_or_step": "Populate finalize inputs: npm run ops:mobile:ios:c8:finalize -- -VoiceOverVerdict pass -Auditor \"<name>\" -Device \"<iphone model>\" -IosVersion \"<version>\" -UseTelemetryFiles -AutoDetectIpa -ColdStartSamplesCsv \"2800,2900,3000\" -BackgroundNetworkSamplesCsv \"0,0,12\" -IpaSizeMb \"42.1\" -BuildRef \"<build>\" -Source \"<testflight/xcode>\" -VoiceOverNotes \"<notes>\" -MetricsNotes \"<notes>\" -RunCloseout",
+      "executable": "npm run ops:mobile:ios:c8:finalize -- -VoiceOverVerdict pass -Auditor \"<name>\" -Device \"<iphone model>\" -IosVersion \"<version>\" -UseTelemetryFiles -AutoDetectIpa -ColdStartSamplesCsv \"2800,2900,3000\" -BackgroundNetworkSamplesCsv \"0,0,12\" -IpaSizeMb \"42.1\" -BuildRef \"<build>\" -Source \"<testflight/xcode>\" -VoiceOverNotes \"<notes>\" -MetricsNotes \"<notes>\" -RunCloseout"
+    }
+  ],
+  "stale_sources_count": 0,
+  "blocked_areas_count": 7
+}

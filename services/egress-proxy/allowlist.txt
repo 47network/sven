@@ -1,0 +1,15 @@
+# Sven egress proxy allowlist
+# One domain pattern per line.
+# Keep entries minimal and explicit.
+
+.openai.com
+.anthropic.com
+.googleapis.com
+.vertexai.googleapis.com
+.mistral.ai
+.x.ai
+
+.wikipedia.org
+.wikimedia.org
+.github.com
+.raw.githubusercontent.com

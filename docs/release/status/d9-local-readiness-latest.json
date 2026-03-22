@@ -1,0 +1,35 @@
+{
+  "type": "d9_local_readiness",
+  "generated_at_utc": "2026-02-23T08:28:51.701Z",
+  "status": "pass",
+  "steps": [
+    {
+      "step": "d9_selfcheck_local",
+      "command": "cmd.exe /d /s /c npm run release:sso:keycloak:interop:selfcheck:local",
+      "status": 0,
+      "stdout": "\n> sven@0.1.0 release:sso:keycloak:interop:selfcheck:local\n> node scripts/sso-keycloak-local-selfcheck.cjs\n\nwrote: docs\\release\\status\\d9-keycloak-local-selfcheck-latest.json\nwrote: docs\\release\\status\\d9-keycloak-local-selfcheck-latest.md\nstatus: pass\n",
+      "stderr": ""
+    },
+    {
+      "step": "release_status_refresh",
+      "command": "cmd.exe /d /s /c npm run release:status",
+      "status": 0,
+      "stdout": "\n> sven@0.1.0 release:status\n> node scripts/release-status.js\n\n{\n  \"generated_at\": \"2026-02-23T08:28:50.934Z\",\n  \"checklist\": {\n    \"unchecked_count\": 2,\n    \"unchecked_items\": [\n      {\n        \"line\": 893,\n        \"text\": \"- [ ] Release candidate runs 72h soak without Sev1/Sev2 incident\"\n      },\n      {\n        \"line\": 917,\n        \"text\": \"- [ ] D9 Keycloak live OIDC interop gate passes in CI\"\n      }\n    ]\n  },\n  \"comparison\": {\n    \"unresolved_feature_rows\": 31\n  },\n  \"evidence\": {\n    \"missing_count\": 0,\n    \"missing\": []\n  },\n  \"d9_keycloak_interop\": {\n    \"ci_gate\": false,\n    \"local_gate_status\": \"pass\",\n    \"evidence_check_status\": \"pass\",\n    \"preflight_status\": \"pass\",\n    \"local_selfcheck_status\": \"pass\"\n  }\n}\nWrote docs\\release\\status\\latest.json\nWrote docs\\release\\status\\latest.md\n",
+      "stderr": ""
+    },
+    {
+      "step": "checklist_sync",
+      "command": "cmd.exe /d /s /c npm run release:checklist:update",
+      "status": 0,
+      "stdout": "\n> sven@0.1.0 release:checklist:update\n> node scripts/update-checklist-from-status.js\n\nNo checklist changes needed from current CI gate status.\n",
+      "stderr": ""
+    },
+    {
+      "step": "final_signoff_local_strict",
+      "command": "cmd.exe /d /s /c npm run release:final:signoff:check:local",
+      "status": 0,
+      "stdout": "\n> sven@0.1.0 release:final:signoff:check:local\n> node scripts/final-signoff-check.cjs --local-only --strict\n\nWrote docs\\release\\status\\final-signoff-latest.json\nWrote docs\\release\\status\\final-signoff-latest.md\n",
+      "stderr": ""
+    }
+  ]
+}

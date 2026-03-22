@@ -1,0 +1,318 @@
+/**
+ * useDesktopApp — centralises all state, effects and handlers for the Sven
+ * desktop companion.  App.tsx becomes a thin render shell after this extract.
+ */
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+    clearSecret,
+    devicePoll,
+    deviceStart,
+    fetchApprovals,
+    fetchTimeline,
+    getSecret,
+    loadConfig,
+    refreshSession,
+    saveConfig,
+    sendMessage,
+    setSecret,
+    voteApproval,
+    type ApprovalItem,
+    type DesktopConfig,
+    type TimelineItem,
+} from './api';
+import type { NavTab } from '../components/Sidebar';
+
+const MAX_LOG_LINES = 50;
+const APPROVALS_INTERVAL_MS = 5_000;
+const TIMELINE_INTERVAL_MS = 6_000;
+
+export interface DesktopAppState {
+    // Navigation
+    activeTab: NavTab;
+    setActiveTab: (tab: NavTab) => void;
+
+    // Core data
+    config: DesktopConfig;
+    setConfig: (c: DesktopConfig) => void;
+    token: string;
+    status: 'online' | 'degraded' | 'offline';
+    approvals: ApprovalItem[];
+    timeline: TimelineItem[];
+
+    // Device-flow auth
+    deviceCode: string;
+    verifyUrl: string;
+    deviceBusy: boolean;
+
+    // Loading flags
+    sending: boolean;
+    syncingTimeline: boolean;
+    approvalActioning: Record<string, 'approve' | 'deny'>;
+
+    // Debug log
+    logs: string[];
+
+    // Handlers
+    onSaveConfig: () => Promise<void>;
+    onDeviceLogin: () => Promise<void>;
+    onRefreshSession: () => Promise<void>;
+    onSend: (text: string) => Promise<void>;
+    onSignOut: () => Promise<void>;
+    onRefreshTimeline: () => Promise<void>;
+    onVoteApproval: (id: string, decision: 'approve' | 'deny') => Promise<void>;
+    onClearLogs: () => void;
+}
+
+export function useDesktopApp(): DesktopAppState {
+    const [activeTab, setActiveTab] = useState<NavTab>('chat');
+    const [config, setConfig] = useState<DesktopConfig>({
+        gateway_url: 'http://127.0.0.1:3001',
+        chat_id: '',
+        polling_enabled: true,
+    });
+    const [token, setToken] = useState('');
+    const [status, setStatus] = useState<'online' | 'degraded' | 'offline'>('degraded');
+    const [approvals, setApprovals] = useState<ApprovalItem[]>([]);
+    const [timeline, setTimeline] = useState<TimelineItem[]>([]);
+    const [deviceCode, setDeviceCode] = useState('');
+    const [verifyUrl, setVerifyUrl] = useState('');
+    const [deviceBusy, setDeviceBusy] = useState(false);
+    const [sending, setSending] = useState(false);
+    const [syncingTimeline, setSyncingTimeline] = useState(false);
+    const [approvalActioning, setApprovalActioning] = useState<Record<string, 'approve' | 'deny'>>({});
+    const [logs, setLogs] = useState<string[]>([]);
+    const [notifiedApprovalIds, setNotifiedApprovalIds] = useState<string[]>([]);
+
+    const configRef = useRef(config);
+    const tokenRef = useRef(token);
+    useEffect(() => { configRef.current = config; }, [config]);
+    useEffect(() => { tokenRef.current = token; }, [token]);
+
+    const pushLog = useCallback((line: string) => {
+        setLogs((prev) => [`${new Date().toISOString()} ${line}`, ...prev].slice(0, MAX_LOG_LINES));
+    }, []);
+
+    // ── Bootstrap: load persisted config + token ──────────
+    useEffect(() => {
+        (async () => {
+            try {
+                const cfg = await loadConfig();
+                setConfig(cfg);
+                const stored = await getSecret('access_token');
+                if (stored) {
+                    setToken(stored);
+                    pushLog('Session restored from secure store.');
+                } else {
+                    setActiveTab('settings');
+                }
+            } catch (err) {
+                pushLog(`Bootstrap failed: ${String(err)}`);
+            }
+        })();
+    }, []);
+
+    // ── Approvals polling ──────────────────────────────────
+    useEffect(() => {
+        if (!config.polling_enabled || !token) return;
+        const id = setInterval(async () => {
+            try {
+                const rows = await fetchApprovals(config.gateway_url, token);
+                setApprovals(rows ?? []);
+                setStatus('online');
+            } catch (err) {
+                setStatus('degraded');
+                pushLog(`Approvals poll failed: ${String(err)}`);
+            }
+        }, APPROVALS_INTERVAL_MS);
+        return () => clearInterval(id);
+    }, [config.polling_enabled, config.gateway_url, token, pushLog]);
+
+    // ── Timeline polling ───────────────────────────────────
+    useEffect(() => {
+        if (!config.polling_enabled || !token || !config.chat_id.trim()) return;
+        const id = setInterval(async () => {
+            try {
+                const rows = await fetchTimeline(config.gateway_url, config.chat_id, token, 24);
+                setTimeline(rows ?? []);
+            } catch (err) {
+                pushLog(`Timeline poll failed: ${String(err)}`);
+            }
+        }, TIMELINE_INTERVAL_MS);
+        return () => clearInterval(id);
+    }, [config.polling_enabled, config.gateway_url, config.chat_id, token, pushLog]);
+
+    // ── Block external navigation (security) ──────────────
+    useEffect(() => {
+        const originalOpen = window.open;
+        window.open = () => null;
+        const onClick = (e: MouseEvent) => {
+            const anchor = (e.target as HTMLElement | null)?.closest('a[href]') as HTMLAnchorElement | null;
+            if (!anchor) return;
+            const href = anchor.getAttribute('href') ?? '';
+            const allowed =
+                href.startsWith('#') ||
+                href.startsWith('tauri://') ||
+                href.startsWith('http://localhost') ||
+                href.startsWith('http://127.0.0.1');
+            if (!allowed) {
+                e.preventDefault();
+                pushLog(`Blocked external navigation: ${href}`);
+            }
+        };
+        window.addEventListener('click', onClick, true);
+        return () => {
+            window.open = originalOpen;
+            window.removeEventListener('click', onClick, true);
+        };
+    }, [pushLog]);
+
+    // ── Desktop notifications for new approvals ────────────
+    useEffect(() => {
+        if (!approvals.length) return;
+        const unseen = approvals.filter((a) => a.id && !notifiedApprovalIds.includes(a.id));
+        if (!unseen.length) return;
+        if ('Notification' in window) {
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().catch(() => undefined);
+            }
+            if (Notification.permission === 'granted') {
+                for (const item of unseen.slice(0, 3)) {
+                    // eslint-disable-next-line no-new
+                    new Notification('Sven approval pending', {
+                        body: `${item.tool_name ?? 'tool'} (${item.scope ?? 'scope'})`,
+                    });
+                }
+            }
+        }
+        setNotifiedApprovalIds((prev) =>
+            Array.from(new Set([...prev, ...unseen.map((u) => u.id)])).slice(-200),
+        );
+    }, [approvals, notifiedApprovalIds]);
+
+    // ── Handlers ───────────────────────────────────────────
+    const onSaveConfig = useCallback(async () => {
+        const saved = await saveConfig(config);
+        setConfig(saved);
+        pushLog('Config saved.');
+    }, [config, pushLog]);
+
+    const onDeviceLogin = useCallback(async () => {
+        setDeviceBusy(true);
+        try {
+            const started = await deviceStart(config.gateway_url);
+            setDeviceCode(started.user_code);
+            setVerifyUrl(started.verification_uri_complete ?? started.verification_uri);
+            pushLog('Device login started. Awaiting authorization.');
+            const nextToken = await devicePoll(config.gateway_url, started.device_code, started.interval ?? 5);
+            await setSecret('access_token', nextToken);
+            setToken(nextToken);
+            setStatus('online');
+            setDeviceCode('');
+            setVerifyUrl('');
+            pushLog('Device authorization complete. Token stored securely.');
+        } catch (err) {
+            setStatus('offline');
+            pushLog(`Device login failed: ${String(err)}`);
+        } finally {
+            setDeviceBusy(false);
+        }
+    }, [config.gateway_url, pushLog]);
+
+    const onRefreshSession = useCallback(async () => {
+        if (!token) return;
+        try {
+            const next = await refreshSession(config.gateway_url, token);
+            await setSecret('access_token', next);
+            setToken(next);
+            setStatus('online');
+            pushLog('Session rotated successfully.');
+        } catch (err) {
+            setStatus('offline');
+            pushLog(`Session refresh failed: ${String(err)}`);
+        }
+    }, [config.gateway_url, token, pushLog]);
+
+    const onSend = useCallback(async (text: string) => {
+        const { gateway_url, chat_id } = configRef.current;
+        const tok = tokenRef.current;
+        if (!text.trim() || !chat_id.trim() || !tok) return;
+        setSending(true);
+        try {
+            await sendMessage(gateway_url, chat_id, tok, text);
+            pushLog('Message sent.');
+            setStatus('online');
+            const rows = await fetchTimeline(gateway_url, chat_id, tok, 24);
+            setTimeline(rows ?? []);
+        } catch (err) {
+            setStatus('degraded');
+            pushLog(`Message send failed: ${String(err)}`);
+        } finally {
+            setSending(false);
+        }
+    }, [pushLog]);
+
+    const onSignOut = useCallback(async () => {
+        await clearSecret('access_token');
+        setToken('');
+        setApprovals([]);
+        setTimeline([]);
+        setActiveTab('settings');
+        pushLog('Session cleared from secure store.');
+    }, [pushLog]);
+
+    const onRefreshTimeline = useCallback(async () => {
+        const { gateway_url, chat_id } = configRef.current;
+        const tok = tokenRef.current;
+        if (!tok || !chat_id.trim()) return;
+        setSyncingTimeline(true);
+        try {
+            const rows = await fetchTimeline(gateway_url, chat_id, tok, 30);
+            setTimeline(rows ?? []);
+            setStatus('online');
+            pushLog('Timeline refreshed.');
+        } catch (err) {
+            setStatus('degraded');
+            pushLog(`Timeline refresh failed: ${String(err)}`);
+        } finally {
+            setSyncingTimeline(false);
+        }
+    }, [pushLog]);
+
+    const onVoteApproval = useCallback(async (approvalId: string, decision: 'approve' | 'deny') => {
+        const tok = tokenRef.current;
+        const { gateway_url } = configRef.current;
+        if (!tok) return;
+        setApprovalActioning((prev) => ({ ...prev, [approvalId]: decision }));
+        try {
+            await voteApproval(gateway_url, approvalId, tok, decision);
+            const rows = await fetchApprovals(gateway_url, tok);
+            setApprovals(rows ?? []);
+            setStatus('online');
+            pushLog(`Approval ${approvalId} voted ${decision}.`);
+        } catch (err) {
+            setStatus('degraded');
+            pushLog(`Approval vote failed (${approvalId}): ${String(err)}`);
+        } finally {
+            setApprovalActioning((prev) => {
+                const next = { ...prev };
+                delete next[approvalId];
+                return next;
+            });
+        }
+    }, [pushLog]);
+
+    const onClearLogs = useCallback(() => setLogs([]), []);
+
+    return {
+        activeTab, setActiveTab,
+        config, setConfig,
+        token, status,
+        approvals, timeline,
+        deviceCode, verifyUrl, deviceBusy,
+        sending, syncingTimeline, approvalActioning,
+        logs,
+        onSaveConfig, onDeviceLogin, onRefreshSession,
+        onSend, onSignOut, onRefreshTimeline, onVoteApproval,
+        onClearLogs,
+    };
+}

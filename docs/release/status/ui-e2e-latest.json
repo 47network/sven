@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-02-14T01:36:00.000Z",
+  "status": "pass",
+  "suites": [
+    {
+      "project": "admin-web",
+      "tests": 2,
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "project": "canvas-web",
+      "tests": 2,
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "project": "desktop-tauri-web",
+      "tests": 2,
+      "passed": 2,
+      "failed": 0
+    }
+  ],
+  "notes": [
+    "Executed via `npm run test:ui:e2e`.",
+    "Includes accessibility assertions for critical/serious violations."
+  ]
+}

@@ -1,0 +1,29 @@
+services:
+  gateway-api:
+    environment:
+      NODE_ENV: development
+      SVEN_DEPLOYMENT_MODE: development
+      GATEWAY_TAILSCALE_MODE: off
+
+  agent-runtime:
+    environment:
+      NODE_ENV: development
+      SVEN_DEPLOYMENT_MODE: development
+
+  registry-worker:
+    environment:
+      NODE_ENV: development
+
+  notification-service:
+    environment:
+      NODE_ENV: development
+
+  opensearch:
+    environment:
+      OPENSEARCH_JAVA_OPTS: -Xms256m -Xmx256m
+
+  prometheus:
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=2d"

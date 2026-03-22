@@ -1,0 +1,43 @@
+name: edge-network-continuous-smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Run continuous edge smoke window
+        env:
+          SVEN_INSTALL_HOST: https://sven.systems:44747
+          SVEN_APP_HOST: https://app.sven.systems:44747
+          EDGE_SMOKE_CYCLES: '3'
+          EDGE_SMOKE_INTERVAL_SECONDS: '10'
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            node scripts/edge-network-continuous-check.cjs
+          else
+            node scripts/edge-network-continuous-check.cjs --strict
+          fi
+
+      - name: Upload continuous smoke status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-network-continuous-status
+          path: |
+            docs/release/status/edge-network-continuous-latest.json
+            docs/release/status/edge-network-continuous-latest.md

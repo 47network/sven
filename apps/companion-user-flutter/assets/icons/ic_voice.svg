@@ -1,0 +1,17 @@
+<!-- ic_voice.svg — standalone microphone icon used in the chat composer -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+    <defs>
+        <linearGradient id="micIconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00D9FF"/>
+            <stop offset="100%" stop-color="#00FFA3"/>
+        </linearGradient>
+    </defs>
+    <!-- Mic body -->
+    <rect x="9" y="2" width="6" height="12" rx="3" fill="url(#micIconGrad)"/>
+    <!-- Mic stand arc -->
+    <path d="M5 11 Q5 18 12 18 Q19 18 19 11" fill="none" stroke="url(#micIconGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Stem -->
+    <line x1="12" y1="18" x2="12" y2="22" stroke="url(#micIconGrad)" stroke-width="2" stroke-linecap="round"/>
+    <!-- Base -->
+    <line x1="8" y1="22" x2="16" y2="22" stroke="url(#micIconGrad)" stroke-width="2" stroke-linecap="round"/>
+</svg>

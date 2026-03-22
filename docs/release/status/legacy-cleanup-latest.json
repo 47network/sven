@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-02-14T19:47:34.888Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "electron_deprecation_guard_passes",
+      "pass": true,
+      "detail": "electron deprecation status=pass"
+    },
+    {
+      "id": "legacy_electron_runtime_removed",
+      "pass": true,
+      "detail": "apps/companion-desktop removed"
+    },
+    {
+      "id": "canonical_runbook_index_present",
+      "pass": true,
+      "detail": "docs/ops/runbook-index-2026.md"
+    },
+    {
+      "id": "runbook_index_covers_release_security_and_incident",
+      "pass": true,
+      "detail": "expects release rollback + security token compromise + incident triage runbooks"
+    }
+  ]
+}

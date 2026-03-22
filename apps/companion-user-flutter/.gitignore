@@ -1,0 +1,42 @@
+# Flutter/Dart build output
+build/
+.dart_tool/
+.packages
+
+# IDE and editor files
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Signing and secrets (NEVER COMMIT)
+android/key.properties
+android/app/*.keystore
+android/app/*.jks
+ios/Runner/GoogleService-Info.plist
+ios/Runner/Info-Production.plist
+*.p12
+*.mobileprovision
+certificate.p12
+
+# Build metadata (generated)
+build.json
+
+# Test coverage
+coverage/
+
+# Dependencies
+pubspec.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local debug captures
+screenshot*.png
+window_dump*.xml
+login_ui.xml
+device_screen.png
+hs_err_pid*.log
+**/hs_err_pid*.log

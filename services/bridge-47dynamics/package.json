@@ -1,0 +1,33 @@
+{
+  "name": "@sven/bridge-47dynamics",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "gRPC bridge service for 47Dynamics legacy tenant — receives AI requests from 47Dynamics platform and routes them through TheSven's agent runtime, RAG pipeline, and tool executor.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "jest --passWithNoTests",
+    "test:runtime": "tsx --test src/__tests__/handlers.runtime.test.ts",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "proto:generate": "npx grpc_tools_node_protoc --ts_out=src/generated --grpc_out=grpc_js:src/generated --plugin=protoc-gen-grpc=$(which grpc_tools_node_protoc_plugin) -I ./proto sven_bridge.proto"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.6",
+    "@grpc/proto-loader": "^0.7.13",
+    "@sven/shared": "0.1.0",
+    "nats": "^2.19.0",
+    "pg": "^8.11.0",
+    "uuid": "^11.1.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.10.0",
+    "jest": "^30.2.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.9.3"
+  }
+}

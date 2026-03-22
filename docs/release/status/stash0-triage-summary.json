@@ -1,0 +1,26 @@
+[
+  {
+    "Name": "recover_code_high_confidence",
+    "Count": 473
+  },
+  {
+    "Name": "discard_examples_archive",
+    "Count": 383
+  },
+  {
+    "Name": "discard_status_generated",
+    "Count": 141
+  },
+  {
+    "Name": "review_docs_manual",
+    "Count": 59
+  },
+  {
+    "Name": "review_root_misc",
+    "Count": 28
+  },
+  {
+    "Name": "discard_generated_assets",
+    "Count": 11
+  }
+]

@@ -1,0 +1,114 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# SearXNG Settings for Sven Private Search
+# ═══════════════════════════════════════════════════════════════════════════
+# This configuration is mounted into the SearXNG container.
+# Only JSON API output is enabled. No public UI access.
+
+use_default_settings: true
+
+general:
+  instance_name: "Sven Search"
+  privacypolicy_url: false
+  donation_url: false
+  enable_metrics: false
+
+search:
+  safe_search: 1  # 0=off, 1=moderate, 2=strict
+  autocomplete: ""
+  default_lang: "auto"
+  formats:
+    - json
+
+server:
+  port: 8080
+  bind_address: "0.0.0.0"
+  secret_key: "sven-searxng-change-me"
+  limiter: true
+  image_proxy: false
+  method: "GET"
+
+ui:
+  static_use_hash: true
+  default_theme: simple
+  results_on_new_tab: false
+
+outgoing:
+  request_timeout: 10.0
+  max_request_timeout: 15.0
+  useragent_suffix: ""
+  pool_connections: 100
+  pool_maxsize: 20
+  proxies:
+    all://: http://egress-proxy:3128
+
+engines:
+  # ── General Search Engines ──
+  - name: google
+    engine: google
+    shortcut: go
+    disabled: false
+
+  - name: bing
+    engine: bing
+    shortcut: bi
+    disabled: false
+
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    disabled: false
+
+  - name: brave
+    engine: brave
+    shortcut: br
+    disabled: false
+
+  # ── Knowledge / Reference ──
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    disabled: false
+
+  - name: wikidata
+    engine: wikidata
+    shortcut: wd
+    disabled: false
+
+  # ── Science & Tech ──
+  - name: arxiv
+    engine: arxiv
+    shortcut: arx
+    disabled: false
+
+  - name: github
+    engine: github
+    shortcut: gh
+    disabled: false
+
+  - name: stackoverflow
+    engine: stackoverflow
+    shortcut: so
+    disabled: false
+
+  # ── News ──
+  - name: google news
+    engine: google_news
+    shortcut: gn
+    disabled: false
+
+  # ── Files / Torrents (disabled by default) ──
+  - name: piratebay
+    engine: piratebay
+    shortcut: tpb
+    disabled: true
+
+  # ── Images ──
+  - name: google images
+    engine: google_images
+    shortcut: goi
+    disabled: false
+
+  - name: bing images
+    engine: bing_images
+    shortcut: bii
+    disabled: false

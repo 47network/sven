@@ -1,0 +1,135 @@
+{
+  "generated_at": "2026-02-21T16:35:39.864Z",
+  "api_url": "http://localhost:3000",
+  "status": "pass",
+  "summary": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 4,
+    "total": 6
+  },
+  "scenarios": [
+    {
+      "id": "postgres_pool_exhaustion",
+      "title": "PostgreSQL Connection Pool Exhaustion",
+      "checklist": "PostgreSQL connection pool exhaustion: verify graceful degradation",
+      "status": "skipped",
+      "reason": "Missing one or more required env commands: FM_POSTGRES_INDUCE_CMD, FM_POSTGRES_VERIFY_DEGRADED_CMD, FM_POSTGRES_RECOVER_CMD, FM_POSTGRES_VERIFY_RECOVERED_CMD",
+      "started_at": "2026-02-21T16:35:27.430Z",
+      "finished_at": "2026-02-21T16:35:27.431Z",
+      "steps": []
+    },
+    {
+      "id": "nats_disconnect",
+      "title": "NATS Disconnect",
+      "checklist": "NATS disconnect: verify reconnection + message replay",
+      "status": "skipped",
+      "reason": "Missing one or more required env commands: FM_NATS_INDUCE_CMD, FM_NATS_VERIFY_DEGRADED_CMD, FM_NATS_RECOVER_CMD, FM_NATS_VERIFY_RECOVERED_CMD",
+      "started_at": "2026-02-21T16:35:27.431Z",
+      "finished_at": "2026-02-21T16:35:27.431Z",
+      "steps": []
+    },
+    {
+      "id": "opensearch_down",
+      "title": "OpenSearch Down",
+      "checklist": "OpenSearch down: verify RAG degrades to vector-only (pgvector)",
+      "status": "skipped",
+      "reason": "Missing one or more required env commands: FM_OPENSEARCH_INDUCE_CMD, FM_OPENSEARCH_VERIFY_DEGRADED_CMD, FM_OPENSEARCH_RECOVER_CMD, FM_OPENSEARCH_VERIFY_RECOVERED_CMD",
+      "started_at": "2026-02-21T16:35:27.431Z",
+      "finished_at": "2026-02-21T16:35:27.431Z",
+      "steps": []
+    },
+    {
+      "id": "llm_provider_down",
+      "title": "LLM Provider Down",
+      "checklist": "LLM provider down: verify failover to next provider",
+      "status": "skipped",
+      "reason": "Missing one or more required env commands: FM_LLM_INDUCE_CMD, FM_LLM_VERIFY_DEGRADED_CMD, FM_LLM_RECOVER_CMD, FM_LLM_VERIFY_RECOVERED_CMD",
+      "started_at": "2026-02-21T16:35:27.431Z",
+      "finished_at": "2026-02-21T16:35:27.431Z",
+      "steps": []
+    },
+    {
+      "id": "disk_full",
+      "title": "Disk Full",
+      "checklist": "Disk full: verify alerting + service stability",
+      "status": "passed",
+      "started_at": "2026-02-21T16:35:27.431Z",
+      "finished_at": "2026-02-21T16:35:29.540Z",
+      "reason": "",
+      "steps": [
+        {
+          "step": "baseline_health",
+          "ok": true,
+          "detail": "GET /healthz => 200"
+        },
+        {
+          "step": "induce",
+          "ok": true,
+          "detail": "node scripts/failure-mode/disk-pressure.cjs induce"
+        },
+        {
+          "step": "verify_degraded",
+          "ok": true,
+          "detail": "node scripts/failure-mode/disk-pressure.cjs verify-degraded"
+        },
+        {
+          "step": "recover",
+          "ok": true,
+          "detail": "node scripts/failure-mode/disk-pressure.cjs recover"
+        },
+        {
+          "step": "verify_recovered",
+          "ok": true,
+          "detail": "node scripts/failure-mode/disk-pressure.cjs verify-recovered"
+        },
+        {
+          "step": "post_health",
+          "ok": true,
+          "detail": "GET /healthz => 200"
+        }
+      ]
+    },
+    {
+      "id": "oom_restart",
+      "title": "OOM Restart",
+      "checklist": "OOM: verify container restart with state recovery",
+      "status": "passed",
+      "started_at": "2026-02-21T16:35:29.540Z",
+      "finished_at": "2026-02-21T16:35:39.864Z",
+      "reason": "",
+      "steps": [
+        {
+          "step": "baseline_health",
+          "ok": true,
+          "detail": "GET /healthz => 200"
+        },
+        {
+          "step": "induce",
+          "ok": true,
+          "detail": "node scripts/failure-mode/oom-restart.cjs induce"
+        },
+        {
+          "step": "verify_degraded",
+          "ok": true,
+          "detail": "node scripts/failure-mode/oom-restart.cjs verify-degraded"
+        },
+        {
+          "step": "recover",
+          "ok": true,
+          "detail": "node scripts/failure-mode/oom-restart.cjs recover"
+        },
+        {
+          "step": "verify_recovered",
+          "ok": true,
+          "detail": "node scripts/failure-mode/oom-restart.cjs verify-recovered"
+        },
+        {
+          "step": "post_health",
+          "ok": true,
+          "detail": "GET /healthz => 200"
+        }
+      ]
+    }
+  ]
+}

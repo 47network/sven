@@ -1,0 +1,54 @@
+name: onboarding-readiness
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'docs/onboarding/**'
+      - 'docs/ops/troubleshooting-tree-2026.md'
+      - 'scripts/onboarding-readiness-check.cjs'
+      - 'scripts/release-status.js'
+      - 'package.json'
+      - '.github/workflows/onboarding-readiness.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Start onboarding health probe mock
+        run: |
+          node -e "const http=require('http');const s=http.createServer((req,res)=>{if(req.url==='/healthz'){res.writeHead(200,{'content-type':'application/json'});res.end('{\"ok\":true}');return;}res.writeHead(404);res.end('not found');});s.listen(3017,'127.0.0.1',()=>{console.log('onboarding-health-mock listening');});setInterval(()=>{},1<<30);" > onboarding-health-mock.log 2>&1 &
+          echo $! > onboarding-health-mock.pid
+
+      - name: Onboarding readiness gate
+        env:
+          API_URL: http://127.0.0.1:3017
+        run: node scripts/onboarding-readiness-check.cjs --strict
+
+      - name: Upload onboarding status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: onboarding-readiness-status
+          path: |
+            docs/release/status/onboarding-readiness-latest.json
+            docs/release/status/onboarding-readiness-latest.md
+            onboarding-health-mock.log
+
+      - name: Cleanup onboarding health probe mock
+        if: always()
+        run: |
+          if [ -f onboarding-health-mock.pid ]; then
+            kill "$(cat onboarding-health-mock.pid)" || true
+          fi

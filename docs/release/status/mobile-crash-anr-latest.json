@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-02-14T22:21:43.180Z",
+  "status": "pass",
+  "metrics": {
+    "crash_free_sessions_pct": 99.73,
+    "anr_free_sessions_pct": 99.93,
+    "sample_size_sessions": 18420,
+    "source": "Play Console + Crashlytics RC export 2026-02-14",
+    "target_crash_free_sessions_pct": 99.5,
+    "target_anr_free_sessions_pct": 99.9
+  },
+  "checks": [
+    {
+      "id": "mobile_crash_anr_evidence_present",
+      "pass": true,
+      "detail": "docs/release/evidence/mobile-crash-anr-2026-02-14.md"
+    },
+    {
+      "id": "metrics_fields_present",
+      "pass": true,
+      "detail": "crash/anr/sample/source fields"
+    },
+    {
+      "id": "targets_fields_present",
+      "pass": true,
+      "detail": "target crash/anr fields"
+    },
+    {
+      "id": "crash_free_target_met",
+      "pass": true,
+      "detail": "99.73 >= 99.5"
+    },
+    {
+      "id": "anr_free_target_met",
+      "pass": true,
+      "detail": "99.93 >= 99.9"
+    },
+    {
+      "id": "sample_size_sufficient",
+      "pass": true,
+      "detail": "18420 >= 1000"
+    }
+  ]
+}

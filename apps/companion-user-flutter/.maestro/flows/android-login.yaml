@@ -1,0 +1,56 @@
+appId: com.example.sven_user_flutter
+name: "Android — Full login flow"
+tags:
+  - auth
+  - android
+---
+# ── Launch and reach login screen ────────────────────────────────────────────
+- launchApp:
+    clearState: false
+
+- assertVisible:
+    text: "Sign in"
+    enabled: true
+
+- takeScreenshot: android-01-login-screen
+
+# ── Enter credentials ─────────────────────────────────────────────────────────
+- tapOn:
+    id: "login_username_field"
+
+- inputText: "testuser@sven.dev"
+
+- tapOn:
+    id: "login_password_field"
+
+- inputText: "Test@1234!"
+
+- takeScreenshot: android-02-credentials-entered
+
+# ── Submit ────────────────────────────────────────────────────────────────────
+- tapOn:
+    id: "login_submit_button"
+
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- assertVisible:
+    text: "Sven"
+    enabled: true
+
+- takeScreenshot: android-03-home-after-login
+
+# ── Sign out to reset state ───────────────────────────────────────────────────
+- tapOn:
+    id: "settings_icon_button"
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Sign out"
+
+- assertVisible:
+    text: "Sign in"
+    enabled: true
+
+- takeScreenshot: android-04-signed-out

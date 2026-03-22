@@ -1,0 +1,116 @@
+{
+  "generated_at": "2026-02-23T08:28:52.094Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "signoff_doc_present:engineering",
+      "pass": true,
+      "detail": "docs/release/signoffs/engineering-signoff-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_has_approver_and_date:engineering",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:engineering",
+      "pass": true,
+      "detail": "status/approval is approved"
+    },
+    {
+      "id": "signoff_doc_present:security",
+      "pass": true,
+      "detail": "docs/release/signoffs/security-signoff-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_has_approver_and_date:security",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:security",
+      "pass": true,
+      "detail": "status/approval is approved"
+    },
+    {
+      "id": "signoff_doc_present:operations",
+      "pass": true,
+      "detail": "docs/release/signoffs/operations-signoff-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_has_approver_and_date:operations",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:operations",
+      "pass": true,
+      "detail": "status/approval is approved"
+    },
+    {
+      "id": "signoff_doc_present:product",
+      "pass": true,
+      "detail": "docs/release/signoffs/product-signoff-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_has_approver_and_date:product",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:product",
+      "pass": true,
+      "detail": "status/approval is approved"
+    },
+    {
+      "id": "signoff_doc_present:release_owner",
+      "pass": true,
+      "detail": "docs/release/signoffs/release-owner-approval-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_has_approver_and_date:release_owner",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:release_owner",
+      "pass": true,
+      "detail": "status/approval is approved"
+    },
+    {
+      "id": "ci_gates_file_valid_json",
+      "pass": true,
+      "detail": "docs/release/status/ci-gates.json parsed"
+    },
+    {
+      "id": "ci_gate:final_dod_ci",
+      "pass": true,
+      "detail": "final_dod_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:parity_e2e_ci",
+      "pass": true,
+      "detail": "parity_e2e_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:release_ops_drill_ci",
+      "pass": true,
+      "detail": "release_ops_drill_ci must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:d9_keycloak_interop_ci",
+      "pass": true,
+      "detail": "d9_keycloak_interop_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "d9_local_selfcheck_status_pass",
+      "pass": true,
+      "detail": "latest.json d9_keycloak_interop.local_selfcheck_status=pass"
+    },
+    {
+      "id": "d9_local_readiness_status_pass",
+      "pass": true,
+      "detail": "d9-local-readiness-latest.json status=pass"
+    }
+  ]
+}

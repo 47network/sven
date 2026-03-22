@@ -1,0 +1,93 @@
+name: generate-changelog
+
+on:
+  push:
+    tags:
+      - 'flutter-user-v*'
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so we can compare tags
+
+      - name: Resolve previous tag
+        id: tags
+        run: |
+          CURRENT="${GITHUB_REF_NAME}"
+          PREV=$(git tag --sort=-version:refname \
+                   | grep '^flutter-user-v' \
+                   | grep -v "^${CURRENT}$" \
+                   | head -1)
+          echo "current=${CURRENT}" >> "$GITHUB_OUTPUT"
+          echo "prev=${PREV}"       >> "$GITHUB_OUTPUT"
+          echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Build CHANGELOG entry
+        run: |
+          CURRENT="${{ steps.tags.outputs.current }}"
+          PREV="${{ steps.tags.outputs.prev }}"
+          DATE="${{ steps.tags.outputs.date }}"
+
+          TMP=$(mktemp)
+
+          echo "## ${CURRENT} (${DATE})" >> "$TMP"
+          echo "" >> "$TMP"
+
+          # Collect commits since previous tag (or all commits if first tag).
+          if [ -n "$PREV" ]; then
+            COMMITS=$(git log "${PREV}..${CURRENT}" --pretty=format:"%s")
+          else
+            COMMITS=$(git log "${CURRENT}" --pretty=format:"%s")
+          fi
+
+          # Group by conventional-commit type.
+          FEATS=$(echo "$COMMITS"   | grep -E '^feat(\(.+\))?!?:' || true)
+          FIXES=$(echo "$COMMITS"   | grep -E '^fix(\(.+\))?!?:'  || true)
+          PERFS=$(echo "$COMMITS"   | grep -E '^perf(\(.+\))?!?:' || true)
+          REFACS=$(echo "$COMMITS"  | grep -E '^refactor(\(.+\))?!?:' || true)
+          CHORES=$(echo "$COMMITS"  | grep -E '^chore(\(.+\))?!?:' || true)
+          DOCS=$(echo "$COMMITS"    | grep -E '^docs(\(.+\))?!?:' || true)
+          TESTS=$(echo "$COMMITS"   | grep -E '^test(\(.+\))?!?:' || true)
+          OTHERS=$(echo "$COMMITS"  | grep -Ev '^(feat|fix|perf|refactor|chore|docs|test)(\(.+\))?!?:' || true)
+
+          write_section() {
+            local HEADER="$1"
+            local LINES="$2"
+            if [ -n "$LINES" ]; then
+              echo "### ${HEADER}" >> "$TMP"
+              while IFS= read -r line; do
+                echo "- ${line}" >> "$TMP"
+              done <<< "$LINES"
+              echo "" >> "$TMP"
+            fi
+          }
+
+          write_section "Features"     "$FEATS"
+          write_section "Bug Fixes"    "$FIXES"
+          write_section "Performance"  "$PERFS"
+          write_section "Refactoring"  "$REFACS"
+          write_section "Tests"        "$TESTS"
+          write_section "Docs"         "$DOCS"
+          write_section "Chores"       "$CHORES"
+          write_section "Other"        "$OTHERS"
+
+          DEST="apps/companion-user-flutter/CHANGELOG.md"
+          if [ -f "$DEST" ]; then
+            cat "$DEST" >> "$TMP"
+          fi
+          cp "$TMP" "$DEST"
+
+      - name: Commit updated CHANGELOG
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/companion-user-flutter/CHANGELOG.md
+          git diff --cached --quiet && echo "No changes to CHANGELOG." && exit 0
+          git commit -m "chore: update CHANGELOG for ${{ steps.tags.outputs.current }} [skip ci]"
+          git push origin HEAD:main

@@ -1,0 +1,48 @@
+name: edge-network-delivery
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+  push:
+    paths:
+      - 'config/nginx/**'
+      - 'docs/deploy/edge-rate-limit-and-abuse-controls-2026.md'
+      - 'scripts/edge-network-delivery-check.cjs'
+      - '.github/workflows/edge-network-delivery.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Edge/network delivery gate
+        env:
+          SVEN_INSTALL_HOST: https://sven.systems:44747
+          SVEN_APP_HOST: https://app.sven.systems:44747
+          MIN_TLS_VALID_DAYS: '14'
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            node scripts/edge-network-delivery-check.cjs
+          else
+            node scripts/edge-network-delivery-check.cjs --strict
+          fi
+
+      - name: Upload edge/network status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-network-delivery-status
+          path: |
+            docs/release/status/edge-network-delivery-latest.json
+            docs/release/status/edge-network-delivery-latest.md

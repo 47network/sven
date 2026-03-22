@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-03-21T00:41:04.268Z",
+  "status": "fail",
+  "execution": {
+    "strict": true,
+    "github_repo": "47network/thesven",
+    "target_branch": null,
+    "max_age_hours": 168
+  },
+  "checks": [
+    {
+      "id": "gh_auth_status_available",
+      "pass": true,
+      "detail": "gh auth status ok"
+    },
+    {
+      "id": "gh_repo_target_available",
+      "pass": true,
+      "detail": "repo=47network/thesven"
+    },
+    {
+      "id": "gh_run_list:bridge-runtime-tests",
+      "pass": false,
+      "detail": "could not find any workflows named bridge-runtime-tests"
+    },
+    {
+      "id": "gh_run_list:gateway-bridge-contract-tests",
+      "pass": false,
+      "detail": "could not find any workflows named gateway-bridge-contract-tests"
+    }
+  ],
+  "workflows": [
+    {
+      "workflow": "bridge-runtime-tests",
+      "latest": null,
+      "latest_success": null
+    },
+    {
+      "workflow": "gateway-bridge-contract-tests",
+      "latest": null,
+      "latest_success": null
+    }
+  ],
+  "artifacts": {
+    "output_json": "docs/release/status/bridge-ci-lanes-remote-latest.json",
+    "output_md": "docs/release/status/bridge-ci-lanes-remote-latest.md"
+  }
+}

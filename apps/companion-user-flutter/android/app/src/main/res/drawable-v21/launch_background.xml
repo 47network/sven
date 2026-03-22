@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sven branded launch splash (API 21+) — dark cinematic bg with brand orb -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/sven_splash_bg" />
+    <item android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="#FF00D9FF" />
+            <size android:width="64dp" android:height="64dp" />
+        </shape>
+    </item>
+</layer-list>

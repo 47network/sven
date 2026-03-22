@@ -1,0 +1,74 @@
+name: security-baseline
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  security-gates:
+    runs-on: ubuntu-22.04
+    env:
+      SECURITY_MAX_CRITICAL: 0
+      SECURITY_MAX_HIGH: 0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install detect-secrets
+        run: python -m pip install --disable-pip-version-check detect-secrets==1.5.0
+
+      - name: Detect-secrets baseline verification
+        run: |
+          test -f .secrets.baseline
+          test -f .detect-secrets.cfg
+          detect-secrets scan \
+            apps \
+            services \
+            packages \
+            scripts \
+            .github \
+            docs/release \
+            docs/parity \
+            docs/Sven_Master_Checklist.md \
+            docs/SVEN_APP_CHECKLIST.md \
+            --exclude-files '(^|/)pnpm-lock\.yaml$|(^|/)(dist|vendor)/|(^|/)\.detect-secrets\.cfg$' \
+            > .secrets.baseline.ci
+          git diff --no-index --exit-code .secrets.baseline .secrets.baseline.ci
+          rm -f .secrets.baseline.ci
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Plaintext secret heuristic scan
+        run: npm run security:plaintext:check
+
+      - name: Transport/CSP policy check
+        run: npm run security:transport:csp:check
+
+      - name: Auth surface policy check
+        run: npm run security:auth-surface:check
+
+      - name: Dependency vulnerability threshold gate
+        run: npm run security:deps:check:strict
+
+      - name: Upload security status artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-status
+          path: |
+            docs/release/status/dependency-vuln-latest.*
+            docs/release/status/security-transport-csp-latest.*
+            docs/release/status/security-auth-surface-latest.*
+            docs/release/status/security-plaintext-secrets-latest.*

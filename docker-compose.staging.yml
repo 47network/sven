@@ -1,0 +1,22 @@
+services:
+  postgres:
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sven_staging}
+
+  opensearch:
+    environment:
+      OPENSEARCH_JAVA_OPTS: -Xms256m -Xmx256m
+
+  prometheus:
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=2d"
+
+  gateway-api:
+    environment:
+      SVEN_DEPLOYMENT_MODE: staging
+
+  agent-runtime:
+    environment:
+      SVEN_DEPLOYMENT_MODE: staging

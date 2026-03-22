@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sven Platform | Runtime and Architecture</title>
+  <meta name="description" content="Sven platform architecture, runtime model, and execution surfaces." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/suite/assets/suite.css" />
+  <link rel="icon" href="/suite/assets/sven-logo.png" type="image/png" />
+</head>
+<body>
+  <header class="top">
+    <div class="wrap row">
+      <a class="brand" href="/"><img src="/suite/assets/sven-logo.png" alt="Sven logo" /><span>Sven</span></a>
+      <nav class="nav">
+        <a href="/suite">Suite</a>
+        <a href="/suite/platform">Platform</a>
+        <a href="/suite/features">Features</a>
+        <a href="/suite/security">Security</a>
+        <a href="/suite/docs">Docs</a>
+        <a href="/suite/enterprise">Enterprise</a>
+        <a href="/suite/roadmap">Roadmap</a>
+      </nav>
+      <a class="cta" href="https://app.sven.example.com/community" data-runtime-path="/community">Community</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero hero-split">
+      <div>
+        <span class="kicker"><span class="dot"></span> Platform</span>
+        <h1>Sven runtime is split into trusted, observable surfaces.</h1>
+        <p class="sub">The platform combines gateway APIs, canvas/admin UIs, policy controls, and release evidence lanes so features are backed by operational proof.</p>
+      </div>
+      <aside class="hero-panel hero-platform">
+        <p class="hero-panel-title">Runtime Stack</p>
+        <ul class="list">
+          <li>Edge ingress and route boundaries at your TLS endpoint</li>
+          <li>Gateway API for orchestration and policy execution</li>
+          <li>Canvas + Admin split for user and operator flows</li>
+          <li>Evidence endpoints exposed for live verification</li>
+        </ul>
+        <div class="signal-grid">
+          <div class="signal"><span class="k">Ingress</span><span class="v">TLS Edge</span><span class="bar"></span></div>
+          <div class="signal"><span class="k">Control Plane</span><span class="v">Gateway API</span><span class="bar"></span></div>
+          <div class="signal"><span class="k">Surfaces</span><span class="v">Canvas + Admin</span><span class="bar"></span></div>
+        </div>
+        <p class="hero-panel-note">Designed for clear service boundaries and observable runtime flow.</p>
+      </aside>
+    </section>
+
+    <section class="section">
+      <h2>Core architecture</h2>
+      <div class="grid cols-3" style="margin-top:14px">
+        <article class="card">
+          <span class="badge info">Edge</span>
+          <h3>Ingress and routing</h3>
+          <p>Nginx terminates TLS at your edge ingress, separates install host and app host routes, and proxies public/community/API surfaces.</p>
+        </article>
+        <article class="card">
+          <span class="badge ok">Control plane</span>
+          <h3>Gateway API</h3>
+          <p>Central runtime contract for orchestration, policies, telemetry, public proofs, and feature/status checks.</p>
+        </article>
+        <article class="card">
+          <span class="badge info">Experience</span>
+          <h3>Admin + Canvas</h3>
+          <p>Admin controls operations and policy. Canvas powers user-facing runtime and community experiences.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Topology explorer</h2>
+      <p class="lead">Switch runtime planes to inspect boundary ownership and where each service responsibility sits in live deployment.</p>
+      <div class="topology">
+        <div class="segment-controls" data-segment-group="platform-topology">
+          <button class="segment-btn active" type="button" data-segment-target="topology-edge">Edge plane</button>
+          <button class="segment-btn" type="button" data-segment-target="topology-control">Control plane</button>
+          <button class="segment-btn" type="button" data-segment-target="topology-experience">Experience plane</button>
+        </div>
+
+        <div class="segment-panel active" id="topology-edge">
+          <div class="topology-grid">
+            <article class="topology-node">
+              <span class="node-k">entry</span>
+              <span class="node-v">TLS Ingress</span>
+              <p class="node-note">Single trusted entrypoint for install host and app host domains.</p>
+            </article>
+            <article class="topology-node">
+              <span class="node-k">routing</span>
+              <span class="node-v">Host + path split</span>
+              <p class="node-note">Routes install surfaces, community, admin, and APIs without overlap.</p>
+            </article>
+            <article class="topology-node">
+              <span class="node-k">policy</span>
+              <span class="node-v">Public boundary guards</span>
+              <p class="node-note">Edge headers and route restrictions enforce clean external exposure.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="segment-panel" id="topology-control">
+          <div class="topology-grid">
+            <article class="topology-node">
+              <span class="node-k">gateway</span>
+              <span class="node-v">Execution Orchestrator</span>
+              <p class="node-note">Owns workflow execution, telemetry, policy checks, and status contracts.</p>
+            </article>
+            <article class="topology-node">
+              <span class="node-k">evidence</span>
+              <span class="node-v">Public proof endpoints</span>
+              <p class="node-note">Capability-proof, feed, and readiness are externally verifiable.</p>
+            </article>
+            <article class="topology-node">
+              <span class="node-k">governance</span>
+              <span class="node-v">Release gate lanes</span>
+              <p class="node-note">Wave and checklist gates prevent drift between claims and runtime behavior.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="segment-panel" id="topology-experience">
+          <div class="topology-grid">
+            <article class="topology-node">
+              <span class="node-k">canvas</span>
+              <span class="node-v">User runtime</span>
+              <p class="node-note">Primary operator and end-user interaction surface.</p>
+            </article>
+            <article class="topology-node">
+              <span class="node-k">admin47</span>
+              <span class="node-v">Ops control</span>
+              <p class="node-note">Policy and operational controls for governance and diagnostics.</p>
+            </article>
+            <article class="topology-node">
+              <span class="node-k">community</span>
+              <span class="node-v">Verified ecosystem</span>
+              <p class="node-note">Identity-gated contributor channel for education and reproducibility.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Execution surfaces</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Surface</th><th>Purpose</th><th>Primary route</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Install + Landing</td><td>Bootstrap and public entry</td><td class="mono">sven.example.com</td><td>active</td></tr>
+            <tr><td>Canvas Runtime</td><td>Main interactive experience</td><td class="mono">app.sven.example.com/</td><td>active</td></tr>
+            <tr><td>Admin47</td><td>Operator controls</td><td class="mono">app.sven.example.com/admin47</td><td>active</td></tr>
+            <tr><td>Community Hub</td><td>Verified ecosystem and feeds</td><td class="mono">app.sven.example.com/community</td><td id="ev-community">loading</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Live evidence</h2>
+      <div class="grid cols-4" style="margin-top:14px">
+        <div class="card"><div class="kv"><span class="k">Capability proof</span><span class="v" id="ev-capability">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Wave lanes</span><span class="v" id="ev-waves">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Doc-agent feed</span><span class="v" id="ev-feed">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Readiness</span><span class="v" id="ev-readiness">Loading...</span></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap foot">
+      <div class="muted">Sven Platform • <span id="suite-year"></span></div>
+      <div class="muted">Evidence-backed runtime architecture</div>
+    </div>
+  </footer>
+
+  <script src="/suite/assets/suite.js"></script>
+</body>
+</html>
+
+
+
+

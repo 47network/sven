@@ -1,0 +1,10 @@
+{
+  "started_at_utc": "2026-02-21T18:04:15.3830453Z",
+  "pid": 6440,
+  "duration_minutes": 1440,
+  "interval_seconds": 60,
+  "csv": "docs/performance/gateway-rss-soak-24h.csv",
+  "log": "docs/performance/gateway-rss-soak-24h.log",
+  "status": "running",
+  "notes": "Restarted after gateway-api container recreate to keep consistent container-id sampling"
+}

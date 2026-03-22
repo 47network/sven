@@ -1,0 +1,14 @@
+﻿{
+    "generated_at":  "2026-02-22T19:01:51.4857334+00:00",
+    "status":  "fail",
+    "artifacts":  {
+                      "next_actions":  "docs/release/status/mobile-c8-next-actions-latest.md",
+                      "legal_bundle":  "docs/release/status/mobile-c8-legal-bundle-latest.md",
+                      "index":  "docs/release/status/mobile-c8-index-latest.md",
+                      "pending":  "docs/release/status/mobile-c8-pending-latest.md",
+                      "pack_stamped":  "docs/release/status/mobile-c8-pack-20260222-210151.md",
+                      "pack_latest":  "docs/release/status/mobile-c8-pack-latest.md",
+                      "closeout":  "docs/release/status/mobile-c8-closeout-latest.md",
+                      "legal_matrix":  "docs/release/status/mobile-c8-legal-matrix-latest.md"
+                  }
+}

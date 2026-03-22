@@ -1,0 +1,87 @@
+/* ═══ Sven Admin · Design Tokens ═════════════════════════════
+   Single source of truth for colours, layout, motion, radius.
+   globals.css consumes these; tailwind.config.js extends them.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Light baseline (default — no class on <html>) ─── */
+:root {
+  /* Colour channels — R G B, Tailwind-compatible */
+  --color-bg: 255 255 255;
+  --color-fg: 15 23 42;
+  /* slate-900 */
+  --color-muted: 100 116 139;
+  /* slate-500 */
+  --color-border: 226 232 240;
+  /* slate-200 */
+  --color-accent: 56 189 248;
+  /* sky-400, readable on light */
+  --color-danger: 239 68 68;
+  /* red-500 */
+  --color-success: 34 197 94;
+  /* green-500 */
+  --color-warning: 245 158 11;
+  /* amber-500 */
+
+  /* Brand helpers */
+  --brand-glow: rgba(56, 189, 248, 0.35);
+  --brand-subtle: rgba(56, 189, 248, 0.08);
+  --brand-ring: rgba(56, 189, 248, 0.30);
+
+  /* Surface composites */
+  --surface-base: rgba(248, 250, 252, 0.95);
+  --surface-hi: rgba(226, 232, 240, 0.80);
+  --surface-overlay: rgba(255, 255, 255, 0.75);
+
+  /* Layout constants (referenced by AppShell & Header) */
+  --header-h: 3.5rem;
+  /* 56 px / h-14 */
+  --sidebar-w: 15rem;
+  /* 240 px / w-60 */
+  --sidebar-w-sm: 4rem;
+  /* 64 px  / w-16 */
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 380ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Radius scale */
+  --r-sm: 0.375rem;
+  /* rounded-md */
+  --r-md: 0.5rem;
+  /* rounded-lg */
+  --r-lg: 0.75rem;
+  /* rounded-xl */
+  --r-xl: 1rem;
+  /* rounded-2xl */
+  --r-pill: 9999px;
+}
+
+/* ─── Dark theme — applied when <html class="dark"> ─── */
+.dark {
+  --color-bg: 3 7 18;
+  /* slate-950 */
+  --color-fg: 241 245 249;
+  /* slate-100 */
+  --color-muted: 148 163 184;
+  /* slate-400 */
+  --color-border: 30 41 59;
+  /* slate-800 */
+  --color-accent: 34 211 238;
+  /* cyan-400 — Sven spark */
+  --color-danger: 220 38 38;
+  /* red-600 */
+  --color-success: 22 163 74;
+  /* green-600 */
+  --color-warning: 202 138 4;
+  /* yellow-600 */
+
+  --brand-glow: rgba(34, 211, 238, 0.45);
+  --brand-subtle: rgba(34, 211, 238, 0.10);
+  --brand-ring: rgba(34, 211, 238, 0.35);
+
+  --surface-base: rgba(15, 23, 42, 0.90);
+  --surface-hi: rgba(30, 41, 59, 0.80);
+  --surface-overlay: rgba(3, 7, 18, 0.65);
+}

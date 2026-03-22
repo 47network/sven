@@ -1,0 +1,33 @@
+{
+  "at": "2026-02-13T17:27:27.978Z",
+  "status": "pass",
+  "passed": 5,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "expo_new_arch_enabled",
+      "pass": true,
+      "detail": "expo.newArchEnabled=true"
+    },
+    {
+      "id": "android_js_engine_hermes",
+      "pass": true,
+      "detail": "android.jsEngine=hermes"
+    },
+    {
+      "id": "ios_js_engine_hermes",
+      "pass": true,
+      "detail": "ios.jsEngine=hermes"
+    },
+    {
+      "id": "gradle_new_arch_enabled",
+      "pass": true,
+      "detail": "android/gradle.properties newArchEnabled=true"
+    },
+    {
+      "id": "gradle_hermes_enabled",
+      "pass": true,
+      "detail": "android/gradle.properties hermesEnabled=true"
+    }
+  ]
+}

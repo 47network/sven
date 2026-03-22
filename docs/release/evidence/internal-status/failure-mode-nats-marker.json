@@ -1,0 +1,8 @@
+{
+  "marker": "fm-nats-1771690482233-v1lhfs",
+  "stream": "TOOLS",
+  "seq": 3,
+  "subject": "tool.run.result",
+  "created_at": "2026-02-21T16:14:42.252Z",
+  "nats_url": "nats://localhost:4222"
+}

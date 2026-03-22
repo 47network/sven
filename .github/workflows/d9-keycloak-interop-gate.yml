@@ -1,0 +1,148 @@
+name: d9-keycloak-interop-gate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/sso-keycloak-interop-*.cjs'
+      - 'docker-compose.sso-idp.yml'
+      - 'services/sso/keycloak/realm-sven-test.json'
+      - 'services/gateway-api/**'
+      - '.github/workflows/d9-keycloak-interop-gate.yml'
+  pull_request:
+    paths:
+      - 'scripts/sso-keycloak-interop-*.cjs'
+      - 'docker-compose.sso-idp.yml'
+      - 'services/sso/keycloak/realm-sven-test.json'
+      - 'services/gateway-api/**'
+      - '.github/workflows/d9-keycloak-interop-gate.yml'
+
+jobs:
+  d9-keycloak-gate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: sven
+          POSTGRES_USER: sven
+          POSTGRES_PASSWORD: sven
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U sven -d sven"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: postgresql://sven:sven@localhost:5432/sven
+      NATS_URL: nats://localhost:4222
+      COOKIE_SECRET: ci-cookie-secret-2026-d9-keycloak-interop-very-strong
+      GATEWAY_PORT: '3001'
+      GATEWAY_HOST: '127.0.0.1'
+      API_URL: http://127.0.0.1:3001
+      SVEN_MIGRATION_ID_MODE: text
+      RELEASE_AUTH_USERNAME: release-admin
+      RELEASE_AUTH_PASSWORD: release-admin-pass
+      RELEASE_AUTH_BOOTSTRAP_IF_EMPTY: '1'
+      RELEASE_AUTH_BOOTSTRAP_ENABLE_TOTP: '0'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Start NATS (JetStream)
+        run: |
+          docker run -d --name sven-nats -p 4222:4222 -p 8222:8222 nats:2.10 -js
+          for i in {1..30}; do
+            if bash -c ">/dev/tcp/127.0.0.1/4222" 2>/dev/null; then
+              echo "NATS reachable"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "NATS failed to start" >&2
+          docker logs sven-nats || true
+          exit 1
+
+      - name: Build shared package
+        run: npm run --workspace packages/shared build
+
+      - name: Build gateway
+        run: npm run --workspace services/gateway-api build
+
+      - name: Run migrations
+        run: npm run --workspace services/gateway-api db:migrate
+
+      - name: Start gateway API
+        run: |
+          node services/gateway-api/dist/index.js > gateway.log 2>&1 &
+          echo $! > gateway.pid
+
+      - name: Wait for gateway
+        run: |
+          for i in {1..40}; do
+            if curl -fsS http://127.0.0.1:3001/healthz > /dev/null; then
+              echo "Gateway healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Gateway failed health check" >&2
+          cat gateway.log || true
+          exit 1
+
+      - name: Run release auth readiness check (real login path)
+        run: node scripts/release-auth-readiness-check.cjs --strict
+
+      - name: Export admin token from real login
+        run: |
+          cat > export-d9-admin-token.cjs <<'EOF'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const reportPath = path.join(process.cwd(), 'docs', 'release', 'status', 'auth-release-readiness-latest.json');
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          const token = String(report?.issued_context?.access_token || '').trim();
+          const sessionCookie = String(report?.issued_context?.session_cookie || '').trim();
+          if (!token || !sessionCookie) {
+            throw new Error('auth-release-readiness-latest.json missing issued auth context');
+          }
+          fs.appendFileSync(process.env.GITHUB_ENV, `TEST_BEARER_TOKEN=${token}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `TEST_SESSION_COOKIE=${sessionCookie}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `TEST_BEARER_TOKEN_SOURCE=release_auth_readiness\n`);
+          EOF
+          node export-d9-admin-token.cjs
+
+      - name: Run tenant RBAC regression check
+        working-directory: services/gateway-api
+        run: node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/tenant-rbac.e2e.ts --runInBand
+
+      - name: Run Keycloak interop gate
+        run: npm run release:sso:keycloak:interop:gate:with-idp-preflight
+
+      - name: Upload D9 artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: d9-keycloak-interop-status
+          path: |
+            docs/release/status/d9-keycloak-interop-*.json
+            docs/release/status/d9-keycloak-interop-*.md
+            docs/release/evidence/d9-keycloak-interop-live-*.json
+            docs/release/evidence/d9-keycloak-interop-live-*.md
+            gateway.log
+
+      - name: Cleanup
+        if: always()
+        run: |
+          if [ -f gateway.pid ]; then kill $(cat gateway.pid) || true; fi
+          docker rm -f sven-nats || true
+          docker compose -f docker-compose.sso-idp.yml down -v || true

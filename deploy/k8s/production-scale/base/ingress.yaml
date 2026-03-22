@@ -1,0 +1,63 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sven-public
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+spec:
+  tls:
+    - hosts:
+        - sven.systems
+      secretName: sven-public-tls
+    - hosts:
+        - admin.sven.systems
+      secretName: sven-admin-tls
+  rules:
+    - host: sven.systems
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: canvas-ui
+                port:
+                  number: 3000
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-api
+                port:
+                  number: 3000
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-api
+                port:
+                  number: 3000
+          - path: /healthz
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-api
+                port:
+                  number: 3000
+    - host: admin.sven.systems
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-ui
+                port:
+                  number: 3000
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-api
+                port:
+                  number: 3000

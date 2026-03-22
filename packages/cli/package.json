@@ -1,0 +1,15 @@
+{
+  "name": "@sven/cli",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "bin": {
+    "sven": "./bin/sven.js"
+  },
+  "scripts": {
+    "start": "node ./bin/sven.js --help"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

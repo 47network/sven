@@ -1,0 +1,141 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# LiteLLM Proxy Configuration for Sven
+# Docs: https://docs.litellm.ai/docs/proxy/configs
+# ─────────────────────────────────────────────────────────────────────────────
+
+model_list:
+  # ── Local Models (Ollama) ────────────────────────────────────────────────
+  - model_name: ollama/*
+    litellm_params:
+      model: ollama/*
+      api_base: http://ollama:11434
+
+  # ── OpenAI ───────────────────────────────────────────────────────────────
+  - model_name: gpt-4o
+    litellm_params:
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: gpt-4o-mini
+    litellm_params:
+      model: openai/gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: gpt-4.1
+    litellm_params:
+      model: openai/gpt-4.1
+      api_key: os.environ/OPENAI_API_KEY
+
+  # ── Anthropic ────────────────────────────────────────────────────────────
+  - model_name: claude-sonnet-4-20250514
+    litellm_params:
+      model: anthropic/claude-sonnet-4-20250514
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  - model_name: claude-3-5-haiku-20241022
+    litellm_params:
+      model: anthropic/claude-3-5-haiku-20241022
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  # ── Google ───────────────────────────────────────────────────────────────
+  - model_name: gemini-2.5-pro
+    litellm_params:
+      model: gemini/gemini-2.5-pro
+      api_key: os.environ/GOOGLE_API_KEY
+
+  - model_name: gemini-2.5-flash
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GOOGLE_API_KEY
+
+  - model_name: gemini-2.0-flash
+    litellm_params:
+      model: gemini/gemini-2.0-flash
+      api_key: os.environ/GOOGLE_API_KEY
+
+  # ── GitHub Copilot API (Pro / Pro+ subscription) ──────────────────────────
+  # Requires: GitHub PAT with `copilot` OAuth scope.
+  # Pro+ gives access to Claude Opus 4.6, o3-mini (Codex), gpt-4o via Copilot.
+  # Get token: https://github.com/settings/tokens → scope: `copilot`
+  # Available model IDs: GET https://api.githubcopilot.com/models
+  - model_name: copilot-claude-opus-4
+    litellm_params:
+      model: openai/claude-opus-4          # model ID as returned by /models
+      api_base: https://api.githubcopilot.com
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
+
+  - model_name: copilot-claude-sonnet-4-5
+    litellm_params:
+      model: openai/claude-sonnet-4-5
+      api_base: https://api.githubcopilot.com
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
+
+  - model_name: copilot-o3-mini
+    litellm_params:
+      model: openai/o3-mini                # Codex reasoning — Pro+ only
+      api_base: https://api.githubcopilot.com
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
+
+  - model_name: copilot-gpt-4o
+    litellm_params:
+      model: openai/gpt-4o
+      api_base: https://api.githubcopilot.com
+      api_key: os.environ/GITHUB_COPILOT_TOKEN
+
+  # ── GitHub Models API (azure AI inference, included with any GitHub account)
+  # Less quota than Copilot API but no extra token scope needed.
+  # Endpoint: https://models.inference.ai.azure.com
+  # Auth: any GitHub PAT (classic or fine-grained, no special scope needed)
+  - model_name: github-gpt-4o
+    litellm_params:
+      model: azure/gpt-4o
+      api_base: https://models.inference.ai.azure.com
+      api_key: os.environ/GITHUB_TOKEN
+
+  - model_name: github-llama-3-3-70b
+    litellm_params:
+      model: azure/Meta-Llama-3.3-70B-Instruct
+      api_base: https://models.inference.ai.azure.com
+      api_key: os.environ/GITHUB_TOKEN
+
+  # ── Mistral ──────────────────────────────────────────────────────────────
+  - model_name: mistral-large-latest
+    litellm_params:
+      model: mistral/mistral-large-latest
+      api_key: os.environ/MISTRAL_API_KEY
+
+  # ── Routers ──────────────────────────────────────────────────────────────
+  # `coding` — best available model for code generation / debugging.
+  # Priority order: copilot-claude-opus-4 > gemini-2.5-pro > gpt-4.1 > gpt-4o
+  # To use: set model to `coding` in agent runtime config.
+  - model_name: coding
+    litellm_params:
+      model: copilot-claude-opus-4
+      fallbacks: ["gemini-2.5-pro", "gpt-4.1", "gpt-4o"]
+
+  # `coding-fast` — optimised for speed/cost on smaller coding tasks.
+  - model_name: coding-fast
+    litellm_params:
+      model: copilot-o3-mini
+      fallbacks: ["gemini-2.5-flash", "gpt-4o-mini", "claude-3-5-haiku-20241022"]
+
+  # `reasoning` — deep reasoning / multi-step planning tasks.
+  - model_name: reasoning
+    litellm_params:
+      model: copilot-o3-mini
+      fallbacks: ["gemini-2.5-pro", "claude-sonnet-4-20250514"]
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+  num_retries: 2
+  request_timeout: 120
+  max_budget: 100.0
+  budget_duration: monthly
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+  alerting:
+    - slack
+  alerting_threshold: 300

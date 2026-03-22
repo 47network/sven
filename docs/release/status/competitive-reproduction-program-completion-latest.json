@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-03-17T12:10:53.541Z",
+  "status": "pass",
+  "passed": 6,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "competitive_program_wave_closeouts_pass",
+      "pass": true,
+      "detail": "wave1:pass, wave2:pass, wave3:pass, wave4:pass, wave5:pass, wave6:pass, wave7:pass, wave8:pass"
+    },
+    {
+      "id": "competitive_program_unified_all_waves_closeout_pass",
+      "pass": true,
+      "detail": "status=pass"
+    },
+    {
+      "id": "competitive_program_parity_checklist_verify_pass",
+      "pass": true,
+      "detail": "status=pass"
+    },
+    {
+      "id": "competitive_program_scorecard_thresholds_pass",
+      "pass": true,
+      "detail": "status=pass; weighted=4; min_dimension=4; dimensions_at_or_above_4=8"
+    },
+    {
+      "id": "competitive_program_langgraph_wave8_hard_gate_wired",
+      "pass": true,
+      "detail": "parity-e2e includes langgraph wave8 step + summary binding"
+    },
+    {
+      "id": "competitive_program_remaining_blockers_soak_path_only",
+      "pass": true,
+      "detail": "blockers=soak_72h_summary_status, soak_72h_samples_below_expected"
+    }
+  ],
+  "waves": [
+    {
+      "id": "wave1",
+      "file": "docs/release/status/openhands-wave1-closeout-latest.json",
+      "present": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T03:52:32.869Z"
+    },
+    {
+      "id": "wave2",
+      "file": "docs/release/status/librechat-wave2-closeout-latest.json",
+      "present": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T02:21:47.648Z"
+    },
+    {
+      "id": "wave3",
+      "file": "docs/release/status/n8n-wave3-closeout-latest.json",
+      "present": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T02:21:47.692Z"
+    },
+    {
+      "id": "wave4",
+      "file": "docs/release/status/framework-wave4-closeout-latest.json",
+      "present": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T02:18:30.436Z"
+    },
+    {
+      "id": "wave5",
+      "file": "docs/release/status/crewai-wave5-closeout-latest.json",
+      "present": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T04:28:50.966Z"
+    },
+    {
+      "id": "wave6",
+      "file": "docs/release/status/letta-wave6-closeout-latest.json",
+      "present": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T04:59:59.583Z"
+    },
+    {
+      "id": "wave7",
+      "file": "docs/release/status/autogen-wave7-closeout-latest.json",
+      "present": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T05:29:12.798Z"
+    },
+    {
+      "id": "wave8",
+      "file": "docs/release/status/langgraph-wave8-closeout-latest.json",
+      "present": true,
+      "status": "pass",
+      "generated_at": "2026-03-17T12:05:12.187Z"
+    }
+  ],
+  "strict_blocking_reasons": [
+    "soak_72h_summary_status",
+    "soak_72h_samples_below_expected"
+  ]
+}

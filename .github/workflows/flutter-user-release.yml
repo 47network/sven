@@ -1,0 +1,207 @@
+name: Flutter User App — Play Store Release
+
+# Triggered by a flutter-user-v* tag push (e.g. flutter-user-v1.2.3)
+# or manually via workflow_dispatch for ad-hoc uploads to a specific track.
+#
+# Required repository secrets (GitHub → Settings → Secrets → Actions):
+#   KEYSTORE_BASE64                 — base64-encoded release keystore file
+#   KEYSTORE_PASSWORD               — keystore store password
+#   KEY_ALIAS                       — key alias inside the keystore
+#   KEY_PASSWORD                    — key password
+#   PLAY_STORE_SERVICE_ACCOUNT_JSON — Google service account JSON with
+#                                     "Release manager" role in Play Console
+
+on:
+  push:
+    tags:
+      - 'flutter-user-v*'
+  workflow_dispatch:
+    inputs:
+      track:
+        description: 'Play Store track to upload to'
+        required: true
+        default: 'internal'
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+
+concurrency:
+  group: play-store-release-${{ github.ref }}
+  cancel-in-progress: false   # never cancel a release in flight
+
+jobs:
+  build-and-publish:
+    name: Build signed AAB & upload to Play Store
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # full history for release notes
+
+      # ── Java (Gradle requires 17+) ───────────────────────────────────────
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ── Flutter ──────────────────────────────────────────────────────────
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+          cache: true
+
+      - name: Install Flutter dependencies
+        working-directory: apps/companion-user-flutter
+        run: flutter pub get
+
+      - name: Prepare release dart-define bundle (fail-closed TLS pins)
+        working-directory: apps/companion-user-flutter
+        env:
+          SVEN_API_CERT_SHA256_PINS: ${{ secrets.SVEN_API_CERT_SHA256_PINS }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          if [ -z "$SVEN_API_CERT_SHA256_PINS" ]; then
+            echo "Missing required SVEN_API_CERT_SHA256_PINS for release build."
+            exit 1
+          fi
+          if [ -z "$SENTRY_DSN" ]; then
+            echo "Missing required SENTRY_DSN for production release build."
+            exit 1
+          fi
+          mkdir -p config/env
+          cat > config/env/mobile-dart-defines.ci.release.json <<EOF
+          {
+            "SVEN_FLAVOR": "prod",
+            "SVEN_ENV": "production",
+            "SVEN_API_CERT_SHA256_PINS": "$SVEN_API_CERT_SHA256_PINS",
+            "SENTRY_DSN": "$SENTRY_DSN"
+          }
+          EOF
+
+      # ── Keystore setup ───────────────────────────────────────────────────
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode \
+            > apps/companion-user-flutter/android/app/release.keystore
+
+      - name: Write key.properties
+        run: |
+          cat > apps/companion-user-flutter/android/key.properties <<EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=release.keystore
+          EOF
+
+      # ── Tests ─────────────────────────────────────────────────────────────
+      - name: Run unit & widget tests
+        working-directory: apps/companion-user-flutter
+        run: flutter test --exclude-tags golden
+
+      # ── Resolve package ID from app config (single source of truth) ───────
+      - name: Resolve Android package ID from Gradle config
+        id: package_id
+        run: |
+          GRADLE_FILE="apps/companion-user-flutter/android/app/build.gradle.kts"
+          RESOLVED_PACKAGE_ID=$(grep -E 'applicationId\s*=' "$GRADLE_FILE" | head -n 1 | sed -E 's/.*applicationId\s*=\s*"([^"]+)".*/\1/')
+          if [ -z "$RESOLVED_PACKAGE_ID" ]; then
+            echo "Failed to parse applicationId from $GRADLE_FILE"
+            exit 1
+          fi
+          echo "ANDROID_PACKAGE_NAME=$RESOLVED_PACKAGE_ID" >> "$GITHUB_ENV"
+          echo "package_id=$RESOLVED_PACKAGE_ID" >> "$GITHUB_OUTPUT"
+          echo "Resolved Android package ID: $RESOLVED_PACKAGE_ID"
+
+      # ── Build signed AAB ──────────────────────────────────────────────────
+      - name: Build signed AAB (prod, arm64)
+        working-directory: apps/companion-user-flutter
+        run: |
+          flutter build appbundle \
+            --release \
+            --flavor prod \
+            --target lib/main.dart \
+            --target-platform android-arm64 \
+            --dart-define-from-file=config/env/mobile-dart-defines.ci.release.json \
+            --build-number=${{ github.run_number }}
+
+      # ── Package ID preflight (fail-closed) ────────────────────────────────
+      - name: Verify resolved package ID against release policy
+        run: |
+          if [ -z "$ANDROID_PACKAGE_NAME" ]; then
+            echo "ANDROID_PACKAGE_NAME is empty after package-id resolution."
+            exit 1
+          fi
+          EXPECTED_PACKAGE_ID="${EXPECTED_ANDROID_PACKAGE_NAME:-com.fortyseven.thesven}"
+          if [ "$ANDROID_PACKAGE_NAME" != "$EXPECTED_PACKAGE_ID" ]; then
+            echo "Package mismatch: resolved=$ANDROID_PACKAGE_NAME expected=$EXPECTED_PACKAGE_ID"
+            exit 1
+          fi
+          echo "Package preflight OK: $ANDROID_PACKAGE_NAME"
+
+      # ── Mobile release gates (blocking, strict) ───────────────────────────
+      - name: Mobile release signing gate (strict)
+        run: node scripts/mobile-release-signing-check.cjs --strict
+
+      - name: Mobile release readiness gate (strict)
+        run: |
+          node scripts/mobile-firebase-tls-define-check.cjs --strict
+          node scripts/mobile-release-readiness-check.cjs --strict
+
+      # ── Determine release notes from git log ──────────────────────────────
+      - name: Build release notes
+        id: notes
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          PREV=$(git tag --sort=-version:refname \
+                   | grep '^flutter-user-v' \
+                   | grep -v "^${TAG}$" | head -1)
+          if [ -n "$PREV" ]; then
+            NOTES=$(git log "${PREV}..${TAG}" --pretty=format:"• %s" | head -20)
+          else
+            NOTES=$(git log "${TAG}" --pretty=format:"• %s" | head -20)
+          fi
+          echo "notes<<EOF"  >> "$GITHUB_OUTPUT"
+          echo "${NOTES}"    >> "$GITHUB_OUTPUT"
+          echo "EOF"         >> "$GITHUB_OUTPUT"
+
+      # ── Upload AAB artifact ───────────────────────────────────────────────
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sven-prod-aab-${{ github.ref_name }}
+          path: apps/companion-user-flutter/build/app/outputs/bundle/prodRelease/app-prod-release.aab
+          retention-days: 30
+
+      - name: Upload mobile release gate artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-release-gates-${{ github.ref_name }}
+          path: |
+            docs/release/status/mobile-release-signing-latest.json
+            docs/release/status/mobile-release-signing-latest.md
+            docs/release/status/mobile-firebase-tls-define-latest.json
+            docs/release/status/mobile-firebase-tls-define-latest.md
+            docs/release/status/mobile-release-readiness-latest.json
+            docs/release/status/mobile-release-readiness-latest.md
+
+      # ── Play Store upload ─────────────────────────────────────────────────
+      - name: Upload to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ env.ANDROID_PACKAGE_NAME }}
+          releaseFiles: apps/companion-user-flutter/build/app/outputs/bundle/prodRelease/app-prod-release.aab
+          track: ${{ github.event.inputs.track || 'internal' }}
+          status: completed
+          releaseName: ${{ github.ref_name }}
+          releaseNotes: |
+            language: en-US
+            text: ${{ steps.notes.outputs.notes }}
+

@@ -1,0 +1,1 @@
+export { ensureStreams } from '@sven/shared/nats/streams.js';

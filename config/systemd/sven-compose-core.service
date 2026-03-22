@@ -1,0 +1,16 @@
+[Unit]
+Description=Sven Compose Core Bootstrap
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/sven/app
+# Works with native Docker Engine and Docker Desktop-integrated WSL.
+ExecStart=/bin/sh -lc 'until /usr/bin/docker info >/dev/null 2>&1; do sleep 3; done; /usr/bin/docker compose up -d postgres nats gateway-api quickstart-static'
+ExecStop=/bin/sh -lc '/usr/bin/docker info >/dev/null 2>&1 && /usr/bin/docker compose stop gateway-api quickstart-static || true'
+RemainAfterExit=yes
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

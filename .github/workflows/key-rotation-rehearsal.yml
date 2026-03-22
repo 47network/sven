@@ -1,0 +1,30 @@
+name: key-rotation-rehearsal
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Key rotation rehearsal gate
+        run: node scripts/key-rotation-rehearsal-check.cjs --strict
+
+      - name: Upload key rotation rehearsal status
+        uses: actions/upload-artifact@v4
+        with:
+          name: key-rotation-rehearsal-status
+          path: |
+            docs/release/status/key-rotation-rehearsal-latest.json
+            docs/release/status/key-rotation-rehearsal-latest.md

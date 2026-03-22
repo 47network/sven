@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-03-16T14:47:00Z",
+  "provenance_classes": [
+    "local_code_verified",
+    "external_docs_verified",
+    "inferred"
+  ],
+  "claims": [
+    {
+      "id": "agent_zero_local_ci_workflow_surface",
+      "provenance_class": "local_code_verified",
+      "evidence_paths": [
+        "docs/examples/agent-zero-main/.github/FUNDING.yml"
+      ],
+      "note": "Local repository snapshot confirms presence of CI metadata surface in imported Agent Zero example tree."
+    },
+    {
+      "id": "agent_zero_ci_benchmark_fields_external_source_derived",
+      "provenance_class": "external_docs_verified",
+      "evidence_paths": [
+        "docs/examples/agent-zero-main/.github/FUNDING.yml"
+      ],
+      "note": "Benchmark CI-field interpretation is derived from external competitor docs and pinned snapshots."
+    }
+  ]
+}
+

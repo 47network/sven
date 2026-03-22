@@ -1,0 +1,139 @@
+Load: 16.3 / 16.19 / 16.1
+CPU usage from 241040ms to 128ms ago (2026-02-18 04:19:10.353 to 2026-02-18 04:23:11.265):
+  8.4% 15740/com.google.android.gms.persistent: 6.3% user + 2.1% kernel / faults: 52554 minor 60 major
+  8.5% 4589/system_server: 5.4% user + 3.1% kernel / faults: 79767 minor 177 major
+  2.8% 15762/com.google.android.gms: 2.1% user + 0.7% kernel / faults: 45415 minor 230 major
+  0.3% 28/tz_worker_threa: 0% user + 0.3% kernel
+  1.1% 20373/adbd: 0.4% user + 0.6% kernel / faults: 17351 minor
+  0.4% 3954/lmkd: 0% user + 0.4% kernel / faults: 67 minor
+  0.4% 2067/sugov:0: 0% user + 0.4% kernel
+  0.3% 2068/sugov:4: 0% user + 0.3% kernel
+  0.4% 4858/com.android.systemui: 0.3% user + 0% kernel / faults: 9200 minor 5 major
+  0.3% 3953/logd: 0.1% user + 0.2% kernel / faults: 1143 minor 5 major
+  0% 4948/com.android.launcher3: 0% user + 0% kernel / faults: 8895 minor 40 major
+  0.2% 4204/statsd: 0% user + 0.1% kernel / faults: 433 minor 3 major
+  0.2% 20956/kworker/u16:6: 0% user + 0.2% kernel / faults: 35 minor
+  0.2% 17659/com.google.android.gms.unstable: 0.1% user + 0% kernel / faults: 8737 minor
+  0% 1137/kswapd0: 0% user + 0% kernel
+  0.2% 2467/decon0-vsync: 0% user + 0.2% kernel
+  0% 4399/installd: 0% user + 0% kernel / faults: 833 minor
+  0.2% 21234/logcat: 0.1% user + 0.1% kernel / faults: 49 minor
+  0.1% 18980/kworker/0:0H: 0% user + 0.1% kernel
+  0.2% 20067/kworker/u16:10: 0% user + 0.2% kernel / faults: 21 minor
+  0.2% 19912/kworker/u16:2: 0% user + 0.2% kernel / faults: 53 minor
+  0.1% 7401/android.hardware.display: 0.1% user + 0% kernel / faults: 264 minor
+  0% 4206/zygote64: 0% user + 0% kernel / faults: 4018 minor 1 major
+  0% 4391/cameraserver: 0% user + 0% kernel / faults: 127 minor
+  0% 4232/android.hardware.health-service.samsung: 0% user + 0% kernel / faults: 184 minor
+  0% 17972/com.android.vending:background: 0% user + 0% kernel / faults: 6282 minor 32 major
+  0% 21054/kworker/3:0H: 0% user + 0% kernel
+  0% 19881/kworker/0:0: 0% user + 0% kernel
+  0% 20026/kworker/2:1H: 0% user + 0% kernel
+  0% 4256/android.hardware.sensors-service.samsung-multihal: 0% user + 0% kernel / faults: 122 minor
+  0% 8/rcu_preempt: 0% user + 0% kernel
+  0% 7599/com.google.process.gapps: 0% user + 0% kernel / faults: 1144 minor 34 major
+  0% 20244/com.google.android.googlequicksearchbox:googleapp: 0% user + 0% kernel / faults: 1145 minor
+  0% 4165/f2fs_discard-25: 0% user + 0% kernel
+  0% 4303/surfaceflinger: 0% user + 0% kernel / faults: 978 minor 3 major
+  0% 5209/com.android.phone: 0% user + 0% kernel / faults: 3393 minor 5 major
+  0% 1/init: 0% user + 0% kernel / faults: 215 minor
+  0% 3955/servicemanager: 0% user + 0% kernel / faults: 246 minor
+  0% 4205/netd: 0% user + 0% kernel / faults: 744 minor
+  0% 7703/com.google.process.gservices: 0% user + 0% kernel / faults: 874 minor 31 major
+  0% 20862/kworker/u17:2: 0% user + 0% kernel
+  0% 2983/ueventd: 0% user + 0% kernel / faults: 340 minor
+  0% 7291/com.google.android.googlequicksearchbox:interactor: 0% user + 0% kernel / faults: 2516 minor 13 major
+  0% 20138/android.process.media: 0% user + 0% kernel / faults: 2386 minor
+  0% 7351/com.android.nfc: 0% user + 0% kernel / faults: 2208 minor 5 major
+  0% 19900/kworker/u17:0: 0% user + 0% kernel
+  0% 4146/keystore2: 0% user + 0% kernel / faults: 872 minor 31 major
+  0% 4231/android.hardware.graphics.composer@2.1-service: 0% user + 0% kernel / faults: 226 minor 2 major
+  0% 17265/kworker/3:3: 0% user + 0% kernel
+  0% 19808/kworker/1:0: 0% user + 0% kernel
+  0% 2164/irq/166-1198000: 0% user + 0% kernel
+  0% 4259/android.hardware.thermal@2.0-service.samsung: 0% user + 0% kernel / faults: 109 minor
+  0% 4421/gpsd: 0% user + 0% kernel / faults: 140 minor
+  0% 5123/com.android.networkstack.process: 0% user + 0% kernel / faults: 1245 minor
+  0% 5242/android.ext.services: 0% user + 0% kernel / faults: 1318 minor 8 major
+  0% 7328/com.android.providers.media.module: 0% user + 0% kernel / faults: 2653 minor 283 major
+  0% 4260/android.hardware.usb-service.samsung: 0% user + 0% kernel / faults: 52 minor
+  0% 4293/audioserver: 0% user + 0% kernel / faults: 301 minor
+  0% 20068/kworker/u18:1: 0% user + 0% kernel
+  0% 20727/kworker/2:0: 0% user + 0% kernel
+  0% 7/ksoftirqd/0: 0% user + 0% kernel
+  0% 9/rcu_sched: 0% user + 0% kernel
+  0% 12/tz_worker_threa: 0% user + 0% kernel
+  0% 22/tz_worker_threa: 0% user + 0% kernel
+  0% 34/tz_worker_threa: 0% user + 0% kernel
+  0% 40/tz_worker_threa: 0% user + 0% kernel
+  0% 46/tz_worker_threa: 0% user + 0% kernel
+  0% 52/tz_worker_threa: 0% user + 0% kernel
+  0% 1030/ion_system_heap: 0% user + 0% kernel
+  0% 4145/android.system.suspend@1.0-service: 0% user + 0% kernel / faults: 128 minor
+  0% 4147/android.hardware.keymaster@4.0-service.samsung: 0% user + 0% kernel / faults: 101 minor
+  0% 4424/vendor.samsung.hardware.gnss@2.0-service: 0% user + 0% kernel / faults: 83 minor
+  0% 19996/kworker/4:2H: 0% user + 0% kernel
+  0% 2/kthreadd: 0% user + 0% kernel
+  0% 16/tz_worker_threa: 0% user + 0% kernel
+  0% 36/ksoftirqd/4: 0% user + 0% kernel
+  0% 1579/tzlog: 0% user + 0% kernel
+  0% 1962/kworker/7:2: 0% user + 0% kernel
+  0% 2469/decon0: 0% user + 0% kernel
+  0% 3956/hwservicemanager: 0% user + 0% kernel / faults: 236 minor
+  0% 3957/vndservicemanager: 0% user + 0% kernel / faults: 45 minor
+  0% 3977/vold: 0% user + 0% kernel / faults: 150 minor
+  0% 4052/kworker/5:2: 0% user + 0% kernel
+  0% 4166/f2fs_gc-259:16: 0% user + 0% kernel
+  0% 4203/kworker/6:2: 0% user + 0% kernel
+  0% 4216/ip6tables-restore: 0% user + 0% kernel / faults: 145 minor
+  0% 4230/android.hardware.graphics.allocator@2.0-service: 0% user + 0% kernel / faults: 71 minor
+  0% 4274/android.hardware.wifi@1.0-service: 0% user + 0% kernel / faults: 49 minor
+  0% 4276/android.hardware.memtrack-service.samsung-mali: 0% user + 0% kernel / faults: 132 minor
+  0% 4379/traced_probes: 0% user + 0% kernel / faults: 32 minor
+  0% 4381/traced: 0% user + 0% kernel / faults: 145 minor
+  0% 4407/storaged: 0% user + 0% kernel / faults: 149 minor
+  0% 4422/rild: 0% user + 0% kernel / faults: 134 minor
+  0% 4775/wpa_supplicant: 0% user + 0% kernel / faults: 150 minor
+  0% 5909/kworker/4:2: 0% user + 0% kernel
+  0% 7433/com.x8bit.bitwarden: 0% user + 0% kernel / faults: 346 minor
+  0% 18710/kworker/7:1H: 0% user + 0% kernel
+  0% 19679/kworker/0:3: 0% user + 0% kernel
+  0% 19819/kworker/6:1H: 0% user + 0% kernel
+  0% 20055/kworker/1:1H: 0% user + 0% kernel
+  0% 20219/kworker/5:2H: 0% user + 0% kernel
+  0% 21189/kworker/3:1H: 0% user + 0% kernel
+  0% 21208/kworker/2:0H: 0% user + 0% kernel
+ +0% 21255/kworker/4:1H: 0% user + 0% kernel
+ +0% 21259/abb: 0% user + 0% kernel
+ +0% 21261/kworker/7:2H: 0% user + 0% kernel
+ +0% 21277/kworker/6:0H: 0% user + 0% kernel
+ +0% 21279/com.android.permissioncontroller: 0% user + 0% kernel
+ +0% 21363/kworker/u17:1: 0% user + 0% kernel
+ +0% 21382/kworker/6:0: 0% user + 0% kernel
+ +0% 21409/com.android.vending: 0% user + 0% kernel
+ +0% 21538/kworker/1:2H: 0% user + 0% kernel
+ +0% 21540/usap64: 0% user + 0% kernel
+ +0% 21541/usap64: 0% user + 0% kernel
+ +0% 21542/usap64: 0% user + 0% kernel
+ +0% 21543/usap64: 0% user + 0% kernel
+ +0% 21544/usap64: 0% user + 0% kernel
+ +0% 21577/kworker/3:2H: 0% user + 0% kernel
+ +0% 21579/kworker/0:1: 0% user + 0% kernel
+ +0% 21661/kworker/u17:3: 0% user + 0% kernel
+ +0% 21720/kworker/u17:4: 0% user + 0% kernel
+ +0% 21839/com.google.android.apps.restore: 0% user + 0% kernel
+ +0% 21875/com.google.android.apps.chromecast.app: 0% user + 0% kernel
+ +0% 21893/kworker/u16:0: 0% user + 0% kernel
+ +0% 21896/kworker/u17:5: 0% user + 0% kernel
+ +0% 21914/com.google.android.gms:snet: 0% user + 0% kernel
+ +0% 21980/kworker/2:1: 0% user + 0% kernel
+ +0% 22129/com.android.documentsui: 0% user + 0% kernel
+ +0% 22162/com.android.keychain: 0% user + 0% kernel
+ +0% 22225/com.android.externalstorage: 0% user + 0% kernel
+ +0% 22255/com.android.shell: 0% user + 0% kernel
+ +0% 22273/com.android.chrome: 0% user + 0% kernel
+ +0% 22332/com.android.packageinstaller: 0% user + 0% kernel
+ +0% 22387/kworker/0:1H: 0% user + 0% kernel
+ +0% 22388/kworker/2:2H: 0% user + 0% kernel
+ +0% 22413/dumpsys: 0% user + 0% kernel
+4.9% TOTAL: 3% user + 1.8% kernel + 0% iowait + 0% softirq

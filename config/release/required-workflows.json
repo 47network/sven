@@ -1,0 +1,23 @@
+{
+  "required_workflows": [
+    "final-dod-e2e",
+    "parity-e2e",
+    "d9-keycloak-interop-gate",
+    "release-ops-drill",
+    "mobile-auth-session-smoke",
+    "flutter-user-app-device-farm",
+    "desktop-tauri-release",
+    "ui-e2e-accessibility",
+    "gateway-coverage-gate",
+    "client-env-governance",
+    "deployment-pipeline",
+    "env-secrets-governance",
+    "security-baseline",
+    "onboarding-readiness",
+    "release-status",
+    "release-supply-chain",
+    "ops-shell-ci",
+    "bridge-runtime-tests",
+    "gateway-bridge-contract-tests"
+  ]
+}

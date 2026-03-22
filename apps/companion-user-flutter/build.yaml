@@ -1,0 +1,27 @@
+# build.yaml — build_runner configuration for sven_user_flutter
+#
+# Purpose: prevent `source_gen:combining_builder` from claiming (and therefore
+# deleting via --delete-conflicting-outputs) lib/app/database.g.dart, which is
+# hand-written because drift_dev conflicts with freezed over the `build`
+# package version.  See docs/adr/006-drift-local-db.md.
+#
+# When drift_dev's version conflict with freezed is resolved (likely in a
+# future sprint when freezed 3.x or drift_dev 3.x is adopted), this exclusion
+# can be removed and the file generated properly.
+
+targets:
+  $default:
+    builders:
+      # ── source_gen combining builder ──────────────────────────────────────
+      # Normally source_gen declares a .g.dart output for every .dart file it
+      # finds, even when no builder writes content for that file.  When
+      # --delete-conflicting-outputs is passed, it deletes the pre-existing
+      # hand-written database.g.dart before the non-existent drift_dev builder
+      # can regenerate it.  Excluding database.dart prevents that.
+      source_gen|combining_builder:
+        generate_for:
+          exclude:
+            - lib/app/database.dart
+
+      # ── freezed / json_serializable ────────────────────────────────────────
+      # These run normally; no changes needed.

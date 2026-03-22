@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-02-22T16:13:43.631Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "supply_chain_workflow_present",
+      "pass": true,
+      "detail": ".github/workflows/release-supply-chain.yml"
+    },
+    {
+      "id": "container_signing_workflow_present",
+      "pass": true,
+      "detail": ".github/workflows/release-container-signing.yml"
+    },
+    {
+      "id": "repo_sbom_output_present",
+      "pass": true,
+      "detail": "repository SBOM output file configured"
+    },
+    {
+      "id": "installer_sh_sbom_output_present",
+      "pass": true,
+      "detail": "install.sh SBOM output file configured"
+    },
+    {
+      "id": "installer_ps1_sbom_output_present",
+      "pass": true,
+      "detail": "install.ps1 SBOM output file configured"
+    },
+    {
+      "id": "installer_cmd_sbom_output_present",
+      "pass": true,
+      "detail": "install.cmd SBOM output file configured"
+    },
+    {
+      "id": "supply_chain_uploads_installer_sboms",
+      "pass": true,
+      "detail": "release-supply-chain uploads installer SBOM artifacts"
+    },
+    {
+      "id": "container_workflow_installs_syft",
+      "pass": true,
+      "detail": "release-container-signing installs syft"
+    },
+    {
+      "id": "container_workflow_generates_per_image_sboms",
+      "pass": true,
+      "detail": "release-container-signing generates SPDX SBOM per service image"
+    },
+    {
+      "id": "container_workflow_uploads_image_sboms",
+      "pass": true,
+      "detail": "release-container-signing uploads image SBOM files"
+    }
+  ]
+}

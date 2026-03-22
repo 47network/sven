@@ -1,0 +1,140 @@
+{
+  "generated_at": "2026-02-14T00:51:50.584Z",
+  "api_base": "https://app.sven.example.com",
+  "status": "pass",
+  "strict_mode": false,
+  "auth_mode": "admin_login",
+  "limits": {
+    "dashboard_p95_ms": 1500,
+    "dashboard_p99_ms": 2500,
+    "endpoint_error_rate_max": 0.1,
+    "aggregate_error_budget_max": 0.08
+  },
+  "warnings": [],
+  "aggregate": {
+    "requests": 32,
+    "errors": 0,
+    "error_rate": 0,
+    "dashboard_p95_ms": 84,
+    "dashboard_p99_ms": 84
+  },
+  "probes": [
+    {
+      "endpoint": "/healthz",
+      "requests": 8,
+      "success": 8,
+      "error": 0,
+      "success_rate": 1,
+      "error_rate": 0,
+      "latency_ms": {
+        "min": 7,
+        "p50": 8,
+        "p95": 84,
+        "p99": 84,
+        "max": 84
+      }
+    },
+    {
+      "endpoint": "/readyz",
+      "requests": 6,
+      "success": 6,
+      "error": 0,
+      "success_rate": 1,
+      "error_rate": 0,
+      "latency_ms": {
+        "min": 7,
+        "p50": 7,
+        "p95": 8,
+        "p99": 8,
+        "max": 8
+      }
+    },
+    {
+      "endpoint": "/v1/admin/approvals?status=pending&per_page=20",
+      "requests": 6,
+      "success": 6,
+      "error": 0,
+      "success_rate": 1,
+      "error_rate": 0,
+      "latency_ms": {
+        "min": 8,
+        "p50": 8,
+        "p95": 9,
+        "p99": 9,
+        "max": 9
+      }
+    },
+    {
+      "endpoint": "/v1/admin/runs?per_page=20",
+      "requests": 6,
+      "success": 6,
+      "error": 0,
+      "success_rate": 1,
+      "error_rate": 0,
+      "latency_ms": {
+        "min": 7,
+        "p50": 8,
+        "p95": 12,
+        "p99": 12,
+        "max": 12
+      }
+    },
+    {
+      "endpoint": "/v1/admin/incident/status",
+      "requests": 6,
+      "success": 6,
+      "error": 0,
+      "success_rate": 1,
+      "error_rate": 0,
+      "latency_ms": {
+        "min": 25,
+        "p50": 27,
+        "p95": 46,
+        "p99": 46,
+        "max": 46
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "dashboard_p95",
+      "pass": true,
+      "detail": "84 <= 1500"
+    },
+    {
+      "id": "dashboard_p99",
+      "pass": true,
+      "detail": "84 <= 2500"
+    },
+    {
+      "id": "aggregate_error_budget",
+      "pass": true,
+      "detail": "0 <= 0.08"
+    },
+    {
+      "id": "endpoint_error_rate:/healthz",
+      "pass": true,
+      "detail": "0 <= 0.1"
+    },
+    {
+      "id": "endpoint_error_rate:/readyz",
+      "pass": true,
+      "detail": "0 <= 0.1"
+    },
+    {
+      "id": "endpoint_error_rate:/v1/admin/approvals?status=pending&per_page=20",
+      "pass": true,
+      "detail": "0 <= 0.1"
+    },
+    {
+      "id": "endpoint_error_rate:/v1/admin/runs?per_page=20",
+      "pass": true,
+      "detail": "0 <= 0.1"
+    },
+    {
+      "id": "endpoint_error_rate:/v1/admin/incident/status",
+      "pass": true,
+      "detail": "0 <= 0.1"
+    }
+  ]
+}

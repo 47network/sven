@@ -1,0 +1,793 @@
+{
+  "generated_at": "2026-03-21T02:11:45.739Z",
+  "status": "provisional",
+  "execution": {
+    "strict": false,
+    "local_only": true,
+    "validation_mode": "local-only",
+    "authority": "local_diagnostic",
+    "target_ref": null,
+    "target_branch": null,
+    "target_sha": null,
+    "ops_shell_ci_required": false,
+    "ops_shell_ci_scope_source": "no_changed_files_detected",
+    "required_workflow_count": 19
+  },
+  "composite_release_gate": {
+    "status": "provisional",
+    "workflow_and_policy_status": "pass",
+    "domain_artifacts_status": "fail",
+    "required_domain_artifacts": {
+      "mobile_release_readiness": "pass",
+      "multi_device_validation": "missing"
+    }
+  },
+  "checks": [
+    {
+      "id": "remote_run_validation_verified",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): false (local-only mode skips remote workflow run verification)",
+      "local_only_override": true
+    },
+    {
+      "id": "mode_local_only_disallowed_in_strict",
+      "pass": true,
+      "detail": "ok (strict=false local_only=true)"
+    },
+    {
+      "id": "mode_env_local_only_disallowed_in_strict",
+      "pass": true,
+      "detail": "ok (strict=false env_local_only=false cli_local_only=true ci_context=false)"
+    },
+    {
+      "id": "target_sha_present_for_remote_strict",
+      "pass": true,
+      "detail": "not required (strict=false local_only=true)"
+    },
+    {
+      "id": "gh_workflow_list_available",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "ops_shell_ci_scope_evaluated",
+      "pass": true,
+      "detail": "no_changed_files_detected; changed=0; matched=0"
+    },
+    {
+      "id": "ops_shell_ci_required_when_scope_changed",
+      "pass": true,
+      "detail": "not required (scope clean)"
+    },
+    {
+      "id": "mobile_signal_scope_distinction",
+      "pass": true,
+      "detail": "mobile-auth-session-smoke => mobile_api_auth_session_smoke; flutter-user-app-device-farm => mobile_app_device_smoke; legacy_mobile_device_farm_in_required=false"
+    },
+    {
+      "id": "mobile_release_readiness_status_check",
+      "pass": true,
+      "detail": "mobile-release-readiness-latest.json status=pass"
+    },
+    {
+      "id": "multi_device_validation_status_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; status=(missing))"
+    },
+    {
+      "id": "workflow_file_local:final-dod-e2e.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:final-dod-e2e",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:final-dod-e2e",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:final-dod-e2e",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "final-dod-e2e",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/final-dod-e2e.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:parity-e2e.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:parity-e2e",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:parity-e2e",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:parity-e2e",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "parity-e2e",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/parity-e2e.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:d9-keycloak-interop-gate.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:d9-keycloak-interop-gate",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:d9-keycloak-interop-gate",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:d9-keycloak-interop-gate",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "d9-keycloak-interop-gate",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/d9-keycloak-interop-gate.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:release-ops-drill.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:release-ops-drill",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:release-ops-drill",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:release-ops-drill",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "release-ops-drill",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/release-ops-drill.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:mobile-auth-session-smoke.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:mobile-auth-session-smoke",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:mobile-auth-session-smoke",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:mobile-auth-session-smoke",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "mobile-auth-session-smoke",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/mobile-auth-session-smoke.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:flutter-user-app-device-farm.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:flutter-user-app-device-farm",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:flutter-user-app-device-farm",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:flutter-user-app-device-farm",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "flutter-user-app-device-farm",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/flutter-user-app-device-farm.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:desktop-tauri-release.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:desktop-tauri-release",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:desktop-tauri-release",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:desktop-tauri-release",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "desktop-tauri-release",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/desktop-tauri-release.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:ui-e2e-accessibility.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:ui-e2e-accessibility",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:ui-e2e-accessibility",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:ui-e2e-accessibility",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "ui-e2e-accessibility",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/ui-e2e-accessibility.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:gateway-coverage-gate.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:gateway-coverage-gate",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:gateway-coverage-gate",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:gateway-coverage-gate",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "gateway-coverage-gate",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/gateway-coverage-gate.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:client-env-governance.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:client-env-governance",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:client-env-governance",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:client-env-governance",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "client-env-governance",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/client-env-governance.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:deployment-pipeline.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:deployment-pipeline",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:deployment-pipeline",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:deployment-pipeline",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "deployment-pipeline",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/deployment-pipeline.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:env-secrets-governance.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:env-secrets-governance",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:env-secrets-governance",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:env-secrets-governance",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "env-secrets-governance",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/env-secrets-governance.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:security-baseline.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:security-baseline",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:security-baseline",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:security-baseline",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "security-baseline",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/security-baseline.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:onboarding-readiness.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:onboarding-readiness",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:onboarding-readiness",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:onboarding-readiness",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "onboarding-readiness",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/onboarding-readiness.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:release-status.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:release-status",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:release-status",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:release-status",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "release-status",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/release-status.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:release-supply-chain.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:release-supply-chain",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:release-supply-chain",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:release-supply-chain",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "release-supply-chain",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/release-supply-chain.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:ops-shell-ci.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:ops-shell-ci",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:ops-shell-ci",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:ops-shell-ci",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "ops-shell-ci",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/ops-shell-ci.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:bridge-runtime-tests.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:bridge-runtime-tests",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:bridge-runtime-tests",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:bridge-runtime-tests",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "bridge-runtime-tests",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/bridge-runtime-tests.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "workflow_file_local:gateway-bridge-contract-tests.yml",
+      "pass": true,
+      "detail": "present locally"
+    },
+    {
+      "id": "workflow_identity_unambiguous:gateway-bridge-contract-tests",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "workflow_present:gateway-bridge-contract-tests",
+      "pass": true,
+      "detail": "present locally (local-only mode)"
+    },
+    {
+      "id": "latest_run_success:gateway-bridge-contract-tests",
+      "pass": true,
+      "detail": "skipped run check (local-only mode)",
+      "provenance": {
+        "mode": "local_only",
+        "workflow": "gateway-bridge-contract-tests",
+        "workflow_id": null,
+        "workflow_path": ".github/workflows/gateway-bridge-contract-tests.yml",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": null
+      }
+    },
+    {
+      "id": "security_runtime_e2e_status_check",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "parity_checklist_verify",
+      "pass": true,
+      "detail": "skipped (local-only mode; status=fail)"
+    },
+    {
+      "id": "parity_all_waves_closeout",
+      "pass": true,
+      "detail": "ok (status=pass)"
+    },
+    {
+      "id": "final_dod_execution_check",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "final_dod_execution_live_checks_executed",
+      "pass": true,
+      "detail": "skipped (local-only mode)"
+    },
+    {
+      "id": "mcp_server_compat_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): skipped (local-only mode; live MCP compatibility checks are CI-authoritative)",
+      "local_only_override": true
+    },
+    {
+      "id": "a2a_compat_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): skipped (local-only mode; live A2A compatibility checks are CI-authoritative)",
+      "local_only_override": true
+    },
+    {
+      "id": "mcp_compat_live_checks_executed",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): true",
+      "local_only_override": true
+    },
+    {
+      "id": "a2a_compat_live_checks_executed",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): true",
+      "local_only_override": true
+    },
+    {
+      "id": "resumable_stream_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "web_egress_security_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "quarantine_isolation_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "seed_baseline_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=pass)",
+      "local_only_override": true
+    },
+    {
+      "id": "soak_hardware_evidence_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "benchmark_suite_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; benchmark suite is CI-authoritative)"
+    },
+    {
+      "id": "competitor_runtime_guard_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; competitor runtime guard is CI-authoritative)"
+    },
+    {
+      "id": "websocket_contract_check",
+      "pass": true,
+      "detail": "ok (status=pass)"
+    },
+    {
+      "id": "external_input_resolution_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "release_candidate_package_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "operability_auth_suite_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "performance_e2e_status_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): skipped (local-only mode; performance e2e status is CI-authoritative)",
+      "local_only_override": true
+    },
+    {
+      "id": "admin_rbac_penetration_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "runbook_scenario_matrix_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "traceability_matrix_check",
+      "pass": true,
+      "detail": "ok (status=pass)"
+    },
+    {
+      "id": "third_checklist_integration_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "staging_migration_verification_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "runbook_scope_update_check",
+      "pass": true,
+      "detail": "ok (status=pass)"
+    },
+    {
+      "id": "feature_flag_governance_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    },
+    {
+      "id": "release_evidence_bundle_check",
+      "pass": true,
+      "detail": "skipped (local-only mode; requires live environment validation): ok (status=fail)",
+      "local_only_override": true
+    }
+  ]
+}

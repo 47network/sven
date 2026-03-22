@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI help snapshot contract prints stable help surface 1`] = `
+"Sven CLI
+
+Usage:
+  sven --help
+  sven --version
+  sven --profile <name> [--format <text|json|ndjson>] [--trace] <command>
+  sven gateway status [--url <gateway_url>] [--json]
+  sven doctor [--url <gateway_url>] [--json]
+  sven install [--mode <none|systemd|launchd|pm2|auto>] [--dry-run] [--json]
+  sven wizard [--output <path>] [--resume] [--state <path>] [--json]
+  sven onboard [--output <path>] [--resume] [--state <path>] [--json]
+  sven agent --message "<text>" --channel <channel> --chat-id <chat_id> --sender-identity-id <identity_id> [--url <gateway_url>] [--adapter-token <token>] [--json]
+  sven send --message "<text>" --channel <channel> --chat-id <chat_id> --sender-identity-id <identity_id> [--to <channel:chat_id>] [--file <path_or_url>] [--url <gateway_url>] [--adapter-token <token>] [--json]
+  sven channels list [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven channels login <channel> [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven skills list [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven skills install <slug_or_id> --tool-id <tool_id> [--trust-level <quarantined|internal|trusted>] [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven plugins import-openclaw <manifest_url> [--out <dir>] [--slug <slug>] [--json]
+  sven approvals list [--status <pending|approved|denied|expired>] [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven pairing list [--status <pending|approved|denied|expired>] [--channel <name>] [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven pairing approve <channel> <code> [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven pairing deny <channel> <code> [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven update [--service <service_name>] [--channel <stable|beta|dev>] [--cli-only|--gateway-only] [--yes] [--dry-run] [--json]
+  sven config get <key> [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven config set <key> <value> [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven config validate [--config <path>] [--json]
+  sven config print [--config <path>] [--json]
+  sven souls list [--search <query>] [--installed] [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven souls install <slug> [--activate] [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+  sven auth login-device [--url <gateway_url>] [--poll-seconds <n>] [--json]
+  sven auth set-cookie <cookie> [--json]
+  sven auth set-adapter-token <token> [--json]
+  sven auth clear [--json]
+  sven auth status [--json]
+  sven exit-codes [--json]
+  sven security audit [--fix] [--url <gateway_url>] [--cookie <session_cookie>] [--json]
+
+Environment:
+  SVEN_GATEWAY_URL
+  SVEN_ADAPTER_TOKEN
+  SVEN_PROFILE
+  SVEN_OUTPUT_FORMAT
+  SVEN_TRACE=1"
+`;

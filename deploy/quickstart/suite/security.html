@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sven Security | Trust and Governance</title>
+  <meta name="description" content="Sven trust model, governance controls, and security baseline." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/suite/assets/suite.css" />
+  <link rel="icon" href="/suite/assets/sven-logo.png" type="image/png" />
+</head>
+<body>
+  <header class="top">
+    <div class="wrap row">
+      <a class="brand" href="/"><img src="/suite/assets/sven-logo.png" alt="Sven logo" /><span>Sven</span></a>
+      <nav class="nav">
+        <a href="/suite">Suite</a>
+        <a href="/suite/platform">Platform</a>
+        <a href="/suite/features">Features</a>
+        <a href="/suite/security">Security</a>
+        <a href="/suite/docs">Docs</a>
+        <a href="/suite/enterprise">Enterprise</a>
+        <a href="/suite/roadmap">Roadmap</a>
+      </nav>
+      <a class="cta" href="https://app.sven.example.com/community" data-runtime-path="/community">Community</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero hero-split">
+      <div>
+        <span class="kicker"><span class="dot"></span> Security</span>
+        <h1>Security posture is policy-first and evidence-backed.</h1>
+        <p class="sub">Sven enforces trust through layered controls: identity gating, runtime policy checks, release gates, and observable status/evidence surfaces.</p>
+      </div>
+      <aside class="hero-panel hero-security">
+        <p class="hero-panel-title">Trust Layers</p>
+        <ul class="list">
+          <li>Identity-gated access for sensitive community flows</li>
+          <li>Policy constraints for runtime actions and tooling</li>
+          <li>Release checklist gates to block unsupported claims</li>
+          <li>Public proof endpoints for transparency and auditability</li>
+        </ul>
+        <div class="signal-grid">
+          <div class="signal"><span class="k">Access</span><span class="v">Verified</span><span class="bar"></span></div>
+          <div class="signal"><span class="k">Policy</span><span class="v">Enforced</span><span class="bar"></span></div>
+          <div class="signal"><span class="k">Proof</span><span class="v">Public</span><span class="bar"></span></div>
+        </div>
+        <p class="hero-panel-note">Security posture is built to be explainable to operators and auditable by design.</p>
+      </aside>
+    </section>
+
+    <section class="section">
+      <h2>Trust model layers</h2>
+      <div class="grid cols-3" style="margin-top:14px">
+        <article class="card"><span class="badge ok">Identity</span><h3>Verified access</h3><p>Community and privileged operations use gated identity and admin-reviewed enrollment paths.</p></article>
+        <article class="card"><span class="badge ok">Policy</span><h3>Runtime controls</h3><p>Action lanes and automated tasks respect policy decisions, permission scope, and reviewability constraints.</p></article>
+        <article class="card"><span class="badge warn">Governance</span><h3>Release gates</h3><p>Strict parity/checklist/status gates prevent unsupported claims from being promoted as complete.</p></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Baseline checkpoints</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Control</th><th>Intent</th><th>Current signal</th></tr></thead>
+          <tbody>
+            <tr><td>TLS edge ingress</td><td>Encrypted ingress and route segmentation</td><td>configured</td></tr>
+            <tr><td>Public API boundary</td><td>Expose only approved public evidence endpoints</td><td>enforced by nginx paths</td></tr>
+            <tr><td>Identity-gated community</td><td>Reduce abuse and improve trust quality</td><td id="ev-community">loading</td></tr>
+            <tr><td>Parity + release verifiers</td><td>Proof over claims</td><td>tracked in release docs</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Security response cockpit</h2>
+      <p class="lead">Explore how Sven maps common risk classes to explicit platform controls and operational responses.</p>
+      <div class="topology">
+        <div class="segment-controls" data-segment-group="security-cockpit">
+          <button class="segment-btn active" type="button" data-segment-target="sec-access">Access abuse</button>
+          <button class="segment-btn" type="button" data-segment-target="sec-runtime">Runtime misuse</button>
+          <button class="segment-btn" type="button" data-segment-target="sec-governance">Governance drift</button>
+        </div>
+
+        <div class="segment-panel active" id="sec-access">
+          <div class="threat-grid">
+            <article class="threat-card"><span class="k">Risk class</span><div class="v">Unverified account entry</div><p>Community participation is identity-gated with admin review and explicit acceptance criteria.</p></article>
+            <article class="threat-card"><span class="k">Control</span><div class="v">Route segmentation</div><p>Public and privileged surfaces are split so sensitive paths are not exposed on public routes.</p></article>
+            <article class="threat-card"><span class="k">Operator response</span><div class="v">Access review loop</div><p>Operators can pause access lanes and review onboarding evidence before reactivation.</p></article>
+          </div>
+        </div>
+
+        <div class="segment-panel" id="sec-runtime">
+          <div class="threat-grid">
+            <article class="threat-card"><span class="k">Risk class</span><div class="v">Unbounded action execution</div><p>Task lanes run through policy checks to constrain tools and enforce scoped execution.</p></article>
+            <article class="threat-card"><span class="k">Control</span><div class="v">Gateway policy boundary</div><p>Central runtime decisions stay reviewable and consistent across surfaces.</p></article>
+            <article class="threat-card"><span class="k">Operator response</span><div class="v">Lane disable + audit</div><p>Unsafe patterns can be isolated while evidence is inspected and policies adjusted.</p></article>
+          </div>
+        </div>
+
+        <div class="segment-panel" id="sec-governance">
+          <div class="threat-grid">
+            <article class="threat-card"><span class="k">Risk class</span><div class="v">Claim/evidence mismatch</div><p>Release closure is blocked when required lifecycle or parity gates lack passing proof.</p></article>
+            <article class="threat-card"><span class="k">Control</span><div class="v">Strict checklist verifier</div><p>Operational lanes are validated with scriptable checks and freshness expectations.</p></article>
+            <article class="threat-card"><span class="k">Operator response</span><div class="v">Status reconciliation</div><p>Update artifacts and rerun strict gates before promoting state as complete.</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Live security-related evidence</h2>
+      <div class="grid cols-4" style="margin-top:14px">
+        <div class="card"><div class="kv"><span class="k">Capability proof</span><span class="v" id="ev-capability">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Wave lanes</span><span class="v" id="ev-waves">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Doc-agent feed</span><span class="v" id="ev-feed">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Readiness</span><span class="v" id="ev-readiness">Loading...</span></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap foot"><div class="muted">Sven Security • <span id="suite-year"></span></div><div class="muted">Trust model with operational checkpoints</div></div></footer>
+  <script src="/suite/assets/suite.js"></script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,55 @@
+appId: com.example.sven_user_flutter
+name: "Android — Settings sheet flow"
+tags:
+  - settings
+  - android
+---
+# ── Precondition: app is running and user is signed in ────────────────────────
+- launchApp:
+    clearState: false
+
+- assertVisible:
+    text: "Sven"
+    enabled: true
+
+- takeScreenshot: android-settings-01-home
+
+# ── Open settings ─────────────────────────────────────────────────────────────
+- tapOn:
+    id: "settings_icon_button"
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    text: "Settings"
+
+- takeScreenshot: android-settings-02-sheet-open
+
+# ── Verify key settings tiles ─────────────────────────────────────────────────
+- assertVisible:
+    text: "Appearance"
+
+- assertVisible:
+    text: "Notifications"
+
+- assertVisible:
+    text: "Two-factor authentication"
+
+- takeScreenshot: android-settings-03-tiles-visible
+
+# ── Scroll down in settings ───────────────────────────────────────────────────
+- scroll:
+    direction: DOWN
+    speed: 40
+    duration: 1500
+
+- takeScreenshot: android-settings-04-scrolled
+
+# ── Dismiss settings sheet ────────────────────────────────────────────────────
+- swipe:
+    direction: DOWN
+    duration: 500
+
+- waitForAnimationToEnd
+
+- takeScreenshot: android-settings-05-dismissed

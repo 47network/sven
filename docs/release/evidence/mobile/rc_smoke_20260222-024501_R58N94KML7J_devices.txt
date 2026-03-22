@@ -1,0 +1,3 @@
+﻿List of devices attached
+R58N94KML7J            device product:lineage_a51 model:SM_A515F device:a51 transport_id:2
+

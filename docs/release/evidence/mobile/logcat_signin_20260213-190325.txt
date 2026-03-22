@@ -1,0 +1,321 @@
+--------- beginning of main
+02-13 19:03:30.673 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: 'fc87d509526ca4c134c657237a249ac88fa474c6bd99a36d',
+02-13 19:03:30.673 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:30.673 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+--------- beginning of kernel
+02-13 19:03:27.443     0     0 I [1:    logd.reader: 3952] logd: logdr: UID=2000 GID=2000 PID=3304 b tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+02-13 19:03:30.730 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:32.048  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:29.440     0     0 I [6:            cmd: 3311] binder: 3311:3311 ioctl 40046210 7fc497c680 returned -22
+02-13 19:03:32.783  4198  5676 I audio_hw_primary: fast_out-out_write: transited to Ready
+02-13 19:03:32.784  4198  5676 I audio_hw_primary: fast_out-out_write: try to route for playback
+02-13 19:03:32.784  4198  5676 I audio_hw_proxy_9610: proxy-proxy_set_route: disable fm radio path
+02-13 19:03:32.785  4198  5676 I audio_hw_proxy_9610: proxy-proxy_set_mixercontrol: set Mixer Control(ABOX Tickle) to 1
+02-13 19:03:32.785  4198  5676 I audio_route: > audio_route_apply_path : "media-speaker"
+02-13 19:03:32.785  4198  5676 I audio_route: > audio_route_update_path + : "media-speaker" reverse(0)
+02-13 19:03:32.786  4198  5676 I audio_route: > audio_route_update_path + : path length = 10
+02-13 19:03:29.503     0     0 I         : [3:         writer: 5676] tas2562 7-004c: tas2562_get_left_speaker_switch, p_u_control = 0
+02-13 19:03:29.503     0     0 I         : [3:         writer: 5676] tas2562 7-004c: tas2562_set_left_speaker_switch, spk_l_control = 0
+02-13 19:03:32.798  4198  5676 I audio_hw_proxy_9610: proxy-set_route: routed to media-speaker
+02-13 19:03:32.798  4198  5676 I audio_route: > audio_route_apply_path : "gain-media-speaker"
+02-13 19:03:32.798  4198  5676 I audio_route: > audio_route_update_path + : "gain-media-speaker" reverse(0)
+02-13 19:03:32.798  4198  5676 I audio_route: > audio_route_update_path + : path length = 0
+02-13 19:03:32.799  4198  5676 I audio_hw_proxy_9610: proxy-set_route: set gain as gain-media-speaker
+02-13 19:03:32.804  4198  5676 I audio_hw_proxy_9610: proxy-enable_spkamp_playback: SPKAMP Playback PCM Device(/dev/snd/pcmC0D7p) with SR(48000) PF(0) CC(2) is opened
+02-13 19:03:29.518     0     0 I         : [3:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: UAIF2-0: 0x12: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x0040000)
+02-13 19:03:29.518     0     0 I         : [3:         writer: 5676] tas2562 7-004c: tas2562_set_bitwidth 2
+02-13 19:03:29.520     0     0 I         : [1:         writer: 5676] tas2562 7-004c: tas2562_iv_slot_config, 16
+02-13 19:03:29.521     0     0 I         : [1:         writer: 5676] tas2562 7-004c: mn_ch_size: 16
+02-13 19:03:29.521     0     0 I         : [1:         writer: 5676] tas2562 7-004c: tas2562_hw_params, sample rate: 48000
+02-13 19:03:29.522     0     0 I         : [5:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: RDMA7-0: 0x7: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x0040080)
+02-13 19:03:29.523     0     0 I         : [7:         writer: 5676] tas2562 7-004c: SND_SOC_DAPM_POST_PMU
+02-13 19:03:29.523     0     0 I         : [7:         writer: 5676] Exynos9610-audio sound: vogue_speaker ev: 2
+02-13 19:03:29.524     0     0 I         : [3:         writer: 5676] tas2562 7-004c: set power state: 0
+02-13 19:03:29.524     0     0 I         : [3:         writer: 5676] tas2562 7-004c: INV format: NBNF
+02-13 19:03:29.525     0     0 E         : I[0:           adbd:28058] [SYNC_IPC] abox_synchronized_ipc_handler: unknown response type, RES_ID = 1234
+02-13 19:03:29.525     0     0 E         : I[0:           adbd:28058] [SYNC_IPC] abox_synchronized_ipc_handler: unknown response type, RES_ID = 1234
+02-13 19:03:29.527     0     0 I         : [1:         writer: 5676] tas2562 7-004c: IRQ reg is: tas2562_set_power_state 0, 354
+02-13 19:03:29.527     0     0 I         : [1:         writer: 5676] tas2562 7-004c: IRQ reg is: tas2562_set_power_state 0, 358
+02-13 19:03:32.813  4198  5676 I audio_hw_proxy_9610: proxy-enable_spkamp_playback: SPKAMP Playback PCM Device(/dev/snd/pcmC0D7p) with SR(48000) PF(0) CC(2) is started
+02-13 19:03:32.814  4198  5676 I audio_hw_proxy_9610: proxy-enable_erap_in: ERAP In PCM Device(/dev/snd/pcmC0D11c) with SR(48000) PF(0) CC(2) is opened
+02-13 19:03:29.532     0     0 I         : [4:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: UAIF4-1: 0x13: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c0080)
+02-13 19:03:29.532     0     0 I         : [4:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: WDMA3-1: 0xb: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c0880)
+02-13 19:03:32.817  4198  5676 I audio_hw_proxy_9610: proxy-enable_erap_in: ERAP In PCM Device(/dev/snd/pcmC0D11c) with SR(48000) PF(0) CC(2) is started
+02-13 19:03:29.536     0     0 I         : [0:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: UAIF2-1: 0x12: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c0880)
+02-13 19:03:29.536     0     0 I         : [0:         writer: 5676] tas2562 7-004c: tas2562_set_bitwidth 2
+02-13 19:03:29.539     0     0 I         : [1:         writer: 5676] tas2562 7-004c: tas2562_iv_slot_config, 16
+02-13 19:03:32.824  4198  5676 I audio_hw_proxy_9610: proxy-enable_spkamp_reference: SPKAMP Reference PCM Device(/dev/snd/pcmC0D12c) with SR(48000) PF(0) CC(2) is opened
+02-13 19:03:29.540     0     0 I         : [3:         writer: 5676] tas2562 7-004c: mn_ch_size: 16
+02-13 19:03:29.540     0     0 I         : [3:         writer: 5676] tas2562 7-004c: tas2562_hw_params, sample rate: 48000
+02-13 19:03:29.541     0     0 I         : [0:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: WDMA4-1: 0xc: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c1880)
+02-13 19:03:32.827  4198  5676 I audio_hw_proxy_9610: proxy-enable_spkamp_reference: SPKAMP Reference PCM Device(/dev/snd/pcmC0D12c) with SR(48000) PF(0) CC(2) is started
+02-13 19:03:32.827  4198  5676 I audio_hw_primary: fast_out-adev_set_route-1: routes to device(speaker) for usage(media)
+02-13 19:03:32.829  4198  5676 I audio_hw_proxy_9610: fast_out-proxy_open_playback_stream: The opened PCM Device is /dev/snd/pcmC0D2p with Sampling_Rate(48000) PCM_Format(0)
+02-13 19:03:32.829  4198  5676 I audio_hw_primary: fast_out-out_write: transited to Idle
+02-13 19:03:32.834  4198  5676 I audio_hw_primary: fast_out-out_write: transited to Playing
+02-13 19:03:29.546     0     0 I         : [1:         writer: 5676] Exynos9610-audio sound: exynos9610_rt5665_hw_params: BCLK Enable
+02-13 19:03:29.546     0     0 I         : [1:         writer: 5676] Exynos9610-audio sound: exynos9610_rt5665_hw_params: uaifp_cnt 1, uaifc_cnt 0
+02-13 19:03:29.546     0     0 I         : [1:         writer: 5676] Exynos9610-audio sound: exynos9610_rt5665_hw_params: UAIF0-0 2ch, 48000Hz, 16bit, 1536bytes (pcm_state: 0x00d1880)
+02-13 19:03:29.546     0     0 I         : [1:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: RDMA2-0: 0x2: hw_params: 2ch, 48000Hz, 1536bytes, 16bit (pcm_state: 0x00d1884)
+02-13 19:03:29.570     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: irq_work_routine
+02-13 19:03:29.571     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: IRQ reg is: irq_work_routine 0, 724
+02-13 19:03:29.572     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: IRQ reg is: irq_work_routine 0, 728
+02-13 19:03:29.572     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: set ICN to -80dB
+02-13 19:03:29.573     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: IRQ reg is: irq_work_routine, 0, 758
+02-13 19:03:29.573     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: IRQ reg is: irq_work_routine 0, 762
+02-13 19:03:33.041  4302  4352 W TransactionTracing: Could not find layer id -1
+02-13 19:03:29.861     0     0 I [1:  kworker/u16:1:28079] fps_et7xx_work_func_debug: ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-13 19:03:33.182 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: '453146fa2ffbd806913d1f7d02529180848c1b4384bac650',
+02-13 19:03:33.182 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:33.182 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:33.214 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:33.581 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: 'f85c6275cc5e0acb1f7b69f38fa2f3db20acd955f9ad5294',
+02-13 19:03:33.581 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:33.581 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:33.641 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:30.530     0     0 I [2:      watchdogd: 3957] softdog: softdog_ping: 30
+02-13 19:03:34.048  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:35.420 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: '9248f2a1c5671b9f853823f8446831724529bb0e81052514',
+02-13 19:03:35.420 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:35.420 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:35.486 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:35.738 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: 'fc87d509526ca4c134c657237a249ac88fa474c6bd99a36d',
+02-13 19:03:35.738 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:35.738 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:35.796 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:35.925  4198  4198 I audio_hw_primary: fast_out-out_standby: transited to Idle
+02-13 19:03:32.644     0     0 I         : [5:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: RDMA2-0 (pcm_state: 0x00d1880)
+02-13 19:03:32.644     0     0 I         : [5:  binder:4198_2: 4198] Exynos9610-audio sound: exynos9610_rt5665_hw_free: UAIF0-0 (pcm_state: 0x00c1880)
+02-13 19:03:32.644     0     0 I         : [5:  binder:4198_2: 4198] Exynos9610-audio sound: exynos9610_rt5665_hw_free: BCLK Disable
+02-13 19:03:32.644     0     0 I         : [5:  binder:4198_2: 4198] Exynos9610-audio sound: exynos9610_rt5665_hw_free: uaifp_cnt 0, uaifc_cnt 0
+02-13 19:03:35.932  4198  4198 I audio_hw_proxy_9610: fast_out-proxy_close_playback_stream: closed PCM Device
+02-13 19:03:35.932  4198  4198 I audio_hw_primary: fast_out-out_standby: transited to Standby
+02-13 19:03:35.932  4198  4198 I audio_hw_primary: fast_out-out_standby: try to unroute for standby
+02-13 19:03:32.650     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: WDMA3-1 (pcm_state: 0x00c1080)
+02-13 19:03:35.937  4198  4198 I audio_hw_proxy_9610: proxy-disable_erap_in: ERAP In PCM Device(/dev/snd/pcmC0D11c) is stopped & closed!
+02-13 19:03:32.651     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: UAIF4-1 (pcm_state: 0x0041080)
+02-13 19:03:32.655     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: WDMA4-1 (pcm_state: 0x0040080)
+02-13 19:03:32.655     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: UAIF2-1 (pcm_state: 0x0000080)
+02-13 19:03:35.942  4198  4198 I audio_hw_proxy_9610: proxy-disable_spkamp_reference: SPKAMP Reference PCM Device(/dev/snd/pcmC0D12c) is stopped & closed!
+02-13 19:03:32.659     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: RDMA7-0 (pcm_state: 0x0000000)
+02-13 19:03:32.660     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: set power state: 2
+02-13 19:03:32.660     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: cancel timer
+02-13 19:03:32.686     0     0 E         : I[0:      swapper/0:    0] [SYNC_IPC] abox_synchronized_ipc_handler: unknown response type, RES_ID = 1234
+02-13 19:03:32.686     0     0 E [5:  binder:4198_2: 4198] [TI-SmartPA: tas25xx_update_big_data] Emax[0] 48919384(00.02), Tmax[0] 33, EOcount[0] 0, TOcount[0] 0
+02-13 19:03:32.687     0     0 I         : [5:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: UAIF2-0 (pcm_state: 0x0000000)
+02-13 19:03:32.691     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_speaker ev: 4
+02-13 19:03:32.691     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: SND_SOC_DAPM_PRE_PMD
+02-13 19:03:35.974  4198  4198 I audio_hw_proxy_9610: proxy-disable_spkamp_playback: SPKAMP Playback PCM Device(/dev/snd/pcmC0D7p) is stopped & closed!
+02-13 19:03:35.974  4198  4198 I audio_route: > audio_route_update_path + : "media-speaker" reverse(1)
+02-13 19:03:35.974  4198  4198 I audio_route: > audio_route_update_path + : path length = 10
+02-13 19:03:35.980  4198  4198 I audio_hw_proxy_9610: proxy-reset_route: unrouted media-speaker
+02-13 19:03:35.980  4198  4198 I audio_route: > audio_route_update_path + : "gain-media-speaker" reverse(1)
+02-13 19:03:35.980  4198  4198 I audio_route: > audio_route_update_path + : path length = 0
+02-13 19:03:35.980  4198  4198 I audio_hw_proxy_9610: proxy-reset_route: reset gain gain-media-speaker
+02-13 19:03:35.980  4198  4198 I audio_hw_primary: fast_out-adev_set_route-1: unroutes to device(speaker) for usage(media)
+02-13 19:03:32.697     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: tas2562_get_left_speaker_switch, p_u_control = 0
+02-13 19:03:32.697     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: tas2562_set_left_speaker_switch, spk_l_control = 1
+02-13 19:03:36.049  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:33.342     0     0 W [1:       wificond: 4387] slsi_mlme_get_sinfo_mib: 2 callbacks suppressed
+02-13 19:03:38.050  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:38.230 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: '453146fa2ffbd806913d1f7d02529180848c1b4384bac650',
+02-13 19:03:38.230 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:38.230 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:38.294 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:38.647 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: 'f85c6275cc5e0acb1f7b69f38fa2f3db20acd955f9ad5294',
+02-13 19:03:38.647 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:38.647 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:38.712 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:40.051  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:40.504 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: '9248f2a1c5671b9f853823f8446831724529bb0e81052514',
+02-13 19:03:40.504 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:40.504 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:40.568 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:40.804 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: 'fc87d509526ca4c134c657237a249ac88fa474c6bd99a36d',
+02-13 19:03:40.804 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:40.804 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:40.861 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:40.977  3331  3331 I AndroidRuntime: Using default boot image
+02-13 19:03:40.977  3331  3331 I AndroidRuntime: Leaving lock profiling enabled
+02-13 19:03:40.981  3331  3331 W app_process: ART APEX data files are untrusted.
+02-13 19:03:40.981  3331  3331 I app_process: Core platform API reporting enabled, enforcing=false
+02-13 19:03:41.136  3331  3331 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2555718838])
+02-13 19:03:37.891     0     0 I [5:           main: 3331] binder: 3331:3331 ioctl 40046210 7fdaf82140 returned -22
+--------- beginning of system
+02-13 19:03:41.186  4571 10562 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:03:41.196  4571  5440 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:03:41.217  4302  4352 W TransactionTracing: Could not find layer handle 0x77e74ce9d0
+02-13 19:03:42.051  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:42.199  3331  3331 W libc    : Access denied finding property "qemu.sf.lcd_density"
+02-13 19:03:42.199  3331  3331 W libc    : Access denied finding property "qemu.sf.lcd_density"
+02-13 19:03:42.213  5805  6084 W MediaProvider: isAppCloneUserPair failed. Users: 0 and 0
+02-13 19:03:42.213  5805  6084 W MediaProvider: isAppCloneUserPair for user 0: false
+02-13 19:03:42.366  3331  3331 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@184d6; boundsInParent: Rect(0, 0 - 1022, 118); boundsInScreen: Rect(29, 2440 - 1051, 2400); packageName: ai.sven.companion; className: android.view.ViewGroup; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:03:42.373  3331  3331 W AccessibilityNodeInfoDumper: Fetch time: 169ms
+02-13 19:03:42.383  4571  5440 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:03:39.106     0     0 I [1:    uiautomator: 3331] binder: 3331:3331 ioctl 40046210 7fdaf82324 returned -22
+02-13 19:03:42.393  4571  4571 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:03:42.401  4302  4352 W TransactionTracing: Could not find layer handle 0x77e74c49b0
+02-13 19:03:39.386     0     0 W [0:       wificond: 4387] slsi_mlme_get_sinfo_mib: 2 callbacks suppressed
+02-13 19:03:43.308 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: '453146fa2ffbd806913d1f7d02529180848c1b4384bac650',
+02-13 19:03:43.308 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:43.308 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:43.383 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:40.148     0     0 I [3:            cmd: 3362] binder: 3362:3362 ioctl 40046210 7fc1951440 returned -22
+02-13 19:03:40.175     0     0 E [3:  kworker/u16:5:24033] sec_bat_get_battery_info: Fail to set psy ((null))
+02-13 19:03:40.177     0     0 I         : [3:  kworker/u16:5:24033] sec-battery battery: sec_bat_get_value_by_adc:[2] Temp(314), Temp-ADC(1754)
+02-13 19:03:40.178     0     0 I         : [3:  kworker/u16:5:24033] sec-battery battery: sec_bat_get_value_by_adc:[6] Temp(316), Temp-ADC(1671)
+02-13 19:03:40.180     0     0 I         : [3:  kworker/u16:5:24033] sm5713-charger sm5713-charger: psy_chg_get_status: STATUS1(0x01), STATUS2(0x20), STATUS3(0x00)
+02-13 19:03:40.196     0     0 I         : [3:  kworker/u16:5:24033] sec-battery battery: sec_bat_check_recharge: recharging voltage (4280)
+02-13 19:03:40.198     0     0 I         : [3:  kworker/u16:5:24033] sec-battery battery: sec_bat_set_polling: Polling time 30/30 sec.
+02-13 19:03:40.198     0     0 I         : [0:         writer: 5676] tas2562 7-004c: tas2562_get_left_speaker_switch, p_u_control = 0
+02-13 19:03:40.198     0     0 I         : [0:         writer: 5676] tas2562 7-004c: tas2562_set_left_speaker_switch, spk_l_control = 0
+02-13 19:03:43.477  4198  5676 I audio_hw_primary: fast_out-out_write: transited to Ready
+02-13 19:03:43.478  4198  5676 I audio_hw_primary: fast_out-out_write: try to route for playback
+02-13 19:03:43.478  4198  5676 I audio_hw_proxy_9610: proxy-proxy_set_route: disable fm radio path
+02-13 19:03:43.478  4198  5676 I audio_hw_proxy_9610: proxy-proxy_set_mixercontrol: set Mixer Control(ABOX Tickle) to 1
+02-13 19:03:43.479  4198  5676 I audio_route: > audio_route_apply_path : "media-speaker"
+02-13 19:03:43.479  4198  5676 I audio_route: > audio_route_update_path + : "media-speaker" reverse(0)
+02-13 19:03:43.480  4198  5676 I audio_route: > audio_route_update_path + : path length = 10
+02-13 19:03:40.207     0     0 I         : [1:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: UAIF2-0: 0x12: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x0040000)
+02-13 19:03:43.488  4198  5676 I audio_hw_proxy_9610: proxy-set_route: routed to media-speaker
+02-13 19:03:43.488  4198  5676 I audio_route: > audio_route_apply_path : "gain-media-speaker"
+02-13 19:03:40.207     0     0 I         : [1:         writer: 5676] tas2562 7-004c: tas2562_set_bitwidth 2
+02-13 19:03:40.207     0     0 W [7:android.hardwar: 4220] healthd: battery l=100 v=4312 t=31.4 h=2 st=5 c=0 fc=4000000 chg=u
+02-13 19:03:43.488  4198  5676 I audio_route: > audio_route_update_path + : "gain-media-speaker" reverse(0)
+02-13 19:03:43.488  4198  5676 I audio_route: > audio_route_update_path + : path length = 0
+02-13 19:03:43.488  4198  5676 I audio_hw_proxy_9610: proxy-set_route: set gain as gain-media-speaker
+02-13 19:03:40.208     0     0 I         : [3:         writer: 5676] tas2562 7-004c: tas2562_iv_slot_config, 16
+02-13 19:03:40.209     0     0 I         : [3:         writer: 5676] tas2562 7-004c: mn_ch_size: 16
+02-13 19:03:40.209     0     0 I         : [3:         writer: 5676] tas2562 7-004c: tas2562_hw_params, sample rate: 48000
+02-13 19:03:43.493  4198  5676 I audio_hw_proxy_9610: proxy-enable_spkamp_playback: SPKAMP Playback PCM Device(/dev/snd/pcmC0D7p) with SR(48000) PF(0) CC(2) is opened
+02-13 19:03:40.210     0     0 I         : [3:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: RDMA7-0: 0x7: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x0040080)
+02-13 19:03:40.211     0     0 I         : [0:         writer: 5676] tas2562 7-004c: SND_SOC_DAPM_POST_PMU
+02-13 19:03:40.211     0     0 I         : [0:         writer: 5676] Exynos9610-audio sound: vogue_speaker ev: 2
+02-13 19:03:40.212     0     0 I         : [3:         writer: 5676] tas2562 7-004c: set power state: 0
+02-13 19:03:40.212     0     0 I         : [3:         writer: 5676] tas2562 7-004c: INV format: NBNF
+02-13 19:03:40.213     0     0 E         : I[0:  UsbFfs-worker:29486] [SYNC_IPC] abox_synchronized_ipc_handler: unknown response type, RES_ID = 1234
+02-13 19:03:40.214     0     0 E         : I[0:      swapper/0:    0] [SYNC_IPC] abox_synchronized_ipc_handler: unknown response type, RES_ID = 1234
+02-13 19:03:40.215     0     0 I         : [3:         writer: 5676] tas2562 7-004c: IRQ reg is: tas2562_set_power_state 0, 354
+02-13 19:03:40.215     0     0 I         : [1:         writer: 5676] tas2562 7-004c: IRQ reg is: tas2562_set_power_state 0, 358
+02-13 19:03:40.219     0     0 I         : [6:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: UAIF4-1: 0x13: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c0080)
+02-13 19:03:40.219     0     0 I         : [6:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: WDMA3-1: 0xb: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c0880)
+02-13 19:03:43.501  4198  5676 I audio_hw_proxy_9610: proxy-enable_spkamp_playback: SPKAMP Playback PCM Device(/dev/snd/pcmC0D7p) with SR(48000) PF(0) CC(2) is started
+02-13 19:03:43.502  4198  5676 I audio_hw_proxy_9610: proxy-enable_erap_in: ERAP In PCM Device(/dev/snd/pcmC0D11c) with SR(48000) PF(0) CC(2) is opened
+02-13 19:03:43.504  4198  5676 I audio_hw_proxy_9610: proxy-enable_erap_in: ERAP In PCM Device(/dev/snd/pcmC0D11c) with SR(48000) PF(0) CC(2) is started
+02-13 19:03:40.223     0     0 I         : [3:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: UAIF2-1: 0x12: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c0880)
+02-13 19:03:40.223     0     0 I         : [3:         writer: 5676] tas2562 7-004c: tas2562_set_bitwidth 2
+02-13 19:03:40.224     0     0 I         : [1:         writer: 5676] tas2562 7-004c: tas2562_iv_slot_config, 16
+02-13 19:03:43.508  4198  5676 I audio_hw_proxy_9610: proxy-enable_spkamp_reference: SPKAMP Reference PCM Device(/dev/snd/pcmC0D12c) with SR(48000) PF(0) CC(2) is opened
+02-13 19:03:40.225     0     0 I         : [1:         writer: 5676] tas2562 7-004c: mn_ch_size: 16
+02-13 19:03:40.225     0     0 I         : [1:         writer: 5676] tas2562 7-004c: tas2562_hw_params, sample rate: 48000
+02-13 19:03:40.226     0     0 I         : [0:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: WDMA4-1: 0xc: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c1880)
+02-13 19:03:43.511  4198  5676 I audio_hw_proxy_9610: proxy-enable_spkamp_reference: SPKAMP Reference PCM Device(/dev/snd/pcmC0D12c) with SR(48000) PF(0) CC(2) is started
+02-13 19:03:43.512  4198  5676 I audio_hw_primary: fast_out-adev_set_route-1: routes to device(speaker) for usage(media)
+02-13 19:03:43.513  4198  5676 I audio_hw_proxy_9610: fast_out-proxy_open_playback_stream: The opened PCM Device is /dev/snd/pcmC0D2p with Sampling_Rate(48000) PCM_Format(0)
+02-13 19:03:43.513  4198  5676 I audio_hw_primary: fast_out-out_write: transited to Idle
+02-13 19:03:40.231     0     0 I         : [2:         writer: 5676] Exynos9610-audio sound: exynos9610_rt5665_hw_params: BCLK Enable
+02-13 19:03:40.231     0     0 I         : [2:         writer: 5676] Exynos9610-audio sound: exynos9610_rt5665_hw_params: uaifp_cnt 1, uaifc_cnt 0
+02-13 19:03:40.231     0     0 I         : [2:         writer: 5676] Exynos9610-audio sound: exynos9610_rt5665_hw_params: UAIF0-0 2ch, 48000Hz, 16bit, 1536bytes (pcm_state: 0x00d1880)
+02-13 19:03:40.231     0     0 I         : [2:         writer: 5676] Exynos9610-audio sound: vogue_dai_ops_hw_params: RDMA2-0: 0x2: hw_params: 2ch, 48000Hz, 1536bytes, 16bit (pcm_state: 0x00d1884)
+02-13 19:03:43.519  4198  5676 I audio_hw_primary: fast_out-out_write: transited to Playing
+02-13 19:03:43.527  5785  5785 I LatinIME: Starting input. Cursor position = 4,4
+02-13 19:03:40.257     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: irq_work_routine
+02-13 19:03:40.259     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: IRQ reg is: irq_work_routine 0, 724
+02-13 19:03:40.259     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: IRQ reg is: irq_work_routine 0, 728
+02-13 19:03:40.260     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: set ICN to -80dB
+02-13 19:03:40.261     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: IRQ reg is: irq_work_routine, 0, 758
+02-13 19:03:40.261     0     0 I         : [1:    kworker/1:2:10235] tas2562 7-004c: IRQ reg is: irq_work_routine 0, 762
+02-13 19:03:43.550  5785  5988 E OpenGLRenderer: Unable to match the desired swap behavior.
+02-13 19:03:43.726 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: 'f85c6275cc5e0acb1f7b69f38fa2f3db20acd955f9ad5294',
+02-13 19:03:43.726 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:43.726 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:43.786 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:40.531     0     0 I [1:      watchdogd: 3957] softdog: softdog_ping: 30
+02-13 19:03:44.052  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:40.866     0     0 I [3:  kworker/u16:3:32647] fps_et7xx_work_func_debug: ldo: 0, sleep: 0, tz: 1, spi_value: 0x0, type: et7xx
+02-13 19:03:45.581 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: '9248f2a1c5671b9f853823f8446831724529bb0e81052514',
+02-13 19:03:45.581 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:45.581 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:45.647 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:45.882 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: 'fc87d509526ca4c134c657237a249ac88fa474c6bd99a36d',
+02-13 19:03:45.882 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:45.882 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:45.938 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:46.053  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:46.614  4198  4198 I audio_hw_primary: fast_out-out_standby: transited to Idle
+02-13 19:03:43.333     0     0 I         : [6:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: RDMA2-0 (pcm_state: 0x00d1880)
+02-13 19:03:43.333     0     0 I         : [6:  binder:4198_2: 4198] Exynos9610-audio sound: exynos9610_rt5665_hw_free: UAIF0-0 (pcm_state: 0x00c1880)
+02-13 19:03:43.333     0     0 I         : [6:  binder:4198_2: 4198] Exynos9610-audio sound: exynos9610_rt5665_hw_free: BCLK Disable
+02-13 19:03:43.333     0     0 I         : [6:  binder:4198_2: 4198] Exynos9610-audio sound: exynos9610_rt5665_hw_free: uaifp_cnt 0, uaifc_cnt 0
+02-13 19:03:46.622  4198  4198 I audio_hw_proxy_9610: fast_out-proxy_close_playback_stream: closed PCM Device
+02-13 19:03:46.622  4198  4198 I audio_hw_primary: fast_out-out_standby: transited to Standby
+02-13 19:03:46.622  4198  4198 I audio_hw_primary: fast_out-out_standby: try to unroute for standby
+02-13 19:03:43.340     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: WDMA3-1 (pcm_state: 0x00c1080)
+02-13 19:03:43.341     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: UAIF4-1 (pcm_state: 0x0041080)
+02-13 19:03:46.628  4198  4198 I audio_hw_proxy_9610: proxy-disable_erap_in: ERAP In PCM Device(/dev/snd/pcmC0D11c) is stopped & closed!
+02-13 19:03:43.345     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: WDMA4-1 (pcm_state: 0x0040080)
+02-13 19:03:43.345     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: UAIF2-1 (pcm_state: 0x0000080)
+02-13 19:03:46.633  4198  4198 I audio_hw_proxy_9610: proxy-disable_spkamp_reference: SPKAMP Reference PCM Device(/dev/snd/pcmC0D12c) is stopped & closed!
+02-13 19:03:43.351     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: RDMA7-0 (pcm_state: 0x0000000)
+02-13 19:03:43.351     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: set power state: 2
+02-13 19:03:43.351     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: cancel timer
+02-13 19:03:43.378     0     0 E         : I[0:      swapper/0:    0] [SYNC_IPC] abox_synchronized_ipc_handler: unknown response type, RES_ID = 1234
+02-13 19:03:43.378     0     0 E [4:  binder:4198_2: 4198] [TI-SmartPA: tas25xx_update_big_data] Emax[0] 48834927(00.02), Tmax[0] 33, EOcount[0] 0, TOcount[0] 0
+02-13 19:03:43.378     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_dai_ops_hw_free: UAIF2-0 (pcm_state: 0x0000000)
+02-13 19:03:46.666  4198  4198 I audio_hw_proxy_9610: proxy-disable_spkamp_playback: SPKAMP Playback PCM Device(/dev/snd/pcmC0D7p) is stopped & closed!
+02-13 19:03:46.667  4198  4198 I audio_route: > audio_route_update_path + : "media-speaker" reverse(1)
+02-13 19:03:46.667  4198  4198 I audio_route: > audio_route_update_path + : path length = 10
+02-13 19:03:43.383     0     0 I         : [4:  binder:4198_2: 4198] Exynos9610-audio sound: vogue_speaker ev: 4
+02-13 19:03:43.383     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: SND_SOC_DAPM_PRE_PMD
+02-13 19:03:46.674  4198  4198 I audio_hw_proxy_9610: proxy-reset_route: unrouted media-speaker
+02-13 19:03:46.674  4198  4198 I audio_route: > audio_route_update_path + : "gain-media-speaker" reverse(1)
+02-13 19:03:46.675  4198  4198 I audio_route: > audio_route_update_path + : path length = 0
+02-13 19:03:46.675  4198  4198 I audio_hw_proxy_9610: proxy-reset_route: reset gain gain-media-speaker
+02-13 19:03:46.675  4198  4198 I audio_hw_primary: fast_out-adev_set_route-1: unroutes to device(speaker) for usage(media)
+02-13 19:03:43.392     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: tas2562_get_left_speaker_switch, p_u_control = 0
+02-13 19:03:43.392     0     0 I         : [4:  binder:4198_2: 4198] tas2562 7-004c: tas2562_set_left_speaker_switch, spk_l_control = 1
+02-13 19:03:48.053  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:48.390 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: '453146fa2ffbd806913d1f7d02529180848c1b4384bac650',
+02-13 19:03:48.390 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:48.390 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:48.449 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:48.696  3374  3374 I AndroidRuntime: Using default boot image
+02-13 19:03:48.696  3374  3374 I AndroidRuntime: Leaving lock profiling enabled
+02-13 19:03:48.700  3374  3374 W app_process: ART APEX data files are untrusted.
+02-13 19:03:48.700  3374  3374 I app_process: Core platform API reporting enabled, enforcing=false
+02-13 19:03:45.421     0     0 W [1:       wificond: 4387] slsi_mlme_get_sinfo_mib: 2 callbacks suppressed
+02-13 19:03:48.805 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: 'f85c6275cc5e0acb1f7b69f38fa2f3db20acd955f9ad5294',
+02-13 19:03:48.805 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:48.805 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:48.846 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:48.877  3374  3374 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2555718838])
+02-13 19:03:45.629     0     0 I [5:           main: 3374] binder: 3374:3374 ioctl 40046210 7fd26e14c0 returned -22
+02-13 19:03:48.927  4571 10562 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:03:48.930  4571 10561 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:03:48.953  4302  4352 W TransactionTracing: Could not find layer handle 0x77e74cb250
+02-13 19:03:49.951  3374  3374 W libc    : Access denied finding property "qemu.sf.lcd_density"
+02-13 19:03:49.952  3374  3374 W libc    : Access denied finding property "qemu.sf.lcd_density"
+02-13 19:03:49.966  5805  6083 W MediaProvider: isAppCloneUserPair failed. Users: 0 and 0
+02-13 19:03:49.966  5805  6083 W MediaProvider: isAppCloneUserPair for user 0: false
+02-13 19:03:50.007  3374  3374 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@126fd; boundsInParent: Rect(0, 0 - 141, 25); boundsInScreen: Rect(51, 1619 - 192, 1571); packageName: ai.sven.companion; className: android.widget.TextView; text: Mute microphone; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:03:50.008  3374  3374 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@12abe; boundsInParent: Rect(0, 0 - 88, 50); boundsInScreen: Rect(940, 1603 - 1028, 1571); packageName: ai.sven.companion; className: android.widget.Switch; text: null; error: null; maxTextLength: -1; stateDescription: OFF; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: true; checked: false; focusable: true; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:03:50.009  3374  3374 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@12e7f; boundsInParent: Rect(0, 0 - 978, 56); boundsInScreen: Rect(51, 1664 - 1029, 1571); packageName: ai.sven.companion; className: android.view.ViewGroup; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: Hold to Talk; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: true; focused: false; selected: false; clickable: true; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_FOCUS - null, AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_CLICK - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:03:50.009  3374  3374 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@13601; boundsInParent: Rect(0, 0 - 978, 25); boundsInScreen: Rect(51, 1728 - 1029, 1571); packageName: ai.sven.companion; className: android.widget.TextView; text: Wake word: sven; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_SET_SELECTION - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:03:50.010  3374  3374 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@139c2; boundsInParent: Rect(0, 0 - 978, 326); boundsInScreen: Rect(51, 1771 - 1029, 1571); packageName: ai.sven.companion; className: android.view.ViewGroup; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:03:50.010  3374  3374 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@16a8f; boundsInParent: Rect(0, 0 - 1022, 149); boundsInScreen: Rect(29, 2137 - 1051, 1571); packageName: ai.sven.companion; className: android.view.ViewGroup; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:03:50.011  3374  3374 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@17993; boundsInParent: Rect(0, 0 - 1022, 117); boundsInScreen: Rect(29, 2305 - 1051, 1571); packageName: ai.sven.companion; className: android.view.ViewGroup; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:03:50.011  3374  3374 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@184d6; boundsInParent: Rect(0, 0 - 1022, 118); boundsInScreen: Rect(29, 2440 - 1051, 1571); packageName: ai.sven.companion; className: android.view.ViewGroup; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-13 19:03:50.015  3374  3374 W AccessibilityNodeInfoDumper: Fetch time: 59ms
+02-13 19:03:50.028  4571 10561 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:03:50.034  4571  4571 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-13 19:03:46.750     0     0 I [0:    uiautomator: 3374] binder: 3374:3374 ioctl 40046210 7fd26e16a4 returned -22
+02-13 19:03:50.039  4302  4352 W TransactionTracing: Could not find layer handle 0x77e74cbbb0
+02-13 19:03:50.054  9366  9373 E ocessService0:0: failed to create Unix domain socket: Operation not permitted
+02-13 19:03:50.662 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: '9248f2a1c5671b9f853823f8446831724529bb0e81052514',
+02-13 19:03:50.662 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:50.662 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }
+02-13 19:03:50.724 26369 32441 I ReactNativeJS: 'pollDeviceToken: response', { success: true, data: { status: 'pending' } }
+02-13 19:03:50.946 26369 32441 I ReactNativeJS: 'pollDeviceToken: polling', { code: 'fc87d509526ca4c134c657237a249ac88fa474c6bd99a36d',
+02-13 19:03:50.946 26369 32441 I ReactNativeJS:   interval: 5,
+02-13 19:03:50.946 26369 32441 I ReactNativeJS:   gatewayUrl: 'https://app.sven.example.com' }

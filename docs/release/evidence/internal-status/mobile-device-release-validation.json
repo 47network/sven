@@ -1,0 +1,48 @@
+﻿{
+    "at_utc":  "2026-02-14T22:21:45.0798018Z",
+    "branch":  "codex/mobile-auth-smoke-20260213",
+    "status":  "pass",
+    "checks":  {
+                   "securestore_static_check":  {
+                                                    "ok":  true,
+                                                    "source":  "docs/release/status/mobile-securestore-release-check.json",
+                                                    "observed_status":  "pass"
+                                                },
+                   "mobile_auth_session_smoke_ci":  {
+                                                        "found":  true,
+                                                        "conclusion":  "success",
+                                                        "ok":  true,
+                                                        "created_at":  "2026-02-13T15:20:11Z",
+                                                        "head_sha":  "3ffe1010634885f5516ff62954bb84cd542a4bbf",
+                                                        "status":  "completed",
+                                                        "run_id":  21992165755
+                                                    },
+                   "manual_release_device_checks":  {
+                                                        "ios_build_ref":  "ios-rc-build-2026-02-14",
+                                                        "android_build_ref":  "android-rc-build-2026-02-14",
+                                                        "checks":  [
+                                                                       {
+                                                                           "id":  "ios_token_persists",
+                                                                           "status":  "pass"
+                                                                       },
+                                                                       {
+                                                                           "id":  "ios_signout_revokes",
+                                                                           "status":  "pass"
+                                                                       },
+                                                                       {
+                                                                           "id":  "android_token_persists",
+                                                                           "status":  "pass"
+                                                                       },
+                                                                       {
+                                                                           "id":  "android_signout_revokes",
+                                                                           "status":  "pass"
+                                                                       },
+                                                                       {
+                                                                           "id":  "android_cleartext_blocked",
+                                                                           "status":  "pass"
+                                                                       }
+                                                                   ],
+                                                        "failed_count":  0
+                                                    }
+               }
+}

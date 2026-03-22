@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-02-14T21:05:36.852Z",
+  "status": "pass",
+  "artifacts": [
+    {
+      "path": "deploy/quickstart/install.sh",
+      "size_bytes": 1413,
+      "sha256": "e9e3b2c97b324c8bf6c13bebbd964050c0a2b7c7d96ed5636b4d0e7291a82470"
+    },
+    {
+      "path": "deploy/quickstart/install.ps1",
+      "size_bytes": 1874,
+      "sha256": "22c39534f00793e9ddde411ec66284d0bf38fbf22c2c39f569fad7655807adc3"
+    },
+    {
+      "path": "deploy/quickstart/install.cmd",
+      "size_bytes": 1760,
+      "sha256": "5b1be867589bff249b064e681479d7cef55455a6935a572ab08d08981d537d0e"
+    }
+  ],
+  "checks": [
+    {
+      "id": "quickstart_installers_present",
+      "pass": true,
+      "detail": "3/3 files"
+    },
+    {
+      "id": "desktop_workflow_signing_enabled",
+      "pass": true,
+      "detail": "checks desktop-tauri-release workflow"
+    },
+    {
+      "id": "desktop_workflow_checksum_step_present",
+      "pass": true,
+      "detail": "checks desktop-tauri-release workflow"
+    },
+    {
+      "id": "desktop_workflow_provenance_attestation_present",
+      "pass": true,
+      "detail": "checks desktop-tauri-release workflow"
+    }
+  ]
+}

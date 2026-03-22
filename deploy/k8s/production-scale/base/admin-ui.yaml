@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-ui
+  labels:
+    app.kubernetes.io/name: admin-ui
+    app.kubernetes.io/part-of: sven
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: admin-ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: admin-ui
+        app.kubernetes.io/part-of: sven
+    spec:
+      containers:
+        - name: admin-ui
+          image: ghcr.io/47network/thesven-admin-ui:RELEASE_TAG
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: sven-app-config
+            - secretRef:
+                name: sven-app-secrets
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-ui
+spec:
+  selector:
+    app.kubernetes.io/name: admin-ui
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UiPreferences",
+  "type": "object",
+  "properties": {
+    "visual_mode": {
+      "type": "string",
+      "enum": ["classic", "cinematic"]
+    },
+    "motion_enabled": {
+      "type": "boolean"
+    },
+    "motion_level": {
+      "type": "string",
+      "enum": ["off", "reduced", "full"]
+    },
+    "avatar_mode": {
+      "type": "string",
+      "enum": ["orb", "robot", "human", "animal"]
+    }
+  },
+  "required": ["visual_mode", "motion_enabled", "avatar_mode"],
+  "additionalProperties": false
+}

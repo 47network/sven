@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-02-22T16:13:43.703Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "workflow_present",
+      "pass": true,
+      "detail": ".github/workflows/release-container-signing.yml"
+    },
+    {
+      "id": "workflow_has_packages_write_permission",
+      "pass": true,
+      "detail": "workflow permissions include packages: write"
+    },
+    {
+      "id": "workflow_has_oidc_permission_for_keyless",
+      "pass": true,
+      "detail": "workflow permissions include id-token: write"
+    },
+    {
+      "id": "workflow_builds_and_pushes_release_images",
+      "pass": true,
+      "detail": "workflow builds and pushes container images"
+    },
+    {
+      "id": "workflow_targets_service_dockerfiles",
+      "pass": true,
+      "detail": "workflow iterates service Dockerfiles"
+    },
+    {
+      "id": "workflow_installs_cosign",
+      "pass": true,
+      "detail": "workflow installs cosign"
+    },
+    {
+      "id": "workflow_signs_images_with_cosign",
+      "pass": true,
+      "detail": "workflow signs image digests with cosign"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+services:
+  egress-proxy:
+    profiles: ["dev", "staging", "production"]
+
+  nats:
+    profiles: ["dev", "staging", "production"]
+
+  postgres:
+    profiles: ["dev", "staging", "production"]
+
+  gateway-api:
+    profiles: ["dev", "staging", "production"]
+
+  otel-collector:
+    profiles: ["dev", "staging", "production"]
+
+  prometheus:
+    profiles: ["dev", "staging", "production"]
+
+  grafana:
+    profiles: ["dev", "staging", "production"]
+
+  ollama:
+    profiles: ["dev", "staging", "production"]
+
+  rag-git-ingestor:
+    profiles: ["dev", "staging", "production"]
+
+  rag-notes-ingestor:
+    profiles: ["dev", "staging", "production"]
+
+  searxng:
+    profiles: ["dev", "staging", "production"]
+
+  agent-runtime:
+    profiles: ["dev", "staging", "production"]
+
+  notification-service:
+    profiles: ["dev", "staging", "production"]
+
+  piper:
+    profiles: ["dev", "staging", "production"]
+
+  opensearch:
+    profiles: ["dev", "staging", "production"]
+
+  rag-indexer:
+    profiles: ["dev", "staging", "production"]
+
+  rag-nas-ingestor:
+    profiles: ["dev", "staging", "production"]
+
+  registry-worker:
+    profiles: ["dev", "staging", "production"]
+
+  skill-runner:
+    profiles: ["dev", "staging", "production"]
+
+  sven-internal-nginx:
+    profiles: ["dev", "staging", "production"]
+
+  wake-word:
+    profiles: ["dev", "staging", "production"]
+
+  faster-whisper:
+    profiles: ["dev", "staging", "production"]
+
+  workflow-executor:
+    profiles: ["dev", "staging", "production"]

@@ -1,0 +1,207 @@
+name: flutter-user-app-ci
+
+on:
+  push:
+    paths:
+      - 'apps/companion-user-flutter/**'
+      - '.github/workflows/flutter-user-app-ci.yml'
+    tags:
+      - 'flutter-user-v*'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  flutter-validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/companion-user-flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+      - run: flutter --version
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed .
+      - run: flutter analyze
+      - run: flutter test --exclude-tags golden
+      - name: Plaintext secrets scan
+        run: dart run tool/check_plaintext_secrets.dart lib
+      - name: Generate build metadata
+        run: dart run tool/generate_build_metadata.dart
+        env:
+          APP_VERSION: ${{ github.ref_name }}
+      - run: flutter build web --release
+      - name: Web build integrity check
+        run: dart run tool/check_web_integrity.dart build/web
+      - name: Upload web build with checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-web-release
+          path: |
+            apps/companion-user-flutter/build/web
+            apps/companion-user-flutter/checksums-web.txt
+            apps/companion-user-flutter/build.json
+      - name: Decode Android keystore (release only)
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/flutter-user-v')
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > /tmp/keystore.jks
+      - name: Create Android key.properties (release only)
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/flutter-user-v')
+        run: |
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=/tmp/keystore.jks
+          EOF
+      - name: Prepare release dart-define bundle (main/tag only)
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/flutter-user-v')
+        env:
+          SVEN_API_CERT_SHA256_PINS: ${{ secrets.SVEN_API_CERT_SHA256_PINS }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          if [ -z "$SVEN_API_CERT_SHA256_PINS" ]; then
+            echo "Missing required SVEN_API_CERT_SHA256_PINS for protected release build."
+            exit 1
+          fi
+          if [ -z "$SENTRY_DSN" ]; then
+            echo "Missing required SENTRY_DSN for protected release build."
+            exit 1
+          fi
+          mkdir -p config/env
+          cat > config/env/mobile-dart-defines.ci.release.json <<EOF
+          {
+            "SVEN_FLAVOR": "prod",
+            "SVEN_ENV": "production",
+            "SVEN_API_CERT_SHA256_PINS": "$SVEN_API_CERT_SHA256_PINS",
+            "SENTRY_DSN": "$SENTRY_DSN"
+          }
+          EOF
+      - run: >
+          if [ -f config/env/mobile-dart-defines.ci.release.json ]; then
+            flutter build apk
+            --release
+            --flavor prod
+            --target lib/main.dart
+            --build-number ${{ github.run_number }}
+            --dart-define-from-file=config/env/mobile-dart-defines.ci.release.json;
+          else
+            flutter build apk
+            --release
+            --flavor prod
+            --target lib/main.dart
+            --build-number ${{ github.run_number }}
+            --dart-define=SVEN_FLAVOR=prod
+            --dart-define=SVEN_ENV=production;
+          fi
+      - name: Mobile release readiness gates (strict, main/tag only)
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/flutter-user-v')
+        working-directory: ${{ github.workspace }}
+        run: |
+          node scripts/mobile-firebase-tls-define-check.cjs --strict
+          node scripts/mobile-release-readiness-check.cjs --strict
+      - name: Upload mobile release readiness artifacts (main/tag only)
+        if: always() && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/flutter-user-v'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-release-readiness-ci-${{ github.ref_name }}
+          path: |
+            docs/release/status/mobile-firebase-tls-define-latest.json
+            docs/release/status/mobile-firebase-tls-define-latest.md
+            docs/release/status/mobile-release-readiness-latest.json
+            docs/release/status/mobile-release-readiness-latest.md
+      - name: Generate Android checksums
+        run: |
+          cd build/app/outputs/flutter-apk
+          sha256sum *.apk > checksums-android.txt
+      - name: Upload Android APK with checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-android-release
+          path: |
+            apps/companion-user-flutter/build/app/outputs/flutter-apk/*.apk
+            apps/companion-user-flutter/build/app/outputs/flutter-apk/checksums-android.txt
+            apps/companion-user-flutter/build.json
+      - name: Dependency policy scan
+        run: |
+          flutter pub deps --json > pub-deps.json
+          dart run tool/check_dependency_policy.dart pub-deps.json
+      - name: Vulnerability scan
+        run: dart run tool/check_vulnerabilities.dart pub-deps.json
+      - name: Generate license inventory
+        run: dart run tool/generate_license_inventory.dart pub-deps.json license-inventory.txt
+      - name: Upload license inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-inventory
+          path: apps/companion-user-flutter/license-inventory.txt
+
+  ios-simulator-build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: apps/companion-user-flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter build ios --simulator --no-codesign
+      - name: Package iOS simulator preview artifact
+        run: |
+          APP_PATH="$(find build/ios/iphonesimulator -name '*.app' | head -n 1)"
+          if [ -z "$APP_PATH" ]; then
+            echo "No iOS simulator .app artifact found."
+            exit 1
+          fi
+          rm -f ios-simulator-preview.zip
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" ios-simulator-preview.zip
+      - name: Upload iOS simulator preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-ios-simulator-preview
+          path: apps/companion-user-flutter/ios-simulator-preview.zip
+
+  ios-release-archive:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/flutter-user-v')
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: apps/companion-user-flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.9'
+          channel: stable
+      - run: flutter --version
+      - run: flutter pub get
+      - name: Set up iOS signing (release only)
+        run: |
+          # Decode certificate and install to keychain
+          echo "${{ secrets.IOS_CERTIFICATE_BASE64 }}" | base64 --decode > certificate.p12
+          security create-keychain -p actions build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p actions build.keychain
+          security import certificate.p12 -k build.keychain -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions build.keychain
+
+          # Install provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+      - name: Build iOS release archive (release only)
+        run: |
+          flutter build ios --release --no-codesign --build-number ${{ github.run_number }}
+      - name: Upload iOS release archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-ios-release
+          path: |
+            apps/companion-user-flutter/build/ios/iphoneos

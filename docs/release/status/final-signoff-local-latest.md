@@ -1,0 +1,268 @@
+# Final Sign-Off Gate
+
+Generated: 2026-03-21T02:10:01.054Z
+Status: fail
+
+## Execution
+- strict: false
+- local_only: true
+- validation_scope: local_only
+- authority: local_diagnostic
+- ci_context: false
+- profile: full
+- checks_scoped_out_count: 0
+
+## Checks
+- [x] validation_scope_declared: validation_scope=local_only
+- [x] validation_scope_release_workflow_safe: ok (validation_scope=local_only; ci_context=false)
+- [x] mode_local_only_disallowed_in_strict: ok (strict=false local_only=true)
+- [x] mode_env_local_only_disallowed_in_strict: ok (strict=false env_local_only=false cli_local_only=true ci_context=false)
+- [x] signoff_doc_selected_latest:engineering: docs/release/signoffs/engineering-signoff-2026-02-14-rc.md (latest_approved)
+- [x] signoff_doc_present:engineering: docs/release/signoffs/engineering-signoff-2026-02-14-rc.md
+- [ ] signoff_schema_valid:engineering: missing required signoff fields
+- [x] signoff_has_approver_and_date:engineering: approver/date fields present
+- [x] signoff_status_approved:engineering: status=approved
+- [x] signoff_approver_valid:engineering: approver=hantz
+- [x] signoff_date_format_valid:engineering: date=2026-02-15
+- [ ] signoff_staging_evidence_link_valid:engineering: missing staging_evidence_url
+- [ ] signoff_dashboard_link_valid:engineering: missing dashboard_url
+- [ ] signoff_fresh:engineering: 818.17h > 168h
+- [x] signoff_release_binding:engineering: release check skipped (SVEN_RELEASE_ID not set; observed=(missing))
+- [ ] signoff_head_sha_format_valid:engineering: missing head_sha
+- [ ] signoff_artifact_manifest_hash_format_valid:engineering: missing artifact_manifest_hash
+- [ ] signoff_expires_at_format_valid:engineering: missing expires_at
+- [ ] signoff_not_expired:engineering: missing/invalid expires_at
+- [ ] signoff_expiry_within_ttl:engineering: expiry_window>168h or invalid date/expires_at
+- [x] signoff_doc_selected_latest:security: docs/release/signoffs/security-signoff-2026-02-14-rc.md (latest_approved)
+- [x] signoff_doc_present:security: docs/release/signoffs/security-signoff-2026-02-14-rc.md
+- [ ] signoff_schema_valid:security: missing required signoff fields
+- [x] signoff_has_approver_and_date:security: approver/date fields present
+- [x] signoff_status_approved:security: status=approved
+- [x] signoff_approver_valid:security: approver=hantz
+- [x] signoff_date_format_valid:security: date=2026-02-15
+- [ ] signoff_staging_evidence_link_valid:security: missing staging_evidence_url
+- [ ] signoff_dashboard_link_valid:security: missing dashboard_url
+- [ ] signoff_fresh:security: 818.17h > 168h
+- [x] signoff_release_binding:security: release check skipped (SVEN_RELEASE_ID not set; observed=(missing))
+- [ ] signoff_head_sha_format_valid:security: missing head_sha
+- [ ] signoff_artifact_manifest_hash_format_valid:security: missing artifact_manifest_hash
+- [ ] signoff_expires_at_format_valid:security: missing expires_at
+- [ ] signoff_not_expired:security: missing/invalid expires_at
+- [ ] signoff_expiry_within_ttl:security: expiry_window>168h or invalid date/expires_at
+- [x] signoff_doc_selected_latest:operations: docs/release/signoffs/operations-signoff-2026-02-14-rc.md (latest_approved)
+- [x] signoff_doc_present:operations: docs/release/signoffs/operations-signoff-2026-02-14-rc.md
+- [ ] signoff_schema_valid:operations: missing required signoff fields
+- [x] signoff_has_approver_and_date:operations: approver/date fields present
+- [x] signoff_status_approved:operations: status=approved
+- [x] signoff_approver_valid:operations: approver=hantz
+- [x] signoff_date_format_valid:operations: date=2026-02-15
+- [ ] signoff_staging_evidence_link_valid:operations: missing staging_evidence_url
+- [ ] signoff_dashboard_link_valid:operations: missing dashboard_url
+- [ ] signoff_fresh:operations: 818.17h > 168h
+- [x] signoff_release_binding:operations: release check skipped (SVEN_RELEASE_ID not set; observed=(missing))
+- [ ] signoff_head_sha_format_valid:operations: missing head_sha
+- [ ] signoff_artifact_manifest_hash_format_valid:operations: missing artifact_manifest_hash
+- [ ] signoff_expires_at_format_valid:operations: missing expires_at
+- [ ] signoff_not_expired:operations: missing/invalid expires_at
+- [ ] signoff_expiry_within_ttl:operations: expiry_window>168h or invalid date/expires_at
+- [x] signoff_doc_selected_latest:product: docs/release/signoffs/product-signoff-2026-02-14-rc.md (latest_approved)
+- [x] signoff_doc_present:product: docs/release/signoffs/product-signoff-2026-02-14-rc.md
+- [ ] signoff_schema_valid:product: missing required signoff fields
+- [x] signoff_has_approver_and_date:product: approver/date fields present
+- [x] signoff_status_approved:product: status=approved
+- [x] signoff_approver_valid:product: approver=hantz
+- [x] signoff_date_format_valid:product: date=2026-02-15
+- [ ] signoff_staging_evidence_link_valid:product: missing staging_evidence_url
+- [ ] signoff_dashboard_link_valid:product: missing dashboard_url
+- [ ] signoff_fresh:product: 818.17h > 168h
+- [x] signoff_release_binding:product: release check skipped (SVEN_RELEASE_ID not set; observed=(missing))
+- [ ] signoff_head_sha_format_valid:product: missing head_sha
+- [ ] signoff_artifact_manifest_hash_format_valid:product: missing artifact_manifest_hash
+- [ ] signoff_expires_at_format_valid:product: missing expires_at
+- [ ] signoff_not_expired:product: missing/invalid expires_at
+- [ ] signoff_expiry_within_ttl:product: expiry_window>168h or invalid date/expires_at
+- [x] signoff_doc_selected_latest:release_owner: docs/release/signoffs/release-owner-approval-2026-02-14-rc.md (latest_approved)
+- [x] signoff_doc_present:release_owner: docs/release/signoffs/release-owner-approval-2026-02-14-rc.md
+- [ ] signoff_schema_valid:release_owner: missing required signoff fields
+- [x] signoff_has_approver_and_date:release_owner: approver/date fields present
+- [x] signoff_status_approved:release_owner: status=approved
+- [x] signoff_approver_valid:release_owner: approver=hantz
+- [x] signoff_date_format_valid:release_owner: date=2026-02-15
+- [ ] signoff_staging_evidence_link_valid:release_owner: missing staging_evidence_url
+- [ ] signoff_dashboard_link_valid:release_owner: missing dashboard_url
+- [ ] signoff_fresh:release_owner: 818.17h > 168h
+- [x] signoff_release_binding:release_owner: release check skipped (SVEN_RELEASE_ID not set; observed=(missing))
+- [ ] signoff_head_sha_format_valid:release_owner: missing head_sha
+- [ ] signoff_artifact_manifest_hash_format_valid:release_owner: missing artifact_manifest_hash
+- [ ] signoff_expires_at_format_valid:release_owner: missing expires_at
+- [ ] signoff_not_expired:release_owner: missing/invalid expires_at
+- [ ] signoff_expiry_within_ttl:release_owner: expiry_window>168h or invalid date/expires_at
+- [x] ci_gates_file_valid_json: docs/release/status/ci-gates.json parsed
+- [x] ci_gates_fresh: local-only mode (age=109.16h)
+- [x] ci_gates_source_provenance_present: local-only mode (source_branch=thesven; source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)
+- [x] ci_gates_gate_provenance_object_present: gate_provenance keys=26
+- [x] ci_gates_required_workflow_gates_present: required_workflow_gates keys=4
+- [x] ops_shell_ci_requirement_declared: ops_shell_ci_required=false
+- [x] signoff_head_sha_binding:engineering: local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)
+- [x] signoff_head_sha_binding:security: local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)
+- [x] signoff_head_sha_binding:operations: local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)
+- [x] signoff_head_sha_binding:product: local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)
+- [x] signoff_head_sha_binding:release_owner: local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)
+- [x] ci_gate:final_dod_ci: final_dod_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:parity_e2e_ci: parity_e2e_ci must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:parity_checklist_verify_ci: parity_checklist_verify_ci must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:agent_zero_parity_verify_ci: agent_zero_parity_verify_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:websocket_contract_ci: websocket_contract_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:mcp_server_compat_ci: mcp_server_compat_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:a2a_compat_ci: a2a_compat_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:multi_device_validation_ci: multi_device_validation_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:release_ops_drill_ci: release_ops_drill_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:d9_keycloak_interop_ci: d9_keycloak_interop_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:mobile_auth_session_smoke_ci: mobile_auth_session_smoke_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:mobile_release_readiness_ci: mobile_release_readiness_ci must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:backup_restore_api_ci: backup_restore_api_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:flutter_user_app_device_farm_ci: flutter_user_app_device_farm_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:desktop_release_ci: desktop_release_ci must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:ui_e2e_ci: ui_e2e_ci must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:mobile_coverage_gate_ci: mobile_coverage_gate_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:csrf_auth_e2e_ci: csrf_auth_e2e_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:client_env_governance_ci: client_env_governance_ci must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:backend_capability_e2e_ci: backend_capability_e2e_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:security_privacy_governance_ci: security_privacy_governance_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:privacy_admin_e2e_ci: privacy_admin_e2e_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:skill_quarantine_scan_ci: skill_quarantine_scan_ci must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:security_audit_unified_ci: security_audit_unified_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:integration_truthfulness_ci: integration_truthfulness_ci must be true (skipped in local-only mode, current=undefined)
+- [x] ci_gate:security_baseline_ci: security_baseline_ci must be true (skipped in local-only mode, current=false)
+- [x] ci_gate:soak_72h: soak_72h must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:week4_rc_complete: week4_rc_complete must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:post_release_verified: post_release_verified must be true (skipped in local-only mode, current=true)
+- [x] ci_gate:ops_shell_ci: ops_shell_ci conditional gate (skipped in local-only mode, required=false current=true)
+- [x] ci_required_checks_status_pass: ci-required-checks-latest.json status=pass
+- [ ] ci_required_checks_fresh: 617.94h > 72h
+- [ ] ci_required_checks_execution_authoritative: validation_mode=(missing); authority=(missing)
+- [x] ci_required_checks_not_local_only_evidence: execution.local_only=undefined
+- [ ] ci_required_checks_target_sha_matches_source: target_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81
+- [x] ci_required_checks_bridge_runtime_latest_run_success: skipped in local-only mode
+- [x] ci_required_checks_gateway_bridge_contract_latest_run_success: skipped in local-only mode
+- [ ] d9_local_selfcheck_status_pass: docs/release/status/latest.json missing
+- [x] d9_local_readiness_status_pass: d9-local-readiness-latest.json status=pass
+- [ ] d9_local_selfcheck_artifact_hardened: strict_mode!=true; input_provenance missing; hardening_risks missing; migration_coverage missing
+- [ ] d9_local_selfcheck_report_status_pass: d9-keycloak-local-selfcheck-latest.json status=invalid
+- [ ] d9_local_selfcheck_hardening_risk_clear: invalid D9 local selfcheck artifact: strict_mode!=true; input_provenance missing; hardening_risks missing; migration_coverage missing
+- [x] mobile_release_readiness_status_pass: mobile-release-readiness-latest.json status=pass
+- [ ] mobile_release_readiness_fresh: 819.80h > 72h
+- [ ] multi_device_validation_present: docs/release/status/multi-device-validation-latest.json missing
+- [ ] mobile_release_signing_fresh: 819.80h > 72h
+- [x] mobile_release_signing_consistent_with_mobile_readiness: mobile-release-signing-latest.json status=pass; mobile_readiness_status=pass
+- [x] mobile_release_signing_not_newer_than_mobile_readiness: artifact_ts=2026-02-14T22:21:43.105Z; mobile_readiness_ts=2026-02-14T22:21:45.152Z
+- [ ] mobile_app_store_privacy_fresh: 819.80h > 72h
+- [x] mobile_app_store_privacy_consistent_with_mobile_readiness: mobile-app-store-privacy-latest.json status=pass; mobile_readiness_status=pass
+- [x] mobile_app_store_privacy_not_newer_than_mobile_readiness: artifact_ts=2026-02-14T22:21:43.052Z; mobile_readiness_ts=2026-02-14T22:21:45.152Z
+- [ ] final_dod_execution_status_pass: final-dod-execution-latest.json status=fail
+- [x] final_dod_execution_fresh: 1.69h <= 72h
+- [ ] final_dod_execution_provenance_present: source_run_id=(missing); head_sha=(missing)
+- [ ] final_dod_execution_live_checks_executed: live_checks_executed=false
+- [ ] skill_quarantine_scan_present: docs/release/status/skill-quarantine-scan-latest.json missing
+- [ ] security_audit_unified_present: docs/release/status/security-audit-unified-latest.json missing
+- [x] dependency_vuln_status_pass: dependency-vuln-latest.json status=pass
+- [ ] dependency_vuln_fresh: 635.47h > 72h
+- [x] security_transport_csp_status_pass: security-transport-csp-latest.json status=pass
+- [ ] security_transport_csp_fresh: 792.30h > 72h
+- [x] security_auth_surface_status_pass: security-auth-surface-latest.json status=pass
+- [ ] security_auth_surface_fresh: 635.63h > 72h
+- [ ] security_plaintext_secrets_present: docs/release/status/security-plaintext-secrets-latest.json missing
+- [x] security_image_signing_status_pass: security-image-signing-latest.json status=pass
+- [ ] security_image_signing_fresh: 633.94h > 72h
+- [ ] security_image_signing_provenance_present: source_run_id=(missing); head_sha=(missing)
+- [x] security_release_artifact_sbom_status_pass: security-release-artifact-sbom-latest.json status=pass
+- [ ] security_release_artifact_sbom_fresh: 633.94h > 72h
+- [ ] security_release_artifact_sbom_provenance_present: source_run_id=(missing); head_sha=(missing)
+- [x] security_sbom_cosign_status_pass: security-sbom-cosign-latest.json status=pass
+- [ ] security_sbom_cosign_fresh: 633.94h > 72h
+- [ ] security_sbom_cosign_provenance_present: source_run_id=(missing); head_sha=(missing)
+- [ ] third_checklist_integration_status_pass: third-checklist-integration-latest.json status=fail
+- [x] third_checklist_integration_fresh: 0.02h <= 72h
+- [ ] final_dod_e2e_present: docs/release/status/final-dod-e2e-latest.json missing
+- [ ] parity_e2e_present: docs/release/status/parity-e2e-latest.json missing
+- [x] ui_e2e_status_pass: ui-e2e-latest.json status=pass
+- [ ] ui_e2e_fresh: 840.57h > 72h
+- [ ] ui_e2e_provenance_present: run_id=(missing); head_sha=(missing)
+- [x] ui_e2e_min_project_tests: min_per_project=2; observed=admin-web:2, canvas-web:2, desktop-tauri-web:2
+- [x] ui_e2e_min_total_tests: min_total=6; observed_total=6
+- [ ] ui_e2e_admin_endpoint_coverage_present: admin_endpoint_coverage block missing/invalid
+- [x] ui_e2e_admin_endpoint_flow_threshold: min_admin_endpoint_flows=2; observed=2
+- [ ] backup_restore_api_present: docs/release/status/backup-restore-api-e2e-latest.json missing
+- [x] mobile_device_farm_config_status_pass: mobile-device-farm-config-latest.json status=pass
+- [ ] mobile_device_farm_config_fresh: 819.62h > 72h
+- [ ] mobile_device_farm_config_current_path_checks_present: artifact missing active flutter-user maestro path checks
+- [ ] mobile_device_farm_status_pass: mobile-device-farm-latest.json status=fail
+- [ ] mobile_device_farm_fresh: 819.32h > 72h
+- [ ] mobile_device_farm_provenance_present: run_id=(missing); head_sha=(missing)
+- [x] mobile_legal_urls_status_pass: mobile-legal-urls-latest.json status=pass
+- [ ] mobile_legal_urls_fresh: 105.25h > 72h
+- [ ] mobile_c8_index_status_pass: mobile-c8-index-latest.json status=blocked
+- [ ] mobile_c8_index_fresh: 631.14h > 72h
+- [ ] resumable_stream_status_pass: resumable-stream-latest.json status=fail
+- [x] resumable_stream_fresh: 0.05h <= 72h
+- [ ] web_egress_security_status_pass: web-egress-security-latest.json status=fail
+- [x] web_egress_security_fresh: 0.05h <= 72h
+- [x] seed_baseline_status_pass: seed-baseline-latest.json status=pass
+- [x] seed_baseline_fresh: 0.04h <= 72h
+- [x] api_contract_version_status_pass: api-contract-version-latest.json status=pass
+- [ ] api_contract_version_fresh: 643.87h > 72h
+- [ ] api_contract_version_provenance_present: run_id=(missing); head_sha=(missing)
+- [x] api_openapi_contract_status_pass: api-openapi-contract-latest.json status=pass
+- [ ] api_openapi_contract_fresh: 635.80h > 72h
+- [ ] api_openapi_contract_provenance_present: run_id=(missing); head_sha=(missing)
+- [x] api_request_schema_coverage_status_pass: api-request-body-schema-coverage-latest.json status=pass
+- [ ] api_request_schema_coverage_fresh: 635.80h > 72h
+- [ ] api_request_schema_coverage_provenance_present: run_id=(missing); head_sha=(missing)
+- [ ] api_reliability_observability_status_pass: api-reliability-observability-latest.json status=warn
+- [ ] api_reliability_observability_fresh: 848.34h > 72h
+- [ ] api_reliability_observability_provenance_present: run_id=(missing); head_sha=(missing)
+- [ ] benchmark_suite_status_pass: benchmark-suite-latest.json status=fail
+- [x] benchmark_suite_fresh: 1.58h <= 72h
+- [x] benchmark_suite_required_check_pass:f1_onboarding_status_pass: f1_onboarding_status_pass=true
+- [x] benchmark_suite_required_check_pass:f1_onboarding_fresh: f1_onboarding_fresh=true
+- [x] benchmark_suite_required_check_pass:f2_ui_operability_status_pass: f2_ui_operability_status_pass=true
+- [x] benchmark_suite_required_check_pass:f2_ui_operability_fresh: f2_ui_operability_fresh=true
+- [ ] benchmark_suite_required_check_pass:f3_reliability_recovery_status_pass: f3_reliability_recovery_status_pass=false
+- [x] benchmark_suite_required_check_pass:f3_reliability_recovery_fresh: f3_reliability_recovery_fresh=true
+- [x] benchmark_suite_required_check_pass:f4_security_defaults_status_pass: f4_security_defaults_status_pass=true
+- [x] benchmark_suite_required_check_pass:f4_security_defaults_fresh: f4_security_defaults_fresh=true
+- [ ] competitor_benchmark_integrity_present: docs/release/status/competitor-benchmark-integrity-latest.json missing
+- [ ] competitor_runtime_guard_status_pass: competitor-runtime-guard-latest.json status=inconclusive
+- [x] competitor_runtime_guard_fresh: 1.58h <= 72h
+- [ ] competitor_runtime_guard_provenance_present: run_id=local-1774053302738; head_sha=(missing)
+- [x] quickstart_installer_crosshost_status_pass: quickstart-installer-crosshost-latest.json status=pass
+- [ ] quickstart_installer_crosshost_fresh: 822.20h > 72h
+- [x] quickstart_installer_crosshost_required_checks_present: required checks present (powershell_installer_dry_run, cmd_installer_dry_run)
+- [x] quickstart_installer_crosshost_required_checks_pass: required checks pass (powershell_installer_dry_run, cmd_installer_dry_run)
+- [ ] quickstart_installer_runtime_status_pass: quickstart-installer-runtime-latest.json status=fail
+- [x] quickstart_installer_runtime_fresh: 1.68h <= 72h
+- [x] quickstart_installer_runtime_required_checks_present: required checks present (quickstart_runtime_baseline_installer_dry_run, quickstart_runtime_baseline_install_status_emitted, quickstart_runtime_stack_healthz_operable, quickstart_runtime_auth_surface_operable)
+- [ ] quickstart_installer_runtime_required_checks_pass: required checks failing: quickstart_runtime_stack_healthz_operable, quickstart_runtime_auth_surface_operable
+- [ ] sast_present: docs/release/status/sast-latest.json missing
+- [ ] release_evidence_bundle_status_pass: release-evidence-bundle-latest.json status=fail
+- [x] release_evidence_bundle_fresh: 0.02h <= 72h
+- [ ] runbook_scenario_matrix_status_pass: runbook-scenario-matrix-latest.json status=fail
+- [x] runbook_scenario_matrix_fresh: 0.02h <= 168h
+- [ ] staging_migration_verification_status_pass: staging-migration-verification-latest.json status=fail
+- [x] staging_migration_verification_fresh: 0.02h <= 72h
+- [ ] feature_flag_governance_status_pass: feature-flag-governance-latest.json status=fail
+- [x] feature_flag_governance_fresh: 0.02h <= 72h
+- [ ] soak_hardware_evidence_status_pass: soak-hardware-evidence-latest.json status=fail
+- [x] soak_hardware_evidence_fresh: 0.04h <= 168h
+- [ ] release_candidate_package_status_pass: release-candidate-package-latest.json status=fail
+- [x] release_candidate_package_fresh: 0.04h <= 72h
+- [ ] release_ops_drill_present: docs/release/status/release-ops-drill-latest.json missing
+- [ ] external_input_resolution_status_pass: external-input-resolution-latest.json status=fail
+- [x] external_input_resolution_fresh: 0.04h <= 168h
+- [ ] operability_auth_suite_status_pass: operability-auth-suite-latest.json status=fail
+- [x] operability_auth_suite_fresh: 0.04h <= 72h
+- [ ] performance_e2e_present: docs/release/status/performance-e2e-latest.json missing
+- [ ] admin_rbac_penetration_status_pass: admin-rbac-penetration-latest.json status=fail
+- [x] admin_rbac_penetration_fresh: 0.02h <= 72h
+- [ ] admin_rbac_penetration_provenance_present: run_id=(missing); head_sha=(missing)
+- [ ] csrf_auth_e2e_present: docs/release/status/csrf-auth-e2e-latest.json missing

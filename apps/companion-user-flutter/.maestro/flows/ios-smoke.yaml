@@ -1,0 +1,111 @@
+appId: com.example.svenUserFlutter
+name: "iOS — Smoke test (all critical paths)"
+tags:
+  - smoke
+  - ios
+---
+# ── 1. Cold launch ────────────────────────────────────────────────────────────
+- launchApp:
+    clearState: false
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    text: "Sign in"
+    enabled: true
+
+- takeScreenshot: ios-smoke-01-login-screen
+
+# ── 2. Login form fields visible ──────────────────────────────────────────────
+- assertVisible:
+    id: "login_username_field"
+
+- assertVisible:
+    id: "login_password_field"
+
+- assertVisible:
+    id: "login_submit_button"
+
+- takeScreenshot: ios-smoke-02-form-fields
+
+# ── 3. Apple sign-in option visible ───────────────────────────────────────────
+- assertVisible:
+    text: "Continue with Apple"
+    optional: true
+
+# ── 4. Sign-in with test credentials ─────────────────────────────────────────
+- tapOn:
+    id: "login_username_field"
+
+- inputText: "testuser@sven.dev"
+
+- tapOn:
+    id: "login_password_field"
+
+- inputText: "Test@1234!"
+
+- tapOn:
+    id: "login_submit_button"
+
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- takeScreenshot: ios-smoke-03-home
+
+# ── 5. Key home-screen elements visible ───────────────────────────────────────
+- assertVisible:
+    text: "Sven"
+    enabled: true
+
+- assertVisible:
+    id: "new_chat_fab"
+
+- assertVisible:
+    id: "settings_icon_button"
+
+- takeScreenshot: ios-smoke-04-home-elements
+
+# ── 6. Open settings ──────────────────────────────────────────────────────────
+- tapOn:
+    id: "settings_icon_button"
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    text: "Settings"
+
+- takeScreenshot: ios-smoke-05-settings
+
+- swipe:
+    direction: DOWN
+    duration: 400
+
+- waitForAnimationToEnd
+
+# ── 7. Open new chat ──────────────────────────────────────────────────────────
+- tapOn:
+    id: "new_chat_fab"
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    id: "chat_composer_field"
+
+- takeScreenshot: ios-smoke-06-composer
+
+# ── 8. Sign out ───────────────────────────────────────────────────────────────
+- back
+
+- tapOn:
+    id: "settings_icon_button"
+
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Sign out"
+
+- assertVisible:
+    text: "Sign in"
+    enabled: true
+
+- takeScreenshot: ios-smoke-07-signed-out

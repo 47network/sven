@@ -1,0 +1,232 @@
+# Stash Include-Untracked Gap Report (Latest)
+
+Generated: 2026-03-16T10:09:15+02:00
+
+- stash_ref: `stash@{0}`
+- total_paths: 4029
+- existing_on_recovery_branch: 665
+- missing_on_recovery_branch: 3364
+
+## Missing by Top Directory
+- services: 2009
+- docs: 913
+- scripts: 190
+- archive: 151
+- apps: 35
+- skills: 22
+- .github: 18
+- config: 9
+- packages: 3
+- setup.sh: 1
+- setup.cmd: 1
+- RELEASE.md: 1
+- playwright.admin.config.ts: 1
+- .ai: 1
+- MAINTAINERS.md: 1
+- deploy: 1
+- .vscode: 1
+- .tmp_git_status.txt: 1
+- .secrets.baseline: 1
+- .editorconfig: 1
+
+## First 200 Missing Paths
+- .ai/mcp/mcp.json
+- .detect-secrets.cfg
+- .editorconfig
+- .github/agents/47Prod.agent.md
+- .github/release.yml
+- .github/workflows/backend-capability-e2e.yml
+- .github/workflows/backup-restore-api-e2e.yml
+- .github/workflows/csrf-auth-e2e.yml
+- .github/workflows/integration-truthfulness.yml
+- .github/workflows/mobile-coverage-gate.yml
+- .github/workflows/mobile-release-readiness.yml
+- .github/workflows/parity-checklist-verify.yml
+- .github/workflows/performance-e2e.yml
+- .github/workflows/pr-dor-metadata.yml
+- .github/workflows/privacy-admin-e2e.yml
+- .github/workflows/sast-codeql.yml
+- .github/workflows/security-audit-unified.yml
+- .github/workflows/security-privacy-governance.yml
+- .github/workflows/security-runtime-e2e.yml
+- .github/workflows/skill-quarantine-scan.yml
+- .github/workflows/workflow-sanity.yml
+- .secrets.baseline
+- .tmp_git_status.txt
+- .vscode/launch.json
+- apps/admin-ui/src/app/a2a-audit/page.tsx
+- apps/admin-ui/src/components/AdminSetupWizard.css
+- apps/admin-ui/src/components/AdminSetupWizard.tsx
+- apps/admin-ui/src/components/SetupWizardContainer.tsx
+- apps/companion-user-flutter/android/app/src/androidTest/java/com/fortyseven/thesven/MainActivityTest.java
+- apps/companion-user-flutter/android/app/src/main/kotlin/com/fortyseven/thesven/MainActivity.kt
+- apps/companion-user-flutter/android/app/src/main/kotlin/com/fortyseven/thesven/SvenWidgetProvider.kt
+- apps/companion-user-flutter/CHANGELOG.md
+- apps/companion-user-flutter/integration_test/device_login_test.dart
+- apps/companion-user-flutter/integration_test/device_smoke_test.dart
+- apps/companion-user-flutter/integration_test/patrol_smoke_test.dart
+- apps/companion-user-flutter/integration_test/test_bundle.dart
+- apps/companion-user-flutter/lib/app/api_base_service.dart
+- apps/companion-user-flutter/lib/features/chat/background_chat_sync_service.dart
+- apps/companion-user-flutter/lib/features/entity/ambient_display_page.dart
+- apps/companion-user-flutter/lib/features/entity/ambient_logic.dart
+- apps/companion-user-flutter/lib/features/entity/custom_form_sync_service.dart
+- apps/companion-user-flutter/lib/features/entity/entity_caption_widget.dart
+- apps/companion-user-flutter/lib/features/entity/entity_form_preference_service.dart
+- apps/companion-user-flutter/lib/features/entity/entity_shader_painter.dart
+- apps/companion-user-flutter/lib/features/entity/entity_state_model.dart
+- apps/companion-user-flutter/lib/features/entity/entity_stream_service.dart
+- apps/companion-user-flutter/lib/features/entity/form_picker_widget.dart
+- apps/companion-user-flutter/lib/features/entity/mirror_mode_screen.dart
+- apps/companion-user-flutter/lib/features/entity/orb_painter.dart
+- apps/companion-user-flutter/lib/features/entity/shape_generator_page.dart
+- apps/companion-user-flutter/lib/features/preferences/user_settings_service.dart
+- apps/companion-user-flutter/patrol_test/test_bundle.dart
+- apps/companion-user-flutter/shaders/entity.frag
+- apps/companion-user-flutter/test/ambient_logic_test.dart
+- apps/companion-user-flutter/test/app_state_wake_word_prefs_test.dart
+- apps/companion-user-flutter/test/notifications_dnd_test.dart
+- apps/companion-user-flutter/test/remote_gateway_runtime_base_test.dart
+- apps/companion-user-flutter/test/user_settings_service_test.dart
+- apps/companion-user-flutter/test/voice_service_wake_word_test.dart
+- archive/docs-hygiene/2026-03-12/archive-manifest.release-status-ephemeral.json
+- archive/docs-hygiene/2026-03-12/docs-root-development-ledgers/inspection-coverage-status.txt
+- archive/docs-hygiene/2026-03-12/docs-root-development-ledgers/issues.txt
+- archive/docs-hygiene/2026-03-12/docs-root-development-ledgers/production-fix-implementation-log.md
+- archive/docs-hygiene/2026-03-12/README.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/ci-required-checks-local-only-strict.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/ci-required-checks-local-only-strict.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/ci-required-checks-local-only.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/ci-required-checks-local-only.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/f2-ui-operability-raw-template.csv
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/f3-channel-credential-state.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/f3-invalid-policy-state.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/f3-model-provider-state.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/f3-tool-timeout-state.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/failure-mode-nats-marker.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/failure-mode-oom-state.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/flutter-release-status-2026-02-18.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/launch-d9-gateway.cmd
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/manual-gate-overrides-audit.jsonl
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mirror-agent-host-validation-20260312-061751.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mirror-agent-host-validation-20260312-061751.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mirror-agent-host-validation-20260312-062542.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mirror-agent-host-validation-20260312-062542.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mirror-agent-host-validation-20260312-062558.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mirror-agent-host-validation-20260312-062558.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mirror-agent-host-validation-20260312-063528.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mirror-agent-host-validation-20260312-063528.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-050738.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-050931.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-051018.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-060646.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-061057.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-182727.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-182742.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-182910.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-183209.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-183212.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-185417.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-185420.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-191838.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-191945.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-191947.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-192003.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-192006.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-193208.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-193325.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-193327.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-195555.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-195558.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-195908.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-195910.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-200350.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-200353.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-201425.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-201427.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-201808.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-201810.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-202025.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-202027.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-202047.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-202050.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-204323.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-205530.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-205532.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-210028.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-210031.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-c8-pack-20260222-210151.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-11-200403Z.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-11-200403Z.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-11-201035Z.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-11-201035Z.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-device-release-validation.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-device-release-validation.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-ios-c8-input-template-20260222-205929.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-ios-c8-input-template-20260222-205929.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-newarch-release-check.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-newarch-release-check.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-securestore-release-check.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/mobile-securestore-release-check.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/multi-device-validation-20260312-051450.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/multi-device-validation-20260312-051450.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/multi-device-validation-20260312-051456.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/multi-device-validation-20260312-051456.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/multi-device-validation-20260312-054658.json
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/multi-device-validation-20260312-054658.md
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/soak-72h-events.jsonl
+- archive/docs-hygiene/2026-03-12/release-status-snapshots-and-logs/start-test.out
+- archive/docs-hygiene/2026-03-16/archive-manifest.release-status-ephemeral.json
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/_tmp_agent_rows.txt
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/ci-required-checks-local-only.json
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/ci-required-checks-local-only.md
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/f3-model-provider-state.json
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/f3-tool-timeout-state.json
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/manual-gate-overrides-audit.jsonl
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/mirror-agent-host-validation-20260316-013454.json
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/mirror-agent-host-validation-20260316-013454.md
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-15-224636Z.json
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-15-224636Z.md
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-15-224833Z.json
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-15-224833Z.md
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-15-224946Z.json
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/mobile-device-release-validation-2026-03-15-224946Z.md
+- archive/docs-hygiene/2026-03-16/release-status-snapshots-and-logs/soak-72h-events.jsonl
+- archive/repo-hygiene/companion-user-flutter-build-logs-2026-03-12/manifest.json
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/device_screen.png
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/login_ui.xml
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/MANIFEST.txt
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/screenshot_current.png
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/screenshot_debug.png
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/screenshot_fixed.png
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/screenshot_now.png
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/screenshot.png
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/window_dump_latest.xml
+- archive/repo-hygiene/companion-user-flutter-captures-2026-03-12/window_dump.xml
+- archive/repo-hygiene/companion-user-flutter-jvm-crash-logs-2026-03-12/MANIFEST.txt
+- archive/repo-hygiene/folder-audit-2026-03-12/top-level-folder-audit-post-clean.json
+- archive/repo-hygiene/folder-audit-2026-03-12/top-level-folder-audit.json
+- archive/repo-hygiene/folder-audit-2026-03-12/top-level-folder-audit.md
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/attempt.png
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/flutter_prefs_device.xml
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/MANIFEST.txt
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/onboard.xml
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/sven_newpkg_1.png
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/sven_newpkg_2.png
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/sven_newpkg_3.png
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/sven_newpkg_4.png
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/sven_newpkg_5.png
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/sven_other_now.png
+- archive/repo-hygiene/root-captures-2026-03-12-pass2/sven_prod_now.png
+- archive/repo-hygiene/root-captures-2026-03-12/login_flow_step1.xml
+- archive/repo-hygiene/root-captures-2026-03-12/login_flow_step2.xml
+- archive/repo-hygiene/root-captures-2026-03-12/login_flow_step3.xml
+- archive/repo-hygiene/root-captures-2026-03-12/login_post.xml
+- archive/repo-hygiene/root-captures-2026-03-12/login_pre.xml
+- archive/repo-hygiene/root-captures-2026-03-12/login_result.xml
+- archive/repo-hygiene/root-captures-2026-03-12/login_ui.xml
+- archive/repo-hygiene/root-captures-2026-03-12/login.xml
+- archive/repo-hygiene/root-captures-2026-03-12/MANIFEST.txt
+- archive/repo-hygiene/root-captures-2026-03-12/screen_after_login_attempt.png
+- archive/repo-hygiene/root-captures-2026-03-12/screen_after_notif_allow.png
+- archive/repo-hygiene/root-captures-2026-03-12/screen_after_onboarding_taps.png

@@ -1,0 +1,18 @@
+## Patrol E2E test configuration
+## https://patrol.leancode.co/documentation/patrol-cli-configuration
+##
+## Run with:
+##   patrol test -t integration_test/patrol_test.dart
+##   patrol test                          # all integration_test/ files
+##   patrol test --device emulator-5554   # specific device
+
+patrol:
+  app_id: com.fortyseven.thesven.dev
+  find_timeout: 10000      # ms — how long finders wait before failing
+
+android:
+  app_id: com.fortyseven.thesven.dev
+
+ios:
+  app_id: com.fortyseven.thesven
+  bundle_id: com.fortyseven.thesven

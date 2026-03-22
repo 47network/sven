@@ -1,0 +1,162 @@
+name: firebase-app-distribution
+
+# Uploads a release APK to Firebase App Distribution after every
+# flutter-user-v* tag push and on main branch pushes.
+# Required repository secrets:
+#   FIREBASE_APP_ID       — Firebase Android App ID (e.g. 1:123456:android:abc)
+#   FIREBASE_TOKEN        — Firebase CLI token  (firebase login:ci)
+#   KEYSTORE_BASE64       — base64-encoded release keystore
+#   KEYSTORE_PASSWORD     — store password
+#   KEY_ALIAS             — key alias
+#   KEY_PASSWORD          — key password
+
+on:
+  push:
+    tags:
+      - 'flutter-user-v*'
+    branches:
+      - main
+
+concurrency:
+  group: app-dist-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  distribute:
+    name: Build & distribute APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Java (Gradle needs 17+) ────────────────────────────────────────────
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ── Flutter ───────────────────────────────────────────────────────────
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.x'
+          channel: stable
+          cache: true
+
+      - name: Install Flutter dependencies
+        working-directory: apps/companion-user-flutter
+        run: flutter pub get
+
+      - name: Prepare release dart-define bundle (fail-closed TLS pins)
+        working-directory: apps/companion-user-flutter
+        env:
+          SVEN_API_CERT_SHA256_PINS: ${{ secrets.SVEN_API_CERT_SHA256_PINS }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          if [ -z "$SVEN_API_CERT_SHA256_PINS" ]; then
+            echo "Missing required SVEN_API_CERT_SHA256_PINS for release build."
+            exit 1
+          fi
+          if [ -z "$SENTRY_DSN" ]; then
+            echo "Missing required SENTRY_DSN for production release build."
+            exit 1
+          fi
+          mkdir -p config/env
+          cat > config/env/mobile-dart-defines.ci.release.json <<EOF
+          {
+            "SVEN_FLAVOR": "prod",
+            "SVEN_ENV": "production",
+            "SVEN_API_CERT_SHA256_PINS": "$SVEN_API_CERT_SHA256_PINS",
+            "SENTRY_DSN": "$SENTRY_DSN"
+          }
+          EOF
+
+      - name: Analyze
+        working-directory: apps/companion-user-flutter
+        run: flutter analyze
+
+      - name: Test
+        working-directory: apps/companion-user-flutter
+        run: flutter test --exclude-tags golden
+
+      # ── Decode & write keystore ────────────────────────────────────────────
+      - name: Decode keystore
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode \
+            > apps/companion-user-flutter/android/app/release.keystore
+
+      - name: Write key.properties
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          cat > apps/companion-user-flutter/android/key.properties <<EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=release.keystore
+          EOF
+
+      # ── Build ─────────────────────────────────────────────────────────────
+      - name: Build release APK (arm64, prod flavor)
+        working-directory: apps/companion-user-flutter
+        run: |
+          flutter build apk \
+            --release \
+            --flavor prod \
+            --target lib/main.dart \
+            --target-platform android-arm64 \
+            --dart-define-from-file=config/env/mobile-dart-defines.ci.release.json
+
+      - name: Mobile release readiness gates (strict)
+        run: |
+          node scripts/mobile-firebase-tls-define-check.cjs --strict
+          node scripts/mobile-release-readiness-check.cjs --strict
+
+      - name: Upload mobile release readiness artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-release-readiness-${{ github.ref_name }}
+          path: |
+            docs/release/status/mobile-firebase-tls-define-latest.json
+            docs/release/status/mobile-firebase-tls-define-latest.md
+            docs/release/status/mobile-release-readiness-latest.json
+            docs/release/status/mobile-release-readiness-latest.md
+
+      # ── Determine release notes ────────────────────────────────────────────
+      - name: Build release notes
+        id: notes
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF_NAME}"
+            PREV=$(git tag --sort=-version:refname \
+                     | grep '^flutter-user-v' \
+                     | grep -v "^${TAG}$" | head -1)
+            if [ -n "$PREV" ]; then
+              NOTES=$(git log "${PREV}..${TAG}" --pretty=format:"• %s" | head -20)
+            else
+              NOTES=$(git log "${TAG}" --pretty=format:"• %s" | head -20)
+            fi
+          else
+            NOTES=$(git log -10 --pretty=format:"• %s")
+          fi
+          # Escape multi-line for GitHub Actions output
+          echo "notes<<EOF" >> "$GITHUB_OUTPUT"
+          echo "${NOTES}"   >> "$GITHUB_OUTPUT"
+          echo "EOF"        >> "$GITHUB_OUTPUT"
+
+      # ── Firebase App Distribution ─────────────────────────────────────────
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          groups: internal-testers
+          releaseNotes: ${{ steps.notes.outputs.notes }}
+          file: apps/companion-user-flutter/build/app/outputs/flutter-apk/app-prod-release.apk

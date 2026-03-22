@@ -1,0 +1,637 @@
+name: release-gates-sync
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - final-dod-e2e
+      - parity-e2e
+      - parity-checklist-verify
+      - d9-keycloak-interop-gate
+      - release-ops-drill
+      - mobile-auth-session-smoke
+      - mobile-release-readiness
+      - backup-restore-api-e2e
+      - mobile-coverage-gate
+      - performance-e2e
+      - flutter-user-app-device-farm
+      - desktop-tauri-release
+      - ui-e2e-accessibility
+      - gateway-coverage-gate
+      - csrf-auth-e2e
+      - skill-quarantine-scan
+      - security-audit-unified
+      - security-baseline
+      - security-runtime-e2e
+      - client-env-governance
+      - backend-capability-e2e
+      - security-privacy-governance
+      - privacy-admin-e2e
+      - sast-codeql
+      - release-supply-chain
+      - workflow-sanity
+    types: [completed]
+
+concurrency:
+  group: release-gates-sync-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  sync-gates:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Refresh derived gate artifacts
+        run: |
+          npm run release:parity:checklist:verify:local || true
+          node scripts/agent-zero-parity-verify.cjs || true
+          npm run release:mcp:compat:check:local || true
+          npm run release:a2a:compat:check:local || true
+
+      - name: Build gate status from synchronized sources
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const fs = require('fs');
+            const { detectOpsShellCiRequirement } = require('./scripts/lib/ops-shell-ci-scope.cjs');
+            const requiredWorkflowManifestPath = 'config/release/required-workflows.json';
+            const defaultBranch = context.payload.repository?.default_branch || 'main';
+            const targetBranch =
+              context.payload.workflow_run?.head_branch ||
+              (String(context.ref || '').startsWith('refs/heads/')
+                ? String(context.ref).replace('refs/heads/', '')
+                : defaultBranch);
+            const targetSha = context.payload.workflow_run?.head_sha || context.sha || null;
+
+            function readJsonIfExists(relPath) {
+              if (!fs.existsSync(relPath)) return null;
+              try {
+                return JSON.parse(fs.readFileSync(relPath, 'utf8'));
+              } catch {
+                return null;
+              }
+            }
+
+            const existingGates = readJsonIfExists('docs/release/status/ci-gates.json') || {};
+            const requiredWorkflowManifest = readJsonIfExists(requiredWorkflowManifestPath) || {};
+            const requiredWorkflows = Array.isArray(requiredWorkflowManifest.required_workflows)
+              ? requiredWorkflowManifest.required_workflows.map((item) => String(item || '').trim()).filter(Boolean)
+              : ['final-dod-e2e', 'parity-e2e', 'd9-keycloak-interop-gate', 'release-ops-drill'];
+            const ciGateKeyByWorkflow =
+              requiredWorkflowManifest && typeof requiredWorkflowManifest.ci_gate_key_by_workflow === 'object'
+                ? requiredWorkflowManifest.ci_gate_key_by_workflow
+                : {};
+            const workflowCatalog = await github.paginate(github.rest.actions.listRepoWorkflows, {
+              owner,
+              repo,
+              per_page: 100,
+            });
+            const runSnapshotCapturedAt = new Date().toISOString();
+            const branchRunsSnapshot = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+              owner,
+              repo,
+              branch: targetBranch,
+              per_page: 100,
+            });
+
+            async function workflowByName(workflowName) {
+              return workflowCatalog.find((item) => item.name === workflowName) || null;
+            }
+
+            function emptyWorkflowGateProvenance(workflowId, gateKey, workflowName, decision, details) {
+              return {
+                run_id: null,
+                head_sha: null,
+                head_branch: targetBranch,
+                event: null,
+                status: null,
+                conclusion: null,
+                workflow_id: workflowId || null,
+                workflow_name: workflowName,
+                matched_target_sha: false,
+                gate_key: gateKey,
+                decision,
+                ...details,
+              };
+            }
+
+            async function resolveWorkflowGate(gateKey, workflowName) {
+              const workflow = await workflowByName(workflowName);
+              if (!workflow) {
+                return {
+                  pass: existingGates[gateKey] === true,
+                  provenance: emptyWorkflowGateProvenance(
+                    null,
+                    gateKey,
+                    workflowName,
+                    'workflow_not_found',
+                    { previous_gate_value: existingGates[gateKey] === true },
+                  ),
+                };
+              }
+              const runs = Array.isArray(branchRunsSnapshot)
+                ? branchRunsSnapshot.filter((run) => Number(run.workflow_id || 0) === Number(workflow.id || 0))
+                : [];
+              if (!Array.isArray(runs) || runs.length === 0) {
+                return {
+                  pass: existingGates[gateKey] === true,
+                  provenance: emptyWorkflowGateProvenance(
+                    workflow.id,
+                    gateKey,
+                    workflowName,
+                    'no_runs_for_branch',
+                    { previous_gate_value: existingGates[gateKey] === true },
+                  ),
+                };
+              }
+
+              const completedRuns = runs.filter((run) => run.status === 'completed');
+              const targetRuns = targetSha
+                ? runs.filter((run) => String(run.head_sha || '') === String(targetSha))
+                : [];
+              const nonFinalTargetRun = targetRuns.find((run) => run.status !== 'completed');
+              if (nonFinalTargetRun) {
+                const previousGateValue = existingGates[gateKey] === true;
+                return {
+                  pass: previousGateValue,
+                  provenance: {
+                    run_id: nonFinalTargetRun.id || null,
+                    head_sha: nonFinalTargetRun.head_sha || null,
+                    head_branch: nonFinalTargetRun.head_branch || targetBranch,
+                    event: nonFinalTargetRun.event || null,
+                    status: nonFinalTargetRun.status || null,
+                    conclusion: nonFinalTargetRun.conclusion || null,
+                    workflow_id: workflow.id,
+                    workflow_name: workflowName,
+                    matched_target_sha: true,
+                    gate_key: gateKey,
+                    decision: previousGateValue
+                      ? 'preserved_previous_pass_non_final_target_sha'
+                      : 'pending_non_final_target_sha',
+                    previous_gate_value: previousGateValue,
+                  },
+                }
+              }
+
+              const exactShaRun =
+                targetSha && completedRuns.find((run) => String(run.head_sha || '') === String(targetSha));
+              if (targetSha && !exactShaRun) {
+                return {
+                  pass: false,
+                  provenance: {
+                    run_id: null,
+                    head_sha: null,
+                    head_branch: targetBranch,
+                    event: null,
+                    status: null,
+                    conclusion: null,
+                    workflow_id: workflow.id,
+                    workflow_name: workflowName,
+                    matched_target_sha: false,
+                    gate_key: gateKey,
+                    decision: 'missing_completed_target_sha_run',
+                    target_sha: targetSha,
+                  },
+                };
+              }
+              const selectedRun = exactShaRun || completedRuns[0] || null;
+              if (!selectedRun) {
+                return {
+                  pass: existingGates[gateKey] === true,
+                  provenance: emptyWorkflowGateProvenance(
+                    workflow.id,
+                    gateKey,
+                    workflowName,
+                    'no_completed_runs',
+                    { previous_gate_value: existingGates[gateKey] === true },
+                  ),
+                };
+              }
+
+              return {
+                pass: selectedRun.conclusion === 'success',
+                provenance: {
+                  run_id: selectedRun.id || null,
+                  head_sha: selectedRun.head_sha || null,
+                  head_branch: selectedRun.head_branch || targetBranch,
+                  event: selectedRun.event || null,
+                  status: selectedRun.status || null,
+                  conclusion: selectedRun.conclusion || null,
+                  workflow_id: selectedRun.workflow_id || workflow.id || null,
+                  workflow_name: workflowName,
+                  matched_target_sha: targetSha ? String(selectedRun.head_sha || '') === String(targetSha) : false,
+                  gate_key: gateKey,
+                  decision: exactShaRun ? 'target_sha_completed_run' : 'latest_completed_run_without_target_sha',
+                },
+              };
+            }
+
+            const requiredWorkflowGates = {};
+            for (const workflowName of requiredWorkflows) {
+              const gateKey = String(ciGateKeyByWorkflow[workflowName] || `${workflowName.replace(/[^a-z0-9]+/gi, '_').toLowerCase()}_ci`);
+              const gateResult = await resolveWorkflowGate(gateKey, workflowName);
+              requiredWorkflowGates[workflowName] = {
+                pass: gateResult.pass,
+                provenance: gateResult.provenance,
+                gate_key: gateKey,
+              };
+            }
+
+            const finalDod = requiredWorkflowGates['final-dod-e2e'] || {
+              pass: existingGates.final_dod_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'final_dod_ci', 'final-dod-e2e', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.final_dod_ci === true,
+              }),
+              gate_key: 'final_dod_ci',
+            };
+            const parity = requiredWorkflowGates['parity-e2e'] || {
+              pass: existingGates.parity_e2e_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'parity_e2e_ci', 'parity-e2e', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.parity_e2e_ci === true,
+              }),
+              gate_key: 'parity_e2e_ci',
+            };
+            const d9KeycloakInterop = requiredWorkflowGates['d9-keycloak-interop-gate'] || {
+              pass: existingGates.d9_keycloak_interop_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'd9_keycloak_interop_ci', 'd9-keycloak-interop-gate', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.d9_keycloak_interop_ci === true,
+              }),
+              gate_key: 'd9_keycloak_interop_ci',
+            };
+            const ops = requiredWorkflowGates['release-ops-drill'] || {
+              pass: existingGates.release_ops_drill_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'release_ops_drill_ci', 'release-ops-drill', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.release_ops_drill_ci === true,
+              }),
+              gate_key: 'release_ops_drill_ci',
+            };
+            const mobileAuthSession = requiredWorkflowGates['mobile-auth-session-smoke'] || {
+              pass: existingGates.mobile_auth_session_smoke_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'mobile_auth_session_smoke_ci', 'mobile-auth-session-smoke', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.mobile_auth_session_smoke_ci === true,
+              }),
+              gate_key: 'mobile_auth_session_smoke_ci',
+            };
+            const mobileReleaseReadiness = requiredWorkflowGates['mobile-release-readiness'] || {
+              pass: existingGates.mobile_release_readiness_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'mobile_release_readiness_ci', 'mobile-release-readiness', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.mobile_release_readiness_ci === true,
+              }),
+              gate_key: 'mobile_release_readiness_ci',
+            };
+            const backupRestoreApi = requiredWorkflowGates['backup-restore-api-e2e'] || {
+              pass: existingGates.backup_restore_api_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'backup_restore_api_ci', 'backup-restore-api-e2e', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.backup_restore_api_ci === true,
+              }),
+              gate_key: 'backup_restore_api_ci',
+            };
+            const mobileDeviceFarm = requiredWorkflowGates['flutter-user-app-device-farm'] || {
+              pass: existingGates.flutter_user_app_device_farm_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'flutter_user_app_device_farm_ci', 'flutter-user-app-device-farm', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.flutter_user_app_device_farm_ci === true,
+              }),
+              gate_key: 'flutter_user_app_device_farm_ci',
+            };
+            const desktopRelease = requiredWorkflowGates['desktop-tauri-release'] || {
+              pass: existingGates.desktop_release_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'desktop_release_ci', 'desktop-tauri-release', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.desktop_release_ci === true,
+              }),
+              gate_key: 'desktop_release_ci',
+            };
+            const uiE2e = requiredWorkflowGates['ui-e2e-accessibility'] || {
+              pass: existingGates.ui_e2e_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'ui_e2e_ci', 'ui-e2e-accessibility', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.ui_e2e_ci === true,
+              }),
+              gate_key: 'ui_e2e_ci',
+            };
+            const mobileCoverageGate = requiredWorkflowGates['mobile-coverage-gate'] || {
+              pass: existingGates.mobile_coverage_gate_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'mobile_coverage_gate_ci', 'mobile-coverage-gate', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.mobile_coverage_gate_ci === true,
+              }),
+              gate_key: 'mobile_coverage_gate_ci',
+            };
+            const csrfAuthE2e = requiredWorkflowGates['csrf-auth-e2e'] || {
+              pass: existingGates.csrf_auth_e2e_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'csrf_auth_e2e_ci', 'csrf-auth-e2e', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.csrf_auth_e2e_ci === true,
+              }),
+              gate_key: 'csrf_auth_e2e_ci',
+            };
+            const clientEnvGovernance = requiredWorkflowGates['client-env-governance'] || {
+              pass: existingGates.client_env_governance_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'client_env_governance_ci', 'client-env-governance', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.client_env_governance_ci === true,
+              }),
+              gate_key: 'client_env_governance_ci',
+            };
+            const backendCapabilityE2e = requiredWorkflowGates['backend-capability-e2e'] || {
+              pass: existingGates.backend_capability_e2e_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'backend_capability_e2e_ci', 'backend-capability-e2e', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.backend_capability_e2e_ci === true,
+              }),
+              gate_key: 'backend_capability_e2e_ci',
+            };
+            const securityPrivacyGovernance = requiredWorkflowGates['security-privacy-governance'] || {
+              pass: existingGates.security_privacy_governance_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'security_privacy_governance_ci', 'security-privacy-governance', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.security_privacy_governance_ci === true,
+              }),
+              gate_key: 'security_privacy_governance_ci',
+            };
+            const privacyAdminE2e = requiredWorkflowGates['privacy-admin-e2e'] || {
+              pass: existingGates.privacy_admin_e2e_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'privacy_admin_e2e_ci', 'privacy-admin-e2e', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.privacy_admin_e2e_ci === true,
+              }),
+              gate_key: 'privacy_admin_e2e_ci',
+            };
+            const skillQuarantineScan = requiredWorkflowGates['skill-quarantine-scan'] || {
+              pass: existingGates.skill_quarantine_scan_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'skill_quarantine_scan_ci', 'skill-quarantine-scan', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.skill_quarantine_scan_ci === true,
+              }),
+              gate_key: 'skill_quarantine_scan_ci',
+            };
+            const securityAuditUnified = requiredWorkflowGates['security-audit-unified'] || {
+              pass: existingGates.security_audit_unified_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'security_audit_unified_ci', 'security-audit-unified', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.security_audit_unified_ci === true,
+              }),
+              gate_key: 'security_audit_unified_ci',
+            };
+            const securityBaseline = requiredWorkflowGates['security-baseline'] || {
+              pass: existingGates.security_baseline_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'security_baseline_ci', 'security-baseline', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.security_baseline_ci === true,
+              }),
+              gate_key: 'security_baseline_ci',
+            };
+
+            function statusGate(gateKey, workflowName, relPath) {
+              const payload = readJsonIfExists(relPath);
+              const status = payload && typeof payload === 'object' ? String(payload.status || '').toLowerCase() : '';
+              const runId =
+                payload && typeof payload === 'object'
+                  ? String(payload.source_run_id || payload.run_id || '').trim() || null
+                  : null;
+              const headSha =
+                payload && typeof payload === 'object'
+                  ? String(payload.source_head_sha || payload.head_sha || '').trim() || null
+                  : null;
+              const generatedAt =
+                payload && typeof payload === 'object' && typeof payload.generated_at === 'string'
+                  ? payload.generated_at
+                  : null;
+              return {
+                pass: status === 'pass',
+                provenance: {
+                  run_id: runId,
+                  head_sha: headSha,
+                  head_branch: targetBranch,
+                  event: null,
+                  status: status || null,
+                  conclusion: status === 'pass' ? 'success' : status === 'fail' ? 'failure' : null,
+                  workflow_id: null,
+                  workflow_name: workflowName,
+                  matched_target_sha: headSha && targetSha ? String(headSha) === String(targetSha) : false,
+                  gate_key: gateKey,
+                  decision: status ? 'derived_status_artifact' : 'derived_status_missing',
+                  source_artifact: relPath,
+                  generated_at: generatedAt,
+                },
+              };
+            }
+
+            const parityChecklistVerify = requiredWorkflowGates['parity-checklist-verify'] || {
+              pass: existingGates.parity_checklist_verify_ci === true,
+              provenance: emptyWorkflowGateProvenance(null, 'parity_checklist_verify_ci', 'parity-checklist-verify', 'missing_required_workflow_mapping', {
+                previous_gate_value: existingGates.parity_checklist_verify_ci === true,
+              }),
+              gate_key: 'parity_checklist_verify_ci',
+            };
+            const agentZeroParityVerify = statusGate(
+              'agent_zero_parity_verify_ci',
+              'agent-zero-parity-verify',
+              'docs/release/status/agent-zero-parity-verify-latest.json',
+            );
+            const websocketContract = statusGate(
+              'websocket_contract_ci',
+              'websocket-contract',
+              'docs/release/status/websocket-contract-latest.json',
+            );
+            const mcpCompat = statusGate(
+              'mcp_server_compat_ci',
+              'mcp-server-compat',
+              'docs/release/status/mcp-server-compat-latest.json',
+            );
+            const a2aCompat = statusGate(
+              'a2a_compat_ci',
+              'a2a-compat',
+              'docs/release/status/a2a-compat-latest.json',
+            );
+            const multiDeviceValidation = statusGate(
+              'multi_device_validation_ci',
+              'multi-device-validation',
+              'docs/release/status/multi-device-validation-latest.json',
+            );
+            const preservedHumanGates = {
+              soak_72h: existingGates.soak_72h === true,
+              week4_rc_complete: existingGates.week4_rc_complete === true,
+              post_release_verified: existingGates.post_release_verified === true,
+            };
+            const opsShellScope = detectOpsShellCiRequirement({
+              rootDir: process.cwd(),
+              targetSha,
+              baseRef: targetBranch ? `origin/${targetBranch}` : null,
+            });
+            const opsShellCiResolved = await resolveWorkflowGate('ops_shell_ci', 'ops-shell-ci');
+            const opsShellCiRequired = Boolean(opsShellScope.required);
+            const opsShellCi = {
+              pass: opsShellCiRequired ? opsShellCiResolved.pass : true,
+              provenance: {
+                ...opsShellCiResolved.provenance,
+                decision: opsShellCiRequired
+                  ? (opsShellCiResolved.provenance?.decision || 'required_scope_match')
+                  : 'not_required_scope_clean',
+                scope_source: opsShellScope.source,
+                scope_globs: opsShellScope.scope_globs,
+                scope_matched_files: opsShellScope.matched_files,
+                scope_changed_files_count: Array.isArray(opsShellScope.changed_files) ? opsShellScope.changed_files.length : 0,
+                ops_shell_ci_required: opsShellCiRequired,
+              },
+            };
+
+            const payload = {
+              generated_at: new Date().toISOString(),
+              source_branch: targetBranch,
+              source_head_sha: targetSha,
+              run_snapshot: {
+                source: 'actions.listWorkflowRunsForRepo',
+                captured_at: runSnapshotCapturedAt,
+                branch: targetBranch,
+                total_runs: Array.isArray(branchRunsSnapshot) ? branchRunsSnapshot.length : 0,
+              },
+              final_dod_ci: finalDod.pass,
+              parity_e2e_ci: parity.pass,
+              parity_checklist_verify_ci: parityChecklistVerify.pass,
+              agent_zero_parity_verify_ci: agentZeroParityVerify.pass,
+              websocket_contract_ci: websocketContract.pass,
+              mcp_server_compat_ci: mcpCompat.pass,
+              a2a_compat_ci: a2aCompat.pass,
+              multi_device_validation_ci: multiDeviceValidation.pass,
+              d9_keycloak_interop_ci: d9KeycloakInterop.pass,
+              release_ops_drill_ci: ops.pass,
+              mobile_auth_session_smoke_ci: mobileAuthSession.pass,
+              mobile_release_readiness_ci: mobileReleaseReadiness.pass,
+              backup_restore_api_ci: backupRestoreApi.pass,
+              flutter_user_app_device_farm_ci: mobileDeviceFarm.pass,
+              desktop_release_ci: desktopRelease.pass,
+              ui_e2e_ci: uiE2e.pass,
+              mobile_coverage_gate_ci: mobileCoverageGate.pass,
+              csrf_auth_e2e_ci: csrfAuthE2e.pass,
+              client_env_governance_ci: clientEnvGovernance.pass,
+              backend_capability_e2e_ci: backendCapabilityE2e.pass,
+              security_privacy_governance_ci: securityPrivacyGovernance.pass,
+              privacy_admin_e2e_ci: privacyAdminE2e.pass,
+              ops_shell_ci_required: opsShellCiRequired,
+              ops_shell_ci: opsShellCi.pass,
+              skill_quarantine_scan_ci: skillQuarantineScan.pass,
+              security_audit_unified_ci: securityAuditUnified.pass,
+              security_baseline_ci: securityBaseline.pass,
+              gate_provenance: {
+                final_dod_ci: finalDod.provenance,
+                parity_e2e_ci: parity.provenance,
+                parity_checklist_verify_ci: parityChecklistVerify.provenance,
+                agent_zero_parity_verify_ci: agentZeroParityVerify.provenance,
+                websocket_contract_ci: websocketContract.provenance,
+                mcp_server_compat_ci: mcpCompat.provenance,
+                a2a_compat_ci: a2aCompat.provenance,
+                multi_device_validation_ci: multiDeviceValidation.provenance,
+                d9_keycloak_interop_ci: d9KeycloakInterop.provenance,
+                release_ops_drill_ci: ops.provenance,
+                mobile_auth_session_smoke_ci: mobileAuthSession.provenance,
+                mobile_release_readiness_ci: mobileReleaseReadiness.provenance,
+                backup_restore_api_ci: backupRestoreApi.provenance,
+                flutter_user_app_device_farm_ci: mobileDeviceFarm.provenance,
+                desktop_release_ci: desktopRelease.provenance,
+                ui_e2e_ci: uiE2e.provenance,
+                mobile_coverage_gate_ci: mobileCoverageGate.provenance,
+                csrf_auth_e2e_ci: csrfAuthE2e.provenance,
+                client_env_governance_ci: clientEnvGovernance.provenance,
+                backend_capability_e2e_ci: backendCapabilityE2e.provenance,
+                security_privacy_governance_ci: securityPrivacyGovernance.provenance,
+                privacy_admin_e2e_ci: privacyAdminE2e.provenance,
+                ops_shell_ci: opsShellCi.provenance,
+                skill_quarantine_scan_ci: skillQuarantineScan.provenance,
+                security_audit_unified_ci: securityAuditUnified.provenance,
+                security_baseline_ci: securityBaseline.provenance,
+              },
+              required_workflow_manifest: {
+                source: requiredWorkflowManifestPath,
+                required_workflows: requiredWorkflows,
+              },
+              required_workflow_gates: requiredWorkflowGates,
+              ...preservedHumanGates,
+            };
+
+            const requiredFinalSignoffGateKeys = [
+              'final_dod_ci',
+              'parity_e2e_ci',
+              'parity_checklist_verify_ci',
+              'agent_zero_parity_verify_ci',
+              'websocket_contract_ci',
+              'mcp_server_compat_ci',
+              'a2a_compat_ci',
+              'multi_device_validation_ci',
+              'release_ops_drill_ci',
+              'd9_keycloak_interop_ci',
+              'mobile_auth_session_smoke_ci',
+              'mobile_release_readiness_ci',
+              'backup_restore_api_ci',
+              'flutter_user_app_device_farm_ci',
+              'desktop_release_ci',
+              'ui_e2e_ci',
+              'mobile_coverage_gate_ci',
+              'csrf_auth_e2e_ci',
+              'client_env_governance_ci',
+              'backend_capability_e2e_ci',
+              'security_privacy_governance_ci',
+              'privacy_admin_e2e_ci',
+              'ops_shell_ci_required',
+              'ops_shell_ci',
+              'skill_quarantine_scan_ci',
+              'security_audit_unified_ci',
+              'security_baseline_ci',
+              'soak_72h',
+              'week4_rc_complete',
+              'post_release_verified',
+            ];
+            const missingRequiredGateKeys = requiredFinalSignoffGateKeys.filter(
+              (key) => !Object.prototype.hasOwnProperty.call(payload, key),
+            );
+            if (missingRequiredGateKeys.length > 0) {
+              core.setFailed(`ci-gates payload missing required keys: ${missingRequiredGateKeys.join(', ')}`);
+              return;
+            }
+
+            fs.mkdirSync('docs/release/status', { recursive: true });
+            fs.writeFileSync('docs/release/status/ci-gates.json', JSON.stringify(payload, null, 2) + '\n');
+
+      - name: Recompute release status and update checklist
+        run: |
+          npm run release:status
+          npm run release:checklist:update
+
+      - name: Commit gate status updates
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          required_targets=(
+            "docs/release/status/ci-gates.json"
+            "docs/parity/Sven_Parity_Checklist.md"
+            "docs/release/checklists/sven-production-parity-checklist-2026.md"
+          )
+          missing_targets=()
+          for target in "${required_targets[@]}"; do
+            if [ ! -f "$target" ]; then
+              missing_targets+=("$target")
+            fi
+          done
+          if [ ${#missing_targets[@]} -gt 0 ]; then
+            echo "Missing required gate-sync targets:"
+            for missing in "${missing_targets[@]}"; do
+              echo " - $missing"
+            done
+            exit 2
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${required_targets[@]}"
+          git commit -m "chore(release): sync CI gate status"
+          if ! git push; then
+            git pull --rebase origin "${GITHUB_REF_NAME:-thesven}"
+            git push
+          fi

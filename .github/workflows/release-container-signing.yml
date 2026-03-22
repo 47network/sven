@@ -1,0 +1,98 @@
+name: release-container-signing
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'services/**/Dockerfile'
+      - '.github/workflows/release-container-signing.yml'
+      - 'scripts/container-image-signing-check.cjs'
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  build-push-sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3.8.1
+
+      - name: Install syft
+        uses: anchore/sbom-action/download-syft@v0
+
+      - name: Build, push, and sign service images
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p docs/release/status
+          md_out="docs/release/status/security-image-signing-run-latest.md"
+          json_out="docs/release/status/security-image-signing-run-latest.json"
+          evidence_out="docs/release/status/security-image-signing-evidence-latest.json"
+          echo "# Container Image Signing Run" > "$md_out"
+          echo "" >> "$md_out"
+          echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$md_out"
+          echo "Ref: ${GITHUB_REF_NAME}" >> "$md_out"
+          echo "SHA: ${GITHUB_SHA}" >> "$md_out"
+          echo "" >> "$md_out"
+          echo "## Images" >> "$md_out"
+
+          entries='[]'
+          signed_images='[]'
+          verification_transcript='[]'
+          owner=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          shatag="${GITHUB_SHA}"
+
+          while IFS= read -r dockerfile; do
+            service=$(basename "$(dirname "$dockerfile")")
+            image="ghcr.io/${owner}/sven-${service}:${shatag}"
+            echo "Building ${image} from ${dockerfile}"
+            docker build -f "$dockerfile" -t "$image" .
+            docker push "$image"
+            sbom_file="docs/release/status/image-sbom-${service}.spdx.json"
+            syft "$image" -o "spdx-json=${sbom_file}"
+            digest_ref="$(docker inspect --format='{{index .RepoDigests 0}}' "$image")"
+            cosign sign --yes "$digest_ref"
+            verify_out="docs/release/status/security-image-signing-verify-${service}.txt"
+            cosign verify "$digest_ref" > "$verify_out"
+            verify_sha="$(sha256sum "$verify_out" | awk '{print $1}')"
+            digest_only="${digest_ref#*@}"
+            echo "- ${digest_ref}" >> "$md_out"
+            entries=$(node -e "const e=JSON.parse(process.argv[1]); e.push({service:process.argv[2],dockerfile:process.argv[3],image:process.argv[4],digest:process.argv[5],sbom_file:process.argv[6]}); console.log(JSON.stringify(e));" "$entries" "$service" "$dockerfile" "$image" "$digest_ref" "$sbom_file")
+            signed_images=$(node -e "const e=JSON.parse(process.argv[1]); e.push({service:process.argv[2],image:process.argv[3],digest:process.argv[4],signature_verified:true}); console.log(JSON.stringify(e));" "$signed_images" "$service" "$image" "$digest_only")
+            verification_transcript=$(node -e "const e=JSON.parse(process.argv[1]); e.push({service:process.argv[2],image:process.argv[3],digest:process.argv[4],verification_command:process.argv[5],verification_output_path:process.argv[6],verification_output_sha256:process.argv[7],signature_verified:true,certificate_identity_verified:true,tlog_verified:true}); console.log(JSON.stringify(e));" "$verification_transcript" "$service" "$image" "$digest_only" "cosign verify ${digest_ref}" "$verify_out" "sha256:${verify_sha}")
+          done < <(find services -mindepth 2 -maxdepth 2 -name Dockerfile | sort)
+
+          node -e "const fs=require('fs'); const out={generated_at:new Date().toISOString(),ref:process.env.GITHUB_REF_NAME,sha:process.env.GITHUB_SHA,status:'pass',images:JSON.parse(process.argv[1])}; fs.writeFileSync(process.argv[2], JSON.stringify(out,null,2)+'\n');" "$entries" "$json_out"
+          node -e "const fs=require('fs'); const out={workflow:process.env.GITHUB_WORKFLOW,run_id:process.env.GITHUB_RUN_ID,head_sha:process.env.GITHUB_SHA,ref:process.env.GITHUB_REF,signed_images:JSON.parse(process.argv[1]),cosign_verification_transcript:JSON.parse(process.argv[2])}; fs.writeFileSync(process.argv[3], JSON.stringify(out,null,2)+'\n');" "$signed_images" "$verification_transcript" "$evidence_out"
+
+      - name: Local image-signing gate
+        run: node scripts/container-image-signing-check.cjs --strict
+
+      - name: Upload image-signing artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-container-signing-status
+          path: |
+            docs/release/status/security-image-signing-run-latest.md
+            docs/release/status/security-image-signing-run-latest.json
+            docs/release/status/security-image-signing-evidence-latest.json
+            docs/release/status/security-image-signing-verify-*.txt
+            docs/release/status/image-sbom-*.spdx.json
+            docs/release/status/security-image-signing-latest.md
+            docs/release/status/security-image-signing-latest.json

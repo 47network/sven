@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-03-21T02:10:20.125Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "seed_doc_baseline_contract_pass",
+      "pass": true,
+      "detail": "seed-allowlist-baseline-contract.test.ts passed"
+    },
+    {
+      "id": "seed_startup_invariant_contract_pass",
+      "pass": true,
+      "detail": "seed-baseline-startup-invariant-contract.test.ts passed"
+    }
+  ]
+}

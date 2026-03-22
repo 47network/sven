@@ -1,0 +1,76 @@
+# Sven dynamic routes for Traefik v2+.
+# Use when Traefik is your internal ingress in front of Sven services.
+#
+# Scope:
+# - runtime host only (`app`-style surface)
+# - this file does not model the separate static release host for landing/suite/installers
+# - keep the installer/suite host on a dedicated static host or separate Traefik router set
+#
+# Expected service ports on Sven host:
+# - gateway-api: 3000
+# - admin-ui:    3100
+# - canvas-ui:   3200
+
+http:
+  routers:
+    sven-api:
+      rule: "Host(`sven.glyph.47matrix.online`) && PathPrefix(`/v1`)"
+      service: sven-gateway
+      middlewares:
+        - sven-forwarded-headers
+      priority: 200
+
+    sven-ready:
+      rule: "Host(`sven.glyph.47matrix.online`) && (Path(`/healthz`) || Path(`/readyz`))"
+      service: sven-gateway
+      middlewares:
+        - sven-forwarded-headers
+      priority: 210
+
+    sven-admin:
+      rule: "Host(`sven.glyph.47matrix.online`) && PathPrefix(`/admin47`)"
+      service: sven-admin
+      middlewares:
+        - sven-forwarded-headers
+        # Enforce admin network allowlist here if Traefik is your enforcement point.
+        # - sven-admin-ipallowlist
+      priority: 190
+
+    sven-canvas:
+      rule: "Host(`sven.glyph.47matrix.online`)"
+      service: sven-canvas
+      middlewares:
+        - sven-forwarded-headers
+      priority: 100
+
+  middlewares:
+    sven-forwarded-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+    # Optional admin lockdown middleware.
+    # Replace sourceRange values with trusted public IP/VPN CIDRs.
+    sven-admin-ipallowlist:
+      ipAllowList:
+        sourceRange:
+          - "127.0.0.1/32"
+          - "::1/128"
+          # - "203.0.113.10/32"
+          # - "10.8.0.0/24"
+
+  services:
+    sven-gateway:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:3000"
+
+    sven-admin:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:3100"
+
+    sven-canvas:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:3200"

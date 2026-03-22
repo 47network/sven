@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-03-16T06:05:06.710Z",
+  "status": "pass",
+  "passed": 3,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "langgraph_wave8_all_lane_artifacts_present",
+      "pass": true,
+      "detail": "present=10/10"
+    },
+    {
+      "id": "langgraph_wave8_all_lane_artifacts_pass",
+      "pass": true,
+      "detail": "passing=10/10"
+    },
+    {
+      "id": "langgraph_wave8_matrix_rows_all_implemented",
+      "pass": true,
+      "detail": "all ten Wave 8 rows are present and implemented"
+    }
+  ],
+  "lanes": [
+    {
+      "file": "langgraph-w01-stateful-graph-orchestration-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:03.665Z"
+    },
+    {
+      "file": "langgraph-w02-branch-routing-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:03.958Z"
+    },
+    {
+      "file": "langgraph-w03-checkpoint-resume-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:04.268Z"
+    },
+    {
+      "file": "langgraph-w04-hitl-interrupt-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:04.581Z"
+    },
+    {
+      "file": "langgraph-w05-tool-node-policy-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:04.875Z"
+    },
+    {
+      "file": "langgraph-w06-retry-recovery-edges-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:05.177Z"
+    },
+    {
+      "file": "langgraph-w07-shared-context-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:05.487Z"
+    },
+    {
+      "file": "langgraph-w08-graph-observability-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:05.792Z"
+    },
+    {
+      "file": "langgraph-w09-graph-policy-isolation-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:06.099Z"
+    },
+    {
+      "file": "langgraph-w10-graph-packaging-latest.json",
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:06.408Z"
+    }
+  ]
+}

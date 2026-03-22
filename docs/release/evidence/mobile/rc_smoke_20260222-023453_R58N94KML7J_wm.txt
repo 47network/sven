@@ -1,0 +1,3 @@
+﻿Physical size: 1080x2400
+Physical density: 420
+Override density: 294

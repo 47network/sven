@@ -1,0 +1,68 @@
+You are continuing an in-progress Sven integration/release-hardening session. I need you to resume from current state, not restart from scratch.
+
+Project path:
+<SET_ME>/TheSven/thesven_v0.1.0
+
+Primary repo:
+https://github.com/47network/thesven
+
+Context:
+- Sven is multi-tenant and being integrated with 47Dynamics (RMM platform).
+- 47Dynamics-specific integration must remain deployment-specific and not pollute public Sven defaults.
+- We are prioritizing integration correctness and release-gate health before broader feature expansion.
+
+What was already done in the previous session:
+1. Bridge integration hardening
+- Added proto files:
+  - contracts/grpc/sven-bridge/v1/sven_bridge.proto
+  - services/bridge-47dynamics/proto/sven_bridge.proto
+- Updated bridge runtime proto resolution + env alias handling:
+  - services/bridge-47dynamics/src/index.ts
+- Updated bridge proto generation path:
+  - services/bridge-47dynamics/package.json
+
+2. Bridge/Gateway CI lanes fixed
+- bridge runtime workflow now runs actual bridge runtime tests:
+  - .github/workflows/bridge-runtime-tests.yml
+- gateway bridge contract workflow now runs real contract suite:
+  - .github/workflows/gateway-bridge-contract-tests.yml
+- Added workflow coverage guard test:
+  - services/gateway-api/src/__tests__/gateway-bridge-workflow-coverage.contract.test.ts
+- Updated strict-mode runbook docs:
+  - deploy/multi-vm/RUNBOOK.md
+
+3. A2A + seed baseline blockers fixed
+- Added missing tests required by gate scripts:
+  - services/gateway-api/src/__tests__/a2a-route.test.ts
+  - services/gateway-api/src/__tests__/seed-allowlist-baseline-contract.test.ts
+  - services/gateway-api/src/__tests__/seed-baseline-startup-invariant-contract.test.ts
+
+4. Release-gate local diagnostics hardening
+- scripts/runbook-scope-update-check.cjs updated to support no-commit repos (git_status fallback + local diagnostic handling)
+- scripts/ci-required-checks-gate.cjs updated so local-only mode skips remote-authoritative multi-device/parity checks instead of failing
+- Added traceability artifact:
+  - docs/release/evidence/traceability-matrix-latest.json
+- Added runbook scope update note:
+  - docs/release/runbooks/bridge-and-ci-scope-update-2026-03-21.md
+
+5. Missing workflow inventory restored locally from upstream
+- Many missing files under .github/workflows were copied in (parity-e2e.yml, final-dod-e2e.yml, release-status.yml, etc.)
+
+Important environment note from previous machine:
+- Node/npm were installed via nvm (Node 20). If missing, install Node 20 first.
+- Previous workspace git was unusual: branch had no commits and most files showed untracked. Re-check git state before making assumptions.
+
+What I need you to do now:
+1. Re-audit the repo deeply top-to-bottom and verify the above changes are truly present.
+2. Re-run focused validations and report exact pass/fail:
+- npm --workspace services/bridge-47dynamics run -s test:runtime
+- cd services/gateway-api && npm test -- --runTestsByPath src/__tests__/admin-bridge-tenant-mappings-registration.contract.test.ts src/__tests__/admin-bridge-tenant-mappings-health.contract.test.ts src/__tests__/bridge-correlation-routing.contract.test.ts src/__tests__/bridge-strict-mode-env-alias.contract.test.ts src/__tests__/gateway-bridge-workflow-coverage.contract.test.ts src/__tests__/rag-indexer-query-path.contract.test.ts src/__tests__/release-required-workflows-bridge-gates.contract.test.ts src/__tests__/final-signoff-bridge-ci-lanes.contract.test.ts src/__tests__/bridge-ci-lanes-check-script.contract.test.ts src/__tests__/a2a-route.test.ts src/__tests__/seed-allowlist-baseline-contract.test.ts src/__tests__/seed-baseline-startup-invariant-contract.test.ts
+- npm run -s release:ci:required:check:local
+- npm run -s release:final:signoff:check:local
+3. Then propose and start the next highest-impact Sven development step for integration-first progress.
+
+Working style required:
+- Be autonomous and execute, don’t just plan.
+- Use ripgrep and direct file inspection heavily.
+- If blockers appear, fix them directly and re-run checks.
+- Keep 47Dynamics-specific behavior deployment-scoped.

@@ -1,0 +1,127 @@
+{
+  "title": "Sven Channel Dashboard",
+  "tags": [
+    "sven",
+    "channels",
+    "messaging"
+  ],
+  "timezone": "Europe/Bucharest",
+  "panels": [
+    {
+      "title": "Messages / min by Channel",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "rate(channel_messages_total{job=\"gateway-api\"}[5m]) * 60",
+          "legendFormat": "{{channel}}"
+        }
+      ]
+    },
+    {
+      "title": "Delivery Success Rate",
+      "type": "gauge",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "1 - (rate(channel_delivery_failures_total{job=\"gateway-api\"}[5m]) / rate(channel_messages_total{job=\"gateway-api\"}[5m]))",
+          "legendFormat": "{{channel}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.9
+              },
+              {
+                "color": "green",
+                "value": 0.99
+              }
+            ]
+          },
+          "unit": "percentunit"
+        }
+      }
+    },
+    {
+      "title": "Active Identities by Channel",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "channel_active_identities",
+          "legendFormat": "{{channel}}"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "textMode": "auto"
+      }
+    },
+    {
+      "title": "Outbox Queue Depth",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "nats_jetstream_consumer_pending_messages{stream=~\"outbox.*\"}",
+          "legendFormat": "{{stream}}-{{consumer}}"
+        }
+      ]
+    },
+    {
+      "title": "Message Latency (send \u2192 deliver)",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(channel_delivery_duration_seconds_bucket{job=\"gateway-api\"}[5m]))",
+          "legendFormat": "p95 {{channel}}"
+        },
+        {
+          "expr": "histogram_quantile(0.50, rate(channel_delivery_duration_seconds_bucket{job=\"gateway-api\"}[5m]))",
+          "legendFormat": "p50 {{channel}}"
+        }
+      ]
+    }
+  ],
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "refresh": "30s"
+}

@@ -1,0 +1,194 @@
+{
+  "generated_at": "2026-03-21T00:35:02.724Z",
+  "api_base": "http://127.0.0.1:15811",
+  "status": "inconclusive",
+  "provenance": {
+    "evidence_mode": "runtime_security_probe",
+    "source_run_id": "local-1774053302475",
+    "head_sha": "",
+    "baseline_source": "runtime_probe"
+  },
+  "gateway_probe": {
+    "reachable": false,
+    "status_code": null,
+    "duration_ms": 55,
+    "detail": "fetch failed"
+  },
+  "summary": {
+    "denial_checks_total": 10,
+    "denial_checks_passed": 0,
+    "denial_checks_failed": 0,
+    "denial_checks_skipped": 10,
+    "unauthenticated_actions_accepted": 0,
+    "security_audit_meta_pass": true,
+    "remediation_minutes": 5,
+    "remediation_minutes_pass": true
+  },
+  "criteria": {
+    "zero_unauthenticated_inbound_actions_accepted": true,
+    "security_audit_includes_severity_config_path_remediation": true,
+    "operator_remediation_lte_10m": true
+  },
+  "checks": [
+    {
+      "id": "adapter_events_message_missing_token_denied",
+      "method": "POST",
+      "path": "/v1/events/message",
+      "mode": "no_auth",
+      "expected_statuses": [
+        401
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 5
+    },
+    {
+      "id": "adapter_events_message_bad_token_denied",
+      "method": "POST",
+      "path": "/v1/events/message",
+      "mode": "bad_adapter_token",
+      "expected_statuses": [
+        403
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 1
+    },
+    {
+      "id": "adapter_events_file_missing_token_denied",
+      "method": "POST",
+      "path": "/v1/events/file",
+      "mode": "no_auth",
+      "expected_statuses": [
+        401
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 2
+    },
+    {
+      "id": "adapter_events_audio_missing_token_denied",
+      "method": "POST",
+      "path": "/v1/events/audio",
+      "mode": "no_auth",
+      "expected_statuses": [
+        401
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 2
+    },
+    {
+      "id": "adapter_identity_resolve_missing_token_denied",
+      "method": "POST",
+      "path": "/v1/adapter/identity/resolve",
+      "mode": "no_auth",
+      "expected_statuses": [
+        401
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 2
+    },
+    {
+      "id": "admin_webhooks_unauth_denied",
+      "method": "POST",
+      "path": "/v1/admin/webhooks",
+      "mode": "no_auth",
+      "expected_statuses": [
+        401,
+        403
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 1
+    },
+    {
+      "id": "admin_webhooks_forged_session_denied",
+      "method": "POST",
+      "path": "/v1/admin/webhooks",
+      "mode": "forged_session",
+      "expected_statuses": [
+        401,
+        403
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 2
+    },
+    {
+      "id": "tools_browser_action_unauth_denied",
+      "method": "POST",
+      "path": "/v1/tools/browser/action",
+      "mode": "no_auth",
+      "expected_statuses": [
+        401,
+        403
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 2
+    },
+    {
+      "id": "push_register_unauth_denied",
+      "method": "POST",
+      "path": "/v1/push/register",
+      "mode": "no_auth",
+      "expected_statuses": [
+        401,
+        403
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 2
+    },
+    {
+      "id": "openai_chat_completions_missing_bearer_denied",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "mode": "no_auth",
+      "expected_statuses": [
+        401
+      ],
+      "status_code": null,
+      "pass": false,
+      "skipped": true,
+      "detail": "fetch failed; gateway_unavailable(healthz=n/a)",
+      "duration_ms": 1
+    }
+  ],
+  "security_audit_meta": {
+    "id": "security_audit_remediation_metadata",
+    "pass": true,
+    "skipped": false,
+    "detail": "high_risk_findings=2, high_risk_with_meta=2, partial_meta=0",
+    "totals": {
+      "findings": 9,
+      "high_risk": 2,
+      "high_risk_with_meta": 2,
+      "high_risk_partial_meta": 0
+    },
+    "exit_code": 1
+  },
+  "notes": [
+    "Gateway unreachable/degraded for auth matrix; run again against healthy gateway API target."
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-03-21T00:35:02.823Z",
+  "status": "inconclusive",
+  "checks": [
+    {
+      "id": "static_config_refs_clear",
+      "pass": true,
+      "detail": "no forbidden refs found"
+    },
+    {
+      "id": "runtime_probe_available",
+      "pass": false,
+      "detail": "spawnSync docker ENOENT"
+    },
+    {
+      "id": "runtime_running_competitors_absent",
+      "pass": false,
+      "detail": "runtime probe unavailable: spawnSync docker ENOENT"
+    },
+    {
+      "id": "runtime_image_inventory_probe_available",
+      "pass": false,
+      "detail": "spawnSync docker ENOENT"
+    },
+    {
+      "id": "runtime_image_inventory_competitors_absent",
+      "pass": false,
+      "detail": "image inventory probe unavailable: spawnSync docker ENOENT"
+    },
+    {
+      "id": "runtime_network_probe_available",
+      "pass": false,
+      "detail": "spawnSync docker ENOENT"
+    },
+    {
+      "id": "runtime_network_competitors_absent",
+      "pass": false,
+      "detail": "network probe unavailable: spawnSync docker ENOENT"
+    },
+    {
+      "id": "runtime_process_probe_available",
+      "pass": true,
+      "detail": "no competitor-related processes detected"
+    },
+    {
+      "id": "runtime_process_competitors_absent",
+      "pass": true,
+      "detail": "no competitor-related processes detected"
+    }
+  ],
+  "static_violations": [],
+  "runtime": {
+    "docker_ps": {
+      "probe_available": false,
+      "competitor_hits": []
+    },
+    "docker_images": {
+      "probe_available": false,
+      "competitor_hits": []
+    },
+    "docker_networks": {
+      "probe_available": false,
+      "competitor_hits": []
+    },
+    "process_inventory": {
+      "probe_available": true,
+      "competitor_hits": []
+    }
+  },
+  "provenance": {
+    "evidence_mode": "runtime_container_inventory_probe",
+    "source_run_id": "local-1774053302738",
+    "head_sha": "",
+    "baseline_source": "runtime_and_config_probe"
+  }
+}

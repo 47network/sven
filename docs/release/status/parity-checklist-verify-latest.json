@@ -1,0 +1,333 @@
+{
+  "generated_at": "2026-03-21T02:10:01.204Z",
+  "status": "fail",
+  "composite_status": {
+    "checklist_formatting_status": "fail",
+    "release_policy_status": "fail"
+  },
+  "execution": {
+    "strict": false,
+    "local_only": true,
+    "validation_mode": "local-only",
+    "target_sha": null
+  },
+  "checklist": "docs/release/checklists/sven-production-parity-checklist-2026.md",
+  "required_dimensions": [
+    "document_integrity",
+    "test_execution",
+    "runtime_validation"
+  ],
+  "dimensions": {
+    "document_integrity": {
+      "pass": false,
+      "required_check_ids": [
+        "checklist_present",
+        "checklist_no_unchecked_items",
+        "checklist_referenced_files_exist",
+        "parity_required_files_exist",
+        "parity_required_files_scope_balanced",
+        "parity_no_scaffolding_principle_present",
+        "production_checklist_checked_rows_have_evidence_refs",
+        "production_checklist_checked_rows_have_release_artifact_binding",
+        "production_checklist_checked_rows_have_machine_claim_ids"
+      ],
+      "missing_checks": [],
+      "failing_checks": [
+        "checklist_referenced_files_exist",
+        "parity_required_files_exist"
+      ]
+    },
+    "test_execution": {
+      "pass": true,
+      "required_check_ids": [
+        "production_checklist_checked_claims_traceable_to_tests_and_status_artifacts",
+        "parity_track_claims_traceable_to_tests",
+        "parity_track_claims_bind_to_machine_status_artifacts",
+        "parity_test_execution_ci_gates_pass",
+        "parity_test_execution_ci_gates_provenance_bound"
+      ],
+      "missing_checks": [],
+      "failing_checks": []
+    },
+    "runtime_validation": {
+      "pass": false,
+      "required_check_ids": [
+        "parity_evidence_schema_valid",
+        "parity_evidence_freshness",
+        "parity_runtime_validation_status_artifacts_current",
+        "parity_wave_closeout_status_artifacts_current",
+        "parity_demo_evidence_freshness",
+        "parity_release_lifecycle_gates_pass"
+      ],
+      "missing_checks": [],
+      "failing_checks": [
+        "parity_evidence_freshness",
+        "parity_runtime_validation_status_artifacts_current",
+        "parity_wave_closeout_status_artifacts_current",
+        "parity_demo_evidence_freshness"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "id": "checklist_present",
+      "pass": true,
+      "detail": "docs/release/checklists/sven-production-parity-checklist-2026.md"
+    },
+    {
+      "id": "parity_no_scaffolding_principle_present",
+      "pass": true,
+      "detail": "found=\"No Scaffolding\""
+    },
+    {
+      "id": "parity_demo_evidence_present",
+      "pass": false,
+      "detail": "missing demo evidence linkage/index/artifacts (index=docs/release/evidence/demo-proof-index-2026-03-04.md)"
+    },
+    {
+      "id": "parity_demo_evidence_format_valid",
+      "pass": false,
+      "detail": "demo artifacts missing or contain non-accepted formats"
+    },
+    {
+      "id": "parity_demo_evidence_timestamped_capture",
+      "pass": true,
+      "detail": "timestamped_artifacts=0/0"
+    },
+    {
+      "id": "parity_demo_evidence_freshness",
+      "pass": false,
+      "detail": "timestamp=missing; max_age_hours=720"
+    },
+    {
+      "id": "parity_demo_evidence_feature_linked",
+      "pass": false,
+      "detail": "checklist_feature_ids_missing; demo_feature_ids=none"
+    },
+    {
+      "id": "production_checklist_checked_rows_have_evidence_refs",
+      "pass": true,
+      "detail": "checked_rows=0; missing_evidence=0"
+    },
+    {
+      "id": "production_checklist_checked_rows_have_release_artifact_binding",
+      "pass": true,
+      "detail": "checked_rows=0; missing_release_artifact_binding=0"
+    },
+    {
+      "id": "production_checklist_checked_rows_reference_non_partial_evidence",
+      "pass": true,
+      "detail": "checked_rows=0; non_passing_evidence_refs=0"
+    },
+    {
+      "id": "production_checklist_checked_rows_have_machine_claim_ids",
+      "pass": true,
+      "detail": "checked_claim_rows=0; missing_claim_ids=0"
+    },
+    {
+      "id": "production_checklist_checked_claims_traceable_to_tests_and_status_artifacts",
+      "pass": true,
+      "detail": "checked_claim_rows=0; unmapped_claims=0"
+    },
+    {
+      "id": "checklist_no_unchecked_items",
+      "pass": true,
+      "detail": "all checklist boxes are checked"
+    },
+    {
+      "id": "parity_signoff_blockers_not_overstated",
+      "pass": true,
+      "detail": "week4_target_checked=true; soak_open=false; d9_live_open=false"
+    },
+    {
+      "id": "true_parity_checklist_present",
+      "pass": true,
+      "detail": "docs/release/checklists/sven-true-parity-and-beyond-checklist-2026.md present"
+    },
+    {
+      "id": "true_parity_checkbox_notation_lowercase_consistent",
+      "pass": true,
+      "detail": "no uppercase [X] checkbox markers detected"
+    },
+    {
+      "id": "true_parity_referenced_evidence_files_exist",
+      "pass": true,
+      "detail": "referenced_evidence=0"
+    },
+    {
+      "id": "checklist_referenced_files_exist",
+      "pass": false,
+      "detail": "missing=docs/release/evidence/demo-proof-index-2026-03-04.md"
+    },
+    {
+      "id": "parity_required_files_exist",
+      "pass": false,
+      "detail": "missing=docs/release/evidence/mobile/z2-m1-z3-parity-2026-02-24.md"
+    },
+    {
+      "id": "parity_required_files_scope_balanced",
+      "pass": true,
+      "detail": "required_scope_groups=7"
+    },
+    {
+      "id": "openclaw_skill_command_consistency",
+      "pass": true,
+      "detail": "skill command rows are internally consistent"
+    },
+    {
+      "id": "openclaw_gap_ledger_consistency",
+      "pass": true,
+      "detail": "gap ledger reconciled with implemented ✅ feature rows (or explicitly marked historical)"
+    },
+    {
+      "id": "openclaw_channels_scorecard_consistency",
+      "pass": true,
+      "detail": "scorecard(m=28,p=0,x=0) vs rows(m=28,p=0,x=0,total=28)"
+    },
+    {
+      "id": "openclaw_no_checklist_only_evidence_for_matched_rows",
+      "pass": true,
+      "detail": "all ✅ rows include direct code/test/evidence references or non-circular notes"
+    },
+    {
+      "id": "openclaw_no_parity_track_indirection_for_matched_rows",
+      "pass": true,
+      "detail": "matched_rows=0"
+    },
+    {
+      "id": "openclaw_comparison_matched_rows_have_evidence_bindings",
+      "pass": true,
+      "detail": "matched_rows=0"
+    },
+    {
+      "id": "agentzero_no_parity_track_indirection_for_matched_rows",
+      "pass": true,
+      "detail": "matched_rows=0"
+    },
+    {
+      "id": "agentzero_comparison_matched_rows_have_evidence_bindings",
+      "pass": true,
+      "detail": "matched_rows=0"
+    },
+    {
+      "id": "openclaw_comparison_evidence_density_minimum",
+      "pass": true,
+      "detail": "no matched rows"
+    },
+    {
+      "id": "agentzero_comparison_evidence_density_minimum",
+      "pass": true,
+      "detail": "no matched rows"
+    },
+    {
+      "id": "parity_competitor_baseline_manifest_present",
+      "pass": true,
+      "detail": "docs/parity/competitor-baseline-manifest.json"
+    },
+    {
+      "id": "parity_competitor_baseline_manifest_valid",
+      "pass": true,
+      "detail": "competitor baseline manifest includes pinned non-moving baseline metadata for openclaw + agent_zero"
+    },
+    {
+      "id": "parity_docs_link_competitor_baseline_manifest",
+      "pass": true,
+      "detail": "both parity docs link competitor baseline manifest"
+    },
+    {
+      "id": "parity_source_revision_metadata_consistent",
+      "pass": true,
+      "detail": "source revisions aligned (AZ rev 15, OC rev 3)"
+    },
+    {
+      "id": "parity_no_todo_scope_clean",
+      "pass": true,
+      "detail": "clean scope=services/gateway-api/src/routes,services/agent-runtime/src,services/skill-runner/src"
+    },
+    {
+      "id": "parity_no_placeholder_scope_clean",
+      "pass": true,
+      "detail": "skipped (scripts/check-no-placeholder.js missing in current workspace)"
+    },
+    {
+      "id": "parity_dashboard_track_status_consistent",
+      "pass": true,
+      "detail": "dashboard statuses align with A/Z/O/M section completion state"
+    },
+    {
+      "id": "parity_track_claims_traceable_to_tests",
+      "pass": true,
+      "detail": "tracks_with_checked_claims=0"
+    },
+    {
+      "id": "parity_track_claims_bind_to_machine_status_artifacts",
+      "pass": true,
+      "detail": "tracks_with_checked_claims=0"
+    },
+    {
+      "id": "parity_evidence_schema_valid",
+      "pass": true,
+      "detail": "validated=4"
+    },
+    {
+      "id": "parity_evidence_freshness",
+      "pass": false,
+      "detail": "stale=docs/release/status/api-reliability-observability-latest.json:848.34h, docs/release/status/mobile-release-readiness-latest.json:819.80h; max_age_hours=168"
+    },
+    {
+      "id": "master_checklist_present",
+      "pass": true,
+      "detail": "docs/Sven_Master_Checklist.md"
+    },
+    {
+      "id": "master_checklist_split_status_present",
+      "pass": true,
+      "detail": "feature/release-control status lines present"
+    },
+    {
+      "id": "master_checklist_release_controls_section_present",
+      "pass": true,
+      "detail": "ci_nested_checks=6"
+    },
+    {
+      "id": "master_checklist_status_banner_matches_open_controls",
+      "pass": true,
+      "detail": "ci/release controls fully checked"
+    },
+    {
+      "id": "master_checklist_no_placeholder_items_checked",
+      "pass": true,
+      "detail": "no checked placeholder/scaffold/stub items"
+    },
+    {
+      "id": "parity_verifier_remote_provenance_mode",
+      "pass": false,
+      "detail": "local-only mode (non-provenance)"
+    },
+    {
+      "id": "parity_test_execution_ci_gates_pass",
+      "pass": true,
+      "detail": "skipped in local-only mode (strict release mode validates this remotely)"
+    },
+    {
+      "id": "parity_test_execution_ci_gates_provenance_bound",
+      "pass": true,
+      "detail": "skipped in local-only mode (strict release use requires remote provenance)"
+    },
+    {
+      "id": "parity_runtime_validation_status_artifacts_current",
+      "pass": false,
+      "detail": "docs/release/status/benchmark-suite-latest.json:status=fail, docs/release/status/api-reliability-observability-latest.json:status=warn, docs/release/status/api-reliability-observability-latest.json:stale_848.34h, docs/release/status/mobile-release-readiness-latest.json:stale_819.80h"
+    },
+    {
+      "id": "parity_wave_closeout_status_artifacts_current",
+      "pass": false,
+      "detail": "docs/release/status/openhands-wave1-closeout-latest.json:stale_118.29h, docs/release/status/librechat-wave2-closeout-latest.json:stale_119.80h, docs/release/status/n8n-wave3-closeout-latest.json:stale_119.80h, docs/release/status/framework-wave4-closeout-latest.json:stale_119.86h, docs/release/status/crewai-wave5-closeout-latest.json:stale_117.69h, docs/release/status/letta-wave6-closeout-latest.json:stale_117.17h, docs/release/status/autogen-wave7-closeout-latest.json:stale_116.68h, docs/release/status/langgraph-wave8-closeout-latest.json:stale_116.08h"
+    },
+    {
+      "id": "parity_release_lifecycle_gates_pass",
+      "pass": true,
+      "detail": "skipped in local-only mode (strict release mode enforces soak/week4/post-release lifecycle gates)"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-02-21T17:54:05.093Z",
+  "test": "Sven Gateway API Load Test",
+  "vus_max": 100,
+  "chat_sessions": 10,
+  "llm_stream_enabled": true,
+  "llm_model": "llama3.2:3b",
+  "thresholds": {
+    "0": {
+      "id": "9b19b79bbb57e63a2aa52773511ee392",
+      "passes": 64,
+      "fails": 0,
+      "name": "llm stream status 200",
+      "path": "::llm stream status 200"
+    },
+    "1": {
+      "name": "llm stream no 5xx",
+      "path": "::llm stream no 5xx",
+      "id": "8b0b34050033cfd91aab2ccde4be2bf0",
+      "passes": 64,
+      "fails": 0
+    },
+    "2": {
+      "passes": 64,
+      "fails": 0,
+      "name": "llm stream has sse data",
+      "path": "::llm stream has sse data",
+      "id": "80cc64aa93f99ba43e6ba16a983249fe"
+    }
+  },
+  "metrics": {
+    "http_req_duration": {
+      "p(90)": 2.8790496,
+      "p(95)": 3.1461887,
+      "avg": 4.432271456965937,
+      "min": 0.888359,
+      "med": 2.146523,
+      "max": 8046.704968
+    },
+    "http_req_failed": {
+      "rate": 0.0028693725667333463,
+      "passes": 667,
+      "fails": 231788
+    },
+    "errors_5xx": {
+      "count": 0,
+      "rate": 0
+    },
+    "health_latency": {
+      "p(95)": 2.0602424999999998,
+      "avg": 1.5063525049663051,
+      "min": 0.894656,
+      "med": 1.437008,
+      "max": 31.64152,
+      "p(90)": 1.8867829999999997
+    },
+    "api_latency": {
+      "min": 0.888359,
+      "med": 1.3360015,
+      "max": 13.809523,
+      "p(90)": 1.6764720000000006,
+      "p(95)": 1.8111668499999998,
+      "avg": 1.3873716801062843
+    },
+    "admin_latency": {
+      "p(95)": 3.3826591999999978,
+      "avg": 2.8264695002064077,
+      "min": 1.666193,
+      "med": 2.478829,
+      "max": 5820.893695,
+      "p(90)": 3.0914478000000005
+    },
+    "llm_first_token_ms": {
+      "max": 16.039479,
+      "p(90)": 4.424327900000001,
+      "p(95)": 5.36042245,
+      "avg": 4.202365718749999,
+      "min": 2.95735,
+      "med": 3.8350375
+    }
+  }
+}

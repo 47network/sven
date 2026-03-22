@@ -1,0 +1,187 @@
+name: release-status
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'docs/parity/**'
+      - 'docs/SVEN_APP_CHECKLIST.md'
+      - 'docs/release/**'
+      - 'scripts/app-checklist-format-check.cjs'
+      - 'scripts/app-checklist-metrics-snapshot.cjs'
+      - 'scripts/mobile-binary-artifacts-snapshot.cjs'
+      - 'scripts/openapi-metrics-snapshot.cjs'
+      - 'scripts/competitor-runtime-truth-check.cjs'
+      - 'scripts/competitor-capability-proof-status.cjs'
+      - 'scripts/competitive-scorecard-status.cjs'
+      - 'scripts/competitive-reproduction-program-completion-status.cjs'
+      - 'config/release/openapi-undocumented-route-allowlist.json'
+      - 'scripts/release-status.js'
+      - 'scripts/release-bundle-hygiene-check.cjs'
+      - '.dockerignore'
+      - '.gitignore'
+      - 'scripts/traceability-matrix-check.cjs'
+      - 'scripts/local-temp-cache-governance-check.cjs'
+      - 'scripts/lib/set-project-temp-cache.ps1'
+      - 'deploy/quickstart/install.cmd'
+      - '.npmrc'
+      - 'docs/release/evidence/traceability-matrix-latest.json'
+      - '.github/workflows/release-status.yml'
+  pull_request:
+    paths:
+      - 'docs/parity/**'
+      - 'docs/SVEN_APP_CHECKLIST.md'
+      - 'docs/release/**'
+      - 'scripts/app-checklist-format-check.cjs'
+      - 'scripts/app-checklist-metrics-snapshot.cjs'
+      - 'scripts/mobile-binary-artifacts-snapshot.cjs'
+      - 'scripts/openapi-metrics-snapshot.cjs'
+      - 'scripts/competitor-runtime-truth-check.cjs'
+      - 'scripts/competitor-capability-proof-status.cjs'
+      - 'scripts/competitive-scorecard-status.cjs'
+      - 'scripts/competitive-reproduction-program-completion-status.cjs'
+      - 'config/release/openapi-undocumented-route-allowlist.json'
+      - 'scripts/release-status.js'
+      - 'scripts/release-bundle-hygiene-check.cjs'
+      - '.dockerignore'
+      - '.gitignore'
+      - 'scripts/traceability-matrix-check.cjs'
+      - 'scripts/local-temp-cache-governance-check.cjs'
+      - 'scripts/lib/set-project-temp-cache.ps1'
+      - 'deploy/quickstart/install.cmd'
+      - '.npmrc'
+      - 'docs/release/evidence/traceability-matrix-latest.json'
+      - '.github/workflows/release-status.yml'
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    env:
+      SVEN_RELEASE_STATUS_STRICT_PROFILE: ci-only
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Generate master checklist metrics snapshot
+        run: npm run release:master:metrics:snapshot
+
+      - name: Generate app checklist metrics snapshot
+        run: npm run release:app:metrics:snapshot
+
+      - name: Generate mobile binary artifacts snapshot
+        run: npm run release:mobile:binary:artifacts:snapshot
+
+      - name: Generate OpenAPI metrics snapshot
+        run: npm run release:api:openapi:metrics:snapshot
+
+      - name: Run master checklist governance check
+        run: npm run release:master:governance:check
+
+      - name: Generate master parity summary snapshot
+        run: npm run release:master:parity:snapshot
+
+      - name: Run app checklist format check
+        run: npm run release:app:checklist:format:check
+
+      - name: Run checklist metrics drift check
+        run: npm run release:checklist:metrics:drift:check
+
+      - name: Run admin RBAC surface check
+        run: npm run release:admin:rbac:surface:check
+
+      - name: Run API contract version check
+        run: npm run release:api:contract:check
+
+      - name: Run API OpenAPI contract check
+        run: npm run release:api:openapi:contract:check
+
+      - name: Run API request-schema coverage check
+        run: npm run release:api:request-schema:coverage:check
+
+      - name: Run traceability matrix check
+        run: npm run release:traceability:matrix:check
+
+      - name: Run release bundle hygiene check
+        run: npm run release:bundle:hygiene:check
+
+      - name: Run local temp/cache governance check
+        run: npm run release:local-temp-cache:governance:check
+
+      - name: Run competitor runtime truth check
+        run: npm run release:competitor:runtime:truth
+
+      - name: Run competitor capability proof check
+        run: npm run release:competitor:capability:proof
+
+      - name: Run competitive scorecard status check
+        run: npm run release:competitive:scorecard:status
+
+      - name: Run parity all-waves closeout check
+        run: npm run release:parity:all-waves:closeout
+
+      - name: Run parity checklist verify (local-only context)
+        run: node scripts/release-parity-checklist-verify.cjs --strict --local-only
+
+      - name: Run competitive reproduction completion check
+        run: npm run release:competitive:program:status:strict
+
+      - name: Build release status snapshot
+        run: npm run release:status -- --strict
+
+      - name: Upload release status artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-status
+          path: |
+            docs/release/status/latest.json
+            docs/release/status/latest.md
+            docs/release/status/master-checklist-metrics-latest.json
+            docs/release/status/master-checklist-metrics-latest.md
+            docs/release/status/master-checklist-governance-latest.json
+            docs/release/status/master-checklist-governance-latest.md
+            docs/release/status/master-parity-summary-latest.json
+            docs/release/status/master-parity-summary-latest.md
+            docs/release/status/app-checklist-format-latest.json
+            docs/release/status/app-checklist-format-latest.md
+            docs/release/status/app-checklist-metrics-latest.json
+            docs/release/status/app-checklist-metrics-latest.md
+            docs/release/status/mobile-binary-artifacts-latest.json
+            docs/release/status/mobile-binary-artifacts-latest.md
+            docs/release/status/openapi-metrics-latest.json
+            docs/release/status/openapi-metrics-latest.md
+            docs/release/status/checklist-metrics-drift-latest.json
+            docs/release/status/checklist-metrics-drift-latest.md
+            docs/release/status/admin-rbac-surface-latest.json
+            docs/release/status/admin-rbac-surface-latest.md
+            docs/release/status/api-contract-version-latest.json
+            docs/release/status/api-contract-version-latest.md
+            docs/release/status/api-openapi-contract-latest.json
+            docs/release/status/api-openapi-contract-latest.md
+            docs/release/status/api-request-body-schema-coverage-latest.json
+            docs/release/status/api-request-body-schema-coverage-latest.md
+            docs/release/status/traceability-matrix-latest.json
+            docs/release/status/traceability-matrix-latest.md
+            docs/release/status/release-bundle-hygiene-latest.json
+            docs/release/status/release-bundle-hygiene-latest.md
+            docs/release/status/local-temp-cache-governance-latest.json
+            docs/release/status/local-temp-cache-governance-latest.md
+            docs/release/status/competitor-runtime-truth-latest.json
+            docs/release/status/competitor-runtime-truth-latest.md
+            docs/release/status/competitor-capability-proof-latest.json
+            docs/release/status/competitor-capability-proof-latest.md
+            docs/release/status/competitive-scorecard-latest.json
+            docs/release/status/competitive-scorecard-latest.md
+            docs/release/status/competitive-reproduction-program-completion-latest.json
+            docs/release/status/competitive-reproduction-program-completion-latest.md
+            docs/release/status/parity-all-waves-closeout-latest.json
+            docs/release/status/parity-all-waves-closeout-latest.md
+            docs/release/status/parity-checklist-verify-latest.json
+            docs/release/status/parity-checklist-verify-latest.md

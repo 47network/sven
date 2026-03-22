@@ -1,0 +1,1281 @@
+{
+  "generated_at": "2026-03-21T02:10:01.054Z",
+  "status": "fail",
+  "profile": "full",
+  "execution": {
+    "strict": false,
+    "local_only": true,
+    "validation_scope": "local_only",
+    "authority": "local_diagnostic",
+    "ci_context": false
+  },
+  "checks": [
+    {
+      "id": "validation_scope_declared",
+      "pass": true,
+      "detail": "validation_scope=local_only"
+    },
+    {
+      "id": "validation_scope_release_workflow_safe",
+      "pass": true,
+      "detail": "ok (validation_scope=local_only; ci_context=false)"
+    },
+    {
+      "id": "mode_local_only_disallowed_in_strict",
+      "pass": true,
+      "detail": "ok (strict=false local_only=true)"
+    },
+    {
+      "id": "mode_env_local_only_disallowed_in_strict",
+      "pass": true,
+      "detail": "ok (strict=false env_local_only=false cli_local_only=true ci_context=false)"
+    },
+    {
+      "id": "signoff_doc_selected_latest:engineering",
+      "pass": true,
+      "detail": "docs/release/signoffs/engineering-signoff-2026-02-14-rc.md (latest_approved)"
+    },
+    {
+      "id": "signoff_doc_present:engineering",
+      "pass": true,
+      "detail": "docs/release/signoffs/engineering-signoff-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_schema_valid:engineering",
+      "pass": false,
+      "detail": "missing required signoff fields"
+    },
+    {
+      "id": "signoff_has_approver_and_date:engineering",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:engineering",
+      "pass": true,
+      "detail": "status=approved"
+    },
+    {
+      "id": "signoff_approver_valid:engineering",
+      "pass": true,
+      "detail": "approver=hantz"
+    },
+    {
+      "id": "signoff_date_format_valid:engineering",
+      "pass": true,
+      "detail": "date=2026-02-15"
+    },
+    {
+      "id": "signoff_staging_evidence_link_valid:engineering",
+      "pass": false,
+      "detail": "missing staging_evidence_url"
+    },
+    {
+      "id": "signoff_dashboard_link_valid:engineering",
+      "pass": false,
+      "detail": "missing dashboard_url"
+    },
+    {
+      "id": "signoff_fresh:engineering",
+      "pass": false,
+      "detail": "818.17h > 168h"
+    },
+    {
+      "id": "signoff_release_binding:engineering",
+      "pass": true,
+      "detail": "release check skipped (SVEN_RELEASE_ID not set; observed=(missing))"
+    },
+    {
+      "id": "signoff_head_sha_format_valid:engineering",
+      "pass": false,
+      "detail": "missing head_sha"
+    },
+    {
+      "id": "signoff_artifact_manifest_hash_format_valid:engineering",
+      "pass": false,
+      "detail": "missing artifact_manifest_hash"
+    },
+    {
+      "id": "signoff_expires_at_format_valid:engineering",
+      "pass": false,
+      "detail": "missing expires_at"
+    },
+    {
+      "id": "signoff_not_expired:engineering",
+      "pass": false,
+      "detail": "missing/invalid expires_at"
+    },
+    {
+      "id": "signoff_expiry_within_ttl:engineering",
+      "pass": false,
+      "detail": "expiry_window>168h or invalid date/expires_at"
+    },
+    {
+      "id": "signoff_doc_selected_latest:security",
+      "pass": true,
+      "detail": "docs/release/signoffs/security-signoff-2026-02-14-rc.md (latest_approved)"
+    },
+    {
+      "id": "signoff_doc_present:security",
+      "pass": true,
+      "detail": "docs/release/signoffs/security-signoff-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_schema_valid:security",
+      "pass": false,
+      "detail": "missing required signoff fields"
+    },
+    {
+      "id": "signoff_has_approver_and_date:security",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:security",
+      "pass": true,
+      "detail": "status=approved"
+    },
+    {
+      "id": "signoff_approver_valid:security",
+      "pass": true,
+      "detail": "approver=hantz"
+    },
+    {
+      "id": "signoff_date_format_valid:security",
+      "pass": true,
+      "detail": "date=2026-02-15"
+    },
+    {
+      "id": "signoff_staging_evidence_link_valid:security",
+      "pass": false,
+      "detail": "missing staging_evidence_url"
+    },
+    {
+      "id": "signoff_dashboard_link_valid:security",
+      "pass": false,
+      "detail": "missing dashboard_url"
+    },
+    {
+      "id": "signoff_fresh:security",
+      "pass": false,
+      "detail": "818.17h > 168h"
+    },
+    {
+      "id": "signoff_release_binding:security",
+      "pass": true,
+      "detail": "release check skipped (SVEN_RELEASE_ID not set; observed=(missing))"
+    },
+    {
+      "id": "signoff_head_sha_format_valid:security",
+      "pass": false,
+      "detail": "missing head_sha"
+    },
+    {
+      "id": "signoff_artifact_manifest_hash_format_valid:security",
+      "pass": false,
+      "detail": "missing artifact_manifest_hash"
+    },
+    {
+      "id": "signoff_expires_at_format_valid:security",
+      "pass": false,
+      "detail": "missing expires_at"
+    },
+    {
+      "id": "signoff_not_expired:security",
+      "pass": false,
+      "detail": "missing/invalid expires_at"
+    },
+    {
+      "id": "signoff_expiry_within_ttl:security",
+      "pass": false,
+      "detail": "expiry_window>168h or invalid date/expires_at"
+    },
+    {
+      "id": "signoff_doc_selected_latest:operations",
+      "pass": true,
+      "detail": "docs/release/signoffs/operations-signoff-2026-02-14-rc.md (latest_approved)"
+    },
+    {
+      "id": "signoff_doc_present:operations",
+      "pass": true,
+      "detail": "docs/release/signoffs/operations-signoff-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_schema_valid:operations",
+      "pass": false,
+      "detail": "missing required signoff fields"
+    },
+    {
+      "id": "signoff_has_approver_and_date:operations",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:operations",
+      "pass": true,
+      "detail": "status=approved"
+    },
+    {
+      "id": "signoff_approver_valid:operations",
+      "pass": true,
+      "detail": "approver=hantz"
+    },
+    {
+      "id": "signoff_date_format_valid:operations",
+      "pass": true,
+      "detail": "date=2026-02-15"
+    },
+    {
+      "id": "signoff_staging_evidence_link_valid:operations",
+      "pass": false,
+      "detail": "missing staging_evidence_url"
+    },
+    {
+      "id": "signoff_dashboard_link_valid:operations",
+      "pass": false,
+      "detail": "missing dashboard_url"
+    },
+    {
+      "id": "signoff_fresh:operations",
+      "pass": false,
+      "detail": "818.17h > 168h"
+    },
+    {
+      "id": "signoff_release_binding:operations",
+      "pass": true,
+      "detail": "release check skipped (SVEN_RELEASE_ID not set; observed=(missing))"
+    },
+    {
+      "id": "signoff_head_sha_format_valid:operations",
+      "pass": false,
+      "detail": "missing head_sha"
+    },
+    {
+      "id": "signoff_artifact_manifest_hash_format_valid:operations",
+      "pass": false,
+      "detail": "missing artifact_manifest_hash"
+    },
+    {
+      "id": "signoff_expires_at_format_valid:operations",
+      "pass": false,
+      "detail": "missing expires_at"
+    },
+    {
+      "id": "signoff_not_expired:operations",
+      "pass": false,
+      "detail": "missing/invalid expires_at"
+    },
+    {
+      "id": "signoff_expiry_within_ttl:operations",
+      "pass": false,
+      "detail": "expiry_window>168h or invalid date/expires_at"
+    },
+    {
+      "id": "signoff_doc_selected_latest:product",
+      "pass": true,
+      "detail": "docs/release/signoffs/product-signoff-2026-02-14-rc.md (latest_approved)"
+    },
+    {
+      "id": "signoff_doc_present:product",
+      "pass": true,
+      "detail": "docs/release/signoffs/product-signoff-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_schema_valid:product",
+      "pass": false,
+      "detail": "missing required signoff fields"
+    },
+    {
+      "id": "signoff_has_approver_and_date:product",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:product",
+      "pass": true,
+      "detail": "status=approved"
+    },
+    {
+      "id": "signoff_approver_valid:product",
+      "pass": true,
+      "detail": "approver=hantz"
+    },
+    {
+      "id": "signoff_date_format_valid:product",
+      "pass": true,
+      "detail": "date=2026-02-15"
+    },
+    {
+      "id": "signoff_staging_evidence_link_valid:product",
+      "pass": false,
+      "detail": "missing staging_evidence_url"
+    },
+    {
+      "id": "signoff_dashboard_link_valid:product",
+      "pass": false,
+      "detail": "missing dashboard_url"
+    },
+    {
+      "id": "signoff_fresh:product",
+      "pass": false,
+      "detail": "818.17h > 168h"
+    },
+    {
+      "id": "signoff_release_binding:product",
+      "pass": true,
+      "detail": "release check skipped (SVEN_RELEASE_ID not set; observed=(missing))"
+    },
+    {
+      "id": "signoff_head_sha_format_valid:product",
+      "pass": false,
+      "detail": "missing head_sha"
+    },
+    {
+      "id": "signoff_artifact_manifest_hash_format_valid:product",
+      "pass": false,
+      "detail": "missing artifact_manifest_hash"
+    },
+    {
+      "id": "signoff_expires_at_format_valid:product",
+      "pass": false,
+      "detail": "missing expires_at"
+    },
+    {
+      "id": "signoff_not_expired:product",
+      "pass": false,
+      "detail": "missing/invalid expires_at"
+    },
+    {
+      "id": "signoff_expiry_within_ttl:product",
+      "pass": false,
+      "detail": "expiry_window>168h or invalid date/expires_at"
+    },
+    {
+      "id": "signoff_doc_selected_latest:release_owner",
+      "pass": true,
+      "detail": "docs/release/signoffs/release-owner-approval-2026-02-14-rc.md (latest_approved)"
+    },
+    {
+      "id": "signoff_doc_present:release_owner",
+      "pass": true,
+      "detail": "docs/release/signoffs/release-owner-approval-2026-02-14-rc.md"
+    },
+    {
+      "id": "signoff_schema_valid:release_owner",
+      "pass": false,
+      "detail": "missing required signoff fields"
+    },
+    {
+      "id": "signoff_has_approver_and_date:release_owner",
+      "pass": true,
+      "detail": "approver/date fields present"
+    },
+    {
+      "id": "signoff_status_approved:release_owner",
+      "pass": true,
+      "detail": "status=approved"
+    },
+    {
+      "id": "signoff_approver_valid:release_owner",
+      "pass": true,
+      "detail": "approver=hantz"
+    },
+    {
+      "id": "signoff_date_format_valid:release_owner",
+      "pass": true,
+      "detail": "date=2026-02-15"
+    },
+    {
+      "id": "signoff_staging_evidence_link_valid:release_owner",
+      "pass": false,
+      "detail": "missing staging_evidence_url"
+    },
+    {
+      "id": "signoff_dashboard_link_valid:release_owner",
+      "pass": false,
+      "detail": "missing dashboard_url"
+    },
+    {
+      "id": "signoff_fresh:release_owner",
+      "pass": false,
+      "detail": "818.17h > 168h"
+    },
+    {
+      "id": "signoff_release_binding:release_owner",
+      "pass": true,
+      "detail": "release check skipped (SVEN_RELEASE_ID not set; observed=(missing))"
+    },
+    {
+      "id": "signoff_head_sha_format_valid:release_owner",
+      "pass": false,
+      "detail": "missing head_sha"
+    },
+    {
+      "id": "signoff_artifact_manifest_hash_format_valid:release_owner",
+      "pass": false,
+      "detail": "missing artifact_manifest_hash"
+    },
+    {
+      "id": "signoff_expires_at_format_valid:release_owner",
+      "pass": false,
+      "detail": "missing expires_at"
+    },
+    {
+      "id": "signoff_not_expired:release_owner",
+      "pass": false,
+      "detail": "missing/invalid expires_at"
+    },
+    {
+      "id": "signoff_expiry_within_ttl:release_owner",
+      "pass": false,
+      "detail": "expiry_window>168h or invalid date/expires_at"
+    },
+    {
+      "id": "ci_gates_file_valid_json",
+      "pass": true,
+      "detail": "docs/release/status/ci-gates.json parsed"
+    },
+    {
+      "id": "ci_gates_fresh",
+      "pass": true,
+      "detail": "local-only mode (age=109.16h)"
+    },
+    {
+      "id": "ci_gates_source_provenance_present",
+      "pass": true,
+      "detail": "local-only mode (source_branch=thesven; source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)"
+    },
+    {
+      "id": "ci_gates_gate_provenance_object_present",
+      "pass": true,
+      "detail": "gate_provenance keys=26"
+    },
+    {
+      "id": "ci_gates_required_workflow_gates_present",
+      "pass": true,
+      "detail": "required_workflow_gates keys=4"
+    },
+    {
+      "id": "ops_shell_ci_requirement_declared",
+      "pass": true,
+      "detail": "ops_shell_ci_required=false"
+    },
+    {
+      "id": "signoff_head_sha_binding:engineering",
+      "pass": true,
+      "detail": "local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)"
+    },
+    {
+      "id": "signoff_head_sha_binding:security",
+      "pass": true,
+      "detail": "local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)"
+    },
+    {
+      "id": "signoff_head_sha_binding:operations",
+      "pass": true,
+      "detail": "local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)"
+    },
+    {
+      "id": "signoff_head_sha_binding:product",
+      "pass": true,
+      "detail": "local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)"
+    },
+    {
+      "id": "signoff_head_sha_binding:release_owner",
+      "pass": true,
+      "detail": "local-only mode (signoff_head_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81)"
+    },
+    {
+      "id": "ci_gate:final_dod_ci",
+      "pass": true,
+      "detail": "final_dod_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:parity_e2e_ci",
+      "pass": true,
+      "detail": "parity_e2e_ci must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:parity_checklist_verify_ci",
+      "pass": true,
+      "detail": "parity_checklist_verify_ci must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:agent_zero_parity_verify_ci",
+      "pass": true,
+      "detail": "agent_zero_parity_verify_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:websocket_contract_ci",
+      "pass": true,
+      "detail": "websocket_contract_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:mcp_server_compat_ci",
+      "pass": true,
+      "detail": "mcp_server_compat_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:a2a_compat_ci",
+      "pass": true,
+      "detail": "a2a_compat_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:multi_device_validation_ci",
+      "pass": true,
+      "detail": "multi_device_validation_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:release_ops_drill_ci",
+      "pass": true,
+      "detail": "release_ops_drill_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:d9_keycloak_interop_ci",
+      "pass": true,
+      "detail": "d9_keycloak_interop_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:mobile_auth_session_smoke_ci",
+      "pass": true,
+      "detail": "mobile_auth_session_smoke_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:mobile_release_readiness_ci",
+      "pass": true,
+      "detail": "mobile_release_readiness_ci must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:backup_restore_api_ci",
+      "pass": true,
+      "detail": "backup_restore_api_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:flutter_user_app_device_farm_ci",
+      "pass": true,
+      "detail": "flutter_user_app_device_farm_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:desktop_release_ci",
+      "pass": true,
+      "detail": "desktop_release_ci must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:ui_e2e_ci",
+      "pass": true,
+      "detail": "ui_e2e_ci must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:mobile_coverage_gate_ci",
+      "pass": true,
+      "detail": "mobile_coverage_gate_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:csrf_auth_e2e_ci",
+      "pass": true,
+      "detail": "csrf_auth_e2e_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:client_env_governance_ci",
+      "pass": true,
+      "detail": "client_env_governance_ci must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:backend_capability_e2e_ci",
+      "pass": true,
+      "detail": "backend_capability_e2e_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:security_privacy_governance_ci",
+      "pass": true,
+      "detail": "security_privacy_governance_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:privacy_admin_e2e_ci",
+      "pass": true,
+      "detail": "privacy_admin_e2e_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:skill_quarantine_scan_ci",
+      "pass": true,
+      "detail": "skill_quarantine_scan_ci must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:security_audit_unified_ci",
+      "pass": true,
+      "detail": "security_audit_unified_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:integration_truthfulness_ci",
+      "pass": true,
+      "detail": "integration_truthfulness_ci must be true (skipped in local-only mode, current=undefined)"
+    },
+    {
+      "id": "ci_gate:security_baseline_ci",
+      "pass": true,
+      "detail": "security_baseline_ci must be true (skipped in local-only mode, current=false)"
+    },
+    {
+      "id": "ci_gate:soak_72h",
+      "pass": true,
+      "detail": "soak_72h must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:week4_rc_complete",
+      "pass": true,
+      "detail": "week4_rc_complete must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:post_release_verified",
+      "pass": true,
+      "detail": "post_release_verified must be true (skipped in local-only mode, current=true)"
+    },
+    {
+      "id": "ci_gate:ops_shell_ci",
+      "pass": true,
+      "detail": "ops_shell_ci conditional gate (skipped in local-only mode, required=false current=true)"
+    },
+    {
+      "id": "ci_required_checks_status_pass",
+      "pass": true,
+      "detail": "ci-required-checks-latest.json status=pass"
+    },
+    {
+      "id": "ci_required_checks_fresh",
+      "pass": false,
+      "detail": "617.94h > 72h"
+    },
+    {
+      "id": "ci_required_checks_execution_authoritative",
+      "pass": false,
+      "detail": "validation_mode=(missing); authority=(missing)"
+    },
+    {
+      "id": "ci_required_checks_not_local_only_evidence",
+      "pass": true,
+      "detail": "execution.local_only=undefined"
+    },
+    {
+      "id": "ci_required_checks_target_sha_matches_source",
+      "pass": false,
+      "detail": "target_sha=(missing); source_head_sha=0f5d8ecbbc387317ce707b3152d9dd55966a3b81"
+    },
+    {
+      "id": "ci_required_checks_bridge_runtime_latest_run_success",
+      "pass": true,
+      "detail": "skipped in local-only mode"
+    },
+    {
+      "id": "ci_required_checks_gateway_bridge_contract_latest_run_success",
+      "pass": true,
+      "detail": "skipped in local-only mode"
+    },
+    {
+      "id": "d9_local_selfcheck_status_pass",
+      "pass": false,
+      "detail": "docs/release/status/latest.json missing"
+    },
+    {
+      "id": "d9_local_readiness_status_pass",
+      "pass": true,
+      "detail": "d9-local-readiness-latest.json status=pass"
+    },
+    {
+      "id": "d9_local_selfcheck_artifact_hardened",
+      "pass": false,
+      "detail": "strict_mode!=true; input_provenance missing; hardening_risks missing; migration_coverage missing"
+    },
+    {
+      "id": "d9_local_selfcheck_report_status_pass",
+      "pass": false,
+      "detail": "d9-keycloak-local-selfcheck-latest.json status=invalid"
+    },
+    {
+      "id": "d9_local_selfcheck_hardening_risk_clear",
+      "pass": false,
+      "detail": "invalid D9 local selfcheck artifact: strict_mode!=true; input_provenance missing; hardening_risks missing; migration_coverage missing"
+    },
+    {
+      "id": "mobile_release_readiness_status_pass",
+      "pass": true,
+      "detail": "mobile-release-readiness-latest.json status=pass"
+    },
+    {
+      "id": "mobile_release_readiness_fresh",
+      "pass": false,
+      "detail": "819.80h > 72h"
+    },
+    {
+      "id": "multi_device_validation_present",
+      "pass": false,
+      "detail": "docs/release/status/multi-device-validation-latest.json missing"
+    },
+    {
+      "id": "mobile_release_signing_fresh",
+      "pass": false,
+      "detail": "819.80h > 72h"
+    },
+    {
+      "id": "mobile_release_signing_consistent_with_mobile_readiness",
+      "pass": true,
+      "detail": "mobile-release-signing-latest.json status=pass; mobile_readiness_status=pass"
+    },
+    {
+      "id": "mobile_release_signing_not_newer_than_mobile_readiness",
+      "pass": true,
+      "detail": "artifact_ts=2026-02-14T22:21:43.105Z; mobile_readiness_ts=2026-02-14T22:21:45.152Z"
+    },
+    {
+      "id": "mobile_app_store_privacy_fresh",
+      "pass": false,
+      "detail": "819.80h > 72h"
+    },
+    {
+      "id": "mobile_app_store_privacy_consistent_with_mobile_readiness",
+      "pass": true,
+      "detail": "mobile-app-store-privacy-latest.json status=pass; mobile_readiness_status=pass"
+    },
+    {
+      "id": "mobile_app_store_privacy_not_newer_than_mobile_readiness",
+      "pass": true,
+      "detail": "artifact_ts=2026-02-14T22:21:43.052Z; mobile_readiness_ts=2026-02-14T22:21:45.152Z"
+    },
+    {
+      "id": "final_dod_execution_status_pass",
+      "pass": false,
+      "detail": "final-dod-execution-latest.json status=fail"
+    },
+    {
+      "id": "final_dod_execution_fresh",
+      "pass": true,
+      "detail": "1.69h <= 72h"
+    },
+    {
+      "id": "final_dod_execution_provenance_present",
+      "pass": false,
+      "detail": "source_run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "final_dod_execution_live_checks_executed",
+      "pass": false,
+      "detail": "live_checks_executed=false"
+    },
+    {
+      "id": "skill_quarantine_scan_present",
+      "pass": false,
+      "detail": "docs/release/status/skill-quarantine-scan-latest.json missing"
+    },
+    {
+      "id": "security_audit_unified_present",
+      "pass": false,
+      "detail": "docs/release/status/security-audit-unified-latest.json missing"
+    },
+    {
+      "id": "dependency_vuln_status_pass",
+      "pass": true,
+      "detail": "dependency-vuln-latest.json status=pass"
+    },
+    {
+      "id": "dependency_vuln_fresh",
+      "pass": false,
+      "detail": "635.47h > 72h"
+    },
+    {
+      "id": "security_transport_csp_status_pass",
+      "pass": true,
+      "detail": "security-transport-csp-latest.json status=pass"
+    },
+    {
+      "id": "security_transport_csp_fresh",
+      "pass": false,
+      "detail": "792.30h > 72h"
+    },
+    {
+      "id": "security_auth_surface_status_pass",
+      "pass": true,
+      "detail": "security-auth-surface-latest.json status=pass"
+    },
+    {
+      "id": "security_auth_surface_fresh",
+      "pass": false,
+      "detail": "635.63h > 72h"
+    },
+    {
+      "id": "security_plaintext_secrets_present",
+      "pass": false,
+      "detail": "docs/release/status/security-plaintext-secrets-latest.json missing"
+    },
+    {
+      "id": "security_image_signing_status_pass",
+      "pass": true,
+      "detail": "security-image-signing-latest.json status=pass"
+    },
+    {
+      "id": "security_image_signing_fresh",
+      "pass": false,
+      "detail": "633.94h > 72h"
+    },
+    {
+      "id": "security_image_signing_provenance_present",
+      "pass": false,
+      "detail": "source_run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "security_release_artifact_sbom_status_pass",
+      "pass": true,
+      "detail": "security-release-artifact-sbom-latest.json status=pass"
+    },
+    {
+      "id": "security_release_artifact_sbom_fresh",
+      "pass": false,
+      "detail": "633.94h > 72h"
+    },
+    {
+      "id": "security_release_artifact_sbom_provenance_present",
+      "pass": false,
+      "detail": "source_run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "security_sbom_cosign_status_pass",
+      "pass": true,
+      "detail": "security-sbom-cosign-latest.json status=pass"
+    },
+    {
+      "id": "security_sbom_cosign_fresh",
+      "pass": false,
+      "detail": "633.94h > 72h"
+    },
+    {
+      "id": "security_sbom_cosign_provenance_present",
+      "pass": false,
+      "detail": "source_run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "third_checklist_integration_status_pass",
+      "pass": false,
+      "detail": "third-checklist-integration-latest.json status=fail"
+    },
+    {
+      "id": "third_checklist_integration_fresh",
+      "pass": true,
+      "detail": "0.02h <= 72h"
+    },
+    {
+      "id": "final_dod_e2e_present",
+      "pass": false,
+      "detail": "docs/release/status/final-dod-e2e-latest.json missing"
+    },
+    {
+      "id": "parity_e2e_present",
+      "pass": false,
+      "detail": "docs/release/status/parity-e2e-latest.json missing"
+    },
+    {
+      "id": "ui_e2e_status_pass",
+      "pass": true,
+      "detail": "ui-e2e-latest.json status=pass"
+    },
+    {
+      "id": "ui_e2e_fresh",
+      "pass": false,
+      "detail": "840.57h > 72h"
+    },
+    {
+      "id": "ui_e2e_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "ui_e2e_min_project_tests",
+      "pass": true,
+      "detail": "min_per_project=2; observed=admin-web:2, canvas-web:2, desktop-tauri-web:2"
+    },
+    {
+      "id": "ui_e2e_min_total_tests",
+      "pass": true,
+      "detail": "min_total=6; observed_total=6"
+    },
+    {
+      "id": "ui_e2e_admin_endpoint_coverage_present",
+      "pass": false,
+      "detail": "admin_endpoint_coverage block missing/invalid"
+    },
+    {
+      "id": "ui_e2e_admin_endpoint_flow_threshold",
+      "pass": true,
+      "detail": "min_admin_endpoint_flows=2; observed=2"
+    },
+    {
+      "id": "backup_restore_api_present",
+      "pass": false,
+      "detail": "docs/release/status/backup-restore-api-e2e-latest.json missing"
+    },
+    {
+      "id": "mobile_device_farm_config_status_pass",
+      "pass": true,
+      "detail": "mobile-device-farm-config-latest.json status=pass"
+    },
+    {
+      "id": "mobile_device_farm_config_fresh",
+      "pass": false,
+      "detail": "819.62h > 72h"
+    },
+    {
+      "id": "mobile_device_farm_config_current_path_checks_present",
+      "pass": false,
+      "detail": "artifact missing active flutter-user maestro path checks"
+    },
+    {
+      "id": "mobile_device_farm_status_pass",
+      "pass": false,
+      "detail": "mobile-device-farm-latest.json status=fail"
+    },
+    {
+      "id": "mobile_device_farm_fresh",
+      "pass": false,
+      "detail": "819.32h > 72h"
+    },
+    {
+      "id": "mobile_device_farm_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "mobile_legal_urls_status_pass",
+      "pass": true,
+      "detail": "mobile-legal-urls-latest.json status=pass"
+    },
+    {
+      "id": "mobile_legal_urls_fresh",
+      "pass": false,
+      "detail": "105.25h > 72h"
+    },
+    {
+      "id": "mobile_c8_index_status_pass",
+      "pass": false,
+      "detail": "mobile-c8-index-latest.json status=blocked"
+    },
+    {
+      "id": "mobile_c8_index_fresh",
+      "pass": false,
+      "detail": "631.14h > 72h"
+    },
+    {
+      "id": "resumable_stream_status_pass",
+      "pass": false,
+      "detail": "resumable-stream-latest.json status=fail"
+    },
+    {
+      "id": "resumable_stream_fresh",
+      "pass": true,
+      "detail": "0.05h <= 72h"
+    },
+    {
+      "id": "web_egress_security_status_pass",
+      "pass": false,
+      "detail": "web-egress-security-latest.json status=fail"
+    },
+    {
+      "id": "web_egress_security_fresh",
+      "pass": true,
+      "detail": "0.05h <= 72h"
+    },
+    {
+      "id": "seed_baseline_status_pass",
+      "pass": true,
+      "detail": "seed-baseline-latest.json status=pass"
+    },
+    {
+      "id": "seed_baseline_fresh",
+      "pass": true,
+      "detail": "0.04h <= 72h"
+    },
+    {
+      "id": "api_contract_version_status_pass",
+      "pass": true,
+      "detail": "api-contract-version-latest.json status=pass"
+    },
+    {
+      "id": "api_contract_version_fresh",
+      "pass": false,
+      "detail": "643.87h > 72h"
+    },
+    {
+      "id": "api_contract_version_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "api_openapi_contract_status_pass",
+      "pass": true,
+      "detail": "api-openapi-contract-latest.json status=pass"
+    },
+    {
+      "id": "api_openapi_contract_fresh",
+      "pass": false,
+      "detail": "635.80h > 72h"
+    },
+    {
+      "id": "api_openapi_contract_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "api_request_schema_coverage_status_pass",
+      "pass": true,
+      "detail": "api-request-body-schema-coverage-latest.json status=pass"
+    },
+    {
+      "id": "api_request_schema_coverage_fresh",
+      "pass": false,
+      "detail": "635.80h > 72h"
+    },
+    {
+      "id": "api_request_schema_coverage_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "api_reliability_observability_status_pass",
+      "pass": false,
+      "detail": "api-reliability-observability-latest.json status=warn"
+    },
+    {
+      "id": "api_reliability_observability_fresh",
+      "pass": false,
+      "detail": "848.34h > 72h"
+    },
+    {
+      "id": "api_reliability_observability_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "benchmark_suite_status_pass",
+      "pass": false,
+      "detail": "benchmark-suite-latest.json status=fail"
+    },
+    {
+      "id": "benchmark_suite_fresh",
+      "pass": true,
+      "detail": "1.58h <= 72h"
+    },
+    {
+      "id": "benchmark_suite_required_check_pass:f1_onboarding_status_pass",
+      "pass": true,
+      "detail": "f1_onboarding_status_pass=true"
+    },
+    {
+      "id": "benchmark_suite_required_check_pass:f1_onboarding_fresh",
+      "pass": true,
+      "detail": "f1_onboarding_fresh=true"
+    },
+    {
+      "id": "benchmark_suite_required_check_pass:f2_ui_operability_status_pass",
+      "pass": true,
+      "detail": "f2_ui_operability_status_pass=true"
+    },
+    {
+      "id": "benchmark_suite_required_check_pass:f2_ui_operability_fresh",
+      "pass": true,
+      "detail": "f2_ui_operability_fresh=true"
+    },
+    {
+      "id": "benchmark_suite_required_check_pass:f3_reliability_recovery_status_pass",
+      "pass": false,
+      "detail": "f3_reliability_recovery_status_pass=false"
+    },
+    {
+      "id": "benchmark_suite_required_check_pass:f3_reliability_recovery_fresh",
+      "pass": true,
+      "detail": "f3_reliability_recovery_fresh=true"
+    },
+    {
+      "id": "benchmark_suite_required_check_pass:f4_security_defaults_status_pass",
+      "pass": true,
+      "detail": "f4_security_defaults_status_pass=true"
+    },
+    {
+      "id": "benchmark_suite_required_check_pass:f4_security_defaults_fresh",
+      "pass": true,
+      "detail": "f4_security_defaults_fresh=true"
+    },
+    {
+      "id": "competitor_benchmark_integrity_present",
+      "pass": false,
+      "detail": "docs/release/status/competitor-benchmark-integrity-latest.json missing"
+    },
+    {
+      "id": "competitor_runtime_guard_status_pass",
+      "pass": false,
+      "detail": "competitor-runtime-guard-latest.json status=inconclusive"
+    },
+    {
+      "id": "competitor_runtime_guard_fresh",
+      "pass": true,
+      "detail": "1.58h <= 72h"
+    },
+    {
+      "id": "competitor_runtime_guard_provenance_present",
+      "pass": false,
+      "detail": "run_id=local-1774053302738; head_sha=(missing)"
+    },
+    {
+      "id": "quickstart_installer_crosshost_status_pass",
+      "pass": true,
+      "detail": "quickstart-installer-crosshost-latest.json status=pass"
+    },
+    {
+      "id": "quickstart_installer_crosshost_fresh",
+      "pass": false,
+      "detail": "822.20h > 72h"
+    },
+    {
+      "id": "quickstart_installer_crosshost_required_checks_present",
+      "pass": true,
+      "detail": "required checks present (powershell_installer_dry_run, cmd_installer_dry_run)"
+    },
+    {
+      "id": "quickstart_installer_crosshost_required_checks_pass",
+      "pass": true,
+      "detail": "required checks pass (powershell_installer_dry_run, cmd_installer_dry_run)"
+    },
+    {
+      "id": "quickstart_installer_runtime_status_pass",
+      "pass": false,
+      "detail": "quickstart-installer-runtime-latest.json status=fail"
+    },
+    {
+      "id": "quickstart_installer_runtime_fresh",
+      "pass": true,
+      "detail": "1.68h <= 72h"
+    },
+    {
+      "id": "quickstart_installer_runtime_required_checks_present",
+      "pass": true,
+      "detail": "required checks present (quickstart_runtime_baseline_installer_dry_run, quickstart_runtime_baseline_install_status_emitted, quickstart_runtime_stack_healthz_operable, quickstart_runtime_auth_surface_operable)"
+    },
+    {
+      "id": "quickstart_installer_runtime_required_checks_pass",
+      "pass": false,
+      "detail": "required checks failing: quickstart_runtime_stack_healthz_operable, quickstart_runtime_auth_surface_operable"
+    },
+    {
+      "id": "sast_present",
+      "pass": false,
+      "detail": "docs/release/status/sast-latest.json missing"
+    },
+    {
+      "id": "release_evidence_bundle_status_pass",
+      "pass": false,
+      "detail": "release-evidence-bundle-latest.json status=fail"
+    },
+    {
+      "id": "release_evidence_bundle_fresh",
+      "pass": true,
+      "detail": "0.02h <= 72h"
+    },
+    {
+      "id": "runbook_scenario_matrix_status_pass",
+      "pass": false,
+      "detail": "runbook-scenario-matrix-latest.json status=fail"
+    },
+    {
+      "id": "runbook_scenario_matrix_fresh",
+      "pass": true,
+      "detail": "0.02h <= 168h"
+    },
+    {
+      "id": "staging_migration_verification_status_pass",
+      "pass": false,
+      "detail": "staging-migration-verification-latest.json status=fail"
+    },
+    {
+      "id": "staging_migration_verification_fresh",
+      "pass": true,
+      "detail": "0.02h <= 72h"
+    },
+    {
+      "id": "feature_flag_governance_status_pass",
+      "pass": false,
+      "detail": "feature-flag-governance-latest.json status=fail"
+    },
+    {
+      "id": "feature_flag_governance_fresh",
+      "pass": true,
+      "detail": "0.02h <= 72h"
+    },
+    {
+      "id": "soak_hardware_evidence_status_pass",
+      "pass": false,
+      "detail": "soak-hardware-evidence-latest.json status=fail"
+    },
+    {
+      "id": "soak_hardware_evidence_fresh",
+      "pass": true,
+      "detail": "0.04h <= 168h"
+    },
+    {
+      "id": "release_candidate_package_status_pass",
+      "pass": false,
+      "detail": "release-candidate-package-latest.json status=fail"
+    },
+    {
+      "id": "release_candidate_package_fresh",
+      "pass": true,
+      "detail": "0.04h <= 72h"
+    },
+    {
+      "id": "release_ops_drill_present",
+      "pass": false,
+      "detail": "docs/release/status/release-ops-drill-latest.json missing"
+    },
+    {
+      "id": "external_input_resolution_status_pass",
+      "pass": false,
+      "detail": "external-input-resolution-latest.json status=fail"
+    },
+    {
+      "id": "external_input_resolution_fresh",
+      "pass": true,
+      "detail": "0.04h <= 168h"
+    },
+    {
+      "id": "operability_auth_suite_status_pass",
+      "pass": false,
+      "detail": "operability-auth-suite-latest.json status=fail"
+    },
+    {
+      "id": "operability_auth_suite_fresh",
+      "pass": true,
+      "detail": "0.04h <= 72h"
+    },
+    {
+      "id": "performance_e2e_present",
+      "pass": false,
+      "detail": "docs/release/status/performance-e2e-latest.json missing"
+    },
+    {
+      "id": "admin_rbac_penetration_status_pass",
+      "pass": false,
+      "detail": "admin-rbac-penetration-latest.json status=fail"
+    },
+    {
+      "id": "admin_rbac_penetration_fresh",
+      "pass": true,
+      "detail": "0.02h <= 72h"
+    },
+    {
+      "id": "admin_rbac_penetration_provenance_present",
+      "pass": false,
+      "detail": "run_id=(missing); head_sha=(missing)"
+    },
+    {
+      "id": "csrf_auth_e2e_present",
+      "pass": false,
+      "detail": "docs/release/status/csrf-auth-e2e-latest.json missing"
+    }
+  ],
+  "checks_scoped_out_count": 0,
+  "checks_scoped_out_ids": []
+}

@@ -1,0 +1,160 @@
+{
+  "title": "Sven Security Dashboard",
+  "tags": [
+    "sven",
+    "security",
+    "audit"
+  ],
+  "timezone": "Europe/Bucharest",
+  "panels": [
+    {
+      "title": "Blocked Tool Calls / min",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "rate(tool_calls_blocked_total{job=\"agent-runtime\"}[5m]) * 60",
+          "legendFormat": "{{tool}} ({{reason}})"
+        }
+      ]
+    },
+    {
+      "title": "Approval Queue Size",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "approvals_pending_total{job=\"gateway-api\"}",
+          "legendFormat": "Pending"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "textMode": "auto"
+      }
+    },
+    {
+      "title": "Rate Limit Rejections / min",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "rate(http_rate_limit_rejections_total{job=\"gateway-api\"}[5m]) * 60",
+          "legendFormat": "429s"
+        }
+      ]
+    },
+    {
+      "title": "Authentication Failures / min",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(auth_failures_total{job=\"gateway-api\"}[5m]) * 60",
+          "legendFormat": "{{reason}}"
+        }
+      ]
+    },
+    {
+      "title": "Audit Events / min",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(audit_events_total{job=\"gateway-api\"}[5m]) * 60",
+          "legendFormat": "{{action}}"
+        }
+      ]
+    },
+    {
+      "title": "Kill Switch Status",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 16
+      },
+      "targets": [
+        {
+          "expr": "kill_switch_active{job=\"gateway-api\"}",
+          "legendFormat": "Active"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "OFF",
+                  "color": "green"
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "ACTIVE",
+                  "color": "red"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "title": "Brute-Force Lockouts",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 16
+      },
+      "targets": [
+        {
+          "expr": "bruteforce_lockouts_active{job=\"gateway-api\"}",
+          "legendFormat": "Locked"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "textMode": "auto"
+      }
+    }
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "refresh": "30s"
+}

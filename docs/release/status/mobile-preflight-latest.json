@@ -1,0 +1,9 @@
+﻿{
+    "node_version":  "v18.20.4",
+    "node_major":  "18",
+    "expo":  "~50.0.21",
+    "expo_major":  50,
+    "react_native":  "0.73.6",
+    "babel_preset_expo":  "~11.0.0",
+    "status":  "ok"
+}

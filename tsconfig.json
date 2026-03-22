@@ -1,0 +1,17 @@
+{
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "services/gateway-api" },
+    { "path": "services/agent-runtime" },
+    { "path": "services/registry-worker" },
+    { "path": "services/skill-runner" },
+    { "path": "services/rag-indexer" },
+    { "path": "services/rag-nas-ingestor" },
+    { "path": "services/rag-git-ingestor" },
+    { "path": "services/rag-notes-ingestor" },
+    { "path": "services/notification-service" },
+    { "path": "services/wake-word" },
+    { "path": "services/workflow-executor" }
+  ],
+  "files": []
+}

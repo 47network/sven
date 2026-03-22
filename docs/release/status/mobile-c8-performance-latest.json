@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-02-22T18:55:27.253Z",
+  "mode": "strict",
+  "status": "fail",
+  "limits": {
+    "cold_start_p95_ms": 3000,
+    "artifact_size_mb": 50,
+    "min_sample_count": 20,
+    "background_network_bytes_per_min_p95": 50000
+  },
+  "evidence": "docs/release/evidence/mobile-c8-remaining-validation-2026-02-22.md",
+  "checks": [
+    {
+      "id": "cold_start_android_p95_lt_3s",
+      "pass": true,
+      "detail": "samples=20, p95=608 < 3000"
+    },
+    {
+      "id": "cold_start_ios_p95_lt_3s",
+      "pass": false,
+      "detail": "samples=0, p95=n/a < 3000"
+    },
+    {
+      "id": "apk_size_lt_50mb",
+      "pass": true,
+      "detail": "30.2 < 50"
+    },
+    {
+      "id": "ipa_size_lt_50mb",
+      "pass": false,
+      "detail": "n/a < 50"
+    },
+    {
+      "id": "background_network_sample_captured",
+      "pass": false,
+      "detail": "android(samples=1, p95=0), ios(samples=0, p95=n/a), limit=50000 bytes/min"
+    },
+    {
+      "id": "ios_metrics_provenance_present",
+      "pass": false,
+      "detail": "mobile-c8-ios-metrics-capture-latest.md missing required metadata and/or non-zero captured values"
+    }
+  ]
+}

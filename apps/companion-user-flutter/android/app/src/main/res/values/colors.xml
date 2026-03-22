@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sven brand colors -->
+    <color name="sven_splash_bg">#FF040712</color>
+    <color name="sven_primary">#FF00D9FF</color>
+    <color name="sven_secondary">#FF00FFA3</color>
+</resources>

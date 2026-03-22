@@ -1,0 +1,45 @@
+<!-- Onboarding page 3 — "Voice Pipeline" — stylised sound waveform with mic -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="320" height="240">
+    <defs>
+        <linearGradient id="waveGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stop-color="#00D9FF" stop-opacity="0.1"/>
+            <stop offset="30%" stop-color="#00D9FF" stop-opacity="0.8"/>
+            <stop offset="70%" stop-color="#00FFA3" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#00FFA3" stop-opacity="0.1"/>
+        </linearGradient>
+        <linearGradient id="micGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00D9FF"/>
+            <stop offset="100%" stop-color="#00FFA3"/>
+        </linearGradient>
+        <filter id="glowW" x="-20%" y="-50%" width="140%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+            <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <!-- Waveform bars — symmetric, varying heights -->
+    <g fill="url(#waveGrad)" filter="url(#glowW)">
+        <rect x="30" y="108" width="7" height="24" rx="3.5"/>
+        <rect x="44" y="96" width="7" height="48" rx="3.5"/>
+        <rect x="58" y="84" width="7" height="72" rx="3.5"/>
+        <rect x="72" y="72" width="7" height="96" rx="3.5"/>
+        <rect x="86" y="60" width="7" height="120" rx="3.5"/>
+        <rect x="100" y="72" width="7" height="96" rx="3.5"/>
+        <rect x="114" y="84" width="7" height="72" rx="3.5"/>
+        <!-- Gap for mic -->
+        <rect x="198" y="84" width="7" height="72" rx="3.5"/>
+        <rect x="212" y="72" width="7" height="96" rx="3.5"/>
+        <rect x="226" y="60" width="7" height="120" rx="3.5"/>
+        <rect x="240" y="72" width="7" height="96" rx="3.5"/>
+        <rect x="254" y="84" width="7" height="72" rx="3.5"/>
+        <rect x="268" y="96" width="7" height="48" rx="3.5"/>
+        <rect x="282" y="108" width="7" height="24" rx="3.5"/>
+    </g>
+    <!-- Central microphone -->
+    <rect x="147" y="76" width="24" height="38" rx="12" fill="url(#micGrad)"/>
+    <path d="M138 106 Q138 126 160 126 Q182 126 182 106" fill="none" stroke="url(#micGrad)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="160" y1="126" x2="160" y2="142" stroke="url(#micGrad)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="148" y1="142" x2="172" y2="142" stroke="url(#micGrad)" stroke-width="3" stroke-linecap="round"/>
+</svg>

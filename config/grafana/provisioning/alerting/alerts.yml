@@ -1,0 +1,342 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: Infrastructure
+    folder: Sven System
+    interval: 1m
+    rules:
+      - uid: sven-high-cpu
+        title: "High CPU Usage"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings: { mode: "" }
+          - refId: C
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [85] }
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "CPU usage above 85% on {{ $labels.instance }}"
+
+      - uid: sven-high-memory
+        title: "High Memory Usage"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings: { mode: "" }
+          - refId: C
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [90] }
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Memory usage above 90% on {{ $labels.instance }}"
+
+      - uid: sven-high-disk
+        title: "High Disk Usage"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              expr: (1 - node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"} / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}) * 100
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings: { mode: "" }
+          - refId: C
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [85] }
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Disk usage above 85% on {{ $labels.instance }}"
+
+  - orgId: 1
+    name: Database
+    folder: Sven System
+    interval: 1m
+    rules:
+      - uid: sven-pg-connections
+        title: "PostgreSQL Connection Saturation"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              expr: sum(pg_stat_activity_count) / max(pg_settings_max_connections) * 100
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings: { mode: "" }
+          - refId: C
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [80] }
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "PostgreSQL using >80% of max connections"
+
+      - uid: sven-pg-deadlocks
+        title: "PostgreSQL Deadlocks"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              expr: increase(pg_stat_database_deadlocks_total[5m])
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings: { mode: "" }
+          - refId: C
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [0] }
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "PostgreSQL deadlocks detected"
+
+  - orgId: 1
+    name: Application
+    folder: Sven System
+    interval: 1m
+    rules:
+      - uid: sven-gateway-error-rate
+        title: "Gateway API High Error Rate"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              expr: rate(http_requests_total{job="sven-gateway-api",status=~"5.."}[5m]) / rate(http_requests_total{job="sven-gateway-api"}[5m]) * 100
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings: { mode: "" }
+          - refId: C
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [5] }
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Gateway API error rate above 5%"
+
+      - uid: sven-gateway-latency
+        title: "Gateway API High Latency"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job="sven-gateway-api"}[5m]))
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings: { mode: "" }
+          - refId: C
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [2] }
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Gateway API p99 latency above 2 seconds"
+
+  - orgId: 1
+    name: Messaging
+    folder: Sven System
+    interval: 1m
+    rules:
+      - uid: sven-nats-pending
+        title: "NATS High Pending Messages"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              expr: sum(nats_consumer_num_pending) or vector(0)
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings: { mode: "" }
+          - refId: C
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [10000] }
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "NATS JetStream pending messages above 10,000"
+
+  - orgId: 1
+    name: Monitoring
+    folder: Sven System
+    interval: 1m
+    rules:
+      - uid: sven-target-down
+        title: "Prometheus Target Down"
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              expr: up == 0
+          - refId: B
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              expression: A
+              reducer: last
+              settings: { mode: "" }
+          - refId: C
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator: { type: gt, params: [0] }
+        noDataState: OK
+        execErrState: Error
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "Prometheus target {{ $labels.job }} ({{ $labels.instance }}) is down"

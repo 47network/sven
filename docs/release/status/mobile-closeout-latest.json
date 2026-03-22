@@ -1,0 +1,32 @@
+﻿{
+    "at_utc":  "2026-02-14T22:21:45.2024359Z",
+    "status":  "pass",
+    "steps":  [
+                  {
+                      "name":  "mobile_appstore_privacy_check",
+                      "status":  "pass"
+                  },
+                  {
+                      "name":  "mobile_release_signing_check",
+                      "status":  "pass"
+                  },
+                  {
+                      "name":  "mobile_crash_anr_check",
+                      "status":  "pass"
+                  },
+                  {
+                      "name":  "mobile_device_release_validation",
+                      "status":  "pass"
+                  },
+                  {
+                      "name":  "mobile_release_readiness_check",
+                      "status":  "pass"
+                  }
+              ],
+    "outputs":  {
+                    "signing_evidence":  "docs/release/evidence/mobile-release-signing-2026-02-14.md",
+                    "signing_status":  "docs/release/status/mobile-release-signing-latest.json",
+                    "device_validation":  "docs/release/status/mobile-device-release-validation.json",
+                    "readiness":  "docs/release/status/mobile-release-readiness-latest.json"
+                }
+}

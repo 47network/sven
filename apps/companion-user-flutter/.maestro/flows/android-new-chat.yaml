@@ -1,0 +1,52 @@
+appId: com.example.sven_user_flutter
+name: "Android — New chat flow"
+tags:
+  - chat
+  - android
+---
+# ── Precondition: app is running and user is signed in ────────────────────────
+- launchApp:
+    clearState: false
+
+- assertVisible:
+    text: "Sven"
+    enabled: true
+
+- takeScreenshot: android-chat-01-home
+
+# ── Open a new chat via FAB ───────────────────────────────────────────────────
+- tapOn:
+    id: "new_chat_fab"
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    id: "chat_composer_field"
+
+- takeScreenshot: android-chat-02-composer-open
+
+# ── Type a message ────────────────────────────────────────────────────────────
+- tapOn:
+    id: "chat_composer_field"
+
+- inputText: "Hello Sven, this is an E2E test."
+
+- takeScreenshot: android-chat-03-message-typed
+
+# ── Send the message ──────────────────────────────────────────────────────────
+- tapOn:
+    id: "chat_send_button"
+
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- assertVisible:
+    text: "Hello Sven, this is an E2E test."
+
+- takeScreenshot: android-chat-04-message-sent
+
+# ── Voice input button is visible ─────────────────────────────────────────────
+- assertVisible:
+    id: "chat_mic_button"
+
+- takeScreenshot: android-chat-05-final

@@ -1,0 +1,61 @@
+# docker-compose.47dynamics-bridge.yml
+#
+# Overlay for running the 47Dynamics bridge service alongside TheSven.
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.47dynamics-bridge.yml up -d
+#
+# Required env vars (add to .env):
+#   BRIDGE_SERVICE_TOKEN    — shared secret for 47Dynamics ↔ TheSven auth
+#   BRIDGE_ORG_ID           — TheSven org ID for 47dynamics tenant (default: 47dynamics-legacy-org)
+#   BRIDGE_AGENT_ID         — TheSven agent ID (default: 47dynamics-copilot)
+#   BRIDGE_CHAT_ID          — TheSven chat ID (default: 47dynamics-hq)
+#
+# Optional (mTLS — required in production):
+#   BRIDGE_TLS_CERT         — path to client TLS cert
+#   BRIDGE_TLS_KEY          — path to client TLS key
+#   BRIDGE_TLS_CA           — path to CA cert for server verification
+#   BRIDGE_REQUIRE_TENANT_MAPPING — true/false; when true, unmapped tenant IDs are rejected
+
+services:
+  bridge-47dynamics:
+    build:
+      context: .
+      dockerfile: services/bridge-47dynamics/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - LITELLM_URL=${LITELLM_URL:-http://litellm:4000}
+      - BRIDGE_GRPC_PORT=${BRIDGE_GRPC_PORT:-4020}
+      - BRIDGE_SERVICE_TOKEN=${BRIDGE_SERVICE_TOKEN}
+      - BRIDGE_ORG_ID=${BRIDGE_ORG_ID:-47dynamics-legacy-org}
+      - BRIDGE_AGENT_ID=${BRIDGE_AGENT_ID:-47dynamics-copilot}
+      - BRIDGE_CHAT_ID=${BRIDGE_CHAT_ID:-47dynamics-hq}
+      - BRIDGE_REQUIRE_TENANT_MAPPING=${BRIDGE_REQUIRE_TENANT_MAPPING:-false}
+      - BRIDGE_TLS_CERT=${BRIDGE_TLS_CERT:-}
+      - BRIDGE_TLS_KEY=${BRIDGE_TLS_KEY:-}
+      - BRIDGE_TLS_CA=${BRIDGE_TLS_CA:-}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${BRIDGE_GRPC_PORT:-4020}:${BRIDGE_GRPC_PORT:-4020}"
+    networks:
+      - core
+      - tools
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      litellm:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "node -e \"const g=require('@grpc/grpc-js');const c=new(g.makeGenericClientConstructor({})('localhost:${BRIDGE_GRPC_PORT:-4020}',g.credentials.createInsecure()));c.waitForReady(Date.now()+3000,e=>{process.exit(e?1:0)})\"" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"

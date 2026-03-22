@@ -1,0 +1,415 @@
+name: deployment-pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'services/**'
+      - 'apps/**'
+      - 'packages/**'
+      - 'scripts/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/deployment-pipeline.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci
+      - name: Build
+        run: npm run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci
+      - name: Run tests
+        run: npm run test
+
+  security:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci
+      - name: Dependency vulnerability gate
+        run: npm run security:deps:check:strict
+      - name: Plaintext secret gate
+        run: npm run security:plaintext:check
+      - name: Multi-stage Dockerfile gate
+        run: npm run release:container:multistage:check
+      - name: Non-root Docker runtime gate
+        run: npm run release:container:nonroot:check
+      - name: Read-only rootfs gate
+        run: npm run release:container:readonly:check
+      - name: Container resource limits gate
+        run: npm run release:container:resources:check
+      - name: Docker compose profiles gate
+        run: npm run release:compose:profiles:check
+      - name: Adapter health contract gate
+        run: npm run release:adapter:health:contract:check
+
+  staging:
+    runs-on: ubuntu-latest
+    needs: security
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to staging
+        env:
+          STAGING_DEPLOY_CMD: ${{ secrets.STAGING_DEPLOY_CMD }}
+          RUN_ID: ${{ github.run_id }}
+          HEAD_SHA: ${{ github.sha }}
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          mkdir -p docs/release/status
+          if [ -z "${STAGING_DEPLOY_CMD}" ]; then
+            cat > docs/release/status/deployment-staging-execution-latest.json <<EOF
+          {
+            "generated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "environment": "staging",
+            "status": "fail",
+            "deploy_executed": false,
+            "deploy_command_present": false,
+            "command_provenance": "secrets.STAGING_DEPLOY_CMD",
+            "reason": "missing STAGING_DEPLOY_CMD",
+            "run_id": "${RUN_ID}",
+            "head_sha": "${HEAD_SHA}",
+            "source_ref": "${SOURCE_REF}"
+          }
+          EOF
+            cat > docs/release/status/deployment-staging-execution-latest.md <<EOF
+          # Deployment Staging Execution
+
+          - Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          - Status: FAIL
+          - Environment: staging
+          - deploy_executed: false
+          - deploy_command_present: false
+          - command_provenance: secrets.STAGING_DEPLOY_CMD
+          - reason: missing STAGING_DEPLOY_CMD
+          - run_id: ${RUN_ID}
+          - head_sha: ${HEAD_SHA}
+          - source_ref: ${SOURCE_REF}
+          EOF
+            echo "STAGING_DEPLOY_CMD is required in staging environment."
+            exit 1
+          fi
+          set +e
+          sh -lc "${STAGING_DEPLOY_CMD}"
+          deploy_exit_code=$?
+          set -e
+          deploy_status="pass"
+          if [ "${deploy_exit_code}" -ne 0 ]; then
+            deploy_status="fail"
+          fi
+          cat > docs/release/status/deployment-staging-execution-latest.json <<EOF
+          {
+            "generated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "environment": "staging",
+            "status": "${deploy_status}",
+            "deploy_executed": true,
+            "deploy_command_present": true,
+            "command_provenance": "secrets.STAGING_DEPLOY_CMD",
+            "deploy_exit_code": ${deploy_exit_code},
+            "run_id": "${RUN_ID}",
+            "head_sha": "${HEAD_SHA}",
+            "source_ref": "${SOURCE_REF}"
+          }
+          EOF
+          cat > docs/release/status/deployment-staging-execution-latest.md <<EOF
+          # Deployment Staging Execution
+
+          - Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          - Status: ${deploy_status^^}
+          - Environment: staging
+          - deploy_executed: true
+          - deploy_command_present: true
+          - command_provenance: secrets.STAGING_DEPLOY_CMD
+          - deploy_exit_code: ${deploy_exit_code}
+          - run_id: ${RUN_ID}
+          - head_sha: ${HEAD_SHA}
+          - source_ref: ${SOURCE_REF}
+          EOF
+          if [ "${deploy_exit_code}" -ne 0 ]; then
+            exit "${deploy_exit_code}"
+          fi
+      - name: Staging rollout policy gate
+        run: npm run release:rollout:check
+
+      - name: Staging live endpoint health gate (strict)
+        env:
+          STAGING_API_URL: ${{ secrets.STAGING_API_URL }}
+        run: npm run release:staging:live:health:check
+
+      - name: Staging adapter health contract gate
+        run: npm run release:adapter:health:contract:check
+
+      - name: Staging runtime health gate
+        env:
+          API_URL: ${{ secrets.STAGING_API_URL }}
+          RELEASE_ENVIRONMENT: staging
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: npm run release:verify:post:strict
+
+      - name: Assemble staging deployment manifest
+        env:
+          RUN_ID: ${{ github.run_id }}
+          HEAD_SHA: ${{ github.sha }}
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          node <<'EOF'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const root = process.cwd();
+          const statusDir = path.join(root, 'docs', 'release', 'status');
+          const generatedAt = new Date().toISOString();
+          function readJson(name) {
+            const file = path.join(statusDir, name);
+            if (!fs.existsSync(file)) {
+              throw new Error(`Missing required status artifact: ${name}`);
+            }
+            return JSON.parse(fs.readFileSync(file, 'utf8'));
+          }
+          const deployment = readJson('deployment-staging-execution-latest.json');
+          const rollout = readJson('release-rollout-latest.json');
+          const liveHealth = readJson('staging-live-health-latest.json');
+          const adapterHealth = readJson('adapter-health-contract-latest.json');
+          const post = readJson('post-release-verification-latest.json');
+          const checks = [
+            { id: 'deployment_execution_pass', pass: String(deployment.status || '').toLowerCase() === 'pass', detail: `status=${deployment.status || '(missing)'}` },
+            { id: 'rollout_policy_pass', pass: String(rollout.status || '').toLowerCase() === 'pass', detail: `status=${rollout.status || '(missing)'}` },
+            { id: 'staging_live_health_pass', pass: String(liveHealth.status || '').toLowerCase() === 'pass', detail: `status=${liveHealth.status || '(missing)'}` },
+            { id: 'adapter_health_contract_pass', pass: String(adapterHealth.status || '').toLowerCase() === 'pass', detail: `status=${adapterHealth.status || '(missing)'}` },
+            { id: 'runtime_health_pass', pass: String(post.status || '').toLowerCase() === 'pass', detail: `status=${post.status || '(missing)'}` },
+          ];
+          const status = checks.every((c) => c.pass) ? 'pass' : 'fail';
+          const payload = {
+            generated_at: generatedAt,
+            environment: 'staging',
+            status,
+            run_id: process.env.RUN_ID || null,
+            head_sha: process.env.HEAD_SHA || null,
+            source_ref: process.env.SOURCE_REF || null,
+            inputs: {
+              deployment_execution: 'docs/release/status/deployment-staging-execution-latest.json',
+              rollout_policy: 'docs/release/status/release-rollout-latest.json',
+              staging_live_health: 'docs/release/status/staging-live-health-latest.json',
+              adapter_health_contract: 'docs/release/status/adapter-health-contract-latest.json',
+              runtime_health: 'docs/release/status/post-release-verification-latest.json',
+            },
+            checks,
+          };
+          fs.writeFileSync(path.join(statusDir, 'deployment-staging-manifest-latest.json'), `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+          fs.writeFileSync(
+            path.join(statusDir, 'deployment-staging-manifest-latest.md'),
+            `# Deployment Staging Manifest\n\nGenerated: ${generatedAt}\nStatus: ${status}\n\n## Checks\n${checks.map((c) => `- [${c.pass ? 'x' : ' '}] ${c.id}: ${c.detail}`).join('\n')}\n`,
+            'utf8',
+          );
+          if (status !== 'pass') {
+            process.exit(2);
+          }
+          EOF
+
+      - name: Upload staging deployment artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-staging-status
+          path: |
+            docs/release/status/deployment-staging-execution-latest.json
+            docs/release/status/deployment-staging-execution-latest.md
+            docs/release/status/deployment-staging-manifest-latest.json
+            docs/release/status/deployment-staging-manifest-latest.md
+            docs/release/status/release-rollout-latest.json
+            docs/release/status/release-rollout-latest.md
+            docs/release/status/staging-live-health-latest.json
+            docs/release/status/staging-live-health-latest.md
+            docs/release/status/adapter-health-contract-latest.json
+            docs/release/status/adapter-health-contract-latest.md
+            docs/release/status/post-release-verification-latest.json
+            docs/release/status/post-release-verification-latest.md
+
+  production:
+    runs-on: ubuntu-latest
+    needs: staging
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to production
+        env:
+          PRODUCTION_DEPLOY_CMD: ${{ secrets.PRODUCTION_DEPLOY_CMD }}
+          RUN_ID: ${{ github.run_id }}
+          HEAD_SHA: ${{ github.sha }}
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          mkdir -p docs/release/status
+          if [ -z "${PRODUCTION_DEPLOY_CMD}" ]; then
+            cat > docs/release/status/deployment-production-execution-latest.json <<EOF
+          {
+            "generated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "environment": "production",
+            "status": "fail",
+            "deploy_executed": false,
+            "deploy_command_present": false,
+            "command_provenance": "secrets.PRODUCTION_DEPLOY_CMD",
+            "reason": "missing PRODUCTION_DEPLOY_CMD",
+            "run_id": "${RUN_ID}",
+            "head_sha": "${HEAD_SHA}",
+            "source_ref": "${SOURCE_REF}"
+          }
+          EOF
+            cat > docs/release/status/deployment-production-execution-latest.md <<EOF
+          # Deployment Production Execution
+
+          - Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          - Status: FAIL
+          - Environment: production
+          - deploy_executed: false
+          - deploy_command_present: false
+          - command_provenance: secrets.PRODUCTION_DEPLOY_CMD
+          - reason: missing PRODUCTION_DEPLOY_CMD
+          - run_id: ${RUN_ID}
+          - head_sha: ${HEAD_SHA}
+          - source_ref: ${SOURCE_REF}
+          EOF
+            echo "PRODUCTION_DEPLOY_CMD is required in production environment."
+            exit 1
+          fi
+          set +e
+          sh -lc "${PRODUCTION_DEPLOY_CMD}"
+          deploy_exit_code=$?
+          set -e
+          deploy_status="pass"
+          if [ "${deploy_exit_code}" -ne 0 ]; then
+            deploy_status="fail"
+          fi
+          cat > docs/release/status/deployment-production-execution-latest.json <<EOF
+          {
+            "generated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "environment": "production",
+            "status": "${deploy_status}",
+            "deploy_executed": true,
+            "deploy_command_present": true,
+            "command_provenance": "secrets.PRODUCTION_DEPLOY_CMD",
+            "deploy_exit_code": ${deploy_exit_code},
+            "run_id": "${RUN_ID}",
+            "head_sha": "${HEAD_SHA}",
+            "source_ref": "${SOURCE_REF}"
+          }
+          EOF
+          cat > docs/release/status/deployment-production-execution-latest.md <<EOF
+          # Deployment Production Execution
+
+          - Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          - Status: ${deploy_status^^}
+          - Environment: production
+          - deploy_executed: true
+          - deploy_command_present: true
+          - command_provenance: secrets.PRODUCTION_DEPLOY_CMD
+          - deploy_exit_code: ${deploy_exit_code}
+          - run_id: ${RUN_ID}
+          - head_sha: ${HEAD_SHA}
+          - source_ref: ${SOURCE_REF}
+          EOF
+          if [ "${deploy_exit_code}" -ne 0 ]; then
+            exit "${deploy_exit_code}"
+          fi
+      - name: Production adapter health contract gate
+        run: npm run release:adapter:health:contract:check
+
+      - name: Production health gate
+        env:
+          API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          RELEASE_ENVIRONMENT: production
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        run: npm run release:verify:post:strict
+
+      - name: Assemble production deployment manifest
+        env:
+          RUN_ID: ${{ github.run_id }}
+          HEAD_SHA: ${{ github.sha }}
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          node <<'EOF'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const root = process.cwd();
+          const statusDir = path.join(root, 'docs', 'release', 'status');
+          const generatedAt = new Date().toISOString();
+          function readJson(name) {
+            const file = path.join(statusDir, name);
+            if (!fs.existsSync(file)) {
+              throw new Error(`Missing required status artifact: ${name}`);
+            }
+            return JSON.parse(fs.readFileSync(file, 'utf8'));
+          }
+          const deployment = readJson('deployment-production-execution-latest.json');
+          const adapterHealth = readJson('adapter-health-contract-latest.json');
+          const post = readJson('post-release-verification-latest.json');
+          const checks = [
+            { id: 'deployment_execution_pass', pass: String(deployment.status || '').toLowerCase() === 'pass', detail: `status=${deployment.status || '(missing)'}` },
+            { id: 'adapter_health_contract_pass', pass: String(adapterHealth.status || '').toLowerCase() === 'pass', detail: `status=${adapterHealth.status || '(missing)'}` },
+            { id: 'runtime_health_pass', pass: String(post.status || '').toLowerCase() === 'pass', detail: `status=${post.status || '(missing)'}` },
+          ];
+          const status = checks.every((c) => c.pass) ? 'pass' : 'fail';
+          const payload = {
+            generated_at: generatedAt,
+            environment: 'production',
+            status,
+            run_id: process.env.RUN_ID || null,
+            head_sha: process.env.HEAD_SHA || null,
+            source_ref: process.env.SOURCE_REF || null,
+            inputs: {
+              deployment_execution: 'docs/release/status/deployment-production-execution-latest.json',
+              adapter_health_contract: 'docs/release/status/adapter-health-contract-latest.json',
+              runtime_health: 'docs/release/status/post-release-verification-latest.json',
+            },
+            checks,
+          };
+          fs.writeFileSync(path.join(statusDir, 'deployment-production-manifest-latest.json'), `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+          fs.writeFileSync(
+            path.join(statusDir, 'deployment-production-manifest-latest.md'),
+            `# Deployment Production Manifest\n\nGenerated: ${generatedAt}\nStatus: ${status}\n\n## Checks\n${checks.map((c) => `- [${c.pass ? 'x' : ' '}] ${c.id}: ${c.detail}`).join('\n')}\n`,
+            'utf8',
+          );
+          if (status !== 'pass') {
+            process.exit(2);
+          }
+          EOF
+
+      - name: Upload production deployment artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-production-status
+          path: |
+            docs/release/status/deployment-production-execution-latest.json
+            docs/release/status/deployment-production-execution-latest.md
+            docs/release/status/deployment-production-manifest-latest.json
+            docs/release/status/deployment-production-manifest-latest.md
+            docs/release/status/adapter-health-contract-latest.json
+            docs/release/status/adapter-health-contract-latest.md
+            docs/release/status/post-release-verification-latest.json
+            docs/release/status/post-release-verification-latest.md

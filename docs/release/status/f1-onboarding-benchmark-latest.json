@@ -1,0 +1,129 @@
+{
+  "generated_at": "2026-03-21T00:29:01.420Z",
+  "repetitions": 3,
+  "targets": [
+    {
+      "id": "sven",
+      "label": "Sven",
+      "setup_cmd": "npm run release:quickstart:runtime:check",
+      "first_reply_cmd": "node scripts/f1-sven-first-reply-probe.cjs",
+      "source_ref": "docs/release/checklists/sven-production-parity-checklist-2026.md",
+      "claim": "Sven must beat OpenClaw wizard and Agent Zero docker quick start on time-to-first-reply."
+    },
+    {
+      "id": "openclaw",
+      "label": "OpenClaw",
+      "setup_cmd": "node scripts/f1-openclaw-first-reply-probe.cjs --health-only",
+      "first_reply_cmd": "node scripts/f1-openclaw-first-reply-probe.cjs",
+      "source_ref": "docs/examples/openclaw-main/README.md",
+      "claim": "openclaw onboard --install-daemon"
+    },
+    {
+      "id": "agent_zero",
+      "label": "Agent Zero",
+      "setup_cmd": "node scripts/f1-agent-zero-first-reply-probe.cjs --health-only",
+      "first_reply_cmd": "node scripts/f1-agent-zero-first-reply-probe.cjs",
+      "source_ref": "docs/examples/agent-zero-main/README.md",
+      "claim": "docker run -p 50001:80 agent0ai/agent-zero"
+    }
+  ],
+  "runs": [
+    {
+      "target_id": "sven",
+      "run": 1,
+      "status": "failed",
+      "total_ms": null,
+      "reason": "first_reply failed (code=2): f1-sven-first-reply-probe: missing ADMIN_USERNAME/ADMIN_PASSWORD"
+    },
+    {
+      "target_id": "openclaw",
+      "run": 1,
+      "status": "skipped",
+      "total_ms": null,
+      "reason": "setup failed (code=30): f1-openclaw-first-reply-probe: service unavailable at http://127.0.0.1:18789"
+    },
+    {
+      "target_id": "agent_zero",
+      "run": 1,
+      "status": "skipped",
+      "total_ms": null,
+      "reason": "setup failed (code=30): f1-agent-zero-first-reply-probe: service unavailable at http://127.0.0.1:50001"
+    },
+    {
+      "target_id": "sven",
+      "run": 2,
+      "status": "failed",
+      "total_ms": null,
+      "reason": "first_reply failed (code=2): f1-sven-first-reply-probe: missing ADMIN_USERNAME/ADMIN_PASSWORD"
+    },
+    {
+      "target_id": "openclaw",
+      "run": 2,
+      "status": "skipped",
+      "total_ms": null,
+      "reason": "setup failed (code=30): f1-openclaw-first-reply-probe: service unavailable at http://127.0.0.1:18789"
+    },
+    {
+      "target_id": "agent_zero",
+      "run": 2,
+      "status": "skipped",
+      "total_ms": null,
+      "reason": "setup failed (code=30): f1-agent-zero-first-reply-probe: service unavailable at http://127.0.0.1:50001"
+    },
+    {
+      "target_id": "sven",
+      "run": 3,
+      "status": "failed",
+      "total_ms": null,
+      "reason": "first_reply failed (code=2): f1-sven-first-reply-probe: missing ADMIN_USERNAME/ADMIN_PASSWORD"
+    },
+    {
+      "target_id": "openclaw",
+      "run": 3,
+      "status": "skipped",
+      "total_ms": null,
+      "reason": "setup failed (code=30): f1-openclaw-first-reply-probe: service unavailable at http://127.0.0.1:18789"
+    },
+    {
+      "target_id": "agent_zero",
+      "run": 3,
+      "status": "skipped",
+      "total_ms": null,
+      "reason": "setup failed (code=30): f1-agent-zero-first-reply-probe: service unavailable at http://127.0.0.1:50001"
+    }
+  ],
+  "provenance": {
+    "evidence_mode": "benchmark_runtime_probe",
+    "source_run_id": "local-1774052940068",
+    "head_sha": "",
+    "baseline_source": "runtime_probe"
+  },
+  "summary": {
+    "repetitions": 3,
+    "targets": {
+      "sven": {
+        "completed_runs": 0,
+        "median_ms": null,
+        "median_sec": null
+      },
+      "openclaw": {
+        "completed_runs": 0,
+        "median_ms": null,
+        "median_sec": null
+      },
+      "agent_zero": {
+        "completed_runs": 0,
+        "median_ms": null,
+        "median_sec": null
+      }
+    },
+    "best_competitor_median_ms": null,
+    "best_competitor_median_sec": null,
+    "sven_delta_vs_best_competitor_ms": null,
+    "pass_threshold_ms": null,
+    "pass_criterion_met": null,
+    "failed_runs": 3,
+    "skipped_runs": 6,
+    "status": "inconclusive"
+  }
+}

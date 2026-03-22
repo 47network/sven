@@ -1,0 +1,353 @@
+{
+  "generated_at": "2026-03-21T00:35:21.847Z",
+  "status": "fail",
+  "summary": {
+    "weighted_score": 1,
+    "min_dimension_score": 0,
+    "dimensions_at_or_above_4": 1,
+    "target": {
+      "weighted_score_gte": 3.4,
+      "min_dimension_score_gte": 3,
+      "dimensions_at_or_above_4_gte": 3
+    }
+  },
+  "dimensions": [
+    {
+      "id": "core_workflows",
+      "weight": 0.2,
+      "required": [
+        "competitor_capability_proof",
+        "competitor_runtime_truth"
+      ],
+      "surpass": [
+        "framework_wave4_closeout"
+      ],
+      "required_pass": false,
+      "surpass_pass": true,
+      "score": 0,
+      "weighted": 0
+    },
+    {
+      "id": "tooling_runtime",
+      "weight": 0.15,
+      "required": [
+        "openclaw_tools_runtime",
+        "openclaw_tools_by_provider_runtime"
+      ],
+      "surpass": [
+        "openclaw_openai_compat_runtime"
+      ],
+      "required_pass": false,
+      "surpass_pass": false,
+      "score": 0,
+      "weighted": 0
+    },
+    {
+      "id": "multi_agent_orchestration",
+      "weight": 0.1,
+      "required": [
+        "crewai_wave5_closeout",
+        "autogen_wave7_closeout",
+        "langgraph_wave8_closeout"
+      ],
+      "surpass": [
+        "framework_wave4_closeout"
+      ],
+      "required_pass": true,
+      "surpass_pass": true,
+      "score": 4,
+      "weighted": 0.4
+    },
+    {
+      "id": "memory_state",
+      "weight": 0.1,
+      "required": [
+        "letta_wave6_closeout",
+        "openclaw_intelligence_runtime"
+      ],
+      "surpass": [
+        "openclaw_loop_detection_runtime"
+      ],
+      "required_pass": false,
+      "surpass_pass": false,
+      "score": 1,
+      "weighted": 0.1
+    },
+    {
+      "id": "security_governance",
+      "weight": 0.15,
+      "required": [
+        "parity_checklist_verify",
+        "admin_rbac_surface",
+        "runtime_security_baseline"
+      ],
+      "surpass": [
+        "openclaw_security_runtime"
+      ],
+      "required_pass": false,
+      "surpass_pass": false,
+      "score": 0,
+      "weighted": 0
+    },
+    {
+      "id": "ops_release_rigor",
+      "weight": 0.15,
+      "required": [
+        "parity_all_waves_closeout",
+        "release_rollout",
+        "release_bundle_hygiene"
+      ],
+      "surpass": [
+        "competitor_delta_sheet"
+      ],
+      "required_pass": true,
+      "surpass_pass": false,
+      "score": 3,
+      "weighted": 0.45
+    },
+    {
+      "id": "ux_operator_usability",
+      "weight": 0.1,
+      "required": [
+        "community_ecosystem_readiness",
+        "openclaw_ui_runtime",
+        "openclaw_chat_commands_runtime"
+      ],
+      "surpass": [
+        "openclaw_discovery_runtime"
+      ],
+      "required_pass": false,
+      "surpass_pass": false,
+      "score": 0,
+      "weighted": 0
+    },
+    {
+      "id": "integration_breadth",
+      "weight": 0.05,
+      "required": [
+        "openclaw_integrations_runtime",
+        "n8n_wave3_closeout"
+      ],
+      "surpass": [
+        "openclaw_channels_runtime"
+      ],
+      "required_pass": false,
+      "surpass_pass": false,
+      "score": 1,
+      "weighted": 0.05
+    }
+  ],
+  "signals": {
+    "competitor_capability_proof": {
+      "present": true,
+      "pass": false,
+      "status": "fail",
+      "generated_at": "2026-03-21T00:35:02.909Z",
+      "path": "docs/release/status/competitor-capability-proof-latest.json"
+    },
+    "competitor_runtime_truth": {
+      "present": true,
+      "pass": false,
+      "status": "fail",
+      "generated_at": "2026-03-21T00:35:21.784Z",
+      "path": "docs/release/status/competitor-runtime-truth-latest.json"
+    },
+    "framework_wave4_closeout": {
+      "present": true,
+      "pass": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T02:18:30.436Z",
+      "path": "docs/release/status/framework-wave4-closeout-latest.json"
+    },
+    "openclaw_tools_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-tools-runtime-latest.json"
+    },
+    "openclaw_tools_by_provider_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-tools-by-provider-runtime-latest.json"
+    },
+    "openclaw_openai_compat_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-openai-compat-runtime-latest.json"
+    },
+    "crewai_wave5_closeout": {
+      "present": true,
+      "pass": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T04:28:50.966Z",
+      "path": "docs/release/status/crewai-wave5-closeout-latest.json"
+    },
+    "autogen_wave7_closeout": {
+      "present": true,
+      "pass": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T05:29:12.798Z",
+      "path": "docs/release/status/autogen-wave7-closeout-latest.json"
+    },
+    "langgraph_wave8_closeout": {
+      "present": true,
+      "pass": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T06:05:07.003Z",
+      "path": "docs/release/status/langgraph-wave8-closeout-latest.json"
+    },
+    "letta_wave6_closeout": {
+      "present": true,
+      "pass": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T04:59:59.583Z",
+      "path": "docs/release/status/letta-wave6-closeout-latest.json"
+    },
+    "openclaw_intelligence_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-intelligence-runtime-latest.json"
+    },
+    "openclaw_loop_detection_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-loop-detection-runtime-latest.json"
+    },
+    "parity_checklist_verify": {
+      "present": true,
+      "pass": false,
+      "status": "fail",
+      "generated_at": "2026-03-21T00:34:47.530Z",
+      "path": "docs/release/status/parity-checklist-verify-latest.json"
+    },
+    "admin_rbac_surface": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/admin-rbac-surface-latest.json"
+    },
+    "runtime_security_baseline": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/runtime-security-baseline-latest.json"
+    },
+    "openclaw_security_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-security-runtime-latest.json"
+    },
+    "parity_all_waves_closeout": {
+      "present": true,
+      "pass": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T06:10:54.324Z",
+      "path": "docs/release/status/parity-all-waves-closeout-latest.json"
+    },
+    "release_rollout": {
+      "present": true,
+      "pass": true,
+      "status": "pass",
+      "generated_at": "2026-02-14T21:05:36.994Z",
+      "path": "docs/release/status/release-rollout-latest.json"
+    },
+    "release_bundle_hygiene": {
+      "present": true,
+      "pass": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T06:42:41.639Z",
+      "path": "docs/release/status/release-bundle-hygiene-latest.json"
+    },
+    "competitor_delta_sheet": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/competitor-delta-sheet-latest.json"
+    },
+    "community_ecosystem_readiness": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/community-ecosystem-readiness-latest.json"
+    },
+    "openclaw_ui_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-ui-runtime-latest.json"
+    },
+    "openclaw_chat_commands_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-chat-commands-runtime-latest.json"
+    },
+    "openclaw_discovery_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-discovery-runtime-latest.json"
+    },
+    "openclaw_integrations_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-integrations-runtime-latest.json"
+    },
+    "n8n_wave3_closeout": {
+      "present": true,
+      "pass": true,
+      "status": "pass",
+      "generated_at": "2026-03-16T02:21:47.692Z",
+      "path": "docs/release/status/n8n-wave3-closeout-latest.json"
+    },
+    "openclaw_channels_runtime": {
+      "present": false,
+      "pass": false,
+      "status": "missing",
+      "generated_at": null,
+      "path": "docs/release/status/openclaw-channels-runtime-latest.json"
+    }
+  },
+  "gates": [
+    {
+      "id": "overall_weighted_score_threshold",
+      "pass": false,
+      "detail": "weighted_score=1 (target>=3.4)"
+    },
+    {
+      "id": "minimum_dimension_score_threshold",
+      "pass": false,
+      "detail": "minimum_dimension_score=0 (target>=3.0)"
+    },
+    {
+      "id": "differentiator_dimension_count_threshold",
+      "pass": false,
+      "detail": "dimensions_at_or_above_4=1 (target>=3)"
+    }
+  ],
+  "provenance": {
+    "source_run_id": "local-1774053321801",
+    "head_sha": null,
+    "evidence_mode": "competitive_weighted_scorecard"
+  }
+}

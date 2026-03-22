@@ -1,0 +1,20 @@
+{
+  "name": "@sven/adapter-google-chat",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@sven/shared": "*",
+    "googleapis": "^130.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}

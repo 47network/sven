@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ── PWA Core ──────────────────────────────────────────────────────── -->
+  <title>Sven — AI Companion</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#00D9FF" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sven" />
+
+  <!-- ── SEO / Social ──────────────────────────────────────────────────── -->
+  <meta name="description"
+    content="Sven — your personal AI companion. Chat, brainstorm, code, and create with an AI that remembers you." />
+  <meta name="application-name" content="Sven" />
+  <meta property="og:title" content="Sven — AI Companion" />
+  <meta property="og:description" content="Your personal AI companion. Chat, brainstorm, code, and create." />
+  <meta property="og:type" content="website" />
+
+  <!-- ── Icons ─────────────────────────────────────────────────────────── -->
+  <!-- Flutter web build generates these under web/icons/ automatically     -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/Icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/Icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="icons/Icon-512.png" />
+
+  <!-- ── Splash / launch screen background ───────────────────────────── -->
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #040712;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <noscript>Sven requires JavaScript. Please enable it in your browser settings.</noscript>
+  <script src="flutter_bootstrap.js" async></script>
+
+  <!-- ── Service Worker Registration ──────────────────────────────────── -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker
+          .register('sw.js')
+          .then(function (reg) {
+            console.log('[Sven] Service worker registered:', reg.scope);
+          })
+          .catch(function (err) {
+            console.warn('[Sven] Service worker registration failed:', err);
+          });
+      });
+    }
+  </script>
+</body>
+
+</html>

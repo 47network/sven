@@ -1,0 +1,5 @@
+target,task_id,duration_ms,clicks,errors,controls_complete
+sven,T1,120000,18,0,true
+agent_zero,T1,150000,24,1,true
+sven,T2,95000,15,0,true
+agent_zero,T2,130000,20,1,true

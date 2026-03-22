@@ -1,0 +1,21 @@
+{
+  "name": "@sven/adapter-teams",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@sven/shared": "*",
+    "botbuilder": "^4.22.0",
+    "botframework-connector": "^4.22.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}

@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Least-privilege default capability set for Sven desktop app.","local":true,"windows":["main"],"permissions":["core:default","core:event:default","core:window:default","core:webview:default"]}}

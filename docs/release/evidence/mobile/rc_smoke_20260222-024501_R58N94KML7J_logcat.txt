@@ -1,0 +1,654 @@
+﻿--------- beginning of main
+02-22 02:45:02.169 I/native  (30437): I0000 00:00:1771721102.169298   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/markup_triggers.pb" of size 930
+02-22 02:45:02.179 I/native  (30437): I0000 00:00:1771721102.178930   15799 android_resource_loader.cc:100] Built resource markup_triggers
+02-22 02:45:02.179 I/native  (30437): I0000 00:00:1771721102.179127   15799 android_resource_loader.cc:116] Loaded resource:markup_triggers
+02-22 02:45:02.179 I/native  (30437): I0000 00:00:1771721102.179310   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/morphosyntactic_mapping.pb" (as: FILE) ...
+02-22 02:45:02.179 I/native  (30437): I0000 00:00:1771721102.179572   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/morphosyntactic_mapping.pb" of size 6
+02-22 02:45:02.180 I/native  (30437): I0000 00:00:1771721102.180658   15799 android_resource_loader.cc:100] Built resource morph_analyzer_attribute_map
+02-22 02:45:02.180 I/native  (30437): I0000 00:00:1771721102.180758   15799 android_resource_loader.cc:116] Loaded resource:morph_analyzer_attribute_map
+02-22 02:45:02.180 I/native  (30437): I0000 00:00:1771721102.180890   15799 android_resource_loader.cc:100] Built resource multilingual_capabilities
+02-22 02:45:02.180 I/native  (30437): I0000 00:00:1771721102.180936   15799 android_resource_loader.cc:116] Loaded resource:multilingual_capabilities
+02-22 02:45:02.181 I/native  (30437): I0000 00:00:1771721102.181024   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/en_us_phonology.pb" (as: FILE) ...
+02-22 02:45:02.181 I/native  (30437): I0000 00:00:1771721102.181137   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/en_us_phonology.pb" of size 2196
+02-22 02:45:02.190 W/native  (30437): W0000 00:00:1771721102.190413   15799 phonology.cc:80] Phonemes @, @` have non-distinctive features. See b/111971558.
+02-22 02:45:02.190 W/native  (30437): W0000 00:00:1771721102.190525   15799 phonology.cc:80] Phonemes l, r\ have non-distinctive features. See b/111971558.
+02-22 02:45:02.191 I/native  (30437): I0000 00:00:1771721102.191083   15799 android_resource_loader.cc:100] Built resource phonology
+02-22 02:45:02.191 I/native  (30437): I0000 00:00:1771721102.191141   15799 android_resource_loader.cc:116] Loaded resource:phonology
+02-22 02:45:02.191 I/native  (30437): I0000 00:00:1771721102.191239   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/en_morphology" (as: FILE) ...
+02-22 02:45:02.191 I/native  (30437): I0000 00:00:1771721102.191362   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/en_morphology" of size 2753822
+02-22 02:45:02.193 V/C2Store ( 4425): in init
+02-22 02:45:02.193 V/C2Store ( 4425): loading dll
+02-22 02:45:02.207 I/native  (30437): I0000 00:00:1771721102.207290   15799 model-api.cc:46] Registered model under key morphology
+02-22 02:45:02.212 I/native  (30437): I0000 00:00:1771721102.212530   15799 android_resource_loader.cc:100] Built resource analyze_morphology_saft_portable_algo
+02-22 02:45:02.212 I/native  (30437): I0000 00:00:1771721102.212670   15799 android_resource_loader.cc:116] Loaded resource:analyze_morphology_saft_portable_algo
+02-22 02:45:02.212 I/native  (30437): I0000 00:00:1771721102.212796   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/ipa_to_tts_to-en_us.far" (as: FILE) ...
+02-22 02:45:02.219 I/native  (30437): I0000 00:00:1771721102.219487   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/ipa_to_tts_to-en_us.far" of size 317630
+02-22 02:45:02.220 I/CCodec  (16139): Created component [c2.android.vorbis.decoder]
+02-22 02:45:02.222 D/CCodecConfig(16139): read media type: audio/vorbis
+02-22 02:45:02.224 I/native  (30437): I0000 00:00:1771721102.224771   15799 android_resource_loader.cc:100] Built resource ipa_to_tts_phoneme_mapper
+02-22 02:45:02.224 I/native  (30437): I0000 00:00:1771721102.224896   15799 android_resource_loader.cc:116] Loaded resource:ipa_to_tts_phoneme_mapper
+02-22 02:45:02.225 I/native  (30437): I0000 00:00:1771721102.225059   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/en_us.hlex.bin" (as: MEMORY) ...
+02-22 02:45:02.225 I/native  (30437): I0000 00:00:1771721102.225770   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/en_us.hlex.bin" of size 5111016
+02-22 02:45:02.225 D/ReflectedParamUpdater(16139): extent() != 1 for single value type: algo.buffers.max-count.values
+02-22 02:45:02.226 D/ReflectedParamUpdater(16139): extent() != 1 for single value type: output.subscribed-indices.values
+02-22 02:45:02.226 D/ReflectedParamUpdater(16139): extent() != 1 for single value type: input.buffers.allocator-ids.values
+02-22 02:45:02.226 D/ReflectedParamUpdater(16139): extent() != 1 for single value type: output.buffers.allocator-ids.values
+02-22 02:45:02.226 D/ReflectedParamUpdater(16139): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+02-22 02:45:02.226 D/ReflectedParamUpdater(16139): extent() != 1 for single value type: output.buffers.pool-ids.values
+02-22 02:45:02.227 D/ReflectedParamUpdater(16139): extent() != 1 for single value type: algo.buffers.pool-ids.values
+02-22 02:45:02.229 I/CCodecConfig(16139): query failed after returning 7 values (BAD_INDEX)
+02-22 02:45:02.230 D/CCodecConfig(16139): c2 config diff is Dict {
+02-22 02:45:02.230 D/CCodecConfig(16139):   c2::u32 coded.bitrate.value = 64000
+02-22 02:45:02.230 D/CCodecConfig(16139):   c2::u32 input.buffers.max-size.value = 32768
+02-22 02:45:02.230 D/CCodecConfig(16139):   c2::u32 input.delay.value = 0
+02-22 02:45:02.230 D/CCodecConfig(16139):   string input.media-type.value = "audio/vorbis"
+02-22 02:45:02.230 D/CCodecConfig(16139):   string output.media-type.value = "audio/raw"
+02-22 02:45:02.230 D/CCodecConfig(16139):   c2::u32 raw.channel-count.value = 1
+02-22 02:45:02.230 D/CCodecConfig(16139):   c2::u32 raw.sample-rate.value = 48000
+02-22 02:45:02.230 D/CCodecConfig(16139): }
+02-22 02:45:02.231 D/MediaCodec(16139): flushMediametrics
+02-22 02:45:02.232 D/CCodec  (16139): [c2.android.vorbis.decoder] buffers are bound to CCodec for this session
+02-22 02:45:02.232 D/CCodecConfig(16139): no c2 equivalents for durationUs
+02-22 02:45:02.232 D/CCodecConfig(16139): no c2 equivalents for track-id
+02-22 02:45:02.232 D/CCodecConfig(16139): no c2 equivalents for csd-1
+02-22 02:45:02.232 D/CCodecConfig(16139): no c2 equivalents for flags
+02-22 02:45:02.232 D/CCodecConfig(16139): c2 config diff is   c2::u32 coded.bitrate.value = 88000
+02-22 02:45:02.232 D/CCodecConfig(16139):   c2::u32 raw.channel-count.value = 2
+02-22 02:45:02.232 D/CCodecConfig(16139):   c2::u32 raw.sample-rate.value = 22050
+02-22 02:45:02.233 W/Codec2Client(16139): query -- param skipped: index = 1107298332.
+02-22 02:45:02.233 D/CCodec  (16139): encoding statistics level = 0
+02-22 02:45:02.233 D/CCodec  (16139): setup formats input: AMessage(what = 0x00000000) = {
+02-22 02:45:02.233 D/CCodec  (16139):   int32_t bitrate = 88000
+02-22 02:45:02.233 D/CCodec  (16139):   int32_t channel-count = 2
+02-22 02:45:02.233 D/CCodec  (16139):   int32_t max-input-size = 32768
+02-22 02:45:02.233 D/CCodec  (16139):   string mime = "audio/vorbis"
+02-22 02:45:02.233 D/CCodec  (16139):   int32_t sample-rate = 22050
+02-22 02:45:02.233 D/CCodec  (16139): }
+02-22 02:45:02.233 D/CCodec  (16139): setup formats output: AMessage(what = 0x00000000) = {
+02-22 02:45:02.233 D/CCodec  (16139):   int32_t channel-count = 2
+02-22 02:45:02.233 D/CCodec  (16139):   string mime = "audio/raw"
+02-22 02:45:02.233 D/CCodec  (16139):   int32_t sample-rate = 22050
+02-22 02:45:02.233 D/CCodec  (16139):   int32_t channel-mask = 3
+02-22 02:45:02.233 D/CCodec  (16139):   int32_t android._config-pcm-encoding = 2
+02-22 02:45:02.233 D/CCodec  (16139): }
+02-22 02:45:02.233 I/CCodecConfig(16139): query failed after returning 7 values (BAD_INDEX)
+02-22 02:45:02.234 W/Codec2Client(16139): query -- param skipped: index = 1342179345.
+02-22 02:45:02.234 W/Codec2Client(16139): query -- param skipped: index = 2415921170.
+02-22 02:45:02.235 D/C2Store (16139): Using ION
+02-22 02:45:02.237 D/CCodecBufferChannel(16139): [c2.android.vorbis.decoder#323] Created input block pool with allocatorID 16 => poolID 17 - OK (0)
+02-22 02:45:02.239 I/native  (30437): I0000 00:00:1771721102.239553   15799 android_resource_loader.cc:100] Built resource lexicon
+02-22 02:45:02.239 I/CCodecBufferChannel(16139): [c2.android.vorbis.decoder#323] Created output block pool with allocatorID 16 => poolID 57 - OK
+02-22 02:45:02.239 I/native  (30437): I0000 00:00:1771721102.239709   15799 android_resource_loader.cc:116] Loaded resource:lexicon
+02-22 02:45:02.239 I/native  (30437): I0000 00:00:1771721102.239816   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/homographs_model_en_us_embedded.bin" (as: MEMORY) ...
+02-22 02:45:02.240 D/CCodecBufferChannel(16139): [c2.android.vorbis.decoder#323] Configured output block pool ids 57 => OK
+02-22 02:45:02.240 I/native  (30437): I0000 00:00:1771721102.240772   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/homographs_model_en_us_embedded.bin" of size 397880
+02-22 02:45:02.241 D/SimpleC2Component( 4425): Using output block pool with poolID 57 => got 57 - 0
+02-22 02:45:02.246 D/BufferPoolAccessor2.0( 4403): bufferpool2 0xee203628 : 0(0 size) total buffers - 0(0 size) used buffers - 51/59 (recycle/alloc) - 8/112 (fetch/transfer)
+02-22 02:45:02.247 D/BufferPoolAccessor2.0( 4403): Destruction - bufferpool2 0xee203628 cached: 0/0M, 0/0% in use; allocs: 59, 86% recycled; transfers: 112, 93% unfetched
+02-22 02:45:02.270 I/zygote  ( 4206): Delayed USAP Pool refill. New USAPs: 5
+02-22 02:45:02.284 I/native  (30437): I0000 00:00:1771721102.284385   15799 android_resource_loader.cc:100] Built resource homograph_classifier_model_resource
+02-22 02:45:02.284 I/native  (30437): I0000 00:00:1771721102.284543   15799 android_resource_loader.cc:116] Loaded resource:homograph_classifier_model_resource
+02-22 02:45:02.284 I/native  (30437): I0000 00:00:1771721102.284620   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/lettuce_node_generator_params_embedded_us_runtime.pb" (as: FILE) ...
+02-22 02:45:02.285 I/native  (30437): I0000 00:00:1771721102.285161   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/lettuce_node_generator_params_embedded_us_runtime.pb" of size 2510
+02-22 02:45:02.288 D/Zygote  ( 4206): Forked child process 16280
+02-22 02:45:02.294 D/CCodecBufferChannel(16139): [c2.android.vorbis.decoder#323] MediaCodec discarded an unknown buffer
+02-22 02:45:02.294 D/CCodecBufferChannel(16139): [c2.android.vorbis.decoder#323] MediaCodec discarded an unknown buffer
+02-22 02:45:02.294 I/hw-BpHwBinder(16139): onLastStrongRef automatically unlinking death recipients
+02-22 02:45:02.295 I/hw-BpHwBinder( 4425): onLastStrongRef automatically unlinking death recipients
+02-22 02:45:02.295 I/hw-BpHwBinder( 4425): onLastStrongRef automatically unlinking death recipients
+02-22 02:45:02.295 V/C2Store ( 4425): in ~ComponentModule
+02-22 02:45:02.295 V/C2Store ( 4425): unloading dll
+02-22 02:45:02.296 D/MediaCodec(16139): flushMediametrics
+02-22 02:45:02.303 D/Zygote  ( 4206): Forked child process 16284
+02-22 02:45:02.316 D/Zygote  ( 4206): Forked child process 16287
+02-22 02:45:02.324 D/Zygote  ( 4206): Forked child process 16288
+02-22 02:45:02.327 D/AudioFlinger( 4293): AUDIO_OUTPUT_FLAG_FAST denied: sharedBuffer=0x76c8695fb0 frameCount=0 mFrameCount=192 format=0x1 mFormat=0x5 isLinear=1 channelMask=0x3 sampleRate=22050 mSampleRate=48000 hasFastMixer=1 tid=16286 fastTrackAvailMask=0xfe
+02-22 02:45:02.331 D/Zygote  ( 4206): Forked child process 16290
+02-22 02:45:02.334 D/AF::TrackHandle( 4293): OpPlayAudio: track:117 usage:11 not muted
+--------- beginning of kernel
+02-22 02:45:02.246 I/[1:            cmd:16289] binder(    0): 16289:16289 ioctl 40046210 7fc5dd8350 returned -22
+02-22 02:45:02.360 D/audio_hw_primary( 4214): fast_out-out_update_source_metadata: called, but not implemented yet
+02-22 02:45:02.360 D/audio_hw_primary( 4214): fast_out-out_update_source_metadata: This stream has 1 tracks
+02-22 02:45:02.360 D/audio_hw_primary( 4214): 1 Track has Usage(11), Content Type(2), Gain(0.500000)
+02-22 02:45:02.363 I/audio_hw_primary( 4214): fast_out-out_write: transited to Ready
+02-22 02:45:02.364 D/audio_hw_primary( 4214): fast_out-get_mode_from_active_outputs: return backend_default_mode :0 
+02-22 02:45:02.364 D/audio_hw_primary( 4214): fast_out-check_and_set_backend_mixer: no need to update backend 0 -> 0, out->backend_mode:0 
+02-22 02:45:02.364 I/audio_hw_primary( 4214): fast_out-out_write: try to route for playback
+02-22 02:45:02.365 I/audio_hw_proxy_9610( 4214): proxy-proxy_set_route: disable fm radio path
+02-22 02:45:02.366 I/audio_hw_proxy_9610( 4214): proxy-proxy_set_mixercontrol: set Mixer Control(ABOX Tickle) to 1
+02-22 02:45:02.256 I/        (    0): [1:         writer: 7214] tas2562 7-004c: tas2562_get_left_speaker_switch, p_u_control = 0
+02-22 02:45:02.256 I/        (    0): [1:         writer: 7214] tas2562 7-004c: tas2562_set_left_speaker_switch, spk_l_control = 0
+02-22 02:45:02.366 I/audio_route( 4214): > audio_route_apply_path : "media-speaker"
+02-22 02:45:02.366 D/audio_route( 4214): Apply path: media-speaker
+02-22 02:45:02.367 I/audio_route( 4214): > audio_route_update_path + : "media-speaker" reverse(0)
+02-22 02:45:02.367 I/audio_route( 4214): > audio_route_update_path + : path length = 10
+02-22 02:45:02.367 V/audio_route( 4214): ctl(0)   : "TAS2562 Left Speaker Switch" value "On"
+02-22 02:45:02.367 V/audio_route( 4214): ctl(1)   : "ABOX ERAP info DSM On" value 1
+02-22 02:45:02.368 V/audio_route( 4214): ctl(2)   : "ABOX UAIF0 SPK" value "SIFS0"
+02-22 02:45:02.368 V/audio_route( 4214): ctl(3)   : "ABOX NSRC2" value "UAIF4"
+02-22 02:45:02.369 V/audio_route( 4214): ctl(4)   : "ABOX SIFM2" value "WDMA"
+02-22 02:45:02.369 V/audio_route( 4214): ctl(5)   : "ABOX NSRC3" value "UAIF2"
+02-22 02:45:02.369 V/audio_route( 4214): ctl(6)   : "ABOX SIFM3" value "WDMA"
+02-22 02:45:02.369 V/audio_route( 4214): ctl(7)   : "ABOX SPUS OUT7" value "SIFS1"
+02-22 02:45:02.370 V/audio_route( 4214): ctl(8)   : "ABOX SIFS1" value "SPUS OUT7"
+02-22 02:45:02.371 V/audio_route( 4214): ctl(9)   : "ABOX UAIF2 SPK" value "SIFS1"
+02-22 02:45:02.371 I/audio_hw_proxy_9610( 4214): proxy-set_route: routed to media-speaker
+02-22 02:45:02.371 I/audio_route( 4214): > audio_route_apply_path : "gain-media-speaker"
+02-22 02:45:02.371 D/audio_route( 4214): Apply path: gain-media-speaker
+02-22 02:45:02.371 I/audio_route( 4214): > audio_route_update_path + : "gain-media-speaker" reverse(0)
+02-22 02:45:02.371 I/audio_route( 4214): > audio_route_update_path + : path length = 0
+02-22 02:45:02.371 I/audio_hw_proxy_9610( 4214): proxy-set_route: set gain as gain-media-speaker
+02-22 02:45:02.271 I/        (    0): [1:         writer: 7214] Exynos9610-audio sound: vogue_dai_ops_hw_params: UAIF2-0: 0x12: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x0040000)
+02-22 02:45:02.271 D/        (    0): [1:         writer: 7214] tas2562 7-004c: tas2562_hw_params, format: 2
+02-22 02:45:02.271 I/        (    0): [1:         writer: 7214] tas2562 7-004c: tas2562_set_bitwidth 2
+02-22 02:45:02.272 D/        (    0): [1:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0xc, val: 0x0
+02-22 02:45:02.272 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0x3, val: 0x0
+02-22 02:45:02.273 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0x30, val: 0x10
+02-22 02:45:02.273 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0x30, val: 0x20
+02-22 02:45:02.273 I/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_iv_slot_config, 16
+02-22 02:45:02.274 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:11, mask: 0xff, val: 0x42
+02-22 02:45:02.274 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:12, mask: 0xff, val: 0x40
+02-22 02:45:02.274 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0xc0, val: 0x0
+02-22 02:45:02.274 I/        (    0): [3:         writer: 7214] tas2562 7-004c: mn_ch_size: 16
+02-22 02:45:02.274 I/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_hw_params, sample rate: 48000
+02-22 02:45:02.275 D/        (    0): [1:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:6, mask: 0x20, val: 0x0
+02-22 02:45:02.275 D/        (    0): [2:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:6, mask: 0xe, val: 0x8
+02-22 02:45:02.275 I/        (    0): [2:         writer: 7214] Exynos9610-audio sound: vogue_dai_ops_hw_params: RDMA7-0: 0x7: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x0040080)
+02-22 02:45:02.386 I/audio_hw_proxy_9610( 4214): proxy-enable_spkamp_playback: SPKAMP Playback PCM Device(/dev/snd/pcmC0D7p) with SR(48000) PF(0) CC(2) is opened
+02-22 02:45:02.276 I/        (    0): [3:         writer: 7214] tas2562 7-004c: SND_SOC_DAPM_POST_PMU
+02-22 02:45:02.276 I/        (    0): [3:         writer: 7214] Exynos9610-audio sound: vogue_speaker ev: 2
+02-22 02:45:02.277 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_mute,0
+02-22 02:45:02.277 I/        (    0): [3:         writer: 7214] tas2562 7-004c: set power state: 0
+02-22 02:45:02.277 I/        (    0): [3:         writer: 7214] tas2562 7-004c: INV format: NBNF
+02-22 02:45:02.277 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:7, mask: 0x1, val: 0x0
+02-22 02:45:02.277 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:7, mask: 0x3e, val: 0x2
+02-22 02:45:02.277 E/        (    0): I[0:      swapper/0:    0] [SYNC_IPC] abox_synchronized_ipc_handler: unknown response type, RES_ID = 1234
+02-22 02:45:02.278 E/        (    0): I[0:      swapper/0:    0] [SYNC_IPC] abox_synchronized_ipc_handler: unknown response type, RES_ID = 1234
+02-22 02:45:02.278 D/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:48, mask: 0x4, val: 0x4
+02-22 02:45:02.279 D/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:36,0x0
+02-22 02:45:02.279 I/        (    0): [0:         writer: 7214] tas2562 7-004c: IRQ reg is: tas2562_set_power_state 0, 354
+02-22 02:45:02.279 D/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:36,0x0
+02-22 02:45:02.279 I/        (    0): [0:         writer: 7214] tas2562 7-004c: IRQ reg is: tas2562_set_power_state 0, 358
+02-22 02:45:02.392 I/audio_hw_proxy_9610( 4214): proxy-enable_spkamp_playback: SPKAMP Playback PCM Device(/dev/snd/pcmC0D7p) with SR(48000) PF(0) CC(2) is started
+02-22 02:45:02.393 I/audio_hw_proxy_9610( 4214): proxy-enable_erap_in: ERAP In PCM Device(/dev/snd/pcmC0D11c) with SR(48000) PF(0) CC(2) is opened
+02-22 02:45:02.282 I/        (    0): [3:         writer: 7214] Exynos9610-audio sound: vogue_dai_ops_hw_params: UAIF4-1: 0x13: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c0080)
+02-22 02:45:02.282 I/        (    0): [3:         writer: 7214] Exynos9610-audio sound: vogue_dai_ops_hw_params: WDMA3-1: 0xb: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c0880)
+02-22 02:45:02.395 I/audio_hw_proxy_9610( 4214): proxy-enable_erap_in: ERAP In PCM Device(/dev/snd/pcmC0D11c) with SR(48000) PF(0) CC(2) is started
+02-22 02:45:02.285 I/        (    0): [0:         writer: 7214] Exynos9610-audio sound: vogue_dai_ops_hw_params: UAIF2-1: 0x12: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c0880)
+02-22 02:45:02.285 D/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_hw_params, format: 2
+02-22 02:45:02.285 I/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_set_bitwidth 2
+02-22 02:45:02.286 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0xc, val: 0x0
+02-22 02:45:02.286 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0x3, val: 0x0
+02-22 02:45:02.286 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0x30, val: 0x10
+02-22 02:45:02.287 D/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0x30, val: 0x20
+02-22 02:45:02.287 I/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_iv_slot_config, 16
+02-22 02:45:02.287 D/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:11, mask: 0xff, val: 0x42
+02-22 02:45:02.399 I/audio_hw_proxy_9610( 4214): proxy-enable_spkamp_reference: SPKAMP Reference PCM Device(/dev/snd/pcmC0D12c) with SR(48000) PF(0) CC(2) is opened
+02-22 02:45:02.400 I/audio_hw_proxy_9610( 4214): proxy-enable_spkamp_reference: SPKAMP Reference PCM Device(/dev/snd/pcmC0D12c) with SR(48000) PF(0) CC(2) is started
+02-22 02:45:02.400 I/audio_hw_primary( 4214): fast_out-adev_set_route-1: routes to device(speaker) for usage(media)
+02-22 02:45:02.287 D/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:12, mask: 0xff, val: 0x40
+02-22 02:45:02.288 D/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:8, mask: 0xc0, val: 0x0
+02-22 02:45:02.288 I/        (    0): [3:         writer: 7214] tas2562 7-004c: mn_ch_size: 16
+02-22 02:45:02.288 I/        (    0): [3:         writer: 7214] tas2562 7-004c: tas2562_hw_params, sample rate: 48000
+02-22 02:45:02.288 D/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:6, mask: 0x20, val: 0x0
+02-22 02:45:02.288 D/        (    0): [0:         writer: 7214] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:6, mask: 0xe, val: 0x8
+02-22 02:45:02.288 I/        (    0): [0:         writer: 7214] Exynos9610-audio sound: vogue_dai_ops_hw_params: WDMA4-1: 0xc: hw_params: 2ch, 48000Hz, 7680bytes, 16bit (pcm_state: 0x00c1880)
+02-22 02:45:02.290 I/        (    0): [0:         writer: 7214] Exynos9610-audio sound: exynos9610_rt5665_hw_params: BCLK Enable
+02-22 02:45:02.291 I/        (    0): [0:         writer: 7214] Exynos9610-audio sound: exynos9610_rt5665_hw_params: uaifp_cnt 1, uaifc_cnt 0
+02-22 02:45:02.291 I/        (    0): [0:         writer: 7214] Exynos9610-audio sound: exynos9610_rt5665_hw_params: UAIF0-0 2ch, 48000Hz, 16bit, 1536bytes (pcm_state: 0x00d1880)
+02-22 02:45:02.291 D/        (    0): [0:         writer: 7214] rt5665 6-001b: lrck is 48000Hz and pre_div is 1 for iis 0
+02-22 02:45:02.291 I/        (    0): [0:         writer: 7214] Exynos9610-audio sound: vogue_dai_ops_hw_params: RDMA2-0: 0x2: hw_params: 2ch, 48000Hz, 1536bytes, 16bit (pcm_state: 0x00d1884)
+02-22 02:45:02.403 I/audio_hw_proxy_9610( 4214): fast_out-proxy_open_playback_stream: The opened PCM Device is /dev/snd/pcmC0D2p with Sampling_Rate(48000) PCM_Format(0)
+02-22 02:45:02.403 I/audio_hw_primary( 4214): fast_out-out_write: transited to Idle
+02-22 02:45:02.407 I/audio_hw_primary( 4214): fast_out-out_write: transited to Playing
+02-22 02:45:02.323 I/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: irq_work_routine
+02-22 02:45:02.323 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_write: chn4c:BOOK:PAGE:REG 0:0:26, VAL: 0xff
+02-22 02:45:02.323 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_write: chn4c:BOOK:PAGE:REG 0:0:27, VAL: 0xff
+02-22 02:45:02.323 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:36,0x0
+02-22 02:45:02.324 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:37,0x0
+02-22 02:45:02.324 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:37,0x0
+02-22 02:45:02.324 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: IRQ status : 0x0, 0x0, 0x0, 0x0
+02-22 02:45:02.324 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:2,0x2
+02-22 02:45:02.324 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:36,0x0
+02-22 02:45:02.324 I/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: IRQ reg is: irq_work_routine 0, 724
+02-22 02:45:02.325 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:36,0x0
+02-22 02:45:02.325 I/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: IRQ reg is: irq_work_routine 0, 728
+02-22 02:45:02.325 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_update_bits: chn4c:BOOK:PAGE:REG 0:0:2, mask: 0x3, val: 0x0
+02-22 02:45:02.325 I/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: set ICN to -80dB
+02-22 02:45:02.325 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_bulk_write: chn4c:BOOK:PAGE:REG 0:2:100, len: 0x04
+02-22 02:45:02.326 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_bulk_write: chn4c:BOOK:PAGE:REG 0:2:108, len: 0x04
+02-22 02:45:02.326 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:36,0x0
+02-22 02:45:02.326 I/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: IRQ reg is: irq_work_routine, 0, 758
+02-22 02:45:02.326 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:36,0x0
+02-22 02:45:02.326 I/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: IRQ reg is: irq_work_routine 0, 762
+02-22 02:45:02.326 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: PowSts B: 0x2, check again after 10ms
+02-22 02:45:02.337 I/[3:            cmd:16302] binder(    0): 16302:16302 ioctl 40046210 7feeb62770 returned -22
+02-22 02:45:02.351 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_read: chn:4c:BOOK:PAGE:REG 0:0:2,0x0
+02-22 02:45:02.351 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_write: chn4c:BOOK:PAGE:REG 0:0:26, VAL: 0xf8
+02-22 02:45:02.351 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: tas2562_dev_write: chn4c:BOOK:PAGE:REG 0:0:27, VAL: 0xb1
+02-22 02:45:02.352 D/        (    0): [0:    kworker/0:1:17157] tas2562 7-004c: irq_work_routine, start timer
+02-22 02:45:02.684 D/AndroidRuntime(16305): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+02-22 02:45:02.707 I/AndroidRuntime(16305): Using default boot image
+02-22 02:45:02.707 I/AndroidRuntime(16305): Leaving lock profiling enabled
+02-22 02:45:02.717 W/app_process(16305): ART APEX data files are untrusted.
+02-22 02:45:02.717 I/app_process(16305): Core platform API reporting enabled, enforcing=false
+02-22 02:45:02.910 I/native  (30437): I0000 00:00:1771721102.910688   15799 exl_node_generator.cc:58] Setting legal word grammar as macro_only: true
+02-22 02:45:02.911 I/native  (30437): I0000 00:00:1771721102.911101   15799 android_resource_loader.cc:100] Built resource lettuce_node_generator
+02-22 02:45:02.911 I/native  (30437): I0000 00:00:1771721102.911151   15799 android_resource_loader.cc:116] Loaded resource:lettuce_node_generator
+02-22 02:45:02.912 I/native  (30437): I0000 00:00:1771721102.912401   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/specification_feature_set.pb" (as: FILE) ...
+02-22 02:45:02.913 I/native  (30437): I0000 00:00:1771721102.913396   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/specification_feature_set.pb" of size 3932
+02-22 02:45:02.915 I/native  (30437): I0000 00:00:1771721102.915559   15799 android_resource_loader.cc:100] Built resource feature_set
+02-22 02:45:02.915 I/native  (30437): I0000 00:00:1771721102.915724   15799 android_resource_loader.cc:116] Loaded resource:feature_set
+02-22 02:45:02.917 I/native  (30437): I0000 00:00:1771721102.917099   15799 android_resource_loader.cc:100] Built resource lstm_add_specification_resource
+02-22 02:45:02.917 I/native  (30437): I0000 00:00:1771721102.917184   15799 android_resource_loader.cc:116] Loaded resource:lstm_add_specification_resource
+02-22 02:45:02.917 I/native  (30437): I0000 00:00:1771721102.917233   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/converter_en_us_android.far" (as: FILE) ...
+02-22 02:45:02.917 I/native  (30437): I0000 00:00:1771721102.917754   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/converter_en_us_android.far" of size 1473
+02-22 02:45:02.918 I/native  (30437): I0000 00:00:1771721102.918671   15799 android_resource_loader.cc:100] Built resource pron_buffet_to_tts_converter
+02-22 02:45:02.918 I/native  (30437): I0000 00:00:1771721102.918735   15799 android_resource_loader.cc:116] Loaded resource:pron_buffet_to_tts_converter
+02-22 02:45:02.918 I/native  (30437): I0000 00:00:1771721102.918790   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/regexp_rewrite_embedded.pb" (as: FILE) ...
+02-22 02:45:02.919 I/native  (30437): I0000 00:00:1771721102.919227   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/regexp_rewrite_embedded.pb" of size 4932
+02-22 02:45:02.920 I/native  (30437): I0000 00:00:1771721102.920027   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/punctuation.pb" (as: FILE) ...
+02-22 02:45:02.920 I/native  (30437): I0000 00:00:1771721102.920446   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/punctuation.pb" of size 294
+02-22 02:45:02.921 D/app_process(16305): Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+02-22 02:45:02.921 D/app_process(16305): I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt70l.dat
+02-22 02:45:02.960 W/app_process(16305): ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2555718838])
+02-22 02:45:03.013 I/native  (30437): I0000 00:00:1771721103.013636   15799 android_resource_loader.cc:100] Built resource rewrite_algo
+02-22 02:45:03.013 I/native  (30437): I0000 00:00:1771721103.013748   15799 android_resource_loader.cc:116] Loaded resource:rewrite_algo
+02-22 02:45:03.013 I/native  (30437): I0000 00:00:1771721103.013796   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/regexp_rewrite_early.pb" (as: FILE) ...
+02-22 02:45:03.014 I/native  (30437): I0000 00:00:1771721103.014587   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/regexp_rewrite_early.pb" of size 778
+02-22 02:45:03.017 I/native  (30437): I0000 00:00:1771721103.017442   15799 android_resource_loader.cc:100] Built resource rewrite_early_algo
+02-22 02:45:03.017 I/native  (30437): I0000 00:00:1771721103.017550   15799 android_resource_loader.cc:116] Loaded resource:rewrite_early_algo
+02-22 02:45:03.017 I/native  (30437): I0000 00:00:1771721103.017608   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/roman_numeral_contexts.pb" (as: FILE) ...
+02-22 02:45:03.017 I/native  (30437): I0000 00:00:1771721103.017710   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/roman_numeral_contexts.pb" of size 9114
+02-22 02:45:03.018 I/native  (30437): I0000 00:00:1771721103.018104   15799 android_resource_loader.cc:100] Built resource roman_numeral_context_words
+02-22 02:45:03.018 I/native  (30437): I0000 00:00:1771721103.018171   15799 android_resource_loader.cc:116] Loaded resource:roman_numeral_context_words
+02-22 02:45:03.018 I/native  (30437): I0000 00:00:1771721103.018864   15799 android_resource_loader.cc:100] Built resource classify_roman_numerals_grm_algo
+02-22 02:45:03.018 I/native  (30437): I0000 00:00:1771721103.018927   15799 android_resource_loader.cc:116] Loaded resource:classify_roman_numerals_grm_algo
+02-22 02:45:03.018 I/native  (30437): I0000 00:00:1771721103.018983   15799 android_resource_loader.cc:100] Built resource runtime_override
+02-22 02:45:03.019 I/native  (30437): I0000 00:00:1771721103.019016   15799 android_resource_loader.cc:116] Loaded resource:runtime_override
+02-22 02:45:03.019 I/native  (30437): I0000 00:00:1771721103.019064   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/sb_model.bin" (as: MEMORY) ...
+02-22 02:45:03.019 I/native  (30437): I0000 00:00:1771721103.019840   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/sb_model.bin" of size 48704
+02-22 02:45:03.021 D/AndroidRuntime(16305): Calling main entry com.android.commands.uiautomator.Launcher
+02-22 02:45:03.021 I/native  (30437): I0000 00:00:1771721103.021488   15799 android_resource_loader.cc:100] Built resource sentence_boundary_model_resource
+02-22 02:45:03.021 I/native  (30437): I0000 00:00:1771721103.021553   15799 android_resource_loader.cc:116] Loaded resource:sentence_boundary_model_resource
+02-22 02:45:03.021 I/native  (30437): I0000 00:00:1771721103.021626   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/en_verbalize_spec.pb" (as: FILE) ...
+02-22 02:45:03.021 I/native  (30437): I0000 00:00:1771721103.021725   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/en_verbalize_spec.pb" of size 3984
+02-22 02:45:03.021 I/native  (30437): I0000 00:00:1771721103.021967   15799 android_resource_loader.cc:100] Built resource serialization_spec
+02-22 02:45:02.910 I/[7:           main:16305] binder(    0): 16305:16305 ioctl 40046210 7fc9af1a00 returned -22
+02-22 02:45:03.022 I/native  (30437): I0000 00:00:1771721103.022057   15799 android_resource_loader.cc:116] Loaded resource:serialization_spec
+02-22 02:45:03.022 I/native  (30437): I0000 00:00:1771721103.022112   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/textnorm_params_embedded_en_us.pb" (as: FILE) ...
+02-22 02:45:03.022 I/native  (30437): I0000 00:00:1771721103.022185   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/textnorm_params_embedded_en_us.pb" of size 321
+02-22 02:45:03.022 I/native  (30437): I0000 00:00:1771721103.022297   15799 android_resource_loader.cc:100] Built resource textnorm_params
+02-22 02:45:03.022 I/native  (30437): I0000 00:00:1771721103.022330   15799 android_resource_loader.cc:116] Loaded resource:textnorm_params
+02-22 02:45:03.023 I/native  (30437): I0000 00:00:1771721103.023457   15799 android_resource_loader.cc:100] Built resource icu_transliterator_to_latin
+02-22 02:45:03.023 I/native  (30437): I0000 00:00:1771721103.023543   15799 android_resource_loader.cc:116] Loaded resource:icu_transliterator_to_latin
+02-22 02:45:03.023 I/native  (30437): I0000 00:00:1771721103.023602   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/g2p_m3_syls0_stress0_en-US.fst" (as: FILE) ...
+02-22 02:45:03.024 I/native  (30437): I0000 00:00:1771721103.024112   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/g2p_m3_syls0_stress0_en-US.fst" of size 694160
+02-22 02:45:03.024 I/native  (30437): I0000 00:00:1771721103.024219   15799 compact_fst.cc:20] Loading FST from "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/g2p_m3_syls0_stress0_en-US.fst" ...
+02-22 02:45:03.036 I/MediaFocusControl( 4589): abandonAudioFocus() from uid/pid 10137/16139 clientId=android.media.AudioManager@acd217acom.google.android.accessibility.utils.output.SpeechControllerImpl$5@7e69d2b
+02-22 02:45:03.039 I/MediaFocusControl( 4589): abandonAudioFocus() from uid/pid 10137/16139 clientId=android.media.AudioManager@acd217acom.google.android.accessibility.utils.output.SpeechControllerImpl$5@7e69d2b
+02-22 02:45:03.039 E/talkback: SpeechControllerImpl(16139): Completed speech while already completed!
+02-22 02:45:03.042 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a84a310
+02-22 02:45:03.049 I/MediaFocusControl( 4589): requestAudioFocus() from uid/pid 10137/16139 AA=USAGE_ASSISTANCE_ACCESSIBILITY/CONTENT_TYPE_SPEECH clientId=android.media.AudioManager@acd217acom.google.android.accessibility.utils.output.SpeechControllerImpl$5@7e69d2b callingPack=com.google.android.marvin.talkback req=3 flags=0x0 sdk=36
+02-22 02:45:03.049 I/AudioService.FadeOutManager( 4589): unfadeOutUid() uid:10137
+02-22 02:45:03.050 V/UiAutomation(16305): Init UiAutomation@3486055[id=53, flags=0]
+--------- beginning of system
+02-22 02:45:03.051 W/WindowMagnificationMgr( 4589): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-22 02:45:03.126 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:45:03.130 D/audio_hw_primary( 4214): fast_out-out_update_source_metadata: called, but not implemented yet
+02-22 02:45:03.158 I/native  (30437): I0000 00:00:1771721103.158569   15799 decoder.cc:50] G2P FST loaded (56 graphemes and 41 phonemes).
+02-22 02:45:03.167 I/native  (30437): I0000 00:00:1771721103.167875   15799 android_resource_loader.cc:100] Built resource learned_fst_g2p_mapper
+02-22 02:45:03.167 I/native  (30437): I0000 00:00:1771721103.167984   15799 android_resource_loader.cc:116] Loaded resource:learned_fst_g2p_mapper
+02-22 02:45:03.168 I/native  (30437): I0000 00:00:1771721103.168079   15799 android_resource_loader.cc:100] Built resource spelling_normalizer
+02-22 02:45:03.168 I/native  (30437): I0000 00:00:1771721103.168111   15799 android_resource_loader.cc:116] Loaded resource:spelling_normalizer
+02-22 02:45:03.198 I/native  (30437): I0000 00:00:1771721103.198281   15799 android_resource_loader.cc:100] Built resource token_resolver_algo
+02-22 02:45:03.198 I/native  (30437): I0000 00:00:1771721103.198393   15799 android_resource_loader.cc:116] Loaded resource:token_resolver_algo
+02-22 02:45:03.198 I/native  (30437): I0000 00:00:1771721103.198452   15799 android_resource_loader.cc:100] Built resource utf8_utils
+02-22 02:45:03.198 I/native  (30437): I0000 00:00:1771721103.198485   15799 android_resource_loader.cc:116] Loaded resource:utf8_utils
+02-22 02:45:03.198 I/native  (30437): I0000 00:00:1771721103.198561   15799 android_resource_loader.cc:100] Built resource lexical_classifier
+02-22 02:45:03.198 I/native  (30437): I0000 00:00:1771721103.198592   15799 android_resource_loader.cc:116] Loaded resource:lexical_classifier
+02-22 02:45:03.198 I/native  (30437): I0000 00:00:1771721103.198661   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/universal_carrier_pigeon_config.binarypb" (as: FILE) ...
+02-22 02:45:03.201 I/native  (30437): I0000 00:00:1771721103.201086   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/universal_carrier_pigeon_config.binarypb" of size 52
+02-22 02:45:03.202 I/native  (30437): I0000 00:00:1771721103.202152   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/universal_carrier_pigeon_model.tflite" (as: FILE) ...
+02-22 02:45:03.202 I/native  (30437): I0000 00:00:1771721103.202695   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/universal_carrier_pigeon_model.tflite" of size 638952
+02-22 02:45:03.210 I/native  (30437): I0000 00:00:1771721103.210207   15799 android_resource_loader.cc:100] Built resource carrier_pigeon_algo
+02-22 02:45:03.210 I/native  (30437): I0000 00:00:1771721103.210318   15799 android_resource_loader.cc:116] Loaded resource:carrier_pigeon_algo
+02-22 02:45:03.210 I/native  (30437): I0000 00:00:1771721103.210399   15799 android_resource_loader.cc:100] Built resource icu_transliterator
+02-22 02:45:03.210 I/native  (30437): I0000 00:00:1771721103.210433   15799 android_resource_loader.cc:116] Loaded resource:icu_transliterator
+02-22 02:45:03.210 I/native  (30437): I0000 00:00:1771721103.210486   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/variant_overrides_en_us.pb" (as: FILE) ...
+02-22 02:45:03.210 I/native  (30437): I0000 00:00:1771721103.210599   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/variant_overrides_en_us.pb" of size 1525
+02-22 02:45:03.211 I/native  (30437): I0000 00:00:1771721103.211019   15799 android_resource_loader.cc:100] Built resource variant_overrides
+02-22 02:45:03.211 I/native  (30437): I0000 00:00:1771721103.211058   15799 android_resource_loader.cc:116] Loaded resource:variant_overrides
+02-22 02:45:03.211 I/native  (30437): I0000 00:00:1771721103.211101   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/variant_selection_model_en_us_embedded.bin" (as: MEMORY) ...
+02-22 02:45:03.211 I/native  (30437): I0000 00:00:1771721103.211221   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/variant_selection_model_en_us_embedded.bin" of size 221608
+02-22 02:45:03.211 I/native  (30437): I0000 00:00:1771721103.211275   15799 android_resource_loader.cc:100] Built resource variant_selection_model_data_resource
+02-22 02:45:03.211 I/native  (30437): I0000 00:00:1771721103.211310   15799 android_resource_loader.cc:116] Loaded resource:variant_selection_model_data_resource
+02-22 02:45:03.261 I/native  (30437): I0000 00:00:1771721103.261295   15799 select_variants.cc:128] Word with override has only one variant: her
+02-22 02:45:03.261 I/native  (30437): I0000 00:00:1771721103.261809   15799 android_resource_loader.cc:100] Built resource select_variants_algo
+02-22 02:45:03.261 I/native  (30437): I0000 00:00:1771721103.261872   15799 android_resource_loader.cc:116] Loaded resource:select_variants_algo
+02-22 02:45:03.261 I/native  (30437): I0000 00:00:1771721103.261974   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/us_verbalization_capabilities.pb" (as: FILE) ...
+02-22 02:45:03.262 I/native  (30437): I0000 00:00:1771721103.262168   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/../en-us-x-multi-r83/us_verbalization_capabilities.pb" of size 5224
+02-22 02:45:03.263 I/native  (30437): I0000 00:00:1771721103.262978   15799 android_resource_loader.cc:100] Built resource verbalization_capabilities
+02-22 02:45:03.263 I/native  (30437): I0000 00:00:1771721103.263044   15799 android_resource_loader.cc:116] Loaded resource:verbalization_capabilities
+02-22 02:45:03.263 I/native  (30437): I0000 00:00:1771721103.263120   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/verbalize_embedded_android.far" (as: FILE) ...
+02-22 02:45:03.263 I/native  (30437): I0000 00:00:1771721103.263936   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/verbalize_embedded_android.far" of size 2215743
+02-22 02:45:03.283 I/native  (30437): I0000 00:00:1771721103.283260   15799 android_resource_loader.cc:100] Built resource verbalize_grm_fst
+02-22 02:45:03.283 I/native  (30437): I0000 00:00:1771721103.283405   15799 android_resource_loader.cc:116] Loaded resource:verbalize_grm_fst
+02-22 02:45:03.283 I/native  (30437): I0000 00:00:1771721103.283524   15799 android_resource_loader.cc:100] Built resource speller_algo
+02-22 02:45:03.283 I/native  (30437): I0000 00:00:1771721103.283573   15799 android_resource_loader.cc:116] Loaded resource:speller_algo
+02-22 02:45:03.287 I/native  (30437): I0000 00:00:1771721103.287151   15799 android_resource_loader.cc:100] Built resource verbalize_grm_algo
+02-22 02:45:03.287 I/native  (30437): I0000 00:00:1771721103.287199   15799 android_resource_loader.cc:116] Loaded resource:verbalize_grm_algo
+02-22 02:45:03.297 I/native  (30437): I0000 00:00:1771721103.297330   15799 android_resource_loader.cc:100] Built resource vocoding_resource
+02-22 02:45:03.297 I/native  (30437): I0000 00:00:1771721103.297448   15799 android_resource_loader.cc:116] Loaded resource:vocoding_resource
+02-22 02:45:03.297 I/native  (30437): I0000 00:00:1771721103.297562   15799 voice_params_resource.cc:33] Voice information: MessageLite at 0x74d167aa90
+02-22 02:45:03.297 I/native  (30437): I0000 00:00:1771721103.297612   15799 android_resource_loader.cc:100] Built resource voice_params
+02-22 02:45:03.297 I/native  (30437): I0000 00:00:1771721103.297645   15799 android_resource_loader.cc:116] Loaded resource:voice_params
+02-22 02:45:03.325 I/native  (30437): I0000 00:00:1771721103.325696   15799 android_resource_loader.cc:100] Built resource word_resolver_algo
+02-22 02:45:03.325 I/native  (30437): I0000 00:00:1771721103.325807   15799 android_resource_loader.cc:116] Loaded resource:word_resolver_algo
+02-22 02:45:03.325 I/native  (30437): I0000 00:00:1771721103.325895   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/xsampa_to_tts_to-en_us.far" (as: FILE) ...
+02-22 02:45:03.327 I/native  (30437): I0000 00:00:1771721103.327628   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/xsampa_to_tts_to-en_us.far" of size 21060
+02-22 02:45:03.329 I/native  (30437): I0000 00:00:1771721103.329973   15799 android_resource_loader.cc:100] Built resource xsampa_to_tts_phoneme_mapper
+02-22 02:45:03.330 I/native  (30437): I0000 00:00:1771721103.330070   15799 android_resource_loader.cc:116] Loaded resource:xsampa_to_tts_phoneme_mapper
+02-22 02:45:03.330 I/native  (30437): I0000 00:00:1771721103.330966   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_model_options.pb" (as: FILE) ...
+02-22 02:45:03.331 I/native  (30437): I0000 00:00:1771721103.331480   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_model_options.pb" of size 112
+02-22 02:45:03.332 I/native  (30437): I0000 00:00:1771721103.332387   15799 android_resource_loader.cc:100] Built resource locovoc_model_options
+02-22 02:45:03.332 I/native  (30437): I0000 00:00:1771721103.332432   15799 android_resource_loader.cc:116] Loaded resource:locovoc_model_options
+02-22 02:45:03.333 I/native  (30437): I0000 00:00:1771721103.333258   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_prosody.tflite" (as: FILE) ...
+02-22 02:45:03.333 I/native  (30437): I0000 00:00:1771721103.333768   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_prosody.tflite" of size 2544268
+02-22 02:45:03.357 I/native  (30437): I0000 00:00:1771721103.357493   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_model_options.pb" (as: FILE) ...
+02-22 02:45:03.357 I/native  (30437): I0000 00:00:1771721103.357660   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_model_options.pb" of size 112
+02-22 02:45:03.359 I/native  (30437): I0000 00:00:1771721103.359892   15799 android_resource_loader.cc:100] Built resource prosody_predictor
+02-22 02:45:03.359 I/native  (30437): I0000 00:00:1771721103.359967   15799 android_resource_loader.cc:116] Loaded resource:prosody_predictor
+02-22 02:45:03.360 I/native  (30437): I0000 00:00:1771721103.360660   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_acoustic.tflite" (as: FILE) ...
+02-22 02:45:03.361 I/native  (30437): I0000 00:00:1771721103.361126   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_acoustic.tflite" of size 1888720
+02-22 02:45:03.375 I/native  (30437): I0000 00:00:1771721103.375832   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_model_options.pb" (as: FILE) ...
+02-22 02:45:03.376 I/native  (30437): I0000 00:00:1771721103.376043   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/locovoc_model_options.pb" of size 112
+02-22 02:45:03.377 I/native  (30437): I0000 00:00:1771721103.376980   15799 android_resource_loader.cc:100] Built resource acoustic_predictor
+02-22 02:45:03.377 I/native  (30437): I0000 00:00:1771721103.377126   15799 android_resource_loader.cc:116] Loaded resource:acoustic_predictor
+02-22 02:45:03.377 I/native  (30437): I0000 00:00:1771721103.377173   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/seanet_model_options.pb" (as: FILE) ...
+02-22 02:45:03.377 I/native  (30437): I0000 00:00:1771721103.377721   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/seanet_model_options.pb" of size 32
+02-22 02:45:03.378 I/native  (30437): I0000 00:00:1771721103.378213   15799 data_source.cc:95] Opening data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/seanet_model.tflite" (as: FILE) ...
+02-22 02:45:03.378 I/native  (30437): I0000 00:00:1771721103.378625   15799 data_source.cc:99] ... Opened data source "/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83/seanet_model.tflite" of size 2786320
+02-22 02:45:03.394 I/native  (30437): I0000 00:00:1771721103.394789   15799 android_resource_loader.cc:100] Built resource seanet_enhancer
+02-22 02:45:03.394 I/native  (30437): I0000 00:00:1771721103.394938   15799 android_resource_loader.cc:116] Loaded resource:seanet_enhancer
+02-22 02:45:03.395 I/native  (30437): I0000 00:00:1771721103.395004   15799 local_pipeline_runner.cc:49] Done loading all resources from: {/data/user_de/0/com.google.android.tts/files/superpacks/en-us/en-us-x-multi-locomel-r83}
+02-22 02:45:03.412 I/ComposerWrapperImpl(30437): Done initializing en-us-x-iog-locomel-embedded
+02-22 02:45:03.442 I/GoogleTTSServiceImpl(30437): Synthesis request for locale eng-USA and name en-US-language
+02-22 02:45:03.445 I/GoogleTTSServiceImpl(30437): TTS dispatch: en-us-x-iog-locomel-embedded
+02-22 02:45:03.445 I/LocalSynthesizer(30437): Attempting to load synthesizer for voice: en-us-x-iog-locomel-embedded
+02-22 02:45:03.445 I/LocalSynthesizer(30437): Voice en-us-x-iog-locomel-embedded is already supported by loaded synthesizer en-us-x-multi.
+02-22 02:45:03.446 I/ComposerWrapperImpl(30437): Skipping initialization, can already run voice en-us-x-iog-locomel-embedded.
+02-22 02:45:03.448 I/GoogleTTSServiceImpl(30437): Did not cache synthesis request.
+02-22 02:45:03.449 I/GoogleTTSServiceImpl(30437): Synthesis request for locale eng-USA and name en-US-language
+02-22 02:45:03.451 I/GoogleTTSServiceImpl(30437): TTS dispatch: en-us-x-iog-locomel-embedded
+02-22 02:45:03.451 I/LocalSynthesizer(30437): Attempting to load synthesizer for voice: en-us-x-iog-locomel-embedded
+02-22 02:45:03.452 I/LocalSynthesizer(30437): Voice en-us-x-iog-locomel-embedded is already supported by loaded synthesizer en-us-x-multi.
+02-22 02:45:03.452 I/ComposerWrapperImpl(30437): Skipping initialization, can already run voice en-us-x-iog-locomel-embedded.
+02-22 02:45:03.456 D/AudioFlinger( 4293): AUDIO_OUTPUT_FLAG_FAST denied: sharedBuffer=0x0 frameCount=4096 mFrameCount=192 format=0x1 mFormat=0x5 isLinear=1 channelMask=0x1 sampleRate=16000 mSampleRate=48000 hasFastMixer=1 tid=-1 fastTrackAvailMask=0xfe
+02-22 02:45:03.456 D/AudioFlinger( 4293): Client defaulted notificationFrames to 320 for frameCount 4096
+02-22 02:45:03.458 D/AF::TrackHandle( 4293): OpPlayAudio: track:118 usage:11 not muted
+02-22 02:45:03.609 I/tflite  (30437): Created TensorFlow Lite XNNPACK delegate for CPU.
+02-22 02:45:03.624 I/tflite  (30437): Replacing 344 out of 345 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 3 partitions for subgraph 0.
+02-22 02:45:03.761 I/tflite  (30437): Replacing 139 out of 140 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 3 partitions for subgraph 0.
+02-22 02:45:03.805 I/tflite  (30437): Replacing 301 out of 301 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 1 partitions for subgraph 0.
+02-22 02:45:03.808 D/AudioFlinger( 4293): AUDIO_OUTPUT_FLAG_FAST denied: sharedBuffer=0x0 frameCount=4096 mFrameCount=192 format=0x1 mFormat=0x5 isLinear=1 channelMask=0x1 sampleRate=24000 mSampleRate=48000 hasFastMixer=1 tid=-1 fastTrackAvailMask=0xfe
+02-22 02:45:03.808 D/AudioFlinger( 4293): Client defaulted notificationFrames to 480 for frameCount 4096
+02-22 02:45:03.811 D/AF::TrackHandle( 4293): OpPlayAudio: track:119 usage:11 not muted
+02-22 02:45:03.932 D/audio_hw_primary( 4214): fast_out-out_update_source_metadata: called, but not implemented yet
+02-22 02:45:03.932 D/audio_hw_primary( 4214): fast_out-out_update_source_metadata: This stream has 1 tracks
+02-22 02:45:03.932 D/audio_hw_primary( 4214): 1 Track has Usage(11), Content Type(0), Gain(1.000000)
+02-22 02:45:04.056 W/libc    (16305): Access denied finding property "qemu.sf.lcd_density"
+02-22 02:45:04.056 W/libc    (16305): Access denied finding property "qemu.sf.lcd_density"
+02-22 02:45:04.070 I/AccessibilityNodeInfoDumper(16305): Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@87f6; boundsInParent: Rect(0, 0 - 2317, 0); boundsInScreen: Rect(83, 100 - 2400, 100); packageName: com.google.android.marvin.talkback; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: com.google.android.marvin.talkback:id/training_toolbar_layout; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+02-22 02:45:04.084 W/AccessibilityNodeInfoDumper(16305): Fetch time: 23ms
+02-22 02:45:04.089 W/WindowMagnificationMgr( 4589): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-22 02:45:03.982 I/[2:    uiautomator:16305] binder(    0): 16305:16305 ioctl 40046210 7fc9af1be4 returned -22
+02-22 02:45:04.093 D/AndroidRuntime(16305): Shutting down VM
+02-22 02:45:04.111 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a841bb0
+02-22 02:45:04.315 W/[3:       wificond: 4411] slsi_mlme_get_sinfo_mib(    0): 2 callbacks suppressed
+02-22 02:45:04.926 W/android.vending(10780): Reducing the number of considered missed Gc histogram windows from 118 to 100
+02-22 02:45:04.971 D/AudioTrack(30437): stop(77): called with 24513 frames delivered
+02-22 02:45:04.979 I/MediaFocusControl( 4589): abandonAudioFocus() from uid/pid 10137/16139 clientId=android.media.AudioManager@acd217acom.google.android.accessibility.utils.output.SpeechControllerImpl$5@7e69d2b
+02-22 02:45:04.990 I/GoogleTTSServiceImpl(30437): Synthesis request for locale eng-USA and name en-US-language
+02-22 02:45:04.991 D/CompatibilityChangeReporter( 4589): Compat change id reported: 136293963; UID 10137; state: ENABLED
+02-22 02:45:04.991 W/WindowMagnificationMgr( 4589): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+02-22 02:45:04.992 I/GoogleTTSServiceImpl(30437): TTS dispatch: en-us-x-iog-locomel-embedded
+02-22 02:45:04.993 I/LocalSynthesizer(30437): Attempting to load synthesizer for voice: en-us-x-iog-locomel-embedded
+02-22 02:45:04.993 I/LocalSynthesizer(30437): Voice en-us-x-iog-locomel-embedded is already supported by loaded synthesizer en-us-x-multi.
+02-22 02:45:04.993 I/ComposerWrapperImpl(30437): Skipping initialization, can already run voice en-us-x-iog-locomel-embedded.
+02-22 02:45:04.994 I/GoogleTTSServiceImpl(30437): Did not cache synthesis request.
+02-22 02:45:04.997 I/eauf    ( 7573): (REDACTED) appOpsListener %s %s
+02-22 02:45:04.998 I/eauf    ( 7573): (REDACTED) Ignoring irrelevant audio permission changes for package %s
+02-22 02:45:05.000 D/AudioFlinger( 4293): AUDIO_OUTPUT_FLAG_FAST denied: sharedBuffer=0x0 frameCount=4096 mFrameCount=192 format=0x1 mFormat=0x5 isLinear=1 channelMask=0x1 sampleRate=16000 mSampleRate=48000 hasFastMixer=1 tid=-1 fastTrackAvailMask=0xfe
+02-22 02:45:05.000 D/AudioFlinger( 4293): Client defaulted notificationFrames to 320 for frameCount 4096
+02-22 02:45:05.001 D/AF::TrackHandle( 4293): OpPlayAudio: track:120 usage:11 not muted
+02-22 02:45:05.007 I/SensorsInputVirtual( 4256): HoverProximity::activate: 0
+02-22 02:45:05.007 I/SensorsInputVirtual( 4256): HoverProximity::activate 0
+02-22 02:45:04.897 I/        (    0): [1:android.hardwar: 4256] [sec_input] sec_cmd_store: push cmd: ear_detect_enable,0
+02-22 02:45:04.897 I/        (    0): [1:android.hardwar: 4256]
+02-22 02:45:04.897 I/        (    0): [1:android.hardwar: 4256] [sec_input] sec_cmd_store_function: cmd = ear_detect_enable param = 0
+02-22 02:45:05.010 I/GoogleTTSServiceImpl(30437): Synthesis request for locale eng-USA and name en-US-language
+02-22 02:45:05.011 D/WifiService( 4589):  getWifiActivityEnergyInfo:  on_time_millis=0 tx_time_millis=0 rx_time_millis=13335653 rxIdleTimeMillis=-13335653 scan_time_millis=970336
+02-22 02:45:05.012 I/GoogleTTSServiceImpl(30437): TTS dispatch: en-us-x-iog-locomel-embedded
+02-22 02:45:05.012 W/BatteryExternalStatsWorker( 4589): error reading Bluetooth stats: 9
+02-22 02:45:05.012 I/LocalSynthesizer(30437): Attempting to load synthesizer for voice: en-us-x-iog-locomel-embedded
+02-22 02:45:05.012 I/LocalSynthesizer(30437): Voice en-us-x-iog-locomel-embedded is already supported by loaded synthesizer en-us-x-multi.
+02-22 02:45:05.012 I/ComposerWrapperImpl(30437): Skipping initialization, can already run voice en-us-x-iog-locomel-embedded.
+02-22 02:45:05.013 I/GoogleTTSServiceImpl(30437): Did not cache synthesis request.
+02-22 02:45:05.017 D/TextToSpeechManagerPerUserService( 4589): Unbinding TTS engine: com.google.android.tts. Reason: client disconnection request
+02-22 02:45:05.021 E/talkback: PackageManagerUtils(16139): Could not find package: com.google.android.aicore
+02-22 02:45:05.022 D/AudioFlinger( 4293): AUDIO_OUTPUT_FLAG_FAST denied: sharedBuffer=0x0 frameCount=4096 mFrameCount=192 format=0x1 mFormat=0x5 isLinear=1 channelMask=0x1 sampleRate=16000 mSampleRate=48000 hasFastMixer=1 tid=-1 fastTrackAvailMask=0xfe
+02-22 02:45:05.022 D/AudioFlinger( 4293): Client defaulted notificationFrames to 320 for frameCount 4096
+02-22 02:45:05.023 W/TextToSpeechManagerPerUserService( 4589): Disconnected from TTS engine
+02-22 02:45:05.024 I/TextToSpeech(16139): Disconnected from TTS engine
+02-22 02:45:05.024 W/ServiceConnector.Impl( 4589): mayInterruptIfRunning not supported - ignoring
+02-22 02:45:05.025 D/AF::TrackHandle( 4293): OpPlayAudio: track:121 usage:11 not muted
+02-22 02:45:05.031 D/audio_hw_primary( 4214): fast_out-out_update_source_metadata: called, but not implemented yet
+02-22 02:45:05.049 D/TelephonyManager( 4589): requestModemActivityInfo: Sending result to app: ModemActivityInfo{ mTimestamp=363038850 mSleepTimeMs=328558607 mIdleTimeMs=3754306 mActivityStatsTechSpecificInfo=[{mRat=UNKNOWN,mFrequencyRange=UNKNOWN,mTxTimeMs[]=[0, 0, 0, 0, 0],mRxTimeMs=27618279}]}
+02-22 02:45:05.057 I/TextToSpeech(16139): Sucessfully bound to com.google.android.tts
+02-22 02:45:05.057 D/TextToSpeechManagerPerUserService( 4589): Trying to start connection to TTS engine: com.google.android.tts
+02-22 02:45:05.059 D/TextToSpeechManagerPerUserService( 4589): Connected successfully to TTS engine: com.google.android.tts
+02-22 02:45:05.059 I/TextToSpeech(16139): Connected to TTS engine
+02-22 02:45:05.063 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:45:05.065 I/GoogleTTSServiceImpl(30437): For default lang en-us is name en-US-language (en-us-x-hol-server)
+02-22 02:45:05.066 I/TextToSpeech(16139): Setting up the connection to TTS engine...
+02-22 02:45:05.067 E/system_server( 4589): Cannot read thread CPU times for PID 4589
+02-22 02:45:05.073 W/BatteryExternalStatsWorker( 4589): wifi info is invalid: WifiActivityEnergyInfo{ mTimeSinceBootMillis=363038817 mStackState=3 mControllerTxDurationMillis=0 mControllerRxDurationMillis=13335653 mControllerScanDurationMillis=970336 mControllerIdleDurationMillis=-13335653 mControllerEnergyUsedMicroJoules=3072534451 }
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10201 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10192 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10190 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10171 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10170 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10165 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10164 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10163 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10161 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10153 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10152 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10149 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10145 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10141 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10138 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10134 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.106 W/CpuPowerCalculator( 4589): UID 10133 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 10116 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 10115 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 10114 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 10105 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 10076 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 9999 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 2000 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1073 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1069 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1068 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1066 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1053 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1047 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1046 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1041 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1040 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.107 W/CpuPowerCalculator( 4589): UID 1036 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.108 W/CpuPowerCalculator( 4589): UID 1027 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.108 W/CpuPowerCalculator( 4589): UID 1021 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.108 W/CpuPowerCalculator( 4589): UID 1017 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.108 W/CpuPowerCalculator( 4589): UID 1013 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.108 W/CpuPowerCalculator( 4589): UID 1010 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.108 W/CpuPowerCalculator( 4589): UID 1003 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.108 W/CpuPowerCalculator( 4589): UID 1001 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.108 W/CpuPowerCalculator( 4589): UID 1000 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.108 W/CpuPowerCalculator( 4589): UID 0 CPU freq # mismatch: Power Profile # 28 actual # 30
+02-22 02:45:05.116 E/talkback: PackageManagerUtils(16139): Could not find package: com.google.android.aicore
+02-22 02:45:05.117 W/ActivityManager( 4589): Unable to start service Intent { cmp=com.google.android.aicore/com.google.android.apps.aicore.service.multiuser.AiCoreMultiUserService } U=0: not found
+02-22 02:45:05.118 W/ActivityManager( 4589): Unbind failed: could not find connection for android.os.BinderProxy@a4eadc1
+02-22 02:45:05.120 W/ActivityManager( 4589): Unable to start service Intent { cmp=com.google.android.aicore/com.google.android.apps.aicore.service.AiCoreService } U=0: not found
+02-22 02:45:05.127 E/ocessService0:0(26048): failed to create Unix domain socket: Operation not permitted
+02-22 02:45:05.163 W/ActivityManager( 4589): Unbind failed: could not find connection for android.os.BinderProxy@b6f966
+02-22 02:45:05.190 W/WindowMagnificationMgr( 4589): requestConnection duplicated request: connect=true, mConnectionState=CONNECTED
+02-22 02:45:05.191 I/system_server( 4589): Background young concurrent copying GC freed 942867(41MB) AllocSpace objects, 51(1328KB) LOS objects, 45% free, 48MB/89MB, paused 999us,176us total 182.295ms
+02-22 02:45:05.192 D/CompatibilityChangeReporter( 4589): Compat change id reported: 157233955; UID 10137; state: ENABLED
+02-22 02:45:05.097 I/        (    0): [2:android.hardwar: 4256] [sec_input] sec_cmd_store: push cmd: ear_detect_enable,1
+02-22 02:45:05.097 I/        (    0): [2:android.hardwar: 4256]
+02-22 02:45:05.097 I/        (    0): [2:android.hardwar: 4256] [sec_input] sec_cmd_store_function: cmd = ear_detect_enable param = 1
+02-22 02:45:05.208 I/SensorsInputVirtual( 4256): HoverProximity::activate: 1
+02-22 02:45:05.208 I/SensorsInputVirtual( 4256): HoverProximity::activate 1
+02-22 02:45:05.106 I/[5:      screencap:16341] binder(    0): 16341:16341 ioctl 40046210 7fd8378680 returned -22
+02-22 02:45:05.220 E/talkback: SpeechControllerImpl(16139): TTS is not ready. Attempted to speak before TTS was initialized. Item: {utteranceId:"", fragments:[{text:TalkBack on, earcons:[], haptics:[], speechParams:Bundle[{pitch=1.0}]nonSpeechParams:Bundle[{}]fragmentStartIndex:0}], uninterruptible:true, isGloballyUninterruptible:false, mCanIgnoreInterrupts:false, flushGlobalTtsQueue:false, flags:62, creationTime:1771721105219}
+02-22 02:45:05.220 W/ProcessState(16341): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+02-22 02:45:05.222 I/ActivityTaskManager( 4589): START u0 {flg=0x10008000 pkg=com.google.android.marvin.talkback cmp=com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity (has extras)} from uid 10137
+02-22 02:45:05.223 D/CompatibilityChangeReporter( 4589): Compat change id reported: 265464455; UID 10137; state: DISABLED
+02-22 02:45:05.223 D/CompatibilityChangeReporter( 4589): Compat change id reported: 265452344; UID 10137; state: DISABLED
+02-22 02:45:05.223 D/CompatibilityChangeReporter( 4589): Compat change id reported: 266124927; UID 10137; state: DISABLED
+02-22 02:45:05.223 D/CompatibilityChangeReporter( 4589): Compat change id reported: 265451093; UID 10137; state: DISABLED
+02-22 02:45:05.223 D/CompatibilityChangeReporter( 4589): Compat change id reported: 265456536; UID 10137; state: DISABLED
+02-22 02:45:05.224 D/CompatibilityChangeReporter( 4589): Compat change id reported: 255940284; UID 10137; state: DISABLED
+02-22 02:45:05.224 D/CompatibilityChangeReporter( 4589): Compat change id reported: 236283604; UID 10137; state: DISABLED
+02-22 02:45:05.224 D/CompatibilityChangeReporter( 4589): Compat change id reported: 263959004; UID 10137; state: DISABLED
+02-22 02:45:05.224 D/CompatibilityChangeReporter( 4589): Compat change id reported: 264304459; UID 10137; state: DISABLED
+02-22 02:45:05.224 D/CompatibilityChangeReporter( 4589): Compat change id reported: 264301586; UID 10137; state: DISABLED
+02-22 02:45:05.224 D/CompatibilityChangeReporter( 4589): Compat change id reported: 254631730; UID 10137; state: DISABLED
+02-22 02:45:05.224 D/CompatibilityChangeReporter( 4589): Compat change id reported: 273509367; UID 10137; state: DISABLED
+02-22 02:45:05.224 D/CompatibilityChangeReporter( 4589): Compat change id reported: 263259275; UID 10137; state: DISABLED
+02-22 02:45:05.225 D/CompatibilityChangeReporter( 4589): Compat change id reported: 194480991; UID 10137; state: ENABLED
+02-22 02:45:05.226 D/CompatibilityChangeReporter( 4589): Compat change id reported: 174042980; UID 10137; state: DISABLED
+02-22 02:45:05.226 D/CompatibilityChangeReporter( 4589): Compat change id reported: 197654537; UID 10137; state: ENABLED
+02-22 02:45:05.231 W/System  ( 4589): A resource failed to call release. 
+02-22 02:45:05.134 I/[2: binder:16341_1:16350] binder(    0): 16341:16350 ioctl 40046210 7c06f103b4 returned -22
+02-22 02:45:05.246 I/hwservicemanager( 3956): getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+02-22 02:45:05.246 I/Gralloc4(16341): mapper 4.x is not supported
+02-22 02:45:05.246 I/hwservicemanager( 3956): getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device VINTF manifest.
+02-22 02:45:05.247 W/Gralloc3(16341): mapper 3.x is not supported
+02-22 02:45:05.248 W/PhBaseOp(16782): Phenotype API error. Event: # ilon@ced90036, EventCode: COMMIT_CONFIG [CONTEXT service_id=51 ]
+02-22 02:45:05.248 W/PhBaseOp(16782): eqzn: 29542: Stale snapshot for com.google.android.libraries.performance.primes#com.google.android.marvin.talkback(new configuration available)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at erbl.d(:com.google.android.gms@260534029@26.05.34 (190400-869443408):337)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at erbl.b(:com.google.android.gms@260534029@26.05.34 (190400-869443408):44)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at erbk.i(:com.google.android.gms@260534029@26.05.34 (190400-869443408):3)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at erbg.h(:com.google.android.gms@260534029@26.05.34 (190400-869443408):31)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at erbg.f(:com.google.android.gms@260534029@26.05.34 (190400-869443408):13)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at cqnh.fw(:com.google.android.gms@260534029@26.05.34 (190400-869443408):1)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at cqnl.run(:com.google.android.gms@260534029@26.05.34 (190400-869443408):118)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at gora.run(:com.google.android.gms@260534029@26.05.34 (190400-869443408):19)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at bfjc.c(:com.google.android.gms@260534029@26.05.34 (190400-869443408):50)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at bfjc.run(:com.google.android.gms@260534029@26.05.34 (190400-869443408):73)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1137)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:637)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at bfot.run(:com.google.android.gms@260534029@26.05.34 (190400-869443408):8)
+02-22 02:45:05.248 W/PhBaseOp(16782): 	at java.lang.Thread.run(Thread.java:1012)
+02-22 02:45:05.249 W/AsyncOperation(16782): operation=CommitToConfigurationOperationCall, opStatusCode=29542 [CONTEXT service_id=51 ]
+02-22 02:45:05.249 W/AsyncOperation(16782): OperationException[Status{statusCode=Stale snapshot for com.google.android.libraries.performance.primes#com.google.android.marvin.talkback(new configuration available), resolution=null}]
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at erbg.h(:com.google.android.gms@260534029@26.05.34 (190400-869443408):61)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at erbg.f(:com.google.android.gms@260534029@26.05.34 (190400-869443408):13)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at cqnh.fw(:com.google.android.gms@260534029@26.05.34 (190400-869443408):1)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at cqnl.run(:com.google.android.gms@260534029@26.05.34 (190400-869443408):118)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at gora.run(:com.google.android.gms@260534029@26.05.34 (190400-869443408):19)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at bfjc.c(:com.google.android.gms@260534029@26.05.34 (190400-869443408):50)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at bfjc.run(:com.google.android.gms@260534029@26.05.34 (190400-869443408):73)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1137)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:637)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at bfot.run(:com.google.android.gms@260534029@26.05.34 (190400-869443408):8)
+02-22 02:45:05.249 W/AsyncOperation(16782): 	at java.lang.Thread.run(Thread.java:1012)
+02-22 02:45:05.256 D/CompatibilityChangeReporter( 4589): Compat change id reported: 184838306; UID 10137; state: DISABLED
+02-22 02:45:05.256 D/CompatibilityChangeReporter( 4589): Compat change id reported: 185004937; UID 10137; state: DISABLED
+02-22 02:45:05.256 D/CompatibilityChangeReporter( 4589): Compat change id reported: 181136395; UID 10137; state: DISABLED
+02-22 02:45:05.257 D/CompatibilityChangeReporter( 4589): Compat change id reported: 174042936; UID 10137; state: DISABLED
+02-22 02:45:05.260 D/CompatibilityChangeReporter( 4589): Compat change id reported: 205907456; UID 10137; state: ENABLED
+02-22 02:45:05.265 D/SplashScreenView( 4858): Build android.window.SplashScreenView{8413d17 V.E...... ......ID 0,0-0,0}
+02-22 02:45:05.265 D/SplashScreenView( 4858): Icon: view: null drawable: null size: 0
+02-22 02:45:05.265 D/SplashScreenView( 4858): Branding: view: android.view.View{b2e3504 G.ED..... ......I. 0,0-0,0 #10204dc android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+02-22 02:45:05.270 W/Parcel  ( 4858): Expecting binder but got null!
+02-22 02:45:05.272 W/System  ( 4589): A resource failed to call release. 
+02-22 02:45:05.277 W/System  ( 4589): A resource failed to call release. 
+02-22 02:45:05.280 D/CompatibilityChangeReporter( 4589): Compat change id reported: 168419799; UID 10137; state: DISABLED
+02-22 02:45:05.280 D/CompatibilityChangeReporter( 4589): Compat change id reported: 273564678; UID 10137; state: DISABLED
+02-22 02:45:05.284 W/WindowMagnificationMgr( 4589): requestConnection duplicated request: connect=true, mConnectionState=CONNECTED
+02-22 02:45:05.285 W/System  ( 4589): A resource failed to call release. 
+02-22 02:45:05.288 W/ActivityTaskManager( 4589): Tried to set launchTime (0) < mLastActivityLaunchTime (356018326)
+02-22 02:45:05.298 W/TransactionTracing( 4303): Could not find layer id -1
+02-22 02:45:05.299 D/IntervalStats( 4589): Unable to parse usage stats packages: [312]
+02-22 02:45:05.299 E/OpenGLRenderer( 4858): Unable to match the desired swap behavior.
+02-22 02:45:05.301 I/gralloc (16341): Arm Module v1.0
+02-22 02:45:05.308 D/IntervalStats( 4589): Unable to parse usage stats packages: [315]
+02-22 02:45:05.311 V/A11yInputMethod(16139): startInput(): editor=android.view.inputmethod.EditorInfo@6ac868f
+02-22 02:45:05.311 V/A11yInputMethod(16139): CALL: onStartInput
+02-22 02:45:05.327 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:45:05.330 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:45:05.332 I/GoogleTTSServiceImpl(30437): For default lang en-us is name en-US-language (en-us-x-hol-server)
+02-22 02:45:05.335 I/GoogleTTSServiceImpl(30437): currentLocale = en-US
+02-22 02:45:05.337 I/LocalSynthesizer(30437): Attempting to load synthesizer for voice: en-us-x-hol-seanet-embedded
+02-22 02:45:05.337 I/LocalSynthesizer(30437): Voice en-us-x-hol-seanet-embedded is already supported by loaded synthesizer en-us-x-multi.
+02-22 02:45:05.338 I/LocalSynthesizer(30437): This voice was already loaded by a synthesizer not most recently used.
+02-22 02:45:05.338 I/ComposerWrapperImpl(30437): Skipping initialization, can already run voice en-us-x-hol-seanet-embedded.
+02-22 02:45:05.346 I/native  (30437): I0000 00:00:1771721105.346246   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix04-network
+02-22 02:45:05.347 D/ConnectivityService( 4589): requestNetwork for uid/pid:10145/4858 asUid: 10137 activeRequest: null callbackRequest: 4923 [NetworkRequest [ REQUEST id=4924, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10137 RequestorUid: 10145 RequestorPkg: com.android.systemui UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647
+02-22 02:45:05.347 D/ConnectivityService( 4589): NetReassign [4924 : null → 104]
+02-22 02:45:05.351 E/IpcClient(14658): Service is unavailable.
+02-22 02:45:05.351 D/WifiNetworkFactory( 4589): got request NetworkRequest [ REQUEST id=4924, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10137 RequestorUid: 10145 RequestorPkg: com.android.systemui UnderlyingNetworks: Null] ]
+02-22 02:45:05.351 D/UntrustedWifiNetworkFactory( 4589): got request NetworkRequest [ REQUEST id=4924, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10137 RequestorUid: 10145 RequestorPkg: com.android.systemui UnderlyingNetworks: Null] ]
+02-22 02:45:05.351 D/OemPaidWifiNetworkFactory( 4589): got request NetworkRequest [ REQUEST id=4924, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10137 RequestorUid: 10145 RequestorPkg: com.android.systemui UnderlyingNetworks: Null] ]
+02-22 02:45:05.351 D/MultiInternetWifiNetworkFactory( 4589): got request NetworkRequest [ REQUEST id=4924, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10137 RequestorUid: 10145 RequestorPkg: com.android.systemui UnderlyingNetworks: Null] ]
+02-22 02:45:05.356 D/PhoneSwitcherNetworkRequstListener( 5209): got request NetworkRequest [ REQUEST id=4924, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10137 RequestorUid: 10145 RequestorPkg: com.android.systemui UnderlyingNetworks: Null] ]
+02-22 02:45:05.363 W/Parcel  ( 4589): Expecting binder but got null!
+02-22 02:45:05.375 W/Parcel  ( 4589): Expecting binder but got null!
+02-22 02:45:05.383 W/Parcel  (14658): Expecting binder but got null!
+02-22 02:45:05.385 I/native  (30437): I0000 00:00:1771721105.385699   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix06-network
+02-22 02:45:05.392 I/native  (30437): I0000 00:00:1771721105.392555   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix13-network
+02-22 02:45:05.399 D/CoreBackPreview( 4589): Window{570c7fb u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@ff9e8d7, mPriority=-1}
+02-22 02:45:05.400 D/CoreBackPreview( 4589): Window{570c7fb u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@fa3d5c4, mPriority=0}
+02-22 02:45:05.409 E/OpenGLRenderer(14658): Unable to match the desired swap behavior.
+02-22 02:45:05.437 I/ActivityTaskManager( 4589): Displayed com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity: +213ms
+02-22 02:45:05.527 I/native  (30437): I0000 00:00:1771721105.527275   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix08-network
+02-22 02:45:05.532 W/TransactionTracing( 4303): Could not find layer id -1
+02-22 02:45:05.534 I/native  (30437): I0000 00:00:1771721105.534523   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix07-network
+02-22 02:45:05.550 I/native  (30437): I0000 00:00:1771721105.550672   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-iom-network
+02-22 02:45:05.552 I/native  (30437): I0000 00:00:1771721105.552702   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: sr-rs-x-enl-network
+02-22 02:45:05.580 I/native  (30437): I0000 00:00:1771721105.580389   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-iom-local
+02-22 02:45:05.594 W/InputManager-JNI( 4589): Input channel object '8c002d2 Splash Screen com.google.android.marvin.talkback (client)' was disposed without first being removed with the input manager!
+02-22 02:45:05.643 W/FrameTracker( 4858): Missed SF frame:SURFACE_FLINGER_SCHEDULING, 49177835, 9444437, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+02-22 02:45:05.643 W/FrameTracker( 4858): Missing HWUI jank callback for vsyncId: 49178030, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+02-22 02:45:05.644 D/CoreBackPreview( 4589): Window{4f3fdd0 u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@d8896bf, mPriority=-1}
+02-22 02:45:05.645 D/CoreBackPreview( 4589): Window{4f3fdd0 u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity}: Setting back callback null
+02-22 02:45:05.654 W/InputManager-JNI( 4589): Input channel object '4f3fdd0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity (client)' was disposed without first being removed with the input manager!
+02-22 02:45:05.661 W/InputManager-JNI( 4589): Input channel object 'Letterbox_left_ActivityRecord{29df074 u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity} t699} (client)' was disposed without first being removed with the input manager!
+02-22 02:45:05.661 W/InputManager-JNI( 4589): Input channel object 'Letterbox_top_ActivityRecord{29df074 u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity} t699} (client)' was disposed without first being removed with the input manager!
+02-22 02:45:05.661 W/InputManager-JNI( 4589): Input channel object 'Letterbox_right_ActivityRecord{29df074 u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity} t699} (client)' was disposed without first being removed with the input manager!
+02-22 02:45:05.661 W/InputManager-JNI( 4589): Input channel object 'Letterbox_bottom_ActivityRecord{29df074 u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.trainingcommon.TrainingActivity} t699} (client)' was disposed without first being removed with the input manager!
+02-22 02:45:05.663 I/native  (30437): I0000 00:00:1771721105.663284   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix05-network
+02-22 02:45:05.666 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a846770
+02-22 02:45:05.694 I/native  (30437): I0000 00:00:1771721105.694685   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-star03-network
+02-22 02:45:05.699 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a859e50
+02-22 02:45:05.699 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a858d10
+02-22 02:45:05.699 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a842450
+02-22 02:45:05.699 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a842450
+02-22 02:45:05.699 W/TransactionTracing( 4303): Could not find layer handle 0x7c8a858d10
+02-22 02:45:05.725 I/native  (30437): I0000 00:00:1771721105.725318   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix15-network
+02-22 02:45:05.617 I/[0:            cmd:16363] binder(    0): 16363:16363 ioctl 40046210 7fd0861ca0 returned -22
+02-22 02:45:05.738 I/MediaProvider( 7328): Begin Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService }
+02-22 02:45:05.739 I/native  (30437): I0000 00:00:1771721105.739422   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix14-network
+02-22 02:45:05.740 I/native  (30437): I0000 00:00:1771721105.739984   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: sr-rs-x-enl-local
+02-22 02:45:05.740 I/native  (30437): I0000 00:00:1771721105.740144   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix01-network
+02-22 02:45:05.748 I/native  (30437): I0000 00:00:1771721105.748209   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix02-network
+02-22 02:45:05.751 V/MediaProvider( 7328): Inserted id:1000001697 less than next row id backup:1000002000.
+02-22 02:45:05.757 I/MediaProvider( 7328): End Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService }
+02-22 02:45:05.801 W/AccessibilityManagerService( 4589):  wait for adding window timeout: 1203
+02-22 02:45:05.824 I/native  (30437): I0000 00:00:1771721105.824283   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix04-network
+02-22 02:45:05.849 I/native  (30437): I0000 00:00:1771721105.848968   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix06-network
+02-22 02:45:05.854 I/native  (30437): I0000 00:00:1771721105.854346   32014 voice-policy-manager.cc:887] Voice not found in speaker mapping file: en-us-x-kix13-network

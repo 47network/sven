@@ -1,0 +1,1626 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Sven v0.1.0 – Production Compose Stack
+# ─────────────────────────────────────────────────────────────────────────────
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+services:
+  # ── Postgres (pgvector) ──────────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector@sha256:33198da2828a14c30348d2ccb4750833d5ed9a44c88d840a0e523d7417120337
+    restart: unless-stopped
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_timeout=60s
+      - -c
+      - "archive_command=test ! -f /var/lib/postgresql/wal_archive/%f && cp %p /var/lib/postgresql/wal_archive/%f"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - pgwalarchive:/var/lib/postgresql/wal_archive
+    ports:
+      - "${SVEN_EXPOSE_POSTGRES_PORT:-127.0.0.1:5432:5432}"
+    networks:
+      - core
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    logging: *default-logging
+
+  # ── Postgres Maintenance (VACUUM/ANALYZE scheduler) ─────────────────────
+  postgres-maintenance:
+    image: pgvector/pgvector@sha256:33198da2828a14c30348d2ccb4750833d5ed9a44c88d840a0e523d7417120337
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_MAINTENANCE_INTERVAL_SECONDS: ${POSTGRES_MAINTENANCE_INTERVAL_SECONDS:-86400}
+      POSTGRES_MAINTENANCE_INITIAL_DELAY_SECONDS: ${POSTGRES_MAINTENANCE_INITIAL_DELAY_SECONDS:-300}
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        sleep "${POSTGRES_MAINTENANCE_INITIAL_DELAY_SECONDS}";
+        while true; do
+          vacuumdb -h postgres -U "${POSTGRES_USER}" --all --analyze-in-stages --jobs=2;
+          sleep "${POSTGRES_MAINTENANCE_INTERVAL_SECONDS}";
+        done
+    networks:
+      - core
+    logging: *default-logging
+
+  # ── NATS (JetStream) ────────────────────────────────────────────────────
+  nats:
+    image: nats@sha256:b83efabe3e7def1e0a4a31ec6e078999bb17c80363f881df35edc70fcb6bb927
+    restart: unless-stopped
+    command: >
+      --jetstream --store_dir /data --http_port 8222
+    volumes:
+      - natsdata:/data
+    ports:
+      - "${SVEN_EXPOSE_NATS_CLIENT_PORT:-127.0.0.1:4222:4222}"
+      - "${SVEN_EXPOSE_NATS_MONITORING_PORT:-127.0.0.1:8222:8222}"
+    networks:
+      - core
+      - tools
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8222/healthz || exit 1" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    logging: *default-logging
+
+  # ── Egress Proxy (HTTP forward proxy) ────────────────────────────────
+  egress-proxy:
+    image: ubuntu/squid@sha256:6a097f68bae708cedbabd6188d68c7e2e7a38cedd05a176e1cc0ba29e3bbe029
+    restart: unless-stopped
+    volumes:
+      - ./services/egress-proxy/squid.conf:/etc/squid/squid.conf:ro
+      - ./services/egress-proxy/allowlist.txt:/etc/squid/allowlist.txt:ro
+    networks:
+      - tools
+    logging: *default-logging
+
+  # ── SearXNG (Private Search Engine) ──────────────────────────────
+  searxng:
+    image: searxng/searxng@sha256:c5e5aedb70ec4b7ff5b1e8f8ea69253dceb85a98b8757360c1b65fe8652d6066
+    restart: unless-stopped
+    environment:
+      - SEARXNG_BASE_URL=http://searxng:8080/
+      - SEARXNG_SECRET=${SEARXNG_SECRET:?SEARXNG_SECRET is required}
+    volumes:
+      - ./services/searxng/settings.yml:/etc/searxng/settings.yml:ro
+      - searxng-data:/etc/searxng
+    networks:
+      - tools
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/healthz || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging: *default-logging
+
+  # ── OpenSearch ───────────────────────────────────────────────────────────
+  opensearch:
+    image: opensearchproject/opensearch@sha256:645d3d9390ade7ebef988d3c9bc61a6616f1863ff41efe97e2347d6bf7972504
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=${OPENSEARCH_DISABLE_SECURITY:-false}
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - osdata:/usr/share/opensearch/data
+    ports:
+      - "${SVEN_EXPOSE_OPENSEARCH_PORT:-127.0.0.1:9200:9200}"
+    networks:
+      - rag
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    logging: *default-logging
+
+  # ── Ollama (LLM) ─────────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama@sha256:0ff452f6a4c3c5bb4ab063a1db190b261d5834741a519189ed5301d50e4434d1
+    restart: unless-stopped
+    ports:
+      - "${SVEN_EXPOSE_OLLAMA_PORT:-127.0.0.1:11434:11434}"
+    volumes:
+      - ollama:/root/.ollama
+    networks:
+      - core
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: [ "CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging: *default-logging
+
+  # ── LiteLLM Proxy (Multi-Provider LLM Gateway) ──────────────────────────
+  litellm:
+    image: ghcr.io/berriai/litellm@sha256:9c1f1889774a973ce650f712ace6753a9b6dd1182d25d837b858dbcac6ea3056
+    restart: unless-stopped
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:?LITELLM_MASTER_KEY is required}
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - AZURE_API_KEY=${AZURE_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+    volumes:
+      - ./services/litellm/config.yaml:/app/config.yaml:ro
+    ports:
+      - "${LITELLM_PORT:-4000}:4000"
+    networks:
+      - core
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:4000/health || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    command: [ "--config", "/app/config.yaml", "--port", "4000" ]
+    profiles:
+      - litellm
+    logging: *default-logging
+
+  # ╔══════════════════════════════════════════════════════════════════════════╗
+  # ║  Monitoring Stack (OpenTelemetry + Prometheus + Grafana)               ║
+  # ╚══════════════════════════════════════════════════════════════════════════╝
+
+  # ── OpenTelemetry Collector ─────────────────────────────────────────────────
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib@sha256:f6e429c1052ab50f85a7afa5f7e32f25931697751622b0e1f453d10f79a1df3c
+    restart: unless-stopped
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./config/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    environment:
+      - GOGC=80
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+      - "8890:8888" # Prometheus metrics
+      - "8891:8889" # OTLP metrics exporter
+    networks:
+      - core
+      - monitoring
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:13133/healthz || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+
+  # ── Prometheus ──────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus@sha256:1f0f50f06acaceb0f5670d2c8a658a599affe7b0d8e78b898c1035653849a702
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/prometheus-alerts.yml:/etc/prometheus/prometheus-alerts.yml:ro
+      - prometheus-data:/prometheus
+    environment:
+      - TZ=Europe/Bucharest
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+      - core
+    depends_on:
+      otel-collector:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+
+  # ── Grafana ─────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana@sha256:9e1e77ade304069aee3196e9a4f210830e96e80ce9a2640891eccc324b152faf
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_DATE_FORMATS_DEFAULT_TIMEZONE=Europe/Bucharest
+      - TZ=Europe/Bucharest
+    ports:
+      - "9091:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - monitoring
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+
+  # ── Loki (optional, enable with --profile monitoring-logs) ────────────────
+  loki:
+    profiles: [ "monitoring-logs" ]
+    image: grafana/loki@sha256:8b5bd7748d0e4da66cd741ac276e485517514af0bea32167e27c0e1a95bcf8aa
+    restart: unless-stopped
+    command: [ "-config.file=/etc/loki/local-config.yml", "-config.expand-env=true" ]
+    environment:
+      - LOKI_HOT_RETENTION_PERIOD=${LOKI_HOT_RETENTION_PERIOD:-720h}
+    volumes:
+      - ./config/loki-config.yml:/etc/loki/local-config.yml:ro
+      - loki-data:/loki
+    ports:
+      - "3100:3100"
+    networks:
+      - monitoring
+    logging: *default-logging
+
+  # ── Promtail (optional, ships docker logs to Loki) ────────────────────────
+  promtail:
+    profiles: [ "monitoring-logs" ]
+    image: grafana/promtail@sha256:45d54f0ebd7a19acbcd4693a3227d84d27d98abe1dc7ea3068d31d5d02dbe696
+    restart: unless-stopped
+    command: [ "-config.file=/etc/promtail/config.yml" ]
+    volumes:
+      - ./config/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - monitoring
+    depends_on:
+      loki:
+        condition: service_started
+    logging: *default-logging
+
+  # ── Gateway API ──────────────────────────────────────────────────────────
+  gateway-api:
+    build:
+      context: .
+      dockerfile: services/gateway-api/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - GATEWAY_PORT=${GATEWAY_PORT:-3000}
+      - GATEWAY_HOST=0.0.0.0
+      - OPENSEARCH_URL=${OPENSEARCH_URL}
+      - OPENSEARCH_USER=${OPENSEARCH_USER}
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - EMBEDDINGS_ENABLED=${EMBEDDINGS_ENABLED}
+      - EMBEDDINGS_PROVIDER=${EMBEDDINGS_PROVIDER}
+      - EMBEDDINGS_URL=${EMBEDDINGS_URL}
+      - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
+      - EMBEDDINGS_DIM=${EMBEDDINGS_DIM}
+      - OLLAMA_URL=${OLLAMA_URL}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - GATEWAY_TAILSCALE_MODE=${GATEWAY_TAILSCALE_MODE:-off}
+      - TAILSCALE_BIN=${TAILSCALE_BIN:-tailscale}
+      - TAILSCALE_CMD_TIMEOUT_MS=${TAILSCALE_CMD_TIMEOUT_MS:-15000}
+      - GATEWAY_TAILSCALE_RESET_ON_SHUTDOWN=${GATEWAY_TAILSCALE_RESET_ON_SHUTDOWN:-true}
+      - STREAM_RESUME_TTL_MS=${STREAM_RESUME_TTL_MS:-120000}
+      - STREAM_RESUME_MAX_EVENTS=${STREAM_RESUME_MAX_EVENTS:-500}
+      - STREAM_RESUME_CLEANUP_MS=${STREAM_RESUME_CLEANUP_MS:-30000}
+      - GMAIL_PUBSUB_TOKEN=${GMAIL_PUBSUB_TOKEN}
+      - GMAIL_ACCESS_TOKEN=${GMAIL_ACCESS_TOKEN}
+      - GMAIL_ACCESS_TOKEN_REF=${GMAIL_ACCESS_TOKEN_REF}
+      - NODE_ENV=${NODE_ENV:-production}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-47}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - SVEN_MIGRATION_SKIP_INCOMPATIBLE=${SVEN_MIGRATION_SKIP_INCOMPATIBLE:-false}
+      - SVEN_MIGRATION_ID_MODE=${SVEN_MIGRATION_ID_MODE:-text}
+      - SVEN_EDGE_ADMIN47_SYNC_ENABLED=${SVEN_EDGE_ADMIN47_SYNC_ENABLED:-false}
+      - SVEN_EDGE_ADMIN47_ACCESS_DIR=${SVEN_EDGE_ADMIN47_ACCESS_DIR:-/etc/nginx/conf.d/sven-admin47-access}
+      - SVEN_EDGE_ADMIN47_ACCESS_FILE=${SVEN_EDGE_ADMIN47_ACCESS_FILE:-allowlist.conf}
+      - SVEN_EDGE_NGINX_TEST_CMD=${SVEN_EDGE_NGINX_TEST_CMD:-nginx -t}
+      - SVEN_EDGE_NGINX_RELOAD_CMD=${SVEN_EDGE_NGINX_RELOAD_CMD:-systemctl reload nginx}
+      - SVEN_TUNNEL_PROVIDER=${SVEN_TUNNEL_PROVIDER:-cloudflare}
+      - SVEN_TUNNEL_PUBLIC_URL=${SVEN_TUNNEL_PUBLIC_URL:-}
+      - SVEN_TUNNEL_LOG_FILE=${SVEN_TUNNEL_LOG_FILE:-/var/run/sven-tunnel/cloudflared.log}
+      - SVEN_TUNNEL_URL_FILE=${SVEN_TUNNEL_URL_FILE:-/var/run/sven-tunnel/tunnel-url.txt}
+      - SVEN_INTEGRATION_RUNTIME_EXEC_ENABLED=${SVEN_INTEGRATION_RUNTIME_EXEC_ENABLED:-false}
+      - SVEN_INTEGRATION_DEPLOY_CMD_TEMPLATE=${SVEN_INTEGRATION_DEPLOY_CMD_TEMPLATE:-}
+      - SVEN_INTEGRATION_STOP_CMD_TEMPLATE=${SVEN_INTEGRATION_STOP_CMD_TEMPLATE:-}
+      - SVEN_INTEGRATION_STATUS_CMD_TEMPLATE=${SVEN_INTEGRATION_STATUS_CMD_TEMPLATE:-}
+      - SVEN_INTEGRATION_RUNTIME_RECONCILE_ENABLED=${SVEN_INTEGRATION_RUNTIME_RECONCILE_ENABLED:-false}
+      - SVEN_INTEGRATION_RUNTIME_RECONCILE_INTERVAL_MS=${SVEN_INTEGRATION_RUNTIME_RECONCILE_INTERVAL_MS:-60000}
+      - SVEN_INTEGRATION_RUNTIME_AUTOHEAL=${SVEN_INTEGRATION_RUNTIME_AUTOHEAL:-false}
+      - SVEN_COMMUNITY_DOCS_URL=${SVEN_COMMUNITY_DOCS_URL:-}
+      - SVEN_COMMUNITY_DISCORD_URL=${SVEN_COMMUNITY_DISCORD_URL:-}
+      - SVEN_COMMUNITY_GITHUB_DISCUSSIONS_URL=${SVEN_COMMUNITY_GITHUB_DISCUSSIONS_URL:-}
+      - SVEN_COMMUNITY_MARKETPLACE_URL=${SVEN_COMMUNITY_MARKETPLACE_URL:-}
+      - SVEN_COMMUNITY_ACCESS_MODE=${SVEN_COMMUNITY_ACCESS_MODE:-verified_persona_only}
+      - SVEN_COMMUNITY_PERSONA_PROVIDER=${SVEN_COMMUNITY_PERSONA_PROVIDER:-}
+      - SVEN_COMMUNITY_PERSONA_ALLOWLIST=${SVEN_COMMUNITY_PERSONA_ALLOWLIST:-}
+      - SVEN_COMMUNITY_MODERATION_MODE=${SVEN_COMMUNITY_MODERATION_MODE:-strict}
+      - SVEN_COMMUNITY_AGENT_POST_POLICY=${SVEN_COMMUNITY_AGENT_POST_POLICY:-reviewed_only}
+      - SVEN_COMMUNITY_SECURITY_BASELINE_SIGNED=${SVEN_COMMUNITY_SECURITY_BASELINE_SIGNED:-false}
+      - COMMUNITY_DATABASE_URL=${COMMUNITY_DATABASE_URL:-}
+      - COMMUNITY_ACCOUNTS_TABLE=${COMMUNITY_ACCOUNTS_TABLE:-community_accounts}
+      - COMMUNITY_ACCOUNTS_ACCOUNT_ID_COL=${COMMUNITY_ACCOUNTS_ACCOUNT_ID_COL:-account_id}
+      - COMMUNITY_ACCOUNTS_HANDLE_COL=${COMMUNITY_ACCOUNTS_HANDLE_COL:-handle}
+      - COMMUNITY_ACCOUNTS_REPUTATION_COL=${COMMUNITY_ACCOUNTS_REPUTATION_COL:-reputation}
+      - COMMUNITY_ACCOUNTS_VERIFIED_COL=${COMMUNITY_ACCOUNTS_VERIFIED_COL:-verified}
+      - COMMUNITY_ACCOUNTS_CREATED_AT_COL=${COMMUNITY_ACCOUNTS_CREATED_AT_COL:-created_at}
+      - COMMUNITY_ACCESS_REQUESTS_TABLE=${COMMUNITY_ACCESS_REQUESTS_TABLE:-community_access_requests}
+      - SVEN_COMMUNITY_FEED_ROOT=${SVEN_COMMUNITY_FEED_ROOT:-/app}
+    volumes:
+      - tunnel-data:/var/run/sven-tunnel:ro
+      - ./docs/community:/app/docs/community:ro
+      - ./docs/release/status:/app/docs/release/status:ro
+    ports:
+      - "${GATEWAY_PORT:-3000}:${GATEWAY_PORT:-3000}"
+    networks:
+      - core
+      - tools
+      - rag
+      - monitoring
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "node -e \"fetch('http://localhost:${GATEWAY_PORT:-3000}/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\"" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Sven Internal Ingress (Dockerized nginx) ───────────────────────────
+  sven-internal-nginx:
+    image: nginx@sha256:1d13701a5f9f3fb01aaa88cef2344d65b6b5bf6b7d9fa4cf0dca557a8d7702ba
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    volumes:
+      - ./deploy/quickstart:/usr/share/nginx/html:ro
+      - ./config/nginx/sven-internal-ingress.docker.conf:/etc/nginx/conf.d/default.conf:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Legacy quickstart-static (disabled by default) ─────────────────────
+  quickstart-static:
+    profiles: [ "legacy-ingress" ]
+    image: nginx@sha256:1d13701a5f9f3fb01aaa88cef2344d65b6b5bf6b7d9fa4cf0dca557a8d7702ba
+    restart: unless-stopped
+    ports:
+      - "18088:80"
+    volumes:
+      - ./deploy/quickstart:/usr/share/nginx/html:ro
+      - ./config/nginx/quickstart-static.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - tools
+    logging: *default-logging
+
+  # ── Agent Runtime ───────────────────────────────────────────────────────
+  agent-runtime:
+    build:
+      context: .
+      dockerfile: services/agent-runtime/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - OLLAMA_URL=${OLLAMA_URL}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+      - monitoring
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Skill Runner ─────────────────────────────────────────────────────
+  skill-runner:
+    build:
+      context: .
+      dockerfile: services/skill-runner/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_READ_URL=${DATABASE_READ_URL}
+      - PG_POOL_MIN=${PG_POOL_MIN:-5}
+      - PG_POOL_MAX=${PG_POOL_MAX:-20}
+      - PG_POOL_CONNECTION_TIMEOUT_MS=${PG_POOL_CONNECTION_TIMEOUT_MS:-5000}
+      - PG_POOL_IDLE_TIMEOUT_MS=${PG_POOL_IDLE_TIMEOUT_MS:-60000}
+      - PG_STATEMENT_TIMEOUT_MS=${PG_STATEMENT_TIMEOUT_MS:-30000}
+      - PG_REPORT_STATEMENT_TIMEOUT_MS=${PG_REPORT_STATEMENT_TIMEOUT_MS:-120000}
+      - PG_READ_POOL_MIN=${PG_READ_POOL_MIN:-5}
+      - PG_READ_POOL_MAX=${PG_READ_POOL_MAX:-20}
+      - PG_READ_POOL_CONNECTION_TIMEOUT_MS=${PG_READ_POOL_CONNECTION_TIMEOUT_MS:-5000}
+      - PG_READ_POOL_IDLE_TIMEOUT_MS=${PG_READ_POOL_IDLE_TIMEOUT_MS:-60000}
+      - PG_READ_STATEMENT_TIMEOUT_MS=${PG_READ_STATEMENT_TIMEOUT_MS:-30000}
+      - PRIVACY_RETENTION_CLEANUP_INTERVAL_MS=${PRIVACY_RETENTION_CLEANUP_INTERVAL_MS:-86400000}
+      - PRIVACY_RETENTION_CLEANUP_INITIAL_DELAY_MS=${PRIVACY_RETENTION_CLEANUP_INITIAL_DELAY_MS:-120000}
+      - NATS_URL=${NATS_URL}
+      - NODE_ENV=${NODE_ENV:-production}
+      - SVEN_DYNAMIC_SKILLS_DIR=/opt/sven/registry
+      - SVEN_EGRESS_PROXY=${SVEN_EGRESS_PROXY}
+      - SVEN_EGRESS_NETWORK=${SVEN_EGRESS_NETWORK}
+      - SEARXNG_URL=${SEARXNG_URL:-http://searxng:8080}
+      - HA_BASE_URL=${HA_BASE_URL}
+      - HA_TOKEN=${HA_TOKEN}
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - SVEN_SOPS_BIN=${SVEN_SOPS_BIN}
+      # ── AI subscription credentials (aider / gemini-cli skills) ──────────
+      # GitHub Copilot: the OAuth token VS Code/JetBrains write after sign-in.
+      # Either mount the creds file (preferred) OR set the token directly.
+      - GITHUB_COPILOT_TOKEN=${GITHUB_COPILOT_TOKEN:-}
+      - AIDER_COPILOT_MODEL=${AIDER_COPILOT_MODEL:-openai/claude-opus-4}
+      # Gemini: only needed if not mounting oauth_creds.json below
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      # Workspace root that aider / gemini-cli skills default to
+      - SKILL_WORKSPACE=${SKILL_WORKSPACE:-/workspace}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./skills:/opt/sven/registry:ro
+      # ── Mount IDE OAuth credential files (read-only) ─────────────────────
+      # These are written automatically when you sign into Copilot / Gemini
+      # in VS Code or JetBrains. No separate API key needed — Sven uses the
+      # same subscription tokens you already have.
+      #
+      # Linux / macOS host path: ~/.config/github-copilot/apps.json
+      # Run: docker compose config  to verify the host path resolves.
+      - ${COPILOT_CREDS_DIR:-${HOME}/.config/github-copilot}:/root/.config/github-copilot:ro
+      # Gemini CLI OAuth creds (run `gemini` once interactively to create)
+      - ${GEMINI_CREDS_DIR:-${HOME}/.gemini}:/root/.gemini:ro
+      # ── Persistent Chromium profile for browser-use skill ────────────────
+      # Stores cookies/sessions from a ONE-TIME login (Google, Whisk, Flow, etc.)
+      # Setup: docker volume create sven-browser-profile
+      #        docker run --rm -it -v sven-browser-profile:/browser-profile \
+      #          -p 5900:5900 ghcr.io/browserless/chrome:latest  (or local Chrome)
+      #        → log into Google → close browser → done forever
+      - sven-browser-profile:/browser-profile
+    networks:
+      - core
+      - tools
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      egress-proxy:
+        condition: service_started
+    logging: *default-logging
+
+  # ── Registry Worker ───────────────────────────────────────────────
+  registry-worker:
+    build:
+      context: .
+      dockerfile: services/registry-worker/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REGISTRY_SCAN_INTERVAL_MS=${REGISTRY_SCAN_INTERVAL_MS:-300000}
+      - NODE_ENV=${NODE_ENV:-production}
+      - COSIGN_BIN=${COSIGN_BIN}
+      - COSIGN_PUBLIC_KEY=${COSIGN_PUBLIC_KEY}
+    networks:
+      - core
+    volumes:
+      - ${SVEN_REGISTRY_ROOT:-./skills}:/opt/sven/registry:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Notification Service ───────────────────────────────────────
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - EXPO_PUSH_URL=${EXPO_PUSH_URL}
+      - HA_BASE_URL=${HA_BASE_URL}
+      - HA_TOKEN=${HA_TOKEN}
+      - HA_POLL_INTERVAL_MS=${HA_POLL_INTERVAL_MS:-30000}
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - SVEN_SOPS_BIN=${SVEN_SOPS_BIN}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Voice Services (STT/TTS/Wake Word) ───────────────────────────────────────────────
+  faster-whisper:
+    build:
+      context: .
+      dockerfile: services/faster-whisper/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - VOICE_TRANSCRIPT_RETENTION_DAYS=${VOICE_TRANSCRIPT_RETENTION_DAYS:-30}
+      - FASTER_WHISPER_MODEL_PATH=${FASTER_WHISPER_MODEL_PATH}
+      - FASTER_WHISPER_LANGUAGE=${FASTER_WHISPER_LANGUAGE:-auto}
+      - FASTER_WHISPER_DEVICE=${FASTER_WHISPER_DEVICE:-auto}
+      - FASTER_WHISPER_PYTHON=${FASTER_WHISPER_PYTHON:-python3}
+      - HF_TOKEN=${HF_TOKEN}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  piper:
+    build:
+      context: .
+      dockerfile: services/piper/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - VOICE_TTS_STORAGE=${VOICE_TTS_STORAGE:-/var/lib/sven/tts}
+      - VOICE_TTS_PORT=${VOICE_TTS_PORT:-4200}
+      - VOICE_TTS_BASE_URL=${VOICE_TTS_BASE_URL:-http://piper:4200}
+      - VOICE_TTS_PROVIDER=${VOICE_TTS_PROVIDER:-piper}
+      - VOICE_TTS_CHANNELS=${VOICE_TTS_CHANNELS:-discord,slack,telegram,teams,google_chat,whatsapp,signal,imessage,webchat}
+      - VOICE_TTS_RETENTION_DAYS=${VOICE_TTS_RETENTION_DAYS:-7}
+      - VOICE_TTS_MAX_CHARS=${VOICE_TTS_MAX_CHARS:-1200}
+      - PIPER_URL=${PIPER_URL:-http://piper:59125/api/tts}
+      - PIPER_VOICE=${PIPER_VOICE:-alloy}
+      - PIPER_API_KEY=${PIPER_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - ELEVENLABS_VOICE_ID=${ELEVENLABS_VOICE_ID}
+      - ELEVENLABS_MODEL_ID=${ELEVENLABS_MODEL_ID:-eleven_multilingual_v2}
+      - ELEVENLABS_PRICE_PER_1K_CHARS=${ELEVENLABS_PRICE_PER_1K_CHARS:-0}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_TTS_MODEL=${OPENAI_TTS_MODEL:-gpt-4o-mini-tts}
+      - OPENAI_TTS_VOICE=${OPENAI_TTS_VOICE:-alloy}
+      - OPENAI_TTS_PRICE_PER_1K_CHARS=${OPENAI_TTS_PRICE_PER_1K_CHARS:-0}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${VOICE_TTS_PORT:-4200}:${VOICE_TTS_PORT:-4200}"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  wake-word:
+    build:
+      context: .
+      dockerfile: services/wake-word/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - WAKE_WORD_PORT=${WAKE_WORD_PORT:-4400}
+      - WAKE_WORD_HOST=${WAKE_WORD_HOST:-0.0.0.0}
+      - WAKE_WORD_BASE_URL=${WAKE_WORD_BASE_URL:-http://wake-word:${WAKE_WORD_PORT:-4400}}
+      - WAKE_WORD_STORAGE=${WAKE_WORD_STORAGE:-/var/lib/sven/wake-word}
+      - WAKE_WORD_STORAGE_RETENTION_DAYS=${WAKE_WORD_STORAGE_RETENTION_DAYS:-7}
+      - WAKE_WORD_GATEWAY_URL=${WAKE_WORD_GATEWAY_URL:-http://gateway-api:${GATEWAY_PORT:-3000}}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${WAKE_WORD_PORT:-4400}:${WAKE_WORD_PORT:-4400}"
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Workflow Executor ───────────────────────────────────────
+  workflow-executor:
+    build:
+      context: .
+      dockerfile: services/workflow-executor/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── NAS Ingestion Worker ───────────────────────────────────────────
+  rag-nas-ingestor:
+    build:
+      context: .
+      dockerfile: services/rag-nas-ingestor/Dockerfile
+    restart: unless-stopped
+    environment:
+      - NATS_URL=${NATS_URL}
+      - NAS_INGEST_ROOT=${NAS_INGEST_ROOT:-/nas/shared}
+      - NAS_INGEST_INCLUDE=${NAS_INGEST_INCLUDE}
+      - NAS_INGEST_EXCLUDE=${NAS_INGEST_EXCLUDE}
+      - NAS_INGEST_MAX_FILE_SIZE=${NAS_INGEST_MAX_FILE_SIZE}
+      - NAS_INGEST_INTERVAL_MS=${NAS_INGEST_INTERVAL_MS}
+      - NAS_INGEST_VISIBILITY=${NAS_INGEST_VISIBILITY}
+      - NAS_INGEST_ALLOW_USERS=${NAS_INGEST_ALLOW_USERS}
+      - NAS_INGEST_ALLOW_CHATS=${NAS_INGEST_ALLOW_CHATS}
+      - NODE_ENV=${NODE_ENV:-production}
+    volumes:
+      - ${NAS_INGEST_ROOT:-/nas/shared}:${NAS_INGEST_ROOT:-/nas/shared}:ro
+    networks:
+      - rag
+      - core
+    depends_on:
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Git Ingestion Worker ───────────────────────────────────────────
+  rag-git-ingestor:
+    build:
+      context: .
+      dockerfile: services/rag-git-ingestor/Dockerfile
+    restart: unless-stopped
+    environment:
+      - NATS_URL=${NATS_URL}
+      - GIT_INGEST_LOCAL_ROOT=${GIT_INGEST_LOCAL_ROOT:-/nas/git}
+      - GIT_INGEST_REPOS=${GIT_INGEST_REPOS}
+      - GIT_INGEST_GITHUB_REPOS=${GIT_INGEST_GITHUB_REPOS}
+      - GIT_INGEST_FORGEJO_REPOS=${GIT_INGEST_FORGEJO_REPOS}
+      - GIT_INGEST_GITHUB_TOKEN=${GIT_INGEST_GITHUB_TOKEN}
+      - GIT_INGEST_FORGEJO_TOKEN=${GIT_INGEST_FORGEJO_TOKEN}
+      - GIT_INGEST_CLONE_ROOT=${GIT_INGEST_CLONE_ROOT:-/var/lib/sven/git}
+      - GIT_INGEST_INCLUDE=${GIT_INGEST_INCLUDE}
+      - GIT_INGEST_EXCLUDE=${GIT_INGEST_EXCLUDE}
+      - GIT_INGEST_MAX_FILE_SIZE=${GIT_INGEST_MAX_FILE_SIZE}
+      - GIT_INGEST_INTERVAL_MS=${GIT_INGEST_INTERVAL_MS}
+      - GIT_INGEST_VISIBILITY=${GIT_INGEST_VISIBILITY}
+      - GIT_INGEST_ALLOW_USERS=${GIT_INGEST_ALLOW_USERS}
+      - GIT_INGEST_ALLOW_CHATS=${GIT_INGEST_ALLOW_CHATS}
+      - NODE_ENV=${NODE_ENV:-production}
+    volumes:
+      - ${GIT_INGEST_LOCAL_ROOT:-/nas/git}:${GIT_INGEST_LOCAL_ROOT:-/nas/git}:ro
+      - gitdata:${GIT_INGEST_CLONE_ROOT:-/var/lib/sven/git}
+    networks:
+      - rag
+      - core
+    depends_on:
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Notes Ingestion Worker ─────────────────────────────────────────
+  rag-notes-ingestor:
+    build:
+      context: .
+      dockerfile: services/rag-notes-ingestor/Dockerfile
+    restart: unless-stopped
+    environment:
+      - NATS_URL=${NATS_URL}
+      - NOTES_INGEST_ROOT=${NOTES_INGEST_ROOT:-/notes}
+      - NOTES_INGEST_INCLUDE=${NOTES_INGEST_INCLUDE}
+      - NOTES_INGEST_EXCLUDE=${NOTES_INGEST_EXCLUDE}
+      - NOTES_INGEST_MAX_FILE_SIZE=${NOTES_INGEST_MAX_FILE_SIZE}
+      - NOTES_INGEST_INTERVAL_MS=${NOTES_INGEST_INTERVAL_MS}
+      - NOTES_INGEST_VISIBILITY=${NOTES_INGEST_VISIBILITY}
+      - NOTES_INGEST_ALLOW_USERS=${NOTES_INGEST_ALLOW_USERS}
+      - NOTES_INGEST_ALLOW_CHATS=${NOTES_INGEST_ALLOW_CHATS}
+      - NODE_ENV=${NODE_ENV:-production}
+    volumes:
+      - ${NOTES_INGEST_ROOT:-/notes}:${NOTES_INGEST_ROOT:-/notes}:ro
+    networks:
+      - rag
+      - core
+    depends_on:
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── RAG Indexer ────────────────────────────────────────────────
+  rag-indexer:
+    build:
+      context: .
+      dockerfile: services/rag-indexer/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - OPENSEARCH_URL=${OPENSEARCH_URL}
+      - OPENSEARCH_USER=${OPENSEARCH_USER}
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - EMBEDDINGS_ENABLED=${EMBEDDINGS_ENABLED}
+      - EMBEDDINGS_PROVIDER=${EMBEDDINGS_PROVIDER}
+      - EMBEDDINGS_URL=${EMBEDDINGS_URL}
+      - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
+      - EMBEDDINGS_DIM=${EMBEDDINGS_DIM}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - rag
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ╔══════════════════════════════════════════════════════════════════════════╗
+  # ║  Channel Adapters (profiles: adapters)                                 ║
+  # ║  Enable with: docker compose --profile adapters up -d                  ║
+  # ╚══════════════════════════════════════════════════════════════════════════╝
+
+  # ── Discord Adapter ──────────────────────────────────────────────────
+  adapter-discord:
+    profiles: [ "adapters", "discord" ]
+    build:
+      context: .
+      dockerfile: services/adapter-discord/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=discord
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DISCORD_TRIGGER_PREFIX=${DISCORD_TRIGGER_PREFIX:-/sven}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Slack Adapter ────────────────────────────────────────────────────
+  adapter-slack:
+    profiles: [ "adapters", "slack" ]
+    build:
+      context: .
+      dockerfile: services/adapter-slack/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=slack
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}
+      - SLACK_TRIGGER_PREFIX=${SLACK_TRIGGER_PREFIX:-/sven}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Telegram Adapter ────────────────────────────────────────────────
+  adapter-telegram:
+    profiles: [ "adapters", "telegram" ]
+    build:
+      context: .
+      dockerfile: services/adapter-telegram/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=telegram
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - TELEGRAM_TRIGGER_PREFIX=${TELEGRAM_TRIGGER_PREFIX:-/sven}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Matrix Adapter ──────────────────────────────────────────────────
+  adapter-matrix:
+    profiles: [ "adapters", "matrix" ]
+    build:
+      context: .
+      dockerfile: services/adapter-matrix/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=matrix
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - MATRIX_HOMESERVER_URL=${MATRIX_HOMESERVER_URL}
+      - MATRIX_ACCESS_TOKEN=${MATRIX_ACCESS_TOKEN}
+      - MATRIX_USER_ID=${MATRIX_USER_ID}
+      - MATRIX_BOT_NAME=${MATRIX_BOT_NAME:-sven}
+      - MATRIX_AUTO_JOIN=${MATRIX_AUTO_JOIN:-true}
+      - MATRIX_ALLOWED_ROOM_IDS=${MATRIX_ALLOWED_ROOM_IDS}
+      - MATRIX_TRIGGER_PREFIX=${MATRIX_TRIGGER_PREFIX:-/sven}
+      - MATRIX_SYNC_MS=${MATRIX_SYNC_MS:-1500}
+      - MATRIX_E2EE_ENABLED=${MATRIX_E2EE_ENABLED:-false}
+      - MATRIX_REACTION_APPROVAL_PREFIX=${MATRIX_REACTION_APPROVAL_PREFIX:-approval:}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Zalo Adapter ───────────────────────────────────────────────────
+  adapter-zalo:
+    profiles: [ "adapters", "zalo" ]
+    build:
+      context: .
+      dockerfile: services/adapter-zalo/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=zalo
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - ZALO_ACCESS_TOKEN=${ZALO_ACCESS_TOKEN}
+      - ZALO_WEBHOOK_SECRET=${ZALO_WEBHOOK_SECRET}
+      - ZALO_API_BASE=${ZALO_API_BASE:-https://openapi.zalo.me/v3.0/oa}
+      - ZALO_PORT=${ZALO_PORT:-8484}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${ZALO_PORT:-8484}:8484"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8484/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Zalo Personal Adapter ──────────────────────────────────────────
+  adapter-zalo-personal:
+    profiles: [ "adapters", "zalo-personal" ]
+    build:
+      context: .
+      dockerfile: services/adapter-zalo-personal/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=zalo_personal
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - ZCA_PROFILE=${ZCA_PROFILE:-default}
+      - ZALO_PERSONAL_PORT=${ZALO_PERSONAL_PORT:-8485}
+      - ZALO_PERSONAL_HOST=${ZALO_PERSONAL_HOST:-0.0.0.0}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${ZALO_PERSONAL_PORT:-8485}:8485"
+    volumes:
+      - zalo-personal-data:/home/node/.zca
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8485/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Microsoft Teams Adapter ──────────────────────────────────────────
+  adapter-teams:
+    profiles: [ "adapters", "teams" ]
+    build:
+      context: .
+      dockerfile: services/adapter-teams/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=teams
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - TEAMS_APP_ID=${TEAMS_APP_ID}
+      - TEAMS_APP_PASSWORD=${TEAMS_APP_PASSWORD}
+      - TEAMS_TENANT_ID=${TEAMS_TENANT_ID}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${TEAMS_PORT:-3978}:3978"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:3978/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Google Chat Adapter ──────────────────────────────────────────────
+  adapter-google-chat:
+    profiles: [ "adapters", "google-chat" ]
+    build:
+      context: .
+      dockerfile: services/adapter-google-chat/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=google_chat
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - GOOGLE_SERVICE_ACCOUNT_KEY=${GOOGLE_SERVICE_ACCOUNT_KEY}
+      - GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${GOOGLE_CHAT_PORT:-8080}:8080"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8080/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Loki cold archive (optional, enable with --profile monitoring-logs) ──
+  loki-cold-archive:
+    profiles: [ "monitoring-logs" ]
+    image: alpine@sha256:a4f4213abb84c497377b8544c81b3564f313746700372ec4fe84653e4fb03805
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -eu
+        COLD_DAYS="$${LOKI_COLD_RETENTION_DAYS:-90}"
+        INTERVAL="$${LOKI_COLD_ARCHIVE_INTERVAL_SECONDS:-86400}"
+        mkdir -p /archive
+        while true; do
+          ts="$$(date +%Y%m%d-%H%M%S)"
+          tar -czf "/archive/loki-$${ts}.tar.gz" -C /loki .
+          find /archive -type f -name 'loki-*.tar.gz' -mtime "+$${COLD_DAYS}" -delete || true
+          sleep "$${INTERVAL}"
+        done
+    environment:
+      - LOKI_COLD_RETENTION_DAYS=${LOKI_COLD_RETENTION_DAYS:-90}
+      - LOKI_COLD_ARCHIVE_INTERVAL_SECONDS=${LOKI_COLD_ARCHIVE_INTERVAL_SECONDS:-86400}
+    volumes:
+      - loki-data:/loki:ro
+      - loki-archive:/archive
+    networks:
+      - monitoring
+    depends_on:
+      loki:
+        condition: service_started
+    logging: *default-logging
+
+  # ── Cloudflare Tunnel (optional, enable with --profile tunnel) ─────────
+  cloudflared:
+    profiles: [ "tunnel" ]
+    image: cloudflare/cloudflared@sha256:404528c1cd63c3eb882c257ae524919e4376115e6fe57befca8d603656a91a4c
+    restart: unless-stopped
+    command:
+      - tunnel
+      - --no-autoupdate
+      - --metrics
+      - 0.0.0.0:2000
+      - --loglevel
+      - info
+      - --logfile
+      - /var/run/sven-tunnel/cloudflared.log
+      - --url
+      - http://sven-internal-nginx:80
+    volumes:
+      - tunnel-data:/var/run/sven-tunnel
+    networks:
+      - core
+      - tools
+    depends_on:
+      sven-internal-nginx:
+        condition: service_started
+    logging: *default-logging
+
+  # ── Feishu / Lark Adapter ────────────────────────────────────────────
+  adapter-feishu:
+    profiles: [ "adapters", "feishu" ]
+    build:
+      context: .
+      dockerfile: services/adapter-feishu/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=feishu
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - FEISHU_APP_ID=${FEISHU_APP_ID}
+      - FEISHU_APP_SECRET=${FEISHU_APP_SECRET}
+      - FEISHU_VERIFY_TOKEN=${FEISHU_VERIFY_TOKEN}
+      - FEISHU_ENCRYPT_KEY=${FEISHU_ENCRYPT_KEY}
+      - FEISHU_API_BASE=${FEISHU_API_BASE:-https://open.feishu.cn}
+      - FEISHU_PORT=${FEISHU_PORT:-8489}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${FEISHU_PORT:-8489}:8489"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8489/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Mattermost Adapter ───────────────────────────────────────────────
+  adapter-mattermost:
+    profiles: [ "adapters", "mattermost" ]
+    build:
+      context: .
+      dockerfile: services/adapter-mattermost/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=mattermost
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - MATTERMOST_URL=${MATTERMOST_URL}
+      - MATTERMOST_BOT_TOKEN=${MATTERMOST_BOT_TOKEN}
+      - MATTERMOST_WEBHOOK_TOKEN=${MATTERMOST_WEBHOOK_TOKEN}
+      - MATTERMOST_PORT=${MATTERMOST_PORT:-8491}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${MATTERMOST_PORT:-8491}:8491"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8491/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Voice Call Adapter ───────────────────────────────────────────────
+  adapter-voice-call:
+    profiles: [ "adapters", "voice-call" ]
+    build:
+      context: .
+      dockerfile: services/adapter-voice-call/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=voice_call
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - VOICE_CALL_PORT=${VOICE_CALL_PORT:-8490}
+      - VOICE_CALL_HOST=0.0.0.0
+      - VOICE_CALL_API_KEY=${VOICE_CALL_API_KEY}
+      - VOICE_CALL_PROVIDER=${VOICE_CALL_PROVIDER:-mock}
+      - VOICE_CALL_REQUIRE_APPROVAL=${VOICE_CALL_REQUIRE_APPROVAL:-true}
+      - VOICE_CALL_FROM=${VOICE_CALL_FROM}
+      - VOICE_CALL_PUBLIC_BASE_URL=${VOICE_CALL_PUBLIC_BASE_URL}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_TWIML_URL=${TWILIO_TWIML_URL}
+      - TWILIO_WEBHOOK_SECRET=${TWILIO_WEBHOOK_SECRET}
+      - TELNYX_API_KEY=${TELNYX_API_KEY}
+      - TELNYX_CONNECTION_ID=${TELNYX_CONNECTION_ID}
+      - TELNYX_WEBHOOK_SECRET=${TELNYX_WEBHOOK_SECRET}
+      - PLIVO_AUTH_ID=${PLIVO_AUTH_ID}
+      - PLIVO_AUTH_TOKEN=${PLIVO_AUTH_TOKEN}
+      - PLIVO_ANSWER_URL=${PLIVO_ANSWER_URL}
+      - PLIVO_WEBHOOK_SECRET=${PLIVO_WEBHOOK_SECRET}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${VOICE_CALL_PORT:-8490}:8490"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8490/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── LINE Adapter ─────────────────────────────────────────────────────
+  adapter-line:
+    profiles: [ "adapters", "line" ]
+    build:
+      context: .
+      dockerfile: services/adapter-line/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=line
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - LINE_CHANNEL_ACCESS_TOKEN=${LINE_CHANNEL_ACCESS_TOKEN}
+      - LINE_CHANNEL_SECRET=${LINE_CHANNEL_SECRET}
+      - LINE_PORT=${LINE_PORT:-8488}
+      - LINE_HOST=0.0.0.0
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${LINE_PORT:-8488}:8488"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8488/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── WhatsApp Adapter ─────────────────────────────────────────────────
+  adapter-whatsapp:
+    profiles: [ "adapters", "whatsapp" ]
+    build:
+      context: .
+      dockerfile: services/adapter-whatsapp/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=whatsapp
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
+      - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN}
+      - WHATSAPP_VERIFY_TOKEN=${WHATSAPP_VERIFY_TOKEN}
+      - WHATSAPP_APP_SECRET=${WHATSAPP_APP_SECRET}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${WHATSAPP_PORT:-8443}:8443"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8443/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Signal Adapter ───────────────────────────────────────────────────
+  adapter-signal:
+    profiles: [ "adapters", "signal" ]
+    build:
+      context: .
+      dockerfile: services/adapter-signal/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=signal
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - SIGNAL_CLI_URL=${SIGNAL_CLI_URL:-http://signal-cli:8080}
+      - SIGNAL_NUMBER=${SIGNAL_NUMBER}
+      - SIGNAL_POLL_INTERVAL=${SIGNAL_POLL_INTERVAL:-3000}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── iMessage Adapter (BlueBubbles) ───────────────────────────────────
+  adapter-imessage:
+    profiles: [ "adapters", "imessage" ]
+    build:
+      context: .
+      dockerfile: services/adapter-imessage/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=imessage
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - BLUEBUBBLES_URL=${BLUEBUBBLES_URL}
+      - BLUEBUBBLES_PASSWORD=${BLUEBUBBLES_PASSWORD}
+      - IMESSAGE_POLL_INTERVAL=${IMESSAGE_POLL_INTERVAL:-3000}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── WebChat Adapter (built-in reference client) ──────────────────────
+  adapter-webchat:
+    profiles: [ "adapters", "webchat" ]
+    build:
+      context: .
+      dockerfile: services/adapter-webchat/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=webchat
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - WEBCHAT_PORT=${WEBCHAT_PORT:-3100}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${WEBCHAT_PORT:-3100}:${WEBCHAT_PORT:-3100}"
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:3100/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── IRC Adapter ──────────────────────────────────────────────────────
+  adapter-irc:
+    profiles: [ "adapters", "irc" ]
+    build:
+      context: .
+      dockerfile: services/adapter-irc/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=irc
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - IRC_SERVER=${IRC_SERVER}
+      - IRC_PORT=${IRC_PORT:-6667}
+      - IRC_NICK=${IRC_NICK:-sven}
+      - IRC_USERNAME=${IRC_USERNAME:-sven}
+      - IRC_REALNAME=${IRC_REALNAME:-Sven IRC Adapter}
+      - IRC_PASSWORD=${IRC_PASSWORD}
+      - IRC_USE_TLS=${IRC_USE_TLS:-false}
+      - IRC_CHANNELS=${IRC_CHANNELS}
+      - IRC_TRIGGER_PREFIX=${IRC_TRIGGER_PREFIX:-/sven}
+      - IRC_RECONNECT_MS=${IRC_RECONNECT_MS:-5000}
+      - IRC_NICKSERV_PASSWORD=${IRC_NICKSERV_PASSWORD}
+      - IRC_HEALTH_PORT=${IRC_HEALTH_PORT:-8496}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${IRC_HEALTH_PORT:-8496}:8496"
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8496/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Nostr Adapter ────────────────────────────────────────────────────
+  adapter-nostr:
+    profiles: [ "adapters", "nostr" ]
+    build:
+      context: .
+      dockerfile: services/adapter-nostr/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=nostr
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - NOSTR_RELAY_URL=${NOSTR_RELAY_URL}
+      - NOSTR_SUB_KINDS=${NOSTR_SUB_KINDS:-1}
+      - NOSTR_SUB_AUTHORS=${NOSTR_SUB_AUTHORS}
+      - NOSTR_SUB_TAGS_P=${NOSTR_SUB_TAGS_P}
+      - NOSTR_PUBLISH_ENDPOINT=${NOSTR_PUBLISH_ENDPOINT}
+      - NOSTR_HEALTH_PORT=${NOSTR_HEALTH_PORT:-8492}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${NOSTR_HEALTH_PORT:-8492}:8492"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8492/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Tlon / Urbit Adapter ─────────────────────────────────────────────
+  adapter-tlon:
+    profiles: [ "adapters", "tlon" ]
+    build:
+      context: .
+      dockerfile: services/adapter-tlon/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=tlon
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - TLON_API_BASE=${TLON_API_BASE}
+      - TLON_API_TOKEN=${TLON_API_TOKEN}
+      - TLON_WEBHOOK_TOKEN=${TLON_WEBHOOK_TOKEN}
+      - TLON_PORT=${TLON_PORT:-8493}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${TLON_PORT:-8493}:8493"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8493/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Twitch Adapter ───────────────────────────────────────────────────
+  adapter-twitch:
+    profiles: [ "adapters", "twitch" ]
+    build:
+      context: .
+      dockerfile: services/adapter-twitch/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=twitch
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - TWITCH_OAUTH_TOKEN=${TWITCH_OAUTH_TOKEN}
+      - TWITCH_BOT_USER=${TWITCH_BOT_USER}
+      - TWITCH_CHANNELS=${TWITCH_CHANNELS}
+      - TWITCH_TRIGGER_PREFIX=${TWITCH_TRIGGER_PREFIX:-!sven}
+      - TWITCH_RECONNECT_MS=${TWITCH_RECONNECT_MS:-5000}
+      - TWITCH_HEALTH_PORT=${TWITCH_HEALTH_PORT:-8494}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${TWITCH_HEALTH_PORT:-8494}:8494"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8494/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Nextcloud Talk Adapter ───────────────────────────────────────────
+  adapter-nextcloud-talk:
+    profiles: [ "adapters", "nextcloud-talk" ]
+    build:
+      context: .
+      dockerfile: services/adapter-nextcloud-talk/Dockerfile
+    restart: unless-stopped
+    environment:
+      - ADAPTER_CHANNEL=nextcloud_talk
+      - GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
+      - NEXTCLOUD_BASE_URL=${NEXTCLOUD_BASE_URL}
+      - NEXTCLOUD_USER=${NEXTCLOUD_USER}
+      - NEXTCLOUD_APP_PASSWORD=${NEXTCLOUD_APP_PASSWORD}
+      - NEXTCLOUD_WEBHOOK_TOKEN=${NEXTCLOUD_WEBHOOK_TOKEN}
+      - NEXTCLOUD_TALK_PORT=${NEXTCLOUD_TALK_PORT:-8495}
+      - OUTBOX_POLL_INTERVAL=${OUTBOX_POLL_INTERVAL:-2000}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${NEXTCLOUD_TALK_PORT:-8495}:8495"
+    networks:
+      - core
+      - tools
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://127.0.0.1:8495/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Mirror Agent (Smart Mirror / Kiosk / Sensor Hub) ─────────────────
+  sven-mirror-agent:
+    profiles: [ "mirror" ]
+    build:
+      context: .
+      dockerfile: services/sven-mirror-agent/Dockerfile
+    restart: unless-stopped
+    environment:
+      - SVEN_GATEWAY_URL=http://gateway-api:${GATEWAY_PORT:-3000}
+      - SVEN_DEVICE_NAME=${MIRROR_DEVICE_NAME:-Docker Mirror}
+      - SVEN_DEVICE_TYPE=${MIRROR_DEVICE_TYPE:-mirror}
+      - SVEN_API_KEY=${MIRROR_API_KEY}
+      - SVEN_DISPLAY_ENABLED=${MIRROR_DISPLAY_ENABLED:-false}
+      - SVEN_CAMERA_ENABLED=${MIRROR_CAMERA_ENABLED:-false}
+      - SVEN_AUDIO_ENABLED=${MIRROR_AUDIO_ENABLED:-false}
+      - SVEN_SENSOR_ENABLED=${MIRROR_SENSOR_ENABLED:-false}
+    volumes:
+      - mirror-agent-data:/data
+    networks:
+      - core
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    logging: *default-logging
+
+networks:
+  core:
+    name: sven-core
+    driver: bridge
+  tools:
+    name: sven-tools
+    driver: bridge
+  rag:
+    name: sven-rag
+    driver: bridge
+  monitoring:
+    name: sven-monitoring
+    driver: bridge
+
+volumes:
+  pgdata:
+    name: sven-pgdata
+  pgwalarchive:
+    name: sven-pgwalarchive
+  natsdata:
+    name: sven-natsdata
+  osdata:
+    name: sven-osdata
+  sven-browser-profile:
+    name: sven-browser-profile
+    # One-time login: see docs/integrations/ai-provider-subscriptions.md §7
+  gitdata:
+    name: sven-gitdata
+  ollama:
+    name: sven-ollama
+  prometheus-data:
+    name: sven-prometheus-data
+  grafana-data:
+    name: sven-grafana-data
+  loki-data:
+    name: sven-loki-data
+  loki-archive:
+    name: sven-loki-archive
+  mirror-agent-data:
+    name: sven-mirror-agent-data
+  searxng-data:
+    name: sven-searxng-data
+  tunnel-data:
+    name: sven-tunnel-data
+  zalo-personal-data:
+    name: sven-zalo-personal-data

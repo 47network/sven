@@ -1,0 +1,32 @@
+name: nix-flake-check
+
+on:
+  push:
+    paths:
+      - 'flake.nix'
+      - 'nix/**'
+      - '.github/workflows/nix-flake-check.yml'
+  pull_request:
+    paths:
+      - 'flake.nix'
+      - 'nix/**'
+      - '.github/workflows/nix-flake-check.yml'
+
+jobs:
+  nix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-24.05
+
+      - name: flake show
+        run: nix flake show
+
+      - name: flake eval
+        run: nix flake eval .#nixosModules.sven
+
+      - name: build devShell
+        run: nix build .#devShells.x86_64-linux.default

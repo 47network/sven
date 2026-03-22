@@ -1,0 +1,55 @@
+appId: com.example.svenUserFlutter
+name: "iOS — Settings sheet flow"
+tags:
+  - settings
+  - ios
+---
+# ── Precondition: app is running and user is signed in ────────────────────────
+- launchApp:
+    clearState: false
+
+- assertVisible:
+    text: "Sven"
+    enabled: true
+
+- takeScreenshot: ios-settings-01-home
+
+# ── Open settings ─────────────────────────────────────────────────────────────
+- tapOn:
+    id: "settings_icon_button"
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    text: "Settings"
+
+- takeScreenshot: ios-settings-02-sheet-open
+
+# ── Verify key settings tiles ─────────────────────────────────────────────────
+- assertVisible:
+    text: "Appearance"
+
+- assertVisible:
+    text: "Notifications"
+
+- assertVisible:
+    text: "Two-factor authentication"
+
+- takeScreenshot: ios-settings-03-tiles-visible
+
+# ── Scroll down in settings ───────────────────────────────────────────────────
+- scroll:
+    direction: DOWN
+    speed: 40
+    duration: 1500
+
+- takeScreenshot: ios-settings-04-scrolled
+
+# ── Dismiss settings sheet (swipe or tap close) ───────────────────────────────
+- swipe:
+    direction: DOWN
+    duration: 500
+
+- waitForAnimationToEnd
+
+- takeScreenshot: ios-settings-05-dismissed

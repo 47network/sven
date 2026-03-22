@@ -1,0 +1,30 @@
+00:00 +0: loading X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart
+00:00 +0: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService starts with lock disabled
+00:00 +1: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService setLockEnabled enables lock
+00:00 +2: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService setLockEnabled false clears locked state
+00:00 +3: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService lockNow has no effect when lockEnabled is false
+00:00 +4: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService lockNow locks the app when enabled
+00:00 +5: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService starts with empty state
+00:00 +6: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService setTimeout persists and is reflected
+00:00 +7: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService setUserName persists and notifies
+00:00 +8: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService onBackground + onForeground with zero duration locks immediately
+00:00 +9: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService onBackground + onForeground with zero duration locks immediately
+00:00 +10: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService addFact appends and assigns id
+00:00 +11: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService onForeground does not lock when within timeout window
+00:00 +12: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService onForeground does not lock when within timeout window
+00:00 +13: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService deleteFact removes the correct fact
+00:00 +14: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService onForeground does not lock when timeout is never
+00:00 +15: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/app_lock_service_test.dart: AppLockService onForeground does not lock when timeout is never
+00:00 +16: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService updateFact changes content
+00:00 +17: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService updateFact changes content
+00:00 +18: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService updateFact changes content
+00:00 +19: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService updateFact changes content
+00:00 +20: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService clearAllFacts removes all facts
+00:00 +21: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService buildSystemPrompt includes user name
+00:00 +22: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService buildSystemPrompt returns empty when memory disabled
+00:00 +23: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService buildSystemPrompt includes facts
+00:00 +24: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService setInstructions updates and reflects in system prompt
+00:00 +25: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService clearAll wipes everything
+00:00 +26: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService hasAnyMemory is false when nothing set
+00:00 +27: X:/47network/apps/openclaw-sven/sven_v0.1.0/apps/companion-user-flutter/test/memory_service_test.dart: MemoryService hasAnyMemory is true after setting name
+00:00 +28: All tests passed!

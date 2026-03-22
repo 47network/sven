@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "@sven/shared/integrations/*.js": [
+        "../../packages/shared/src/integrations/*.ts"
+      ],
+      "@sven/shared/integrations/*": [
+        "../../packages/shared/src/integrations/*.ts"
+      ]
+    }
+  },
+  "include": ["src/**/*"],
+  "references": [{ "path": "../../packages/shared" }]
+}

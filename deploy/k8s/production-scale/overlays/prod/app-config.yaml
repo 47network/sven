@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sven-app-config
+data:
+  CORS_ORIGIN: "https://sven.systems"
+  SVEN_PUBLIC_BASE_URL: "https://sven.systems"
+  SVEN_ADMIN_BASE_URL: "https://admin.sven.systems"

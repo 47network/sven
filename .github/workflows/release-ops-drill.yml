@@ -1,0 +1,130 @@
+name: release-ops-drill
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * 1'
+  push:
+    paths:
+      - 'services/gateway-api/src/db/migrations/**'
+      - 'services/gateway-api/src/services/BackupService.ts'
+      - 'services/gateway-api/src/routes/admin/backups.ts'
+      - 'scripts/release-ops-drill-status.cjs'
+      - 'scripts/ops/**'
+      - '.github/workflows/release-ops-drill.yml'
+  pull_request:
+    paths:
+      - 'services/gateway-api/src/db/migrations/**'
+      - 'services/gateway-api/src/services/BackupService.ts'
+      - 'services/gateway-api/src/routes/admin/backups.ts'
+      - 'scripts/release-ops-drill-status.cjs'
+      - 'scripts/ops/**'
+      - '.github/workflows/release-ops-drill.yml'
+
+jobs:
+  migration-and-backup-drill:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: sven
+          POSTGRES_USER: sven
+          POSTGRES_PASSWORD: sven
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U sven -d sven"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: postgresql://sven:sven@localhost:5432/sven
+      SVEN_MIGRATION_ID_MODE: text
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install postgres client tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Build shared + gateway migration tool
+        run: |
+          npm run --workspace packages/shared build
+          npm run --workspace services/gateway-api build
+
+      - name: Apply migrations on baseline DB
+        run: npm run --workspace services/gateway-api db:migrate
+
+      - name: Clone baseline into copy DB and run migrations
+        run: |
+          psql "postgresql://sven:sven@localhost:5432/postgres" -c "DROP DATABASE IF EXISTS sven_copy;"
+          psql "postgresql://sven:sven@localhost:5432/postgres" -c "CREATE DATABASE sven_copy TEMPLATE sven;"
+          DATABASE_URL="postgresql://sven:sven@localhost:5432/sven_copy" npm run --workspace services/gateway-api db:migrate
+
+      - name: Backup and restore drill
+        run: |
+          pg_dump "postgresql://sven:sven@localhost:5432/sven_copy" > sven_copy.sql
+          psql "postgresql://sven:sven@localhost:5432/postgres" -c "DROP DATABASE IF EXISTS sven_restore;"
+          psql "postgresql://sven:sven@localhost:5432/postgres" -c "CREATE DATABASE sven_restore;"
+          psql "postgresql://sven:sven@localhost:5432/sven_restore" < sven_copy.sql
+          psql "postgresql://sven:sven@localhost:5432/sven_restore" -v ON_ERROR_STOP=1 -c "DO \$\$ BEGIN IF to_regclass('public._migrations') IS NOT NULL THEN PERFORM COUNT(*) FROM public._migrations; ELSIF to_regclass('public.migrations') IS NOT NULL THEN PERFORM COUNT(*) FROM public.migrations; ELSE RAISE EXCEPTION 'No migration history table found (_migrations/migrations)'; END IF; END \$\$;"
+          MIGRATION_HISTORY_COUNT=$(psql "postgresql://sven:sven@localhost:5432/sven_restore" -At -c "SELECT CASE WHEN to_regclass('public._migrations') IS NOT NULL THEN (SELECT COUNT(*) FROM public._migrations)::text WHEN to_regclass('public.migrations') IS NOT NULL THEN (SELECT COUNT(*) FROM public.migrations)::text ELSE '0' END;")
+          if [ "${MIGRATION_HISTORY_COUNT:-0}" -gt 0 ]; then MIGRATION_HISTORY_PRESENT=true; else MIGRATION_HISTORY_PRESENT=false; fi
+          cat > restore-validation.json << EOF
+          {
+            "database": "sven_restore",
+            "migration_history_count": ${MIGRATION_HISTORY_COUNT:-0},
+            "migration_history_present": ${MIGRATION_HISTORY_PRESENT}
+          }
+          EOF
+
+      - name: Record migration drill coverage scope
+        run: |
+          cat > migration-drill-scope.json << EOF
+          {
+            "mode": "full_series",
+            "skip_incompatible": false,
+            "id_mode": "${SVEN_MIGRATION_ID_MODE}",
+            "max_series": null,
+            "validated_databases": ["sven", "sven_copy", "sven_restore"]
+          }
+          EOF
+
+      - name: Generate release ops drill status artifact
+        run: node scripts/release-ops-drill-status.cjs --strict
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          SVEN_OPS_DRILL_PATH_CLASS: ${{ github.event_name == 'schedule' && 'scheduled_recency_drill' || 'migration_backup_restore_change' }}
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sven-copy-backup
+          path: |
+            sven_copy.sql
+            migration-drill-scope.json
+            restore-validation.json
+
+      - name: Upload release ops drill status
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-ops-drill-status
+          path: |
+            docs/release/status/release-ops-drill-latest.json
+            docs/release/status/release-ops-drill-latest.md
