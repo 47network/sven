@@ -61,6 +61,18 @@ model_list:
       model: ollama/*
       api_base: http://sven-ollama-6700:11434
 
+  # ── kaldorei — RTX 3060 LHR (12 GiB VRAM, CUDA) — port 11434 ──────────────
+  # Host: 10.47.47.13 — fast concurrent GPU for smaller models
+  - model_name: qwen2.5:7b
+    litellm_params:
+      model: ollama/qwen2.5:7b
+      api_base: http://10.47.47.13:11434
+
+  - model_name: deepseek-r1:7b
+    litellm_params:
+      model: ollama/deepseek-r1:7b
+      api_base: http://10.47.47.13:11434
+
   # Explicit bare names used by agent-runtime
   - model_name: llama3.2:3b
     litellm_params:
@@ -195,11 +207,11 @@ model_list:
       api_base: http://sven-ai:8080/v1
       api_key: ignored
 
-  # `local-fast` — fast local 7b (Ollama 6750 XT), never cloud.
+  # `local-fast` — fast local 7b (kaldorei RTX 3060), never cloud.
   - model_name: local-fast
     litellm_params:
       model: ollama/qwen2.5:7b
-      api_base: http://sven-ollama-6700:11434
+      api_base: http://10.47.47.13:11434
 
 router_settings:
   fallbacks:
