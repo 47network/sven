@@ -4,11 +4,61 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 model_list:
-  # ── Local Models (Ollama) ────────────────────────────────────────────────
+  # ── Local Models (Ollama — dual AMD GPU) ─────────────────────────────────
+  # GPU 0: RX 9070 XT (15.9 GiB, gfx1201) — port 11434 — primary/large
+  #   Models: qwen2.5:14b, deepseek-r1:14b, llama3.2:3b
+  # GPU 1: RX 6700  (12.0 GiB, gfx1031)  — port 11435 — fast/concurrent
+  #   Models: qwen2.5:7b, llama3.2:3b
+  #
+  # Best all-round local model — qwen2.5:14b on 9070 XT
+  - model_name: qwen2.5:14b
+    litellm_params:
+      model: ollama/qwen2.5:14b
+      api_base: http://sven-ollama-9070:11434
+
+  # Reasoning/thinking model — deepseek-r1:14b on 9070 XT
+  - model_name: deepseek-r1:14b
+    litellm_params:
+      model: ollama/deepseek-r1:14b
+      api_base: http://sven-ollama-9070:11434
+
+  # Fast local model — qwen2.5:7b on 6700
+  - model_name: qwen2.5:7b
+    litellm_params:
+      model: ollama/qwen2.5:7b
+      api_base: http://sven-ollama-6700:11434
+
+  # Wildcard routes
   - model_name: ollama/*
     litellm_params:
       model: ollama/*
-      api_base: http://ollama:11434
+      api_base: http://sven-ollama-9070:11434
+
+  - model_name: ollama-fast/*
+    litellm_params:
+      model: ollama/*
+      api_base: http://sven-ollama-6700:11434
+
+  # Load-balanced wildcard — spreads across both GPUs
+  - model_name: ollama-balanced/*
+    litellm_params:
+      model: ollama/*
+      api_base: http://sven-ollama-9070:11434
+  - model_name: ollama-balanced/*
+    litellm_params:
+      model: ollama/*
+      api_base: http://sven-ollama-6700:11434
+
+  # Explicit bare names used by agent-runtime
+  - model_name: llama3.2:3b
+    litellm_params:
+      model: ollama/llama3.2:3b
+      api_base: http://sven-ollama-9070:11434
+
+  - model_name: nomic-embed-text
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: http://sven-ollama-9070:11434
 
   # ── OpenAI ───────────────────────────────────────────────────────────────
   - model_name: gpt-4o
@@ -105,25 +155,38 @@ model_list:
       api_key: os.environ/MISTRAL_API_KEY
 
   # ── Routers ──────────────────────────────────────────────────────────────
-  # `coding` — best available model for code generation / debugging.
-  # Priority order: copilot-claude-opus-4 > gemini-2.5-pro > gpt-4.1 > gpt-4o
-  # To use: set model to `coding` in agent runtime config.
+  # `coding` — best model for code generation / debugging.
+  # Local first: qwen2.5:14b on 9070 XT (9 GB, 176+ tok/s), then cloud.
   - model_name: coding
     litellm_params:
-      model: copilot-claude-opus-4
-      fallbacks: ["gemini-2.5-pro", "gpt-4.1", "gpt-4o"]
+      model: qwen2.5:14b
+      fallbacks: ["copilot-claude-opus-4", "gemini-2.5-pro", "gpt-4.1"]
 
-  # `coding-fast` — optimised for speed/cost on smaller coding tasks.
+  # `coding-fast` — speed-optimised for small coding tasks.
+  # Local first: qwen2.5:7b on 6700 (concurrent GPU), then cloud.
   - model_name: coding-fast
     litellm_params:
-      model: copilot-o3-mini
-      fallbacks: ["gemini-2.5-flash", "gpt-4o-mini", "claude-3-5-haiku-20241022"]
+      model: qwen2.5:7b
+      fallbacks: ["copilot-o3-mini", "gemini-2.5-flash", "gpt-4o-mini"]
 
-  # `reasoning` — deep reasoning / multi-step planning tasks.
+  # `reasoning` — deep reasoning / multi-step planning.
+  # Local first: deepseek-r1:14b on 9070 XT (chain-of-thought native), then cloud.
   - model_name: reasoning
     litellm_params:
-      model: copilot-o3-mini
-      fallbacks: ["gemini-2.5-pro", "claude-sonnet-4-20250514"]
+      model: deepseek-r1:14b
+      fallbacks: ["copilot-o3-mini", "gemini-2.5-pro", "claude-sonnet-4-20250514"]
+
+  # `local` — always use best local GPU model, never cloud.
+  - model_name: local
+    litellm_params:
+      model: qwen2.5:14b
+      api_base: http://sven-ollama-9070:11434
+
+  # `local-fast` — always use fast local GPU model, never cloud.
+  - model_name: local-fast
+    litellm_params:
+      model: qwen2.5:7b
+      api_base: http://sven-ollama-6700:11434
 
 litellm_settings:
   drop_params: true

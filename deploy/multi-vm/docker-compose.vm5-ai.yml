@@ -1,16 +1,20 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Sven Four-VM Deployment — VM5: AI & Voice Services
-# Host: sven-ai (10.47.0.7 / 10.74.47.9)
+# Host: sven-ai (10.47.47.9 / 10.74.47.9)
 # Services: Ollama (GPU), LiteLLM, faster-whisper (GPU), Piper TTS, Wake-word
-# GPU: 2× NVIDIA RTX 3060 (12 GB VRAM each) — requires nvidia-container-toolkit
+# GPU: AMD RX 9070 XT (16 GB) + AMD RX 6700 (12 GB) — ROCm via /dev/dri, /dev/kfd
 #
 # Run:
-#   docker compose -f docker-compose.vm5-ai.yml --env-file .env.vm5 up -d
+#   docker compose -f docker-compose.vm5-ai.yml --env-file .env up -d
 #
 # Prerequisites:
 #   - VM4 (platform) must be running first (PostgreSQL, NATS)
-#   - NVIDIA driver 550+ and nvidia-container-toolkit installed
-#   - .env.vm5 populated with secrets (see .env.vm5.example)
+#   - Proxmox host: vendor-reset DKMS module installed (fixes RX 6700 PSP mode1 reset)
+#   - VM5 guest: Ubuntu 24.04 HWE kernel (linux-generic-hwe-24.04, kernel 6.17+)
+#   - VM5 guest: /etc/modprobe.d/amdgpu.conf: options amdgpu noretry=1
+#   - RX 9070 XT (RDNA4/GFX1200): requires amdgpu-dkms from AMD ROCm repo for SMU support
+#   - Ollama uses ROCm image (ollama/ollama:rocm) for AMD GPU support
+#   - .env populated with secrets (see .env.vm5.example)
 # ─────────────────────────────────────────────────────────────────────────────
 
 x-common: &common
@@ -26,14 +30,15 @@ networks:
     driver: bridge
 
 volumes:
-  ollama_data:
+  ollama_9070_data:
+  ollama_6700_data:
 
 services:
-  # ─── Ollama (local LLM server with GPU) ───
-  ollama:
+  # ─── Ollama GPU 0: RX 9070 XT (16 GB, gfx1201) — port 11434 ───
+  ollama-9070:
     <<: *common
-    image: ollama/ollama@sha256:0ff452f6a4c3c5bb4ab063a1db190b261d5834741a519189ed5301d50e4434d1
-    container_name: sven-ollama
+    image: ollama/ollama:rocm@sha256:71b5a9cc7b15c542413ce456af10d1032aab5c98dc50605f55df98cdf50bdf36
+    container_name: sven-ollama-9070
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -42,11 +47,20 @@ services:
       OLLAMA_HOST: "0.0.0.0"
       OLLAMA_NUM_PARALLEL: "2"
       OLLAMA_MAX_LOADED_MODELS: "2"
+      # Pin to RX 9070 XT only (renderD128 = 0000:01:00.0)
+      ROCR_VISIBLE_DEVICES: "GPU-3a7504a1b2638bee"
     ports:
       - "${VM5_INTERNAL_IP:-10.74.47.9}:11434:11434"
       - "127.0.0.1:11434:11434"
     volumes:
-      - ollama_data:/root/.ollama
+      - ollama_9070_data:/root/.ollama
+    devices:
+      - /dev/dri/card1:/dev/dri/card1
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/kfd:/dev/kfd
+    group_add:
+      - "44"    # video
+      - "993"   # render
     networks:
       - platform
     healthcheck:
@@ -54,18 +68,55 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 15s
     deploy:
       resources:
         limits:
           cpus: "6.0"
-          memory: 24G
+          memory: 20G
           pids: 256
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+
+  # ─── Ollama GPU 1: RX 6700 (12 GB, gfx1031) — port 11435 ───
+  ollama-6700:
+    <<: *common
+    image: ollama/ollama:rocm@sha256:71b5a9cc7b15c542413ce456af10d1032aab5c98dc50605f55df98cdf50bdf36
+    container_name: sven-ollama-6700
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      OLLAMA_HOST: "0.0.0.0"
+      OLLAMA_NUM_PARALLEL: "2"
+      OLLAMA_MAX_LOADED_MODELS: "2"
+      # Pin to RX 6700 only (renderD129 = 0000:02:00.0); override required for gfx1031 ROCm compat
+      HSA_OVERRIDE_GFX_VERSION: "10.3.0"
+    ports:
+      - "${VM5_INTERNAL_IP:-10.74.47.9}:11435:11434"
+      - "127.0.0.1:11435:11434"
+    volumes:
+      - ollama_6700_data:/root/.ollama
+    devices:
+      - /dev/dri/card2:/dev/dri/card2
+      - /dev/dri/renderD129:/dev/dri/renderD129
+      - /dev/kfd:/dev/kfd
+    group_add:
+      - "44"    # video
+      - "993"   # render
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 16G
+          pids: 256
 
   # ─── LiteLLM Proxy (Multi-Provider LLM Gateway) ───
   litellm:
@@ -139,11 +190,6 @@ services:
           cpus: "2.0"
           memory: 2G
           pids: 256
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
 
   # ─── Piper TTS (Text-to-Speech) ───
   piper:
@@ -159,6 +205,7 @@ services:
       # Cross-VM: PostgreSQL and NATS on VM4
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${VM4_INTERNAL_IP:-10.74.47.8}:5432/${POSTGRES_DB}?sslmode=require
       NATS_URL: nats://${VM4_INTERNAL_IP:-10.74.47.8}:4222
+      VOICE_TTS_SIGNING_SECRET: ${VOICE_TTS_SIGNING_SECRET:?VOICE_TTS_SIGNING_SECRET is required}
       VOICE_TTS_STORAGE: ${VOICE_TTS_STORAGE:-/var/lib/sven/tts}
       VOICE_TTS_PORT: ${VOICE_TTS_PORT:-4200}
       VOICE_TTS_BASE_URL: http://piper:${VOICE_TTS_PORT:-4200}
@@ -178,10 +225,51 @@ services:
       - ${SVEN_PROD_TTS_DIR:-/srv/sven/prod/data/tts}:${VOICE_TTS_STORAGE:-/var/lib/sven/tts}
     networks:
       - platform
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.VOICE_TTS_PORT || '4200') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     deploy:
       resources:
         limits:
           cpus: "1.5"
+          memory: 1G
+          pids: 128
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  # ─── openWakeWord Detector ───
+  openwakeword-detector:
+    <<: *common
+    image: ${REGISTRY:-sven}/openwakeword-detector:${OPENWAKEWORD_DETECTOR_TAG:-latest}
+    container_name: sven-openwakeword-detector
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      OPENWAKEWORD_PORT: ${OPENWAKEWORD_PORT:-4410}
+      OPENWAKEWORD_MODEL_PATHS: ${OPENWAKEWORD_MODEL_PATHS:-}
+      OPENWAKEWORD_PHRASE_MAP: ${OPENWAKEWORD_PHRASE_MAP:-}
+      OPENWAKEWORD_THRESHOLD: ${OPENWAKEWORD_THRESHOLD:-0.5}
+      OPENWAKEWORD_MAX_AUDIO_BYTES: ${OPENWAKEWORD_MAX_AUDIO_BYTES:-2097152}
+    ports:
+      - "127.0.0.1:${OPENWAKEWORD_PORT:-4410}:4410"
+    networks:
+      - platform
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:4410/healthz').status == 200 else 1)\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
           memory: 1G
           pids: 128
         reservations:
@@ -207,16 +295,29 @@ services:
       WAKE_WORD_BASE_URL: http://wake-word:${WAKE_WORD_PORT:-4400}
       WAKE_WORD_STORAGE: ${WAKE_WORD_STORAGE:-/var/lib/sven/wake-word}
       WAKE_WORD_STORAGE_RETENTION_DAYS: ${WAKE_WORD_STORAGE_RETENTION_DAYS:-7}
+      WAKE_WORD_SIGNING_SECRET: ${WAKE_WORD_SIGNING_SECRET:?WAKE_WORD_SIGNING_SECRET is required}
+      WAKE_WORD_SELF_DETECT: ${WAKE_WORD_SELF_DETECT:-false}
+      OPENWAKEWORD_DETECT_URL: http://openwakeword-detector:${OPENWAKEWORD_PORT:-4410}
+      OPENWAKEWORD_DETECT_TIMEOUT_MS: ${OPENWAKEWORD_DETECT_TIMEOUT_MS:-10000}
+      OPENWAKEWORD_THRESHOLD: ${OPENWAKEWORD_THRESHOLD:-0.5}
       WAKE_WORD_GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
       SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
       # Cross-VM: OTEL on VM6
       OTEL_EXPORTER_OTLP_ENDPOINT: http://${VM6_INTERNAL_IP:-10.74.47.10}:4318
     ports:
+      - "${VM5_LAN_IP:-10.47.47.9}:${WAKE_WORD_PORT:-4400}:${WAKE_WORD_PORT:-4400}"
+      - "${VM5_INTERNAL_IP:-10.74.47.9}:${WAKE_WORD_PORT:-4400}:${WAKE_WORD_PORT:-4400}"
       - "127.0.0.1:${WAKE_WORD_PORT:-4400}:${WAKE_WORD_PORT:-4400}"
     volumes:
       - ${SVEN_PROD_WAKE_WORD_DIR:-/srv/sven/prod/data/wake-word}:${WAKE_WORD_STORAGE:-/var/lib/sven/wake-word}
     networks:
       - platform
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.WAKE_WORD_PORT || '4400') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     deploy:
       resources:
         limits:
