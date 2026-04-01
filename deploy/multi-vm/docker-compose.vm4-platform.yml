@@ -78,6 +78,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
     ports:
       - "${VM4_INTERNAL_IP:-10.74.47.8}:5432:5432"
+      - "${VM4_SERVICE_IP:-10.74.47.8}:5432:5432"
       - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
