@@ -6322,6 +6322,168 @@ end tell
       return { outputs: { events: result.rows } };
     }
 
+    // ── Slack tools ──────────────────────────────────────────────────────────
+
+    case 'slack.post_message':
+    case 'slack.create_channel':
+    case 'slack.invite_user':
+    case 'slack.list_channels':
+    case 'slack.list_members': {
+      // Resolve bot token: setting ref → env fallback
+      let slackToken: string | undefined;
+      try {
+        const slackSettings = await getScopedSettingsMap(
+          pool,
+          ['slack.bot_token_ref'],
+          runContext,
+        );
+        const tokenRef = parseSettingValue<string>(slackSettings.get('slack.bot_token_ref'))?.trim();
+        slackToken = tokenRef ? await resolveSecretRef(tokenRef) : process.env.SLACK_BOT_TOKEN?.trim();
+      } catch {
+        slackToken = process.env.SLACK_BOT_TOKEN?.trim();
+      }
+
+      if (!slackToken) {
+        return { outputs: {}, error: 'Slack bot token not configured (set slack.bot_token_ref setting or SLACK_BOT_TOKEN env)' };
+      }
+
+      const slackApi = async (method: string, body: Record<string, unknown>): Promise<Record<string, unknown>> => {
+        const isGet = method === 'GET';
+        const endpoint = `https://slack.com/api/${body._endpoint}`;
+        delete body._endpoint;
+
+        let url = endpoint;
+        let fetchOpts: RequestInit = {
+          method,
+          headers: {
+            Authorization: `Bearer ${slackToken}`,
+            'Content-Type': 'application/json',
+          },
+          signal: AbortSignal.timeout(8000),
+        };
+        if (isGet) {
+          url += '?' + new URLSearchParams(body as Record<string, string>).toString();
+          fetchOpts = { ...fetchOpts, method: 'GET', body: undefined };
+        } else {
+          (fetchOpts as RequestInit & { body: string }).body = JSON.stringify(body);
+        }
+
+        const res = await fetch(url, fetchOpts);
+        if (!res.ok) throw new Error(`Slack API HTTP ${res.status}`);
+        return await res.json() as Record<string, unknown>;
+      };
+
+      // Helper: resolve channel name → ID
+      const resolveChannelId = async (nameOrId: string): Promise<string> => {
+        if (/^[CG][A-Z0-9]+$/.test(nameOrId)) return nameOrId; // already an ID
+        const name = nameOrId.replace(/^#/, '').toLowerCase();
+        const data = await slackApi('GET', { _endpoint: 'conversations.list', types: 'public_channel,private_channel', limit: '200' });
+        const channels = (data.channels as Array<{ id: string; name: string }>) || [];
+        const match = channels.find((c) => c.name === name);
+        if (!match) throw new Error(`Channel "${nameOrId}" not found`);
+        return match.id;
+      };
+
+      // Helper: resolve email → user ID
+      const resolveUserId = async (emailOrId: string): Promise<string> => {
+        if (/^U[A-Z0-9]+$/.test(emailOrId)) return emailOrId; // already a user ID
+        const data = await slackApi('GET', { _endpoint: 'users.lookupByEmail', email: emailOrId });
+        if (!data.ok) throw new Error(`User "${emailOrId}" not found: ${data.error}`);
+        return (data.user as { id: string }).id;
+      };
+
+      try {
+        switch (toolName) {
+          case 'slack.post_message': {
+            const channel = String(inputs.channel || '').trim();
+            const text = String(inputs.text || '').trim();
+            if (!channel) return { outputs: {}, error: 'channel is required' };
+            if (!text) return { outputs: {}, error: 'text is required' };
+
+            const channelId = await resolveChannelId(channel);
+            const body: Record<string, unknown> = { _endpoint: 'chat.postMessage', channel: channelId, text };
+            if (inputs.thread_ts) body.thread_ts = inputs.thread_ts;
+
+            const data = await slackApi('POST', body);
+            if (!data.ok) return { outputs: {}, error: `Slack error: ${data.error}` };
+            return { outputs: { ok: true, ts: data.ts, channel: data.channel } };
+          }
+
+          case 'slack.create_channel': {
+            const name = String(inputs.name || '').trim().toLowerCase().replace(/\s+/g, '-');
+            if (!name) return { outputs: {}, error: 'name is required' };
+            const isPrivate = Boolean(inputs.is_private);
+
+            const data = await slackApi('POST', { _endpoint: 'conversations.create', name, is_private: isPrivate });
+            if (!data.ok) return { outputs: {}, error: `Slack error: ${data.error}` };
+            const ch = data.channel as { id: string; name: string };
+            return { outputs: { ok: true, channel_id: ch.id, channel_name: ch.name } };
+          }
+
+          case 'slack.invite_user': {
+            const channel = String(inputs.channel || '').trim();
+            const users = Array.isArray(inputs.users) ? inputs.users as string[] : [];
+            if (!channel) return { outputs: {}, error: 'channel is required' };
+            if (!users.length) return { outputs: {}, error: 'users array is required' };
+
+            const channelId = await resolveChannelId(channel);
+            const userIds = await Promise.all(users.map((u) => resolveUserId(String(u).trim())));
+
+            const data = await slackApi('POST', { _endpoint: 'conversations.invite', channel: channelId, users: userIds.join(',') });
+            if (!data.ok) return { outputs: {}, error: `Slack error: ${data.error}` };
+            return { outputs: { ok: true, invited_count: userIds.length } };
+          }
+
+          case 'slack.list_channels': {
+            const limit = Math.min(Math.max(Number(inputs.limit) || 50, 1), 200);
+            const types = inputs.include_private ? 'public_channel,private_channel' : 'public_channel';
+
+            const data = await slackApi('GET', { _endpoint: 'conversations.list', types, limit: String(limit), exclude_archived: 'true' });
+            if (!data.ok) return { outputs: {}, error: `Slack error: ${data.error}` };
+
+            const channels = ((data.channels as Array<Record<string, unknown>>) || []).map((c) => ({
+              id: c.id,
+              name: c.name,
+              is_private: c.is_private,
+              num_members: c.num_members,
+              topic: (c.topic as { value: string } | undefined)?.value || '',
+            }));
+            return { outputs: { ok: true, channels } };
+          }
+
+          case 'slack.list_members': {
+            const channel = String(inputs.channel || '').trim();
+            const limit = Math.min(Math.max(Number(inputs.limit) || 50, 1), 200);
+            if (!channel) return { outputs: {}, error: 'channel is required' };
+
+            const channelId = await resolveChannelId(channel);
+            const membersData = await slackApi('GET', { _endpoint: 'conversations.members', channel: channelId, limit: String(limit) });
+            if (!membersData.ok) return { outputs: {}, error: `Slack error: ${membersData.error}` };
+
+            const memberIds = (membersData.members as string[]) || [];
+            const members = await Promise.all(
+              memberIds.map(async (uid) => {
+                const u = await slackApi('GET', { _endpoint: 'users.info', user: uid });
+                const profile = (u.user as { id: string; name: string; profile: { display_name: string; email: string } } | undefined);
+                return {
+                  id: uid,
+                  name: profile?.name || uid,
+                  display_name: profile?.profile?.display_name || '',
+                  email: profile?.profile?.email || '',
+                };
+              }),
+            );
+            return { outputs: { ok: true, members } };
+          }
+
+          default:
+            return { outputs: {}, error: `No in-process handler for tool: ${toolName}` };
+        }
+      } catch (err) {
+        return { outputs: {}, error: `Slack tool failed: ${err instanceof Error ? err.message : String(err)}` };
+      }
+    }
+
     default:
       return { outputs: {}, error: `No in-process handler for tool: ${toolName}` };
   }
