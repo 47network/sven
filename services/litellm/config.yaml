@@ -1,68 +1,32 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # LiteLLM Proxy Configuration for Sven
 # Docs: https://docs.litellm.ai/docs/proxy/configs
+#
+# GPU Fleet:
+#   sven-ai (VM5, 10.47.47.9)
+#     llama-server port 8080 — qwen2.5-coder:32b, tensor-split across:
+#       GPU 0: RX 9070 XT (15.9 GiB, gfx1201)
+#       GPU 1: RX 6750 XT (12.0 GiB, gfx1031)
+#
+#   kaldorei (10.47.47.13)
+#     Ollama CUDA port 11434 — RTX 3060 LHR (12 GiB)
+#       Models: qwen2.5:7b, deepseek-r1:7b, llama3.2:3b, nomic-embed-text
+#
+# Note: sven-ollama-9070 and sven-ollama-6700 on VM5 are intentionally stopped.
+#       They use --profile ollama and compete with llama-server for VRAM.
+#       To start them: docker compose --profile ollama up -d ollama-9070 ollama-6700
 # ─────────────────────────────────────────────────────────────────────────────
 
 model_list:
-  # ── Local Models (llama.cpp dual-GPU server — 28 GiB combined VRAM) ───────
-  # GPU 0: RX 9070 XT (15.9 GiB, gfx1201) + GPU 1: RX 6750 XT (12 GiB, gfx1031)
-  # tensor-split 57/43 across both GPUs — port 8080
-  #   Model: qwen2.5-coder:32b (Q4_K_M, 18.5 GiB) — best local coding model
+  # ── llama.cpp dual-GPU server (VM5, port 8080) ───────────────────────────
+  # qwen2.5-coder:32b (Q4_K_M, 18.5 GiB) tensor-split 57/43 across both AMD GPUs
   - model_name: qwen2.5-coder:32b
     litellm_params:
       model: openai/qwen2.5-coder:32b
       api_base: http://sven-ai:8080/v1
       api_key: ignored
 
-  # ── Local Models (Ollama — dual AMD GPU) ─────────────────────────────────
-  # GPU 0: RX 9070 XT (15.9 GiB, gfx1201) — port 11434 — primary/large
-  #   Models: qwen2.5:14b, deepseek-r1:14b, llama3.2:3b
-  # GPU 1: RX 6750 XT (12.0 GiB, gfx1031) — port 11435 — fast/concurrent
-  #   Models: qwen2.5:7b, llama3.2:3b
-  # NOTE: Ollama containers are stopped when llama-server uses both GPUs.
-  #       Restart them with: docker start sven-ollama-9070 sven-ollama-6700
-  #
-  # Best all-round local model — qwen2.5:14b on 9070 XT
-  - model_name: qwen2.5:14b
-    litellm_params:
-      model: ollama/qwen2.5:14b
-      api_base: http://sven-ollama-9070:11434
-
-  # Reasoning/thinking model — deepseek-r1:14b on 9070 XT
-  - model_name: deepseek-r1:14b
-    litellm_params:
-      model: ollama/deepseek-r1:14b
-      api_base: http://sven-ollama-9070:11434
-
-  # Fast local model — qwen2.5:7b on 6700
-  - model_name: qwen2.5:7b
-    litellm_params:
-      model: ollama/qwen2.5:7b
-      api_base: http://sven-ollama-6700:11434
-
-  # Wildcard routes
-  - model_name: ollama/*
-    litellm_params:
-      model: ollama/*
-      api_base: http://sven-ollama-9070:11434
-
-  - model_name: ollama-fast/*
-    litellm_params:
-      model: ollama/*
-      api_base: http://sven-ollama-6700:11434
-
-  # Load-balanced wildcard — spreads across both GPUs
-  - model_name: ollama-balanced/*
-    litellm_params:
-      model: ollama/*
-      api_base: http://sven-ollama-9070:11434
-  - model_name: ollama-balanced/*
-    litellm_params:
-      model: ollama/*
-      api_base: http://sven-ollama-6700:11434
-
-  # ── kaldorei — RTX 3060 LHR (12 GiB VRAM, CUDA) — port 11434 ──────────────
-  # Host: 10.47.47.13 — fast concurrent GPU for smaller models
+  # ── kaldorei — RTX 3060 LHR (12 GiB VRAM, CUDA) — port 11434 ─────────────
   - model_name: qwen2.5:7b
     litellm_params:
       model: ollama/qwen2.5:7b
@@ -73,16 +37,23 @@ model_list:
       model: ollama/deepseek-r1:7b
       api_base: http://10.47.47.13:11434
 
-  # Explicit bare names used by agent-runtime
+  # Used by agent-runtime and legacy chat flows
   - model_name: llama3.2:3b
     litellm_params:
       model: ollama/llama3.2:3b
-      api_base: http://sven-ollama-9070:11434
+      api_base: http://10.47.47.13:11434
 
+  # Used by gateway-api for memory/semantic search embeddings (768-dim)
   - model_name: nomic-embed-text
     litellm_params:
       model: ollama/nomic-embed-text
-      api_base: http://sven-ollama-9070:11434
+      api_base: http://10.47.47.13:11434
+
+  # Wildcard passthrough — kaldorei Ollama
+  - model_name: ollama/*
+    litellm_params:
+      model: ollama/*
+      api_base: http://10.47.47.13:11434
 
   # ── OpenAI ───────────────────────────────────────────────────────────────
   - model_name: gpt-4o
@@ -128,13 +99,11 @@ model_list:
       api_key: os.environ/GOOGLE_API_KEY
 
   # ── GitHub Copilot API (Pro / Pro+ subscription) ──────────────────────────
-  # Requires: GitHub PAT with `copilot` OAuth scope.
+  # Requires: GitHub PAT with `copilot` OAuth scope in GITHUB_COPILOT_TOKEN.
   # Pro+ gives access to Claude Opus 4.6, o3-mini (Codex), gpt-4o via Copilot.
-  # Get token: https://github.com/settings/tokens → scope: `copilot`
-  # Available model IDs: GET https://api.githubcopilot.com/models
   - model_name: copilot-claude-opus-4
     litellm_params:
-      model: openai/claude-opus-4          # model ID as returned by /models
+      model: openai/claude-opus-4
       api_base: https://api.githubcopilot.com
       api_key: os.environ/GITHUB_COPILOT_TOKEN
 
@@ -146,7 +115,7 @@ model_list:
 
   - model_name: copilot-o3-mini
     litellm_params:
-      model: openai/o3-mini                # Codex reasoning — Pro+ only
+      model: openai/o3-mini
       api_base: https://api.githubcopilot.com
       api_key: os.environ/GITHUB_COPILOT_TOKEN
 
@@ -156,10 +125,8 @@ model_list:
       api_base: https://api.githubcopilot.com
       api_key: os.environ/GITHUB_COPILOT_TOKEN
 
-  # ── GitHub Models API (azure AI inference, included with any GitHub account)
-  # Less quota than Copilot API but no extra token scope needed.
-  # Endpoint: https://models.inference.ai.azure.com
-  # Auth: any GitHub PAT (classic or fine-grained, no special scope needed)
+  # ── GitHub Models API (azure AI inference) ────────────────────────────────
+  # Any GitHub PAT in GITHUB_TOKEN — no special scope needed.
   - model_name: github-gpt-4o
     litellm_params:
       model: azure/gpt-4o
@@ -178,36 +145,38 @@ model_list:
       model: mistral/mistral-large-latest
       api_key: os.environ/MISTRAL_API_KEY
 
-  # ── Routers ──────────────────────────────────────────────────────────────
-  # `coding` — best local model first; cloud fallbacks in router_settings below.
+  # ── Semantic Routers ─────────────────────────────────────────────────────
+  # Fallback chains are in router_settings below — not inline in litellm_params.
+
+  # `coding` — qwen2.5-coder:32b (dual-GPU, 28 GiB) → cloud fallbacks
   - model_name: coding
     litellm_params:
       model: openai/qwen2.5-coder:32b
       api_base: http://sven-ai:8080/v1
       api_key: ignored
 
-  # `coding-fast` — cloud fast models; local 32b as last resort.
+  # `coding-fast` — copilot o3-mini (cloud, low latency) → cloud/local fallbacks
   - model_name: coding-fast
     litellm_params:
       model: openai/o3-mini
       api_base: https://api.githubcopilot.com
       api_key: os.environ/GITHUB_COPILOT_TOKEN
 
-  # `reasoning` — local 32b first; cloud fallbacks in router_settings below.
+  # `reasoning` — qwen2.5-coder:32b (strong CoT) → cloud fallbacks
   - model_name: reasoning
     litellm_params:
       model: openai/qwen2.5-coder:32b
       api_base: http://sven-ai:8080/v1
       api_key: ignored
 
-  # `local` — always use best local GPU model (llama-server), never cloud.
+  # `local` — always local 32b, no cloud fallback
   - model_name: local
     litellm_params:
       model: openai/qwen2.5-coder:32b
       api_base: http://sven-ai:8080/v1
       api_key: ignored
 
-  # `local-fast` — fast local 7b (kaldorei RTX 3060), never cloud.
+  # `local-fast` — always kaldorei 7b, no cloud fallback
   - model_name: local-fast
     litellm_params:
       model: ollama/qwen2.5:7b
@@ -216,7 +185,7 @@ model_list:
 router_settings:
   fallbacks:
     - coding:      ["copilot-claude-opus-4", "gemini-2.5-pro", "gpt-4.1"]
-    - coding-fast: ["gemini-2.5-flash", "gpt-4o-mini", "coding"]
+    - coding-fast: ["gemini-2.5-flash", "gpt-4o-mini", "local-fast"]
     - reasoning:   ["copilot-o3-mini", "gemini-2.5-pro", "claude-sonnet-4-20250514"]
 
 litellm_settings:
