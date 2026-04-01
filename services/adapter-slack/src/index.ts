@@ -6,7 +6,8 @@
  * Polls outbox and delivers replies with Block Kit approval buttons.
  */
 
-import { App, LogLevel as SlackLogLevel } from '@slack/bolt';
+import pkg from '@slack/bolt';
+const { App, LogLevel: SlackLogLevel } = pkg;
 import { WebClient } from '@slack/web-api';
 import {
   BaseAdapter,
@@ -29,7 +30,7 @@ interface SlackConfig extends AdapterConfig {
 }
 
 class SlackAdapter extends BaseAdapter {
-  private app!: App;
+  private app!: InstanceType<typeof App>;
   private web!: WebClient;
   private botUserId = '';
   private slackBotToken: string;
@@ -62,7 +63,7 @@ class SlackAdapter extends BaseAdapter {
     this.botUserId = authRes.user_id || '';
 
     // ── Message handler ──
-    this.app.message(async ({ message, say }) => {
+    this.app.message(async ({ message, say }: { message: any; say: any }) => {
       const msg = message as any;
       // Skip bot messages, edits, deletes
       if (msg.subtype) return;
@@ -133,7 +134,7 @@ class SlackAdapter extends BaseAdapter {
     });
 
     // ── Block Kit button handler (approvals) ──
-    this.app.action(/^(approve|deny):/, async ({ action, ack, respond }) => {
+    this.app.action(/^(approve|deny):/, async ({ action, ack, respond }: { action: any; ack: any; respond: any }) => {
       await ack();
       const btnAction = action as any;
       const [vote, approvalId] = btnAction.action_id.split(':');
