@@ -129,7 +129,7 @@ class OnDeviceInferenceService extends ChangeNotifier {
   Future<void> fetchAvailableModules() async {
     if (_client == null) return;
     try {
-      final response = await _client.get('/v1/admin/gemma4/modules/installed');
+      final response = await _client.get(Uri.parse('/v1/admin/gemma4/modules/installed'));
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
         final data = body['data'] as Map<String, dynamic>? ?? body;

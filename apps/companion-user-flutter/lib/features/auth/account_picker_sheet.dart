@@ -295,7 +295,7 @@ class _AccountPickerSheetState extends State<AccountPickerSheet> {
                               .toUpperCase(),
                           style: TextStyle(
                             color: account.isActive
-                                ? tokens.onPrimary
+                                ? tokens.surface
                                 : tokens.onSurface,
                             fontWeight: FontWeight.bold,
                           ),

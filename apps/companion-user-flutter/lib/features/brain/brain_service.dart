@@ -64,7 +64,7 @@ class BrainService extends ChangeNotifier {
     _notify();
 
     try {
-      final response = await _client.get('/v1/admin/brain/graph');
+      final response = await _client.get(Uri.parse('/v1/admin/brain/graph'));
       if (response.statusCode != 200) {
         _error = 'Failed to load brain graph (${response.statusCode})';
         _loading = false;
