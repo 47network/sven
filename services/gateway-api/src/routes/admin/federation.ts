@@ -226,7 +226,7 @@ export async function registerFederationRoutes(app: FastifyInstance) {
     const topic = await communitySvc.createTopic(orgId, req.body);
     await healthSvc.auditLog(orgId, {
       event_type: 'community', action: 'topic_created',
-      peer_id: topic.peer_id, user_id: req.userId,
+      peer_id: topic.peer_id ?? undefined, user_id: req.userId,
       details: { topic_name: topic.topic_name },
     });
     return { success: true, data: topic };
