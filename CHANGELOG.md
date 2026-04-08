@@ -10,6 +10,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- Gemma 4 model selection service (6.1): platform-aware model profiles (Flutter mobile → E2B/2B/int4, Tauri desktop → E4B/4B/int8, server → 27B/fp16/ollama, web → cloud/litellm, CLI → 27B/ollama), UPSERT-based seeding, per-org profile management.
+- Local ↔ Cloud smart routing service (6.4): complexity estimation (simple/moderate/complex) with keyword escalation, offline-first routing, prefer-local policy, cloud fallback with configurable token limits, routing decision audit log.
+- On-device memory sync service (6.5): device registration with sync manifests, delta-based download (500 record batches), upload batch tracking, cursor-based incremental sync, per-device state management.
+- Community bridge agent service (6.6): consent-verified local-agent ↔ community actions (file_bug, request_feature, share_insight, ask_question, vote), per-user auto-action configuration with confidence thresholds, full event audit trail.
+- Module system service (6.7+6.8): auto-download module catalog with category taxonomy (model/voice/vision/tool/language/plugin), platform compatibility filtering, device capability-based recommendations (RAM/storage/GPU), per-device install tracking with progress.
+- Privacy isolation service (6.11+6.13): maximum-privacy defaults (local_inference_only=true, all telemetry blocked), Google telemetry domain blocking (7 domains), outbound request verification, 5-point isolation audit, privacy enforcement audit log.
+- Model agnosticism & capabilities service (6.10+6.17): 12 native Gemma 4 capabilities (function_calling, audio_input/output, vision, structured_json, system_instructions, agentic_workflows, multilingual, code_generation, image_processing, speech_to_text, device_control), 5 model formats (gguf/safetensors/onnx/tflite/mediapipe), BYOM custom model slots.
+- DB migration `20260408200000_gemma4_integration.sql`: 13 new tables with proper UNIQUE constraints, FK cascades, CHECK constraints, and indexes.
+- 40+ Gemma 4 admin endpoints across all 7 services at `/v1/admin/gemma4/*` with organisation scoping.
+- 42 unit tests for Gemma 4 batch: migration structure, service exports, route registration, complexity estimation, platform defaults, capability enumeration, blocked domains, format validation.
 - Federation instance identity service (5.1): Ed25519 keypair generation via TweetNaCl, AES-256-GCM encrypted private key storage, fingerprint derivation, payload signing/verification, keypair rotation with automatic deactivation.
 - Federation discovery & peer management service (5.2): peer registration with UPSERT, handshake protocol (initiate → exchange public keys → complete → upgrade to verified), trust level management (untrusted → verified → trusted → blocked), `.well-known/sven/instance` endpoint data, stale peer pruning.
 - Homeserver connection service (5.3): client connection registry (Flutter mobile, Tauri desktop, web, CLI, API), secure connection token via `crypto.randomBytes(32)`, heartbeat mechanism, idle pruning, instance config endpoint with capabilities.

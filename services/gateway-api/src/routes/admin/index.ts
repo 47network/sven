@@ -61,6 +61,7 @@ import { registerBrainRoutes } from './brain.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
 import { registerAgentTypeRoutes } from './agent-types.js';
 import { registerFederationRoutes } from './federation.js';
+import { registerGemma4Routes } from './gemma4.js';
 
 export async function registerAdminRoutes(
   app: FastifyInstance,
@@ -361,6 +362,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerCommunityAgentRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerAgentTypeRoutes(scopedApp));
       await mountAdminRoutes((scopedApp) => registerFederationRoutes(scopedApp));
+      await mountAdminRoutes((scopedApp) => registerGemma4Routes(scopedApp));
     },
     { prefix: '/v1/admin' },
   );
