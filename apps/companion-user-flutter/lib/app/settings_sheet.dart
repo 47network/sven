@@ -2391,7 +2391,7 @@ String _voiceDisplayName(String raw) {
 
 /// Show a dialog to optionally set a PIN for the saved account.
 /// Returns the PIN string if set, or null if skipped.
-Future<String?> _showSetPinDialog(BuildContext context, SvenTokens tokens) async {
+Future<String?> _showSetPinDialog(BuildContext context, SvenModeTokens tokens) async {
   final controller = TextEditingController();
   return showDialog<String?>(
     context: context,
