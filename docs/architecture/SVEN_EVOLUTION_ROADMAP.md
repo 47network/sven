@@ -32,14 +32,14 @@ Batch 2 (Memory + EQ) ────┼──→ Batch 4 (Calibrated Intelligence)
 
 | # | Task | Details | Status |
 |---|------|---------|--------|
-| 1.1 | Configure Documentation URL | Set `SVEN_COMMUNITY_DOCS_URL` → `https://sven.systems/docs` | [ ] |
-| 1.2 | Configure Discord URL | Discord server already exists, bot deployed on VM7 via `adapter-discord`. Set `SVEN_COMMUNITY_DISCORD_URL` env var | [ ] |
-| 1.3 | Configure GitHub Discussions URL | Enable GitHub Discussions on `47network/thesven` repo, set `SVEN_COMMUNITY_GITHUB_DISCUSSIONS_URL` | [ ] |
-| 1.4 | Configure Marketplace URL | Create marketplace page on suite site, set `SVEN_COMMUNITY_MARKETPLACE_URL` | [ ] |
-| 1.5 | Configure Verified Persona Provider | Set up SSO-backed persona verification (OIDC provider), set `SVEN_COMMUNITY_PERSONA_PROVIDER` + `SVEN_COMMUNITY_ACCESS_MODE=verified_persona_only` | [ ] |
-| 1.6 | Seed Persona Allowlist | Populate initial allowlist: admin accounts, bot accounts, first community members. Set `SVEN_COMMUNITY_PERSONA_ALLOWLIST` | [ ] |
-| 1.7 | Enable Strict Moderation | Set `SVEN_COMMUNITY_MODERATION_MODE=strict` + `SVEN_COMMUNITY_AGENT_POST_POLICY=reviewed_only` | [ ] |
-| 1.8 | Security Baseline Sign-off | Review community attack surface, document review, set `SVEN_COMMUNITY_SECURITY_BASELINE_SIGNED=true` | [ ] |
+| 1.1 | Configure Documentation URL | Set `SVEN_COMMUNITY_DOCS_URL` → `https://sven.systems/docs` | [x] |
+| 1.2 | Configure Discord URL | Discord server already exists, bot deployed on VM7 via `adapter-discord`. Set `SVEN_COMMUNITY_DISCORD_URL` env var | [x] |
+| 1.3 | Configure GitHub Discussions URL | Enable GitHub Discussions on `47network/thesven` repo, set `SVEN_COMMUNITY_GITHUB_DISCUSSIONS_URL` | [x] |
+| 1.4 | Configure Marketplace URL | Create marketplace page on suite site, set `SVEN_COMMUNITY_MARKETPLACE_URL` | [x] |
+| 1.5 | Configure Verified Persona Provider | Set up SSO-backed persona verification (OIDC provider), set `SVEN_COMMUNITY_PERSONA_PROVIDER` + `SVEN_COMMUNITY_ACCESS_MODE=verified_persona_only` | [x] |
+| 1.6 | Seed Persona Allowlist | Populate initial allowlist: admin accounts, bot accounts, first community members. Set `SVEN_COMMUNITY_PERSONA_ALLOWLIST` | [x] |
+| 1.7 | Enable Strict Moderation | Set `SVEN_COMMUNITY_MODERATION_MODE=strict` + `SVEN_COMMUNITY_AGENT_POST_POLICY=reviewed_only` | [x] |
+| 1.8 | Security Baseline Sign-off | Review community attack surface, document review, set `SVEN_COMMUNITY_SECURITY_BASELINE_SIGNED=true` | [x] |
 | 1.9 | Deploy & Verify 8/8 | Run `scripts/community-ecosystem-readiness-check.cjs`, confirm all 8 checks green | [ ] |
 
 ---
@@ -53,27 +53,27 @@ fading memory with emotional intelligence. Build a visual "brain map" for users.
 
 | # | Task | Details | Status |
 |---|------|---------|--------|
-| 2.1 | Quantum-inspired fading decay curve | Add `quantum_fade` decay type: `decay(t) = e^(-γt) × (1 + A × sin(ωt + φ))`. Smooth predictive information loss with resonance oscillations. Recent data clear, old data fades like an echo. Noise becomes the memory management system. Inspired by Chinese quantum reservoir computing (9-atom weather predictor) | [ ] |
-| 2.2 | Importance-weighted persistence | Memories referenced more often resist decay (lower γ). Echoed memories get "resonance boost" — like quantum state measured and collapsed into stronger signal | [ ] |
-| 2.3 | Memory consolidation pipeline | Background job sweeps fading memories, extracts key insights before they fully decay, promotes them to long-term knowledge graph nodes. The echo is captured before it reverberates into oblivion | [ ] |
+| 2.1 | Quantum-inspired fading decay curve | Add `quantum_fade` decay type: `decay(t) = e^(-γt) × (1 + A × sin(ωt + φ))`. Smooth predictive information loss with resonance oscillations. Recent data clear, old data fades like an echo. Noise becomes the memory management system. Inspired by Chinese quantum reservoir computing (9-atom weather predictor) | [x] |
+| 2.2 | Importance-weighted persistence | Memories referenced more often resist decay (lower γ). Echoed memories get "resonance boost" — like quantum state measured and collapsed into stronger signal | [x] |
+| 2.3 | Memory consolidation pipeline | Background job sweeps fading memories, extracts key insights before they fully decay, promotes them to long-term knowledge graph nodes. The echo is captured before it reverberates into oblivion | [x] |
 
 ### Brain Visualization
 
 | # | Task | Details | Status |
 |---|------|---------|--------|
-| 2.4 | Brain visualization API | New endpoint returning user's memory/knowledge graph as structured graph data. Nodes = entities/memories, edges = relations, weights = confidence/recency/decay | [ ] |
+| 2.4 | Brain visualization API | New endpoint returning user's memory/knowledge graph as structured graph data. Nodes = entities/memories, edges = relations, weights = confidence/recency/decay | [x] |
 | 2.5 | Brain visualization UI — Canvas | Interactive 3D/2D brain map in Canvas UI. Memories as neurons, connections as synapses, fading intensity as brightness. User sees real mapping of their brain/decisions | [ ] |
 | 2.6 | Brain visualization UI — Flutter | Same brain map adapted for mobile. Touch-navigable, pinch-zoom, tap for memory details | [ ] |
-| 2.7 | Memory decay admin controls | Admin settings: half-life, resonance threshold, consolidation frequency, max context window budget | [ ] |
-| 2.8 | Memory consent layer | GDPR Article 15-17 compliance. User can see, export, delete, control what Sven remembers. "Forget me" button triggers full memory wipe | [ ] |
+| 2.7 | Memory decay admin controls | Admin settings: half-life, resonance threshold, consolidation frequency, max context window budget | [x] |
+| 2.8 | Memory consent layer | GDPR Article 15-17 compliance. User can see, export, delete, control what Sven remembers. "Forget me" button triggers full memory wipe | [x] |
 
 ### Emotional Intelligence
 
 | # | Task | Details | Status |
 |---|------|---------|--------|
-| 2.9 | Emotional intelligence engine | Detect mood, sentiment, frustration, excitement, confusion from text. Adapt Sven's tone and behavior accordingly. Not just "what the user said" but "how the user feels" | [ ] |
-| 2.10 | User reasoning capture | When a user proposes a better idea than Sven's suggestion, Sven asks "Why did you choose this? What made you think of that?" — to understand human reasoning patterns | [ ] |
-| 2.11 | Human understanding loop | Learn WHY users think the way they do, not just WHAT they want. Build a model of each user's decision-making patterns, preferences, expertise areas. So we can understand the human behind the messages | [ ] |
+| 2.9 | Emotional intelligence engine | Detect mood, sentiment, frustration, excitement, confusion from text. Adapt Sven's tone and behavior accordingly. Not just "what the user said" but "how the user feels" | [x] |
+| 2.10 | User reasoning capture | When a user proposes a better idea than Sven's suggestion, Sven asks "Why did you choose this? What made you think of that?" — to understand human reasoning patterns | [x] |
+| 2.11 | Human understanding loop | Learn WHY users think the way they do, not just WHAT they want. Build a model of each user's decision-making patterns, preferences, expertise areas. So we can understand the human behind the messages | [x] |
 
 ### Quantum Fading Memory — Technical Detail
 

@@ -57,6 +57,7 @@ import { registerCommunityRoutes } from './community.js';
 import { registerObsidianSyncRoutes } from './obsidian-sync.js';
 import { registerA2AAdminRoutes } from './a2a.js';
 import { registerGlobalSearchRoutes } from './global-search.js';
+import { registerBrainRoutes } from './brain.js';
 
 export async function registerAdminRoutes(
   app: FastifyInstance,
@@ -353,6 +354,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerObsidianSyncRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerA2AAdminRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerGlobalSearchRoutes(scopedApp, pool));
+      await mountAdminRoutes((scopedApp) => registerBrainRoutes(scopedApp, pool));
     },
     { prefix: '/v1/admin' },
   );

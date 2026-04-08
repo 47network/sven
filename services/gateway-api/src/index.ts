@@ -10,6 +10,7 @@ import { getNatsConnection } from './nats/client.js';
 import { ensureStreams } from './nats/streams.js';
 import { startOutboxSubscriber } from './workers/outbox-subscriber.js';
 import { startMemoryConsolidationWorker } from './workers/memory-consolidation-worker.js';
+import { startQuantumFadeConsolidationWorker } from './workers/quantum-fade-consolidation-worker.js';
 import {
   startEntityLifecycleSubscriber,
   stopEntityLifecycleSubscriber,
@@ -683,6 +684,7 @@ async function main() {
   // Start background workers
   await startOutboxSubscriber(nc, pool);
   const stopMemoryConsolidationWorker = await startMemoryConsolidationWorker(pool);
+  const stopQuantumFadeWorker = await startQuantumFadeConsolidationWorker(pool);
   await startEntityLifecycleSubscriber(nc);
   await tailscale.configureOnStart();
   await initDiscoveryService(pool, PORT);
@@ -774,6 +776,7 @@ async function main() {
     natsHeartbeat.stop();
     integrationRuntimeReconciler.stop();
     stopMemoryConsolidationWorker();
+    stopQuantumFadeWorker();
     await stopEntityLifecycleSubscriber();
     await tailscale.resetOnShutdown();
     await app.close();

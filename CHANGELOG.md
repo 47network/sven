@@ -10,6 +10,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- Quantum-inspired fading memory system (`decay(t) = e^(-γt) × (1 + A × sin(ωt + φ))`) with importance-weighted persistence — memories referenced more often resist decay.
+- Quantum fade consolidation worker: background sweep that promotes fading memories to knowledge graph entities before they reach threshold, preserving core insights permanently.
+- Brain visualization API (`/v1/admin/brain/graph`): returns live neural map of user's memories, KG entities, emotional states, and reasoning records as a graph with decay-state visual mapping.
+- Brain decay trajectory endpoint (`/v1/admin/brain/decay-trajectory`): renders quantum fade curve over time for any parameter set.
+- Emotional intelligence engine: keyword-based heuristic analysis detecting mood, sentiment, frustration, excitement, and confusion from user messages with structured signal metadata.
+- User reasoning capture service: records WHY users make decisions, detects expertise areas, builds aggregated understanding model across dimensions (risk tolerance, tech preferences, communication style, etc.).
+- Memory consent layer (GDPR Articles 15-17): per-user consent controls for consolidation, emotional tracking, and reasoning capture. Includes data export, "forget me" erasure, and retention policy enforcement.
+- Quantum fade admin controls (`/v1/admin/memory/quantum-fade-config`): per-organization tuning of gamma, amplitude, omega, consolidation threshold, resonance factor, and memory budget.
+- DB migration `20260408120000_quantum_fade_memory.sql`: extends memories table with quantum fade columns, creates quantum_fade_config, emotional_states, user_reasoning, user_understanding, and memory_consent tables with proper indexes and GDPR fields.
+- Batch 1 community env vars configured: docs URL, Discord, GitHub Discussions, marketplace, verified persona access mode, OIDC provider, persona allowlist, strict moderation, reviewed-only agent posts, security baseline sign-off.
 - Personality Engine module (`packages/shared/src/personality-engine.ts`): configurable buddy personality modes (professional, friendly, casual, terse), mood derivation from operational signals, XP/leveling system, achievement tracking, streak tracking, context-aware greetings, and milestone celebrations.
 - Visual Companion types (`packages/shared/src/visual-companion.ts`): companion species, appearance, accessory slots, XP display, achievement display, streak display, companion events (WebSocket), and companion settings for frontend rendering across Tauri desktop, Flutter mobile, and admin-ui web surfaces.
 - Smart Digest enhancement: buddy daily/weekly digests now include success rate, top tools, error pattern detection with proactive suggestions, conversation activity, streak tracking, and milestone celebrations.

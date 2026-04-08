@@ -29,6 +29,27 @@ export interface MemoryRecord {
   last_accessed_at: string | null;
   created_at: string;
   updated_at: string;
+  decay_type?: DecayCurve;
+  gamma?: number;
+  amplitude?: number;
+  omega?: number;
+  phase_offset?: number;
+  resonance_boost_count?: number;
+  last_resonance_at?: string | null;
+  consolidation_status?: string | null;
+  consolidated_kg_node_id?: string | null;
+}
+
+export type DecayCurve = 'linear' | 'exponential' | 'step' | 'quantum_fade';
+
+export interface QuantumFadeConfig {
+  gamma_base: number;
+  amplitude: number;
+  omega: number;
+  consolidation_threshold: number;
+  resonance_factor: number;
+  consolidation_interval_hours: number;
+  max_memory_budget_mb: number;
 }
 
 export interface MemoryCreateInput {
@@ -52,7 +73,7 @@ export interface MemorySearchInput {
   top_k?: number;
   temporal_decay?: boolean;
   decay_factor?: number;
-  decay_curve?: 'linear' | 'exponential' | 'step';
+  decay_curve?: DecayCurve;
   decay_step_days?: number;
   mmr?: boolean;
   mmr_lambda?: number;
@@ -160,20 +181,69 @@ export function applyMMR(candidates: Array<any>, lambda: number, topK: number): 
   return selected;
 }
 
-function normalizeDecayCurve(curve: unknown): 'linear' | 'exponential' | 'step' {
+function normalizeDecayCurve(curve: unknown): DecayCurve {
   const raw = String(curve || '').trim().toLowerCase();
-  if (raw === 'linear' || raw === 'step') return raw;
+  if (raw === 'linear' || raw === 'step' || raw === 'quantum_fade') return raw;
   return 'exponential';
+}
+
+/**
+ * Quantum-inspired fading decay:
+ * decay(t) = e^(-γt) × (1 + A × sin(ωt + φ))
+ *
+ * Where:
+ * - γ = fade rate (adjusted by importance/reference count)
+ * - A = oscillation amplitude (resonance echo strength)
+ * - ω = oscillation frequency
+ * - φ = phase offset (prevents synchronized resonance)
+ *
+ * Inspired by USTC Hefei quantum reservoir computing (2026).
+ */
+export function applyQuantumFade(
+  score: number,
+  daysSinceCreation: number,
+  gamma: number,
+  amplitude: number,
+  omega: number,
+  phaseOffset: number,
+  referenceCount: number,
+  resonanceFactor: number,
+): number {
+  // Importance-weighted: frequently referenced memories resist decay
+  const gammaEffective = gamma * (1 / (1 + referenceCount * resonanceFactor));
+  const exponentialEnvelope = Math.exp(-gammaEffective * daysSinceCreation);
+  const resonanceOscillation = 1 + amplitude * Math.sin(omega * daysSinceCreation + phaseOffset);
+  return score * Math.max(0, Math.min(1, exponentialEnvelope * resonanceOscillation));
 }
 
 export function applyTemporalDecay(
   score: number,
   createdAt: string,
   decayFactor: number,
-  curve: 'linear' | 'exponential' | 'step' = 'exponential',
+  curve: DecayCurve = 'exponential',
   stepDays = 7,
+  quantumParams?: {
+    gamma: number;
+    amplitude: number;
+    omega: number;
+    phase_offset: number;
+    resonance_boost_count: number;
+    resonance_factor: number;
+  },
 ): number {
   const daysSinceCreation = Math.max(0, (Date.now() - new Date(createdAt).getTime()) / 86400000);
+  if (curve === 'quantum_fade' && quantumParams) {
+    return applyQuantumFade(
+      score,
+      daysSinceCreation,
+      quantumParams.gamma,
+      quantumParams.amplitude,
+      quantumParams.omega,
+      quantumParams.phase_offset,
+      quantumParams.resonance_boost_count,
+      quantumParams.resonance_factor,
+    );
+  }
   if (curve === 'linear') {
     const penaltyPerDay = Math.max(0, 1 - decayFactor);
     return score * Math.max(0, 1 - penaltyPerDay * daysSinceCreation);
@@ -194,6 +264,48 @@ class PostgresMemoryAdapter implements MemoryAdapter {
     ? 'deferred'
     : 'inline';
   private fallbackSimilarityThreshold = Math.max(0.6, this.consolidationThreshold);
+
+  private static readonly DEFAULT_QF_CONFIG: QuantumFadeConfig = {
+    gamma_base: 0.05,
+    amplitude: 0.3,
+    omega: 0.5,
+    consolidation_threshold: 0.15,
+    resonance_factor: 0.2,
+    consolidation_interval_hours: 6,
+    max_memory_budget_mb: 512,
+  };
+
+  async getQuantumFadeConfig(orgId?: string | null): Promise<QuantumFadeConfig> {
+    try {
+      const res = await this.pool.query(
+        `SELECT gamma_base, amplitude, omega, consolidation_threshold, resonance_factor,
+                consolidation_interval_hours, max_memory_budget_mb
+         FROM quantum_fade_config
+         WHERE organization_id IS NOT DISTINCT FROM $1
+         LIMIT 1`,
+        [orgId ?? null],
+      );
+      if (res.rows.length > 0) {
+        const r = res.rows[0];
+        return {
+          gamma_base: Number(r.gamma_base) || 0.05,
+          amplitude: Math.max(0, Math.min(1, Number(r.amplitude) || 0.3)),
+          omega: Number(r.omega) || 0.5,
+          consolidation_threshold: Math.max(0, Math.min(1, Number(r.consolidation_threshold) || 0.15)),
+          resonance_factor: Math.max(0, Number(r.resonance_factor) || 0.2),
+          consolidation_interval_hours: Math.max(1, Number(r.consolidation_interval_hours) || 6),
+          max_memory_budget_mb: Math.max(64, Number(r.max_memory_budget_mb) || 512),
+        };
+      }
+      // Fall back to global config if org-specific not found
+      if (orgId) {
+        return this.getQuantumFadeConfig(null);
+      }
+    } catch {
+      // Table may not exist yet — fall through to defaults
+    }
+    return PostgresMemoryAdapter.DEFAULT_QF_CONFIG;
+  }
 
   private async getConsolidationConfig(orgId?: string | null): Promise<{ enabled: boolean; threshold: number; mode: 'inline' | 'deferred' }> {
     try {
@@ -752,6 +864,12 @@ class PostgresMemoryAdapter implements MemoryAdapter {
     // Fetch more candidates for MMR re-ranking
     const fetchK = useMmr ? Math.min(topK * 3, 100) : topK;
 
+    // Load quantum fade config for this org (used when decay_curve = quantum_fade)
+    let qfConfig: QuantumFadeConfig | null = null;
+    if (decayCurve === 'quantum_fade') {
+      qfConfig = await this.getQuantumFadeConfig(input.organization_id ?? null);
+    }
+
     const embedding = await embedText(query);
     if (embedding) {
       const params: unknown[] = [toVectorLiteral(embedding), fetchK];
@@ -776,6 +894,7 @@ class PostgresMemoryAdapter implements MemoryAdapter {
       }
       const sql = `
         SELECT id, user_id, organization_id, chat_id, visibility, key, value, source, evidence, importance, access_count, last_accessed_at, created_at, updated_at,
+               decay_type, gamma, amplitude, omega, phase_offset, resonance_boost_count,
                (1 - (embedding <=> $1::vector))::float8 AS score,
                embedding
         FROM memories
@@ -789,12 +908,22 @@ class PostgresMemoryAdapter implements MemoryAdapter {
         let adjustedScore = Number(r.score);
         // A9: Temporal decay — recent memories score higher
         if (useDecay) {
+          const rowCurve = (r.decay_type === 'quantum_fade' ? 'quantum_fade' : decayCurve) as DecayCurve;
+          const quantumParams = rowCurve === 'quantum_fade' && qfConfig ? {
+            gamma: Number(r.gamma) || qfConfig.gamma_base,
+            amplitude: Number(r.amplitude) || qfConfig.amplitude,
+            omega: Number(r.omega) || qfConfig.omega,
+            phase_offset: Number(r.phase_offset) || 0,
+            resonance_boost_count: Number(r.resonance_boost_count) || 0,
+            resonance_factor: qfConfig.resonance_factor,
+          } : undefined;
           adjustedScore = applyTemporalDecay(
             adjustedScore,
             r.created_at,
             decayFactor,
-            decayCurve,
+            rowCurve,
             decayStepDays,
+            quantumParams,
           );
         }
         return { ...r, score: adjustedScore };
@@ -822,7 +951,8 @@ class PostgresMemoryAdapter implements MemoryAdapter {
     }
 
     const res = await this.pool.query(
-      `SELECT id, user_id, organization_id, chat_id, visibility, key, value, source, evidence, importance, access_count, last_accessed_at, created_at, updated_at
+      `SELECT id, user_id, organization_id, chat_id, visibility, key, value, source, evidence, importance, access_count, last_accessed_at, created_at, updated_at,
+              decay_type, gamma, amplitude, omega, phase_offset, resonance_boost_count
        FROM memories
        WHERE archived_at IS NULL
          AND (organization_id IS NOT DISTINCT FROM $2)
@@ -836,7 +966,16 @@ class PostgresMemoryAdapter implements MemoryAdapter {
       .map((row: any) => {
         let s = jaccard(queryTokens, tokenSet(`${row.key} ${row.value}`));
         if (useDecay) {
-          s = applyTemporalDecay(s, row.created_at, decayFactor, decayCurve, decayStepDays);
+          const rowCurve = (row.decay_type === 'quantum_fade' ? 'quantum_fade' : decayCurve) as DecayCurve;
+          const quantumParams = rowCurve === 'quantum_fade' && qfConfig ? {
+            gamma: Number(row.gamma) || qfConfig.gamma_base,
+            amplitude: Number(row.amplitude) || qfConfig.amplitude,
+            omega: Number(row.omega) || qfConfig.omega,
+            phase_offset: Number(row.phase_offset) || 0,
+            resonance_boost_count: Number(row.resonance_boost_count) || 0,
+            resonance_factor: qfConfig.resonance_factor,
+          } : undefined;
+          s = applyTemporalDecay(s, row.created_at, decayFactor, rowCurve, decayStepDays, quantumParams);
         }
         return { ...row, score: s };
       })
