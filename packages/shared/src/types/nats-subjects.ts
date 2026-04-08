@@ -15,6 +15,7 @@ export const NATS_STREAMS = {
   NOTIFY: 'NOTIFY',
   TTS: 'TTS',
   AUDIO_INGEST: 'AUDIO_INGEST',
+  FEDERATION: 'FEDERATION',
 } as const;
 
 export const NATS_SUBJECTS = {
@@ -47,6 +48,15 @@ export const NATS_SUBJECTS = {
 
   // Notify
   NOTIFY_PUSH: 'notify.push',
+
+  // Federation
+  FEDERATION_HANDSHAKE: 'federation.handshake',
+  FEDERATION_MESSAGE: 'federation.message.*',
+  FEDERATION_HEALTH: 'federation.health.*',
+  FEDERATION_DELEGATION: 'federation.delegation.*',
+  federationMessage: (peerId: string) => `federation.message.${peerId}`,
+  federationHealth: (peerId: string) => `federation.health.${peerId}`,
+  federationDelegation: (peerId: string) => `federation.delegation.${peerId}`,
 } as const;
 
 export const STREAM_CONFIGS = {
@@ -105,6 +115,13 @@ export const STREAM_CONFIGS = {
   NOTIFY: {
     name: NATS_STREAMS.NOTIFY,
     subjects: ['notify.>'] as string[],
+    retention: RetentionPolicy.Limits,
+    max_age: 30 * 24 * 60 * 60 * 1_000_000_000, // 30 days
+    storage: StorageType.File,
+  },
+  FEDERATION: {
+    name: NATS_STREAMS.FEDERATION,
+    subjects: ['federation.>'] as string[],
     retention: RetentionPolicy.Limits,
     max_age: 30 * 24 * 60 * 60 * 1_000_000_000, // 30 days
     storage: StorageType.File,

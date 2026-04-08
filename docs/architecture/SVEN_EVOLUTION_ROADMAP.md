@@ -154,14 +154,14 @@ like Element → Matrix homeserver. Distributed intelligence with privacy contro
 
 | # | Task | Details | Status |
 |---|------|---------|--------|
-| 5.1 | Instance identity | Each Sven instance gets unique Ed25519 keypair for signing messages across instances | [ ] |
-| 5.2 | Instance discovery | NATS leaf-node mesh extended with Sven metadata: capabilities, public topics, health. DNS-SD or `.well-known` for public discovery | [ ] |
-| 5.3 | Homeserver model | Users connect companion apps directly to their Sven instance. The Sven instance IS the server — like Element → Matrix homeserver. No third-party dependency | [ ] |
-| 5.4 | Cross-instance community | Public community topics federated: posts from one instance visible on another (opt-in). Like Matrix rooms spanning homeservers | [ ] |
-| 5.5 | Cross-instance agent delegation | One user's Sven agent can consult another user's Sven agent (with permission) to solve problems neither could alone. Distributed intelligence | [ ] |
-| 5.6 | Community consent toggles | Per-user setting: OFF (local only) / READ-ONLY (consume community, don't post) / CONTRIBUTE (full participation). **Default: OFF.** GDPR Article 7 compliant | [ ] |
-| 5.7 | Data sovereignty controls | User controls where data lives. Instance admin controls federation scope. No data leaves instance without explicit consent | [ ] |
-| 5.8 | Instance health & monitoring | Federated health checks. Automatic graceful degradation if peer goes offline | [ ] |
+| 5.1 | Instance identity | Each Sven instance gets unique Ed25519 keypair for signing messages across instances | [x] |
+| 5.2 | Instance discovery | NATS leaf-node mesh extended with Sven metadata: capabilities, public topics, health. DNS-SD or `.well-known` for public discovery | [x] |
+| 5.3 | Homeserver model | Users connect companion apps directly to their Sven instance. The Sven instance IS the server — like Element → Matrix homeserver. No third-party dependency | [x] |
+| 5.4 | Cross-instance community | Public community topics federated: posts from one instance visible on another (opt-in). Like Matrix rooms spanning homeservers | [x] |
+| 5.5 | Cross-instance agent delegation | One user's Sven agent can consult another user's Sven agent (with permission) to solve problems neither could alone. Distributed intelligence | [x] |
+| 5.6 | Community consent toggles | Per-user setting: OFF (local only) / READ-ONLY (consume community, don't post) / CONTRIBUTE (full participation). **Default: OFF.** GDPR Article 7 compliant | [x] |
+| 5.7 | Data sovereignty controls | User controls where data lives. Instance admin controls federation scope. No data leaves instance without explicit consent | [x] |
+| 5.8 | Instance health & monitoring | Federated health checks. Automatic graceful degradation if peer goes offline | [x] |
 
 ---
 
