@@ -10,6 +10,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- Federation instance identity service (5.1): Ed25519 keypair generation via TweetNaCl, AES-256-GCM encrypted private key storage, fingerprint derivation, payload signing/verification, keypair rotation with automatic deactivation.
+- Federation discovery & peer management service (5.2): peer registration with UPSERT, handshake protocol (initiate → exchange public keys → complete → upgrade to verified), trust level management (untrusted → verified → trusted → blocked), `.well-known/sven/instance` endpoint data, stale peer pruning.
+- Homeserver connection service (5.3): client connection registry (Flutter mobile, Tauri desktop, web, CLI, API), secure connection token via `crypto.randomBytes(32)`, heartbeat mechanism, idle pruning, instance config endpoint with capabilities.
+- Federated community topics service (5.4): cross-instance topic creation with peer trust verification, NATS subject generation (`federation.community.{name}`), message counting, topic deactivation (soft delete), federation summary stats.
+- Cross-instance agent delegation service (5.5): delegation requests with configurable timeout (5–120s, default 30s), requires active peer with verified/trusted trust level, SQL `INTERVAL`-based timeout expiration, status tracking through full lifecycle.
+- Community consent service (5.6): per-user consent toggles (OFF / READ_ONLY / CONTRIBUTE, default OFF), GDPR Article 7 compliant, automatic clearing of sharing flags on revocation, topic-level participation checks, consent stats.
+- Data sovereignty service (5.7): org-level federation scope controls (default: federation OFF, mutual TLS required, peer verification required, export none), `canFederateWith()` with peer count limit enforcement, export policy checks (none / anonymized / pseudonymized / full).
+- Federation health service (5.8): health check recording with automatic peer status sync, ping simulation, mesh health summary (CTE-based latest-per-peer aggregation), mesh status classification (no_peers / unhealthy / degraded / healthy), audit logging (SOC 2 / GDPR), old record pruning.
+- DB migration `20260408180000_federation_tables.sql`: 9 new tables (`federation_instance_identity`, `federation_peers`, `federation_homeserver_connections`, `federation_community_topics`, `federation_agent_delegations`, `federation_consent`, `federation_data_sovereignty`, `federation_peer_health`, `federation_audit_log`) with 15 indexes, proper FK cascades, and CHECK constraints.
+- NATS `FEDERATION` stream with `federation.>` subjects (Limits retention, 30-day max_age, file storage). Four subject constants and three dynamic per-peer helpers.
+- 35+ federation admin endpoints across all 8 services at `/v1/admin/federation/*` with organisation scoping and audit logging integration.
+- 55 unit tests for federation batch: migration structure, service exports, route registration, consent logic, sovereignty defaults, mesh health classification, trust levels, identity crypto, homeserver types, delegation timeouts.
 - Quantum-inspired fading memory system (`decay(t) = e^(-γt) × (1 + A × sin(ωt + φ))`) with importance-weighted persistence — memories referenced more often resist decay.
 - Quantum fade consolidation worker: background sweep that promotes fading memories to knowledge graph entities before they reach threshold, preserving core insights permanently.
 - Brain visualization API (`/v1/admin/brain/graph`): returns live neural map of user's memories, KG entities, emotional states, and reasoning records as a graph with decay-state visual mapping.
