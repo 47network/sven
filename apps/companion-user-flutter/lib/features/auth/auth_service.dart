@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 
 import '../../app/api_base_service.dart';
@@ -116,6 +117,7 @@ class AuthService {
     Uri uri,
     Map<String, dynamic> body, {
     String? token,
+    Map<String, String>? extraHeaders,
   }) async {
     try {
       return await _client.post(
@@ -123,6 +125,7 @@ class AuthService {
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
+          ...?extraHeaders,
         },
         body: jsonEncode(body),
       );
@@ -703,6 +706,256 @@ class AuthService {
       // Always clear tokens even if the server call fails.
     } finally {
       await clearToken();
+    }
+  }
+
+  // ── Multi-account management ──────────────────────────────────────────
+
+  /// Get the stable device ID for this device.
+  Future<String> getDeviceId() => _store.readOrCreateDeviceId();
+
+  /// Link the current authenticated user's account on this device.
+  /// Stores credentials locally and registers with the server.
+  Future<void> linkCurrentAccount({String? label, String? pin}) async {
+    final token = await _readAuthToken();
+    if (token == null) throw AuthException(AuthFailure.sessionExpired);
+    final userId = await readUserId();
+    final username = await readUsername();
+    if (userId == null || userId.isEmpty) {
+      throw AuthException(AuthFailure.sessionExpired);
+    }
+    final deviceId = await getDeviceId();
+
+    // Register on server
+    final uri = Uri.parse('$_apiBase/v1/auth/accounts/link');
+    final response = await _postJson(
+      uri,
+      {
+        if (label != null) 'label': label,
+        if (pin != null) 'pin': pin,
+      },
+      token: token,
+      extraHeaders: {'X-Device-Id': deviceId},
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw _mapStatus(response.statusCode);
+    }
+
+    // Store tokens locally for this account
+    final refreshToken = await readRefreshToken();
+    await _store.saveAccountTokens(
+      userId: userId,
+      accessToken: token,
+      refreshToken: refreshToken,
+      username: username,
+    );
+
+    // Store PIN locally if set
+    if (pin != null && pin.length >= 4) {
+      final pinHash =
+          sha256.convert(utf8.encode(pin + userId)).toString();
+      await _store.writeAccountPin(userId, pinHash);
+    }
+
+    // Update linked accounts list
+    final accounts = await _store.readLinkedAccounts();
+    final existing = accounts.indexWhere((a) => a.userId == userId);
+    final newAccount = LinkedAccount(
+      userId: userId,
+      username: username ?? '',
+      hasPin: pin != null && pin.length >= 4,
+      isActive: true,
+    );
+    if (existing >= 0) {
+      accounts[existing] = newAccount;
+    } else {
+      accounts.add(newAccount);
+    }
+    // Mark all others inactive
+    for (var i = 0; i < accounts.length; i++) {
+      if (accounts[i].userId != userId && accounts[i].isActive) {
+        accounts[i] = LinkedAccount(
+          userId: accounts[i].userId,
+          username: accounts[i].username,
+          displayName: accounts[i].displayName,
+          avatarUrl: accounts[i].avatarUrl,
+          hasPin: accounts[i].hasPin,
+          isActive: false,
+        );
+      }
+    }
+    await _store.writeLinkedAccounts(accounts);
+    await _store.writeActiveAccountId(userId);
+
+    Telemetry.logEvent('auth.account_linked', {'device_id': deviceId});
+  }
+
+  /// Get the list of linked accounts on this device.
+  Future<List<LinkedAccount>> getLinkedAccounts() =>
+      _store.readLinkedAccounts();
+
+  /// Switch to a different linked account. Returns the session token.
+  /// If the account has a PIN, [pin] must be provided and verified locally.
+  Future<LoginResult> switchAccount(String targetUserId, {String? pin}) async {
+    final accounts = await _store.readLinkedAccounts();
+    final target = accounts.where((a) => a.userId == targetUserId).firstOrNull;
+    if (target == null) {
+      throw AuthException(AuthFailure.unknown, detail: 'Account not linked');
+    }
+
+    // Verify PIN locally if set
+    if (target.hasPin) {
+      if (pin == null || pin.isEmpty) {
+        throw AuthException(AuthFailure.unknown, detail: 'PIN required');
+      }
+      final storedHash = await _store.readAccountPin(targetUserId);
+      if (storedHash == null ||
+          !_store.verifyPin(pin, targetUserId, storedHash)) {
+        throw AuthException(AuthFailure.invalidCredentials,
+            detail: 'Invalid PIN');
+      }
+    }
+
+    // Try server-side account switch
+    final currentToken = await _readAuthToken();
+    final deviceId = await getDeviceId();
+    final uri = Uri.parse('$_apiBase/v1/auth/accounts/switch');
+    final response = await _postJson(
+      uri,
+      {
+        'target_user_id': targetUserId,
+        if (pin != null) 'pin': pin,
+      },
+      token: currentToken,
+      extraHeaders: {'X-Device-Id': deviceId},
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final body = jsonDecode(response.body);
+      final data = (body['data'] as Map<String, dynamic>?) ?? body;
+      final newToken =
+          (data['access_token'] ?? data['accessToken'] ?? data['token'])
+              ?.toString();
+      final userId = data['user_id']?.toString() ?? targetUserId;
+      final username = data['username']?.toString();
+
+      if (newToken != null && newToken.isNotEmpty) {
+        await _store.writeAccessToken(newToken);
+        await _store.writeUserId(userId);
+        if (username != null) await _store.writeUsername(username);
+
+        // Update saved tokens for this account
+        await _store.saveAccountTokens(
+          userId: userId,
+          accessToken: newToken,
+          username: username,
+        );
+
+        // Update active account in local list
+        final updatedAccounts = await _store.readLinkedAccounts();
+        for (var i = 0; i < updatedAccounts.length; i++) {
+          final a = updatedAccounts[i];
+          updatedAccounts[i] = LinkedAccount(
+            userId: a.userId,
+            username: a.username,
+            displayName: a.displayName,
+            avatarUrl: a.avatarUrl,
+            hasPin: a.hasPin,
+            isActive: a.userId == userId,
+          );
+        }
+        await _store.writeLinkedAccounts(updatedAccounts);
+        await _store.writeActiveAccountId(userId);
+
+        Telemetry.logEvent('auth.account_switch', {
+          'target_user_id': userId,
+          'device_id': deviceId,
+        });
+
+        return LoginResult(token: newToken, userId: userId, username: username);
+      }
+    }
+
+    // Fallback: try using saved tokens
+    final saved = await _store.readAccountTokens(targetUserId);
+    if (saved.accessToken != null && saved.accessToken!.isNotEmpty) {
+      await _store.writeAccessToken(saved.accessToken!);
+      if (saved.refreshToken != null) {
+        await _store.writeRefreshToken(saved.refreshToken!);
+      }
+      await _store.writeUserId(targetUserId);
+      if (saved.username != null) await _store.writeUsername(saved.username!);
+      await _store.writeActiveAccountId(targetUserId);
+      return LoginResult(
+        token: saved.accessToken!,
+        userId: targetUserId,
+        username: saved.username,
+      );
+    }
+
+    throw AuthException(AuthFailure.sessionExpired,
+        detail: 'Please sign in to this account again');
+  }
+
+  /// Unlink an account from this device.
+  Future<void> unlinkAccount(String userId) async {
+    final token = await _readAuthToken();
+    final deviceId = await getDeviceId();
+    if (token != null) {
+      try {
+        final uri = Uri.parse('$_apiBase/v1/auth/accounts/$userId');
+        await _client.delete(uri, headers: {
+          'Authorization': 'Bearer $token',
+          'X-Device-Id': deviceId,
+        });
+      } catch (_) {
+        // Best-effort server unlink
+      }
+    }
+
+    await _store.clearAccountTokens(userId);
+    final accounts = await _store.readLinkedAccounts();
+    accounts.removeWhere((a) => a.userId == userId);
+    await _store.writeLinkedAccounts(accounts);
+
+    Telemetry.logEvent('auth.account_unlinked', {'user_id': userId});
+  }
+
+  /// Set PIN for a linked account.
+  Future<void> setAccountPin(String userId, String pin) async {
+    final pinHash = sha256.convert(utf8.encode(pin + userId)).toString();
+    await _store.writeAccountPin(userId, pinHash);
+
+    // Update the linked account entry
+    final accounts = await _store.readLinkedAccounts();
+    for (var i = 0; i < accounts.length; i++) {
+      if (accounts[i].userId == userId) {
+        accounts[i] = LinkedAccount(
+          userId: accounts[i].userId,
+          username: accounts[i].username,
+          displayName: accounts[i].displayName,
+          avatarUrl: accounts[i].avatarUrl,
+          hasPin: true,
+          isActive: accounts[i].isActive,
+        );
+      }
+    }
+    await _store.writeLinkedAccounts(accounts);
+
+    // Sync to server
+    final token = await _readAuthToken();
+    if (token != null) {
+      try {
+        final deviceId = await getDeviceId();
+        await _postJson(
+          Uri.parse('$_apiBase/v1/auth/accounts/pin'),
+          {'pin': pin},
+          token: token,
+          extraHeaders: {'X-Device-Id': deviceId},
+        );
+      } catch (_) {
+        // Best-effort server sync
+      }
     }
   }
 }

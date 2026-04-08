@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { Link2, RefreshCw, LogOut, Smartphone } from 'lucide-react';
 import { PanelHeader } from '../components/PanelHeader';
-import type { DesktopConfig } from '../lib/api';
+import { AccountSwitcher } from '../components/AccountSwitcher';
+import type { DesktopConfig, SavedAccount } from '../lib/api';
 
 interface SettingsPanelProps {
     config: DesktopConfig;
@@ -10,11 +11,15 @@ interface SettingsPanelProps {
     deviceCode: string;
     verifyUrl: string;
     deviceBusy: boolean;
+    savedAccounts: SavedAccount[];
     onConfigChange: (config: DesktopConfig) => void;
     onSaveConfig: () => void;
     onDeviceLogin: () => void;
     onRefreshSession: () => void;
     onSignOut: () => void;
+    onKeepSignedIn: (pin?: string) => Promise<void>;
+    onSwitchAccount: (userId: string, pin?: string) => Promise<void>;
+    onUnlinkAccount: (userId: string) => Promise<void>;
 }
 
 export function SettingsPanel({
@@ -23,11 +28,15 @@ export function SettingsPanel({
     deviceCode,
     verifyUrl,
     deviceBusy,
+    savedAccounts,
     onConfigChange,
     onSaveConfig,
     onDeviceLogin,
     onRefreshSession,
     onSignOut,
+    onKeepSignedIn,
+    onSwitchAccount,
+    onUnlinkAccount,
 }: SettingsPanelProps) {
     const [saved, setSaved] = useState(false);
 
@@ -138,6 +147,17 @@ export function SettingsPanel({
                         </>
                     )}
                 </div>
+            </section>
+
+            {/* Multi-Account */}
+            <section className="settings-section">
+                <AccountSwitcher
+                    accounts={savedAccounts}
+                    token={token}
+                    onKeepSignedIn={onKeepSignedIn}
+                    onSwitchAccount={onSwitchAccount}
+                    onUnlinkAccount={onUnlinkAccount}
+                />
             </section>
         </div>
     );

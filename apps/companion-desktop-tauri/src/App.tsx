@@ -56,11 +56,15 @@ function App() {
             deviceCode={app.deviceCode}
             verifyUrl={app.verifyUrl}
             deviceBusy={app.deviceBusy}
+            savedAccounts={app.savedAccounts}
             onConfigChange={app.setConfig}
             onSaveConfig={app.onSaveConfig}
             onDeviceLogin={app.onDeviceLogin}
             onRefreshSession={app.onRefreshSession}
             onSignOut={app.onSignOut}
+            onKeepSignedIn={app.onKeepSignedIn}
+            onSwitchAccount={app.onSwitchAccount}
+            onUnlinkAccount={app.onUnlinkAccount}
           />
         );
       case 'log':

@@ -1,6 +1,46 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Represents a linked account stored on-device for quick switching.
+class LinkedAccount {
+  const LinkedAccount({
+    required this.userId,
+    required this.username,
+    this.displayName,
+    this.avatarUrl,
+    this.hasPin = false,
+    this.isActive = false,
+  });
+
+  final String userId;
+  final String username;
+  final String? displayName;
+  final String? avatarUrl;
+  final bool hasPin;
+  final bool isActive;
+
+  Map<String, dynamic> toJson() => {
+        'userId': userId,
+        'username': username,
+        'displayName': displayName,
+        'avatarUrl': avatarUrl,
+        'hasPin': hasPin,
+        'isActive': isActive,
+      };
+
+  factory LinkedAccount.fromJson(Map<String, dynamic> json) => LinkedAccount(
+        userId: json['userId'] as String,
+        username: json['username'] as String,
+        displayName: json['displayName'] as String?,
+        avatarUrl: json['avatarUrl'] as String?,
+        hasPin: json['hasPin'] as bool? ?? false,
+        isActive: json['isActive'] as bool? ?? false,
+      );
+}
 
 class TokenStore {
   TokenStore({FlutterSecureStorage? secureStorage})
@@ -12,6 +52,9 @@ class TokenStore {
   static const _usernameKey = 'sven.auth.username';
   static const _autoLoginUserKey = 'sven.auth.auto_login_user';
   static const _autoLoginPassKey = 'sven.auth.auto_login_pass';
+  static const _deviceIdKey = 'sven.device.id';
+  static const _linkedAccountsKey = 'sven.accounts.linked';
+  static const _activeAccountKey = 'sven.accounts.active';
 
   final FlutterSecureStorage _secureStorage;
 
@@ -179,5 +222,158 @@ class TokenStore {
     await _secureStorage.delete(key: _refreshKey);
     await _secureStorage.delete(key: _userIdKey);
     await _secureStorage.delete(key: _usernameKey);
+  }
+
+  // ── Device ID (stable per-device identifier) ──
+
+  /// Returns a stable device ID, generating one if needed.
+  Future<String> readOrCreateDeviceId() async {
+    final prefs = await _prefs();
+    String? deviceId;
+    if (!kIsWeb) {
+      deviceId = await _secureStorage.read(key: _deviceIdKey);
+    }
+    deviceId ??= prefs.getString(_deviceIdKey);
+    if (deviceId != null && deviceId.isNotEmpty) return deviceId;
+
+    // Generate a stable device ID from random bytes
+    final bytes = List<int>.generate(16, (i) => DateTime.now().microsecond ^ (i * 31 + 17));
+    deviceId = sha256.convert(bytes).toString().substring(0, 32);
+    await prefs.setString(_deviceIdKey, deviceId);
+    if (!kIsWeb) {
+      await _secureStorage.write(key: _deviceIdKey, value: deviceId);
+    }
+    _debug('generated device id');
+    return deviceId;
+  }
+
+  // ── Multi-account management ──
+
+  /// Save tokens for a specific account (namespaced by userId).
+  Future<void> saveAccountTokens({
+    required String userId,
+    required String accessToken,
+    String? refreshToken,
+    String? username,
+  }) async {
+    final prefs = await _prefs();
+    final prefix = 'sven.account.$userId';
+    await prefs.setString('$prefix.access_token', accessToken);
+    if (refreshToken != null) {
+      await prefs.setString('$prefix.refresh_token', refreshToken);
+    }
+    if (username != null) {
+      await prefs.setString('$prefix.username', username);
+    }
+    if (!kIsWeb) {
+      await _secureStorage.write(key: '$prefix.access_token', value: accessToken);
+      if (refreshToken != null) {
+        await _secureStorage.write(key: '$prefix.refresh_token', value: refreshToken);
+      }
+      if (username != null) {
+        await _secureStorage.write(key: '$prefix.username', value: username);
+      }
+    }
+    _debug('saveAccountTokens userId=$userId');
+  }
+
+  /// Read saved tokens for a specific account.
+  Future<({String? accessToken, String? refreshToken, String? username})>
+      readAccountTokens(String userId) async {
+    final prefs = await _prefs();
+    final prefix = 'sven.account.$userId';
+    String? access, refresh, username;
+    if (!kIsWeb) {
+      access = await _secureStorage.read(key: '$prefix.access_token');
+      refresh = await _secureStorage.read(key: '$prefix.refresh_token');
+      username = await _secureStorage.read(key: '$prefix.username');
+    }
+    access = (access != null && access.isNotEmpty)
+        ? access
+        : prefs.getString('$prefix.access_token');
+    refresh = (refresh != null && refresh.isNotEmpty)
+        ? refresh
+        : prefs.getString('$prefix.refresh_token');
+    username = (username != null && username.isNotEmpty)
+        ? username
+        : prefs.getString('$prefix.username');
+    return (accessToken: access, refreshToken: refresh, username: username);
+  }
+
+  /// Clear stored tokens for a specific account.
+  Future<void> clearAccountTokens(String userId) async {
+    final prefs = await _prefs();
+    final prefix = 'sven.account.$userId';
+    await prefs.remove('$prefix.access_token');
+    await prefs.remove('$prefix.refresh_token');
+    await prefs.remove('$prefix.username');
+    if (!kIsWeb) {
+      await _secureStorage.delete(key: '$prefix.access_token');
+      await _secureStorage.delete(key: '$prefix.refresh_token');
+      await _secureStorage.delete(key: '$prefix.username');
+    }
+  }
+
+  /// Get list of linked accounts stored locally.
+  Future<List<LinkedAccount>> readLinkedAccounts() async {
+    final prefs = await _prefs();
+    final raw = prefs.getString(_linkedAccountsKey);
+    if (raw == null || raw.isEmpty) return [];
+    try {
+      final list = jsonDecode(raw) as List;
+      return list
+          .map((e) => LinkedAccount.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Save linked accounts list locally.
+  Future<void> writeLinkedAccounts(List<LinkedAccount> accounts) async {
+    final prefs = await _prefs();
+    await prefs.setString(
+      _linkedAccountsKey,
+      jsonEncode(accounts.map((a) => a.toJson()).toList()),
+    );
+  }
+
+  /// Read the active account user ID.
+  Future<String?> readActiveAccountId() async {
+    final prefs = await _prefs();
+    return prefs.getString(_activeAccountKey);
+  }
+
+  /// Write the active account user ID.
+  Future<void> writeActiveAccountId(String userId) async {
+    final prefs = await _prefs();
+    await prefs.setString(_activeAccountKey, userId);
+  }
+
+  /// Store a PIN hash for a specific account.
+  Future<void> writeAccountPin(String userId, String pinHash) async {
+    final prefs = await _prefs();
+    final key = 'sven.account.$userId.pin_hash';
+    await prefs.setString(key, pinHash);
+    if (!kIsWeb) {
+      await _secureStorage.write(key: key, value: pinHash);
+    }
+  }
+
+  /// Read the PIN hash for a specific account.
+  Future<String?> readAccountPin(String userId) async {
+    final prefs = await _prefs();
+    final key = 'sven.account.$userId.pin_hash';
+    if (!kIsWeb) {
+      final secure = await _secureStorage.read(key: key);
+      if (secure != null && secure.isNotEmpty) return secure;
+    }
+    return prefs.getString(key);
+  }
+
+  /// Verify a PIN against the stored hash.
+  bool verifyPin(String pin, String userId, String storedHash) {
+    final computed = sha256.convert(utf8.encode(pin + userId)).toString();
+    return computed == storedHash;
   }
 }

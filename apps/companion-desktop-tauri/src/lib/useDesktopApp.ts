@@ -21,10 +21,16 @@ import {
     inferencePullModel,
     inferenceDeleteModel,
     inferenceGenerate,
+    loadSavedAccounts,
+    saveSavedAccounts,
+    linkAccount,
+    switchAccount,
+    getOrCreateDeviceId,
     type ApprovalItem,
     type DesktopConfig,
     type InferenceResponse,
     type LocalModelInfo,
+    type SavedAccount,
     type TimelineItem,
 } from './api';
 import type { NavTab } from '../components/Sidebar';
@@ -67,6 +73,10 @@ export interface DesktopAppState {
     pullingModel: boolean;
     generating: boolean;
 
+    // Multi-account
+    savedAccounts: SavedAccount[];
+    pinLocked: boolean;
+
     // Handlers
     onSaveConfig: () => Promise<void>;
     onDeviceLogin: () => Promise<void>;
@@ -81,6 +91,12 @@ export interface DesktopAppState {
     onDeleteModel: (name: string) => Promise<void>;
     onLocalGenerate: (prompt: string, model: string) => Promise<void>;
     setActiveLocalModelId: (id: string) => void;
+
+    // Multi-account handlers
+    onKeepSignedIn: (pin?: string) => Promise<void>;
+    onSwitchAccount: (userId: string, pin?: string) => Promise<void>;
+    onUnlinkAccount: (userId: string) => Promise<void>;
+    onUnlockPin: (pin: string) => boolean;
 }
 
 export function useDesktopApp(): DesktopAppState {
@@ -396,6 +412,118 @@ export function useDesktopApp(): DesktopAppState {
         onRefreshLocalModels();
     }, [onRefreshLocalModels]);
 
+    // ── Multi-account state ───────────────────────────────
+    const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
+    const [pinLocked, setPinLocked] = useState(false);
+
+    // Load saved accounts on mount
+    useEffect(() => {
+        loadSavedAccounts().then(setSavedAccounts).catch(() => {});
+    }, []);
+
+    const onKeepSignedIn = useCallback(async (pin?: string) => {
+        const tok = tokenRef.current;
+        const { gateway_url } = configRef.current;
+        if (!tok) return;
+        try {
+            const deviceId = await getOrCreateDeviceId();
+            await linkAccount(gateway_url, tok, deviceId, pin);
+
+            // Save locally
+            const userId = await getSecret('user_id') ?? 'unknown';
+            const username = await getSecret('username') ?? userId;
+            const accounts = await loadSavedAccounts();
+            const existing = accounts.findIndex(a => a.userId === userId);
+            const entry: SavedAccount = {
+                userId,
+                username,
+                hasPin: Boolean(pin && pin.length >= 4),
+                isActive: true,
+            };
+            if (existing >= 0) {
+                accounts[existing] = entry;
+            } else {
+                accounts.push(entry);
+            }
+            // Mark others inactive
+            for (const a of accounts) {
+                if (a.userId !== userId) a.isActive = false;
+            }
+            await saveSavedAccounts(accounts);
+            // Store token per account
+            await setSecret(`access_token:${userId}`, tok);
+            if (pin && pin.length >= 4) {
+                await setSecret(`pin:${userId}`, pin);
+            }
+            setSavedAccounts(accounts);
+            pushLog(`Account ${username} saved for quick switching.`);
+        } catch (err) {
+            pushLog(`Keep signed in failed: ${String(err)}`);
+        }
+    }, [pushLog]);
+
+    const onSwitchAccount = useCallback(async (userId: string, pin?: string) => {
+        const tok = tokenRef.current;
+        const { gateway_url } = configRef.current;
+        try {
+            // Verify PIN locally if needed
+            const accounts = await loadSavedAccounts();
+            const target = accounts.find(a => a.userId === userId);
+            if (target?.hasPin) {
+                const storedPin = await getSecret(`pin:${userId}`);
+                if (storedPin && pin !== storedPin) {
+                    pushLog('Invalid PIN.');
+                    return;
+                }
+            }
+
+            const deviceId = await getOrCreateDeviceId();
+            if (tok) {
+                const result = await switchAccount(gateway_url, tok, deviceId, userId, pin);
+                await setSecret('access_token', result.access_token);
+                await setSecret(`access_token:${userId}`, result.access_token);
+                if (result.user_id) await setSecret('user_id', result.user_id);
+                if (result.username) await setSecret('username', result.username);
+                setToken(result.access_token);
+                setStatus('online');
+            } else {
+                // Fall back to stored token
+                const stored = await getSecret(`access_token:${userId}`);
+                if (stored) {
+                    await setSecret('access_token', stored);
+                    setToken(stored);
+                }
+            }
+
+            // Update active flags
+            for (const a of accounts) a.isActive = a.userId === userId;
+            await saveSavedAccounts(accounts);
+            setSavedAccounts([...accounts]);
+            pushLog(`Switched to ${target?.username ?? userId}.`);
+        } catch (err) {
+            pushLog(`Account switch failed: ${String(err)}`);
+        }
+    }, [pushLog]);
+
+    const onUnlinkAccount = useCallback(async (userId: string) => {
+        const accounts = await loadSavedAccounts();
+        const filtered = accounts.filter(a => a.userId !== userId);
+        await saveSavedAccounts(filtered);
+        await clearSecret(`access_token:${userId}`);
+        await clearSecret(`pin:${userId}`);
+        setSavedAccounts(filtered);
+        pushLog(`Account ${userId} removed.`);
+    }, [pushLog]);
+
+    const onUnlockPin = useCallback((pin: string): boolean => {
+        // Simple PIN check - for now just unlock
+        if (pin.length >= 4) {
+            setPinLocked(false);
+            return true;
+        }
+        return false;
+    }, []);
+
     return {
         activeTab, setActiveTab,
         config, setConfig,
@@ -406,10 +534,12 @@ export function useDesktopApp(): DesktopAppState {
         logs,
         ollamaOnline, localModels, activeLocalModelId,
         lastInferenceResponse, pullingModel, generating,
+        savedAccounts, pinLocked,
         onSaveConfig, onDeviceLogin, onRefreshSession,
         onSend, onSignOut, onRefreshTimeline, onVoteApproval,
         onClearLogs,
         onRefreshLocalModels, onPullModel, onDeleteModel,
         onLocalGenerate, setActiveLocalModelId,
+        onKeepSignedIn, onSwitchAccount, onUnlinkAccount, onUnlockPin,
     };
 }

@@ -136,3 +136,70 @@ export async function inferenceDeleteModel(modelName: string): Promise<void> {
 export async function inferenceGenerate(req: InferenceRequest): Promise<InferenceResponse> {
   return invoke('inference_generate', { req });
 }
+
+// ── Multi-account management ──────────────────────────────────────────
+
+export type SavedAccount = {
+  userId: string;
+  username: string;
+  displayName?: string;
+  hasPin: boolean;
+  isActive: boolean;
+};
+
+export async function loadSavedAccounts(): Promise<SavedAccount[]> {
+  const raw = await getSecret('linked_accounts');
+  if (!raw) return [];
+  try { return JSON.parse(raw); } catch { return []; }
+}
+
+export async function saveSavedAccounts(accounts: SavedAccount[]): Promise<void> {
+  await setSecret('linked_accounts', JSON.stringify(accounts));
+}
+
+export async function linkAccount(
+  gatewayUrl: string,
+  token: string,
+  deviceId: string,
+  pin?: string,
+): Promise<void> {
+  const res = await fetch(`${gatewayUrl}/v1/auth/accounts/link`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'X-Device-Id': deviceId,
+    },
+    body: JSON.stringify({ pin }),
+  });
+  if (!res.ok) throw new Error(`Link failed: ${res.status}`);
+}
+
+export async function switchAccount(
+  gatewayUrl: string,
+  token: string,
+  deviceId: string,
+  targetUserId: string,
+  pin?: string,
+): Promise<{ access_token: string; user_id: string; username?: string }> {
+  const res = await fetch(`${gatewayUrl}/v1/auth/accounts/switch`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'X-Device-Id': deviceId,
+    },
+    body: JSON.stringify({ target_user_id: targetUserId, pin }),
+  });
+  if (!res.ok) throw new Error(`Switch failed: ${res.status}`);
+  const body = await res.json();
+  return body.data ?? body;
+}
+
+export async function getOrCreateDeviceId(): Promise<string> {
+  let deviceId = await getSecret('sven_device_id');
+  if (deviceId) return deviceId;
+  deviceId = crypto.randomUUID().replace(/-/g, '').substring(0, 32);
+  await setSecret('sven_device_id', deviceId);
+  return deviceId;
+}

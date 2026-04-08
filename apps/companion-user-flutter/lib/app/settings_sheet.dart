@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart' show CupertinoNavigationBar;
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 
 import 'ab_test_override_page.dart';
 import 'ab_test_service.dart';
@@ -15,6 +16,7 @@ import '../features/approvals/approvals_page.dart';
 import '../features/chat/voice_service.dart';
 import '../features/deployment/deployment_service.dart';
 import '../features/auth/auth_service.dart';
+import '../features/auth/account_picker_sheet.dart';
 import '../features/auth/mfa_setup_sheet.dart';
 import '../features/devices/device_manager_page.dart';
 import '../features/devices/device_service.dart';
@@ -948,18 +950,81 @@ class SettingsSheet extends StatelessWidget {
 
                     // Sign out options (hidden in personal mode — auto-login handles it)
                     if (state.deploymentMode != DeploymentMode.personal) ...[
-                      _SettingsTile(
-                        icon: Icons.swap_horiz_rounded,
-                        title: 'Switch user',
-                        subtitle: 'Sign out and use a different account',
-                        onTap: () async {
-                          Navigator.of(context).pop();
-                          await onLogout();
-                        },
-                        tokens: tokens,
-                        cinematic: cinematic,
-                      ),
-                      const SizedBox(height: 8),
+                      // ── Multi-account quick switch ──
+                      if (authService != null) ...[
+                        _SettingsTile(
+                          icon: Icons.people_outlined,
+                          title: 'Switch account',
+                          subtitle: 'Switch between saved accounts',
+                          trailing: Icon(
+                            Icons.chevron_right_rounded,
+                            color: tokens.onSurface.withValues(alpha: 0.3),
+                            size: 20,
+                          ),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (_) => AccountPickerSheet(
+                                auth: authService!,
+                                lockService: lockService ?? AppLockService(),
+                                visualMode: state.visualMode,
+                                onAccountSwitched: (result) {
+                                  // The calling page should handle re-login
+                                  // via its onLogout or state management
+                                },
+                                onAddAccount: () async {
+                                  await onLogout();
+                                },
+                              ),
+                            );
+                          },
+                          tokens: tokens,
+                          cinematic: cinematic,
+                        ),
+                        const SizedBox(height: 8),
+                        _SettingsTile(
+                          icon: Icons.bookmark_add_outlined,
+                          title: 'Keep me signed in',
+                          subtitle: 'Save this account for quick switching',
+                          onTap: () async {
+                            final pin = await _showSetPinDialog(context, tokens);
+                            if (context.mounted) {
+                              try {
+                                await authService!.linkCurrentAccount(
+                                  pin: pin,
+                                );
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Account saved${pin != null ? ' with PIN protection' : ''}',
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                  Navigator.of(context).pop();
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Failed: $e'),
+                                      behavior: SnackBarBehavior.floating,
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                          tokens: tokens,
+                          cinematic: cinematic,
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       _SettingsTile(
                         icon: Icons.logout_rounded,
                         title: 'Sign out',
@@ -2066,4 +2131,59 @@ String _voiceDisplayName(String raw) {
   // Capitalise first letter
   if (s.isNotEmpty) s = s[0].toUpperCase() + s.substring(1);
   return s.isEmpty ? raw : s;
+}
+
+/// Show a dialog to optionally set a PIN for the saved account.
+/// Returns the PIN string if set, or null if skipped.
+Future<String?> _showSetPinDialog(BuildContext context, SvenTokens tokens) async {
+  final controller = TextEditingController();
+  return showDialog<String?>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: tokens.surface,
+      title: Text('Protect with PIN?', style: TextStyle(color: tokens.onSurface)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Set a 4-8 digit PIN to protect account switching. '
+            'You can also use device biometrics (fingerprint/face) if App Lock is enabled.',
+            style: TextStyle(
+                color: tokens.onSurface.withValues(alpha: 0.6), fontSize: 13),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: controller,
+            obscureText: true,
+            keyboardType: TextInputType.number,
+            maxLength: 8,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: 'PIN (optional)',
+              hintText: '4-8 digits',
+              labelStyle: TextStyle(
+                  color: tokens.onSurface.withValues(alpha: 0.6)),
+            ),
+            style: TextStyle(
+                color: tokens.onSurface, fontSize: 24, letterSpacing: 8),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, null),
+          child: Text('Skip',
+              style: TextStyle(
+                  color: tokens.onSurface.withValues(alpha: 0.6))),
+        ),
+        FilledButton(
+          onPressed: () {
+            final pin = controller.text;
+            Navigator.pop(ctx, pin.length >= 4 ? pin : null);
+          },
+          child: const Text('Save'),
+        ),
+      ],
+    ),
+  );
 }

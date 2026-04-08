@@ -3094,6 +3094,181 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       },
     });
   });
+
+  // ─── Multi-Account Management ─────────────────────────────────────
+
+  // GET /v1/auth/accounts — list linked accounts for a device
+  app.get('/v1/auth/accounts', { preHandler: requireAuth }, async (request: any, reply) => {
+    const deviceId = String(request.headers['x-device-id'] || '').trim();
+    if (!deviceId) {
+      return reply.status(400).send({ success: false, error: { code: 'MISSING_DEVICE_ID', message: 'X-Device-Id header required' } });
+    }
+    const principal = await resolveActiveSessionPrincipal(pool, request.cookies?.[SESSION_COOKIE], request.headers?.authorization);
+    if (!principal) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHENTICATED', message: 'Session required' } });
+    }
+    const result = await pool.query(
+      `SELECT la.id, la.user_id, u.username, u.display_name, la.label, la.avatar_url,
+              la.is_active, la.last_used_at, la.created_at,
+              la.pin_hash IS NOT NULL AS has_pin,
+              la.remember_until
+       FROM linked_accounts la
+       JOIN users u ON u.id = la.user_id
+       WHERE la.device_id = $1
+       ORDER BY la.last_used_at DESC`,
+      [deviceId],
+    );
+    reply.send({ success: true, data: { accounts: result.rows } });
+  });
+
+  // POST /v1/auth/accounts/link — add current session as a linked account on this device
+  app.post('/v1/auth/accounts/link', { preHandler: requireAuth }, async (request: any, reply) => {
+    const deviceId = String(request.headers['x-device-id'] || '').trim();
+    if (!deviceId) {
+      return reply.status(400).send({ success: false, error: { code: 'MISSING_DEVICE_ID', message: 'X-Device-Id header required' } });
+    }
+    const principal = await resolveActiveSessionPrincipal(pool, request.cookies?.[SESSION_COOKIE], request.headers?.authorization);
+    if (!principal) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHENTICATED', message: 'Session required' } });
+    }
+    const { label, pin } = (request.body || {}) as { label?: string; pin?: string };
+    const effectiveLabel = String(label || '').trim().slice(0, 100);
+
+    let pinHash: string | null = null;
+    if (pin && pin.length >= 4 && pin.length <= 8) {
+      const { createHash } = await import('crypto');
+      pinHash = createHash('sha256').update(pin + principal.userId).digest('hex');
+    }
+
+    const result = await pool.query(
+      `INSERT INTO linked_accounts (device_id, user_id, label, pin_hash, is_active, remember_until)
+       VALUES ($1, $2, $3, $4, true, NOW() + INTERVAL '90 days')
+       ON CONFLICT (device_id, user_id) DO UPDATE SET
+         label = COALESCE(NULLIF($3, ''), linked_accounts.label),
+         pin_hash = COALESCE($4, linked_accounts.pin_hash),
+         is_active = true,
+         last_used_at = NOW(),
+         remember_until = NOW() + INTERVAL '90 days'
+       RETURNING id, user_id, is_active, last_used_at, created_at, pin_hash IS NOT NULL AS has_pin`,
+      [deviceId, principal.userId, effectiveLabel, pinHash],
+    );
+
+    // Mark current session as persistent + device-bound
+    await pool.query(
+      `UPDATE sessions SET device_id = $1, is_persistent = true WHERE id = $2`,
+      [deviceId, principal.sessionId],
+    );
+
+    reply.send({ success: true, data: result.rows[0] });
+  });
+
+  // POST /v1/auth/accounts/switch — switch to a different linked account
+  app.post('/v1/auth/accounts/switch', { preHandler: requireAuth }, async (request: any, reply) => {
+    const deviceId = String(request.headers['x-device-id'] || '').trim();
+    if (!deviceId) {
+      return reply.status(400).send({ success: false, error: { code: 'MISSING_DEVICE_ID', message: 'X-Device-Id header required' } });
+    }
+    const { target_user_id, pin } = (request.body || {}) as { target_user_id?: string; pin?: string };
+    if (!target_user_id) {
+      return reply.status(400).send({ success: false, error: { code: 'MISSING_TARGET', message: 'target_user_id required' } });
+    }
+
+    // Verify linked account exists on this device
+    const linked = await pool.query(
+      `SELECT id, user_id, pin_hash, remember_until
+       FROM linked_accounts
+       WHERE device_id = $1 AND user_id = $2`,
+      [deviceId, target_user_id],
+    );
+    if (linked.rows.length === 0) {
+      return reply.status(404).send({ success: false, error: { code: 'ACCOUNT_NOT_LINKED', message: 'Account not linked on this device' } });
+    }
+
+    const account = linked.rows[0];
+
+    // Verify PIN if set
+    if (account.pin_hash) {
+      if (!pin) {
+        return reply.status(403).send({ success: false, error: { code: 'PIN_REQUIRED', message: 'PIN required to switch to this account' } });
+      }
+      const { createHash } = await import('crypto');
+      const submittedHash = createHash('sha256').update(pin + target_user_id).digest('hex');
+      if (submittedHash !== account.pin_hash) {
+        return reply.status(403).send({ success: false, error: { code: 'INVALID_PIN', message: 'Incorrect PIN' } });
+      }
+    }
+
+    // Deactivate all accounts for this device, activate the target
+    await pool.query(
+      `UPDATE linked_accounts SET is_active = (user_id = $2), last_used_at = CASE WHEN user_id = $2 THEN NOW() ELSE last_used_at END WHERE device_id = $1`,
+      [deviceId, target_user_id],
+    );
+
+    // Create a new session for the target user
+    const { randomUUID } = await import('crypto');
+    const sessionId = randomUUID();
+    const expiresAt = new Date(Date.now() + ACCESS_TOKEN_MAX_AGE * 1000);
+    await pool.query(
+      `INSERT INTO sessions (id, user_id, status, expires_at, device_id, is_persistent) VALUES ($1, $2, 'active', $3, $4, true)`,
+      [sessionId, target_user_id, expiresAt.toISOString(), deviceId],
+    );
+
+    // Fetch user info
+    const userRes = await pool.query(
+      `SELECT id, username, display_name, role, active_organization_id FROM users WHERE id = $1`,
+      [target_user_id],
+    );
+    const user = userRes.rows[0] || {};
+
+    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
+    reply.send({
+      success: true,
+      data: {
+        access_token: sessionId,
+        user_id: user.id,
+        username: user.username,
+        display_name: user.display_name,
+        role: user.role,
+      },
+    });
+  });
+
+  // DELETE /v1/auth/accounts/:userId — unlink an account from this device
+  app.delete('/v1/auth/accounts/:userId', { preHandler: requireAuth }, async (request: any, reply) => {
+    const deviceId = String(request.headers['x-device-id'] || '').trim();
+    if (!deviceId) {
+      return reply.status(400).send({ success: false, error: { code: 'MISSING_DEVICE_ID', message: 'X-Device-Id header required' } });
+    }
+    const targetUserId = (request.params as { userId: string }).userId;
+    await pool.query(
+      `DELETE FROM linked_accounts WHERE device_id = $1 AND user_id = $2`,
+      [deviceId, targetUserId],
+    );
+    reply.send({ success: true });
+  });
+
+  // POST /v1/auth/accounts/pin — set or update PIN for a linked account
+  app.post('/v1/auth/accounts/pin', { preHandler: requireAuth }, async (request: any, reply) => {
+    const deviceId = String(request.headers['x-device-id'] || '').trim();
+    if (!deviceId) {
+      return reply.status(400).send({ success: false, error: { code: 'MISSING_DEVICE_ID', message: 'X-Device-Id header required' } });
+    }
+    const principal = await resolveActiveSessionPrincipal(pool, request.cookies?.[SESSION_COOKIE], request.headers?.authorization);
+    if (!principal) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHENTICATED', message: 'Session required' } });
+    }
+    const { pin } = (request.body || {}) as { pin?: string };
+    if (!pin || pin.length < 4 || pin.length > 8) {
+      return reply.status(400).send({ success: false, error: { code: 'INVALID_PIN', message: 'PIN must be 4-8 digits' } });
+    }
+    const { createHash } = await import('crypto');
+    const pinHash = createHash('sha256').update(pin + principal.userId).digest('hex');
+    await pool.query(
+      `UPDATE linked_accounts SET pin_hash = $1 WHERE device_id = $2 AND user_id = $3`,
+      [pinHash, deviceId, principal.userId],
+    );
+    reply.send({ success: true });
+  });
 }
 
 async function readOptionalSettingValue(pool: pg.Pool, key: string): Promise<unknown | null> {
