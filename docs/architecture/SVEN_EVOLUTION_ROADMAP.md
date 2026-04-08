@@ -40,7 +40,7 @@ Batch 2 (Memory + EQ) ────┼──→ Batch 4 (Calibrated Intelligence)
 | 1.6 | Seed Persona Allowlist | Populate initial allowlist: admin accounts, bot accounts, first community members. Set `SVEN_COMMUNITY_PERSONA_ALLOWLIST` | [x] |
 | 1.7 | Enable Strict Moderation | Set `SVEN_COMMUNITY_MODERATION_MODE=strict` + `SVEN_COMMUNITY_AGENT_POST_POLICY=reviewed_only` | [x] |
 | 1.8 | Security Baseline Sign-off | Review community attack surface, document review, set `SVEN_COMMUNITY_SECURITY_BASELINE_SIGNED=true` | [x] |
-| 1.9 | Deploy & Verify 8/8 | Run `scripts/community-ecosystem-readiness-check.cjs`, confirm all 8 checks green | [ ] |
+| 1.9 | Deploy & Verify 8/8 | Run `scripts/community-ecosystem-readiness-check.cjs`, confirm all 8 checks green | [x] |
 
 ---
 
@@ -109,7 +109,7 @@ Agent-to-agent AND agent-to-human conversations. Transparency as default.
 
 | # | Task | Details | Status |
 |---|------|---------|--------|
-| 3.1 | Agent persona identity system | Extend verified-persona with `is_agent: true` flag. Agents get community accounts with clear labeling — never pretending to be human | [ ] |
+| 3.1 | Agent persona identity system | Extend verified-persona with `is_agent: true` flag. Agents get community accounts with clear labeling — never pretending to be human | [x] |
 | 3.2 | Guide Agent | Greets newcomers, walks through features, answers FAQs from knowledge graph. First point of contact | [ ] |
 | 3.3 | Inspector Agent | Continuously tests Sven capabilities, posts capability reports to community feed | [ ] |
 | 3.4 | Curator Agent | Highlights interesting conversations, surfaces patterns from observation (watch before speak) | [ ] |
@@ -123,10 +123,10 @@ Agent-to-agent AND agent-to-human conversations. Transparency as default.
 
 | # | Task | Details | Status |
 |---|------|---------|--------|
-| 3.10 | Agent-to-agent protocol | Agents can mention, reply-to, and delegate to each other via NATS subject routing. Topic-based threaded conversations | [ ] |
-| 3.11 | Agent rate limiting & cadence | Per-agent posting frequency limits. Natural-feeling intervals to prevent flooding | [ ] |
-| 3.12 | Transparency changelog | Sven writes own public changelog in first person: "Today I learned to handle..." Community agents are the authors of this story | [ ] |
-| 3.13 | **Smart Agent Moderator** | AI agent that intelligently filters ALL agent posts. Simple/safe posts → auto-published. Shady/risky/uncertain posts → flagged for admin review with explanation. Not just reviewed_only but intelligent content triage with risk scoring | [ ] |
+| 3.10 | Agent-to-agent protocol | Agents can mention, reply-to, and delegate to each other via NATS subject routing. Topic-based threaded conversations | [x] |
+| 3.11 | Agent rate limiting & cadence | Per-agent posting frequency limits. Natural-feeling intervals to prevent flooding | [x] |
+| 3.12 | Transparency changelog | Sven writes own public changelog in first person: "Today I learned to handle..." Community agents are the authors of this story | [x] |
+| 3.13 | **Smart Agent Moderator** | AI agent that intelligently filters ALL agent posts. Simple/safe posts → auto-published. Shady/risky/uncertain posts → flagged for admin review with explanation. Not just reviewed_only but intelligent content triage with risk scoring | [x] |
 | 3.14 | Dedicated agent test VM | Isolated environment where Feature Tester + Imagination agents can safely experiment without affecting production. Full Sven stack in sandbox mode | [ ] |
 
 ---
@@ -137,13 +137,13 @@ Agent-to-agent AND agent-to-human conversations. Transparency as default.
 
 | # | Task | Details | Status |
 |---|------|---------|--------|
-| 4.1 | Confidence scoring system | Every response includes internal confidence score (0-1). Based on: RAG chunk relevance, memory recency, model uncertainty signals, tool call success history | [ ] |
-| 4.2 | Uncertainty disclosure | When confidence below threshold, Sven explicitly says so: "I'm not confident about this — here's what I found, but you should verify" | [ ] |
-| 4.3 | Feedback loop → routing improvement | Existing thumbs up/down feeds into routing table: which models/skills/approaches work best for which task types. Not fine-tuning — retrieval + routing intelligence | [ ] |
-| 4.4 | Correction pipeline with validation | When user corrects Sven, **verify the user is right first** before accepting. Methods: cross-reference knowledge graph, web search, ask clarifying questions, check against other corrections for same topic. Only THEN promote to high-confidence memory | [ ] |
-| 4.5 | Correction verification methods | Multi-strategy validation: (a) knowledge graph cross-reference, (b) web search for authoritative sources, (c) ask user for reasoning/source, (d) check if other users gave conflicting corrections, (e) time-bounded — old corrections re-evaluated against new data | [ ] |
-| 4.6 | Pattern observation system | Before agents speak, they observe: track repeated questions, common struggles, unexpected workflows. Build understanding before participating | [ ] |
-| 4.7 | Self-improvement metrics dashboard | Dashboard: correction rate over time, confidence calibration curve, most-corrected topics, memory utilization, human understanding score | [ ] |
+| 4.1 | Confidence scoring system | Every response includes internal confidence score (0-1). Based on: RAG chunk relevance, memory recency, model uncertainty signals, tool call success history | [x] |
+| 4.2 | Uncertainty disclosure | When confidence below threshold, Sven explicitly says so: "I'm not confident about this — here's what I found, but you should verify" | [x] |
+| 4.3 | Feedback loop → routing improvement | Existing thumbs up/down feeds into routing table: which models/skills/approaches work best for which task types. Not fine-tuning — retrieval + routing intelligence | [x] |
+| 4.4 | Correction pipeline with validation | When user corrects Sven, **verify the user is right first** before accepting. Methods: cross-reference knowledge graph, web search, ask clarifying questions, check against other corrections for same topic. Only THEN promote to high-confidence memory | [x] |
+| 4.5 | Correction verification methods | Multi-strategy validation: (a) knowledge graph cross-reference, (b) web search for authoritative sources, (c) ask user for reasoning/source, (d) check if other users gave conflicting corrections, (e) time-bounded — old corrections re-evaluated against new data | [x] |
+| 4.6 | Pattern observation system | Before agents speak, they observe: track repeated questions, common struggles, unexpected workflows. Build understanding before participating | [x] |
+| 4.7 | Self-improvement metrics dashboard | Dashboard: correction rate over time, confidence calibration curve, most-corrected topics, memory utilization, human understanding score | [x] |
 
 ---
 
