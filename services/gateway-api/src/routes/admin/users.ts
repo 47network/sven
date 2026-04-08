@@ -207,6 +207,13 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
       return;
     }
+    if (body.password.length > 128) {
+      reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'password must be at most 128 characters' },
+      });
+      return;
+    }
 
     // Check duplicate
     const dup = await pool.query(`SELECT 1 FROM users WHERE username = $1`, [body.username]);
@@ -220,10 +227,10 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
 
     const id = uuidv7();
     const role = validRoles.has(String(body.role || '')) ? String(body.role) : 'user';
-    if (role === 'admin' && !isPlatformAdmin) {
+    if ((role === 'admin' || role === 'operator') && !isPlatformAdmin) {
       reply.status(403).send({
         success: false,
-        error: { code: 'FORBIDDEN', message: 'Creating global admin users requires platform admin privileges' },
+        error: { code: 'FORBIDDEN', message: 'Creating admin or operator users requires platform admin privileges' },
       });
       return;
     }
@@ -280,7 +287,8 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
     let passwordChanged = false;
 
     if (body.display_name !== undefined) {
-      params.push(body.display_name);
+      const dn = String(body.display_name).slice(0, 256);
+      params.push(dn);
       sets.push(`display_name = $${params.length}`);
     }
     if (body.role !== undefined) {
@@ -326,6 +334,13 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
         reply.status(400).send({
           success: false,
           error: { code: 'VALIDATION', message: 'password must be at least 8 characters' },
+        });
+        return;
+      }
+      if (body.password.length > 128) {
+        reply.status(400).send({
+          success: false,
+          error: { code: 'VALIDATION', message: 'password must be at most 128 characters' },
         });
         return;
       }
@@ -591,8 +606,7 @@ export async function registerUserRoutes(app: FastifyInstance, pool: pg.Pool) {
         success: true,
         data: {
           ...inserted.rows[0],
-          verification_code: code,
-          verification_hint: `Send "/link ${code}" from ${channelType}:${channelUserId}`,
+          verification_hint: `Send the verification code from ${channelType}:${channelUserId}`,
         },
       });
     } catch (err: any) {

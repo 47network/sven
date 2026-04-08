@@ -105,9 +105,14 @@ export function jaccard(a: Set<string>, b: Set<string>): number {
 
 export { computeMemorySimilarity, shouldMergeBySimilarity } from './memory-consolidation-utils.js';
 
+const MAX_EMBED_INPUT_LENGTH = 16_000;
+
 async function embedText(text: string): Promise<number[] | null> {
   try {
-    return await embedTextFromEnv(text, process.env);
+    const bounded = text.length > MAX_EMBED_INPUT_LENGTH
+      ? text.slice(0, MAX_EMBED_INPUT_LENGTH)
+      : text;
+    return await embedTextFromEnv(bounded, process.env);
   } catch {
     return null;
   }
@@ -279,8 +284,9 @@ class PostgresMemoryAdapter implements MemoryAdapter {
     existing: unknown,
     incoming: Record<string, unknown>,
   ): Array<Record<string, unknown>> {
+    const MAX_EVIDENCE_ENTRIES = 200;
     const rows = Array.isArray(existing)
-      ? (existing.filter((x) => x && typeof x === 'object') as Array<Record<string, unknown>>)
+      ? (existing.filter((x) => x && typeof x === 'object' && Object.getPrototypeOf(x) === Object.prototype) as Array<Record<string, unknown>>)
       : [];
     rows.push(incoming);
     const seen = new Set<string>();
@@ -291,7 +297,8 @@ class PostgresMemoryAdapter implements MemoryAdapter {
       seen.add(signature);
       deduped.push(row);
     }
-    return deduped;
+    // Keep only the most recent entries to prevent unbounded growth
+    return deduped.length > MAX_EVIDENCE_ENTRIES ? deduped.slice(-MAX_EVIDENCE_ENTRIES) : deduped;
   }
 
   async list(filters: {
@@ -338,6 +345,12 @@ class PostgresMemoryAdapter implements MemoryAdapter {
   }
 
   async create(input: MemoryCreateInput): Promise<string> {
+    if (input.key && input.key.length > 500) {
+      throw new Error('Memory key exceeds maximum length of 500 characters');
+    }
+    if (input.value && input.value.length > 10_000) {
+      throw new Error('Memory value exceeds maximum length of 10000 characters');
+    }
     const orgId = input.organization_id || null;
     const { enabled, threshold, mode } = await this.getConsolidationConfig(orgId);
     const source = input.source || 'manual';
@@ -801,7 +814,7 @@ class PostgresMemoryAdapter implements MemoryAdapter {
       const ids = results.map((r: any) => r.id);
       if (ids.length > 0) {
         await this.pool.query(
-          `UPDATE memories SET access_count = access_count + 1, last_accessed_at = NOW() WHERE id = ANY($1::uuid[])`,
+          `UPDATE memories SET access_count = access_count + 1, last_accessed_at = NOW() WHERE id = ANY($1::text[])`,
           [ids],
         );
       }
@@ -832,7 +845,7 @@ class PostgresMemoryAdapter implements MemoryAdapter {
       .slice(0, topK);
     if (scored.length > 0) {
       await this.pool.query(
-        `UPDATE memories SET access_count = access_count + 1, last_accessed_at = NOW() WHERE id = ANY($1::uuid[])`,
+        `UPDATE memories SET access_count = access_count + 1, last_accessed_at = NOW() WHERE id = ANY($1::text[])`,
         [scored.map((r: any) => r.id)],
       );
     }

@@ -3,7 +3,7 @@ import pg from 'pg';
 import { v7 as uuidv7 } from 'uuid';
 import bcrypt from 'bcrypt';
 import { isIP } from 'node:net';
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
 type A2ARequestBody = {
   request_id?: string;
@@ -27,6 +27,13 @@ const MIN_A2A_RATE_LIMIT_WINDOW_MS = 1000;
 const MAX_A2A_RATE_LIMIT_WINDOW_MS = 600000;
 const MIN_A2A_RATE_LIMIT_MAX_REQUESTS = 1;
 const MAX_A2A_RATE_LIMIT_MAX_REQUESTS = 10000;
+
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
 
 const a2aRateLimitState = new Map<string, { windowStartedAtMs: number; count: number }>();
 
@@ -266,7 +273,7 @@ async function authenticateA2A(
   }
 
   const expectedApiKey = String(process.env.SVEN_A2A_API_KEY || '').trim();
-  if (expectedApiKey && suppliedApiKey === expectedApiKey) {
+  if (expectedApiKey && safeEqual(suppliedApiKey, expectedApiKey)) {
     return {
       organizationId: null,
       rateLimitKey: `static:${hashA2aApiKey(suppliedApiKey)}`,

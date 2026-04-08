@@ -222,11 +222,29 @@ function normalizeVisibility(raw: string | undefined): "global" | "chat" | "user
 
 function normalizeRepoUrl(repoUrl: string, source: "github" | "forgejo") {
   const trimmed = repoUrl.trim();
+  try {
+    const parsed = new URL(trimmed);
+    if (!["https:", "http:", "ssh:", "git:"].includes(parsed.protocol)) {
+      throw new Error(`Unsupported git URL protocol: ${parsed.protocol}`);
+    }
+  } catch (err) {
+    if (err instanceof TypeError) {
+      // Not a standard URL (could be scp-style ssh), allow
+    } else {
+      throw err;
+    }
+  }
   return { url: trimmed, safeName: sanitizeRepoName(trimmed, source) };
 }
 
 function buildGitAuthArgs(token: string, repoUrl: string): string[] {
   if (!token) {
+    return [];
+  }
+
+  // Reject tokens with newlines or carriage returns to prevent header injection.
+  if (/[\r\n]/.test(token)) {
+    logger.error("git auth token contains newline characters — refusing to use");
     return [];
   }
 

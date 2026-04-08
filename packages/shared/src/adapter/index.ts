@@ -13,6 +13,8 @@
  *   - Graceful shutdown
  */
 
+export * from './heartbeat.js';
+
 import { createLogger, type Logger } from '../logger.js';
 import type { CanvasBlock, OutboxEnqueueEvent } from '../types/events.js';
 
@@ -25,6 +27,8 @@ export interface AdapterConfig {
   gatewayUrl: string;
   /** Shared adapter token */
   adapterToken: string;
+  /** Organization ID — sent as X-SVEN-ORG-ID on every gateway request */
+  organizationId?: string;
   /** Outbox poll interval in ms (default 2000) */
   outboxPollMs?: number;
 }
@@ -82,13 +86,17 @@ export interface InboundPayload {
 export class GatewayClient {
   private baseUrl: string;
   private token: string;
+  private orgId: string;
   private static readonly DEFAULT_REQUEST_TIMEOUT_MS = 10000;
+  /** Identity resolution can create users in the DB — allow more time. */
+  private static readonly IDENTITY_RESOLVE_TIMEOUT_MS = 30000;
   private static readonly DEFAULT_READ_RETRY_BASE_MS = 200;
   private static readonly DEFAULT_OUTBOX_MAX_RETRIES = 2;
 
-  constructor(baseUrl: string, token: string) {
+  constructor(baseUrl: string, token: string, orgId?: string) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.token = token;
+    this.orgId = orgId || '';
   }
 
   private static isRetryableStatus(status: number): boolean {
@@ -128,6 +136,7 @@ export class GatewayClient {
       'X-SVEN-ADAPTER-TOKEN': this.token,
       'Content-Type': 'application/json',
     };
+    if (this.orgId) headers['X-SVEN-ORG-ID'] = this.orgId;
     const timeoutMs = Math.max(
       1000,
       Number(options?.timeoutMs ?? GatewayClient.DEFAULT_REQUEST_TIMEOUT_MS),
@@ -185,7 +194,7 @@ export class GatewayClient {
       channel,
       channel_user_id: channelUserId,
       display_name: displayName,
-    });
+    }, { timeoutMs: GatewayClient.IDENTITY_RESOLVE_TIMEOUT_MS });
     return res.data;
   }
 
@@ -279,7 +288,7 @@ export abstract class BaseAdapter {
 
   constructor(config: AdapterConfig) {
     this.config = config;
-    this.gateway = new GatewayClient(config.gatewayUrl, config.adapterToken);
+    this.gateway = new GatewayClient(config.gatewayUrl, config.adapterToken, config.organizationId);
     this.logger = createLogger(`adapter-${config.channel}`);
   }
 
@@ -585,6 +594,7 @@ export function runAdapter(
     channel: process.env.ADAPTER_CHANNEL || 'unknown',
     gatewayUrl: process.env.GATEWAY_URL || 'http://gateway-api:3000',
     adapterToken: process.env.SVEN_ADAPTER_TOKEN || '',
+    organizationId: process.env.SVEN_ORG_ID || '',
     outboxPollMs: parseInt(process.env.OUTBOX_POLL_MS || '2000', 10),
   };
 

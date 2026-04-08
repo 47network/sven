@@ -5,6 +5,7 @@ import { decryptLiteLlmVirtualKey } from '@sven/shared';
 import { resolveSecretRef } from '@sven/shared';
 import { CitationRef, normalizeCitations } from './citation-utils.js';
 import { parseBooleanSetting, parseSettingValue } from './settings-utils.js';
+import { classifyPrompt, getCapabilityForCategory, type TaskCategory, type ComplexityTier } from './prompt-classifier.js';
 
 const logger = createLogger('llm-router');
 
@@ -76,7 +77,7 @@ const MIN_LLM_CONCURRENCY = 1;
 const MAX_LLM_CONCURRENCY = 64;
 const LLM_QUEUE_MULTIPLIER = 4;
 const MIN_LLM_QUEUE_CAP = 8;
-const DEFAULT_OLLAMA_TIMEOUT_MS = 30000;
+const DEFAULT_OLLAMA_TIMEOUT_MS = 120000;
 const DEFAULT_OPENAI_TIMEOUT_MS = 45000;
 const MIN_PROVIDER_TIMEOUT_MS = 100;
 const MAX_PROVIDER_TIMEOUT_MS = 300000;
@@ -97,12 +98,22 @@ export class LLMRouter {
   }>();
   private activeLlmRequests = 0;
   private pendingLlmQueue: Array<() => void> = [];
+  private backendHealthStatus = new Map<string, number>();
+  private static readonly BACKEND_COOLDOWN_MS = 60_000;
 
   constructor(private pool: pg.Pool) {}
 
   async complete(req: CompletionRequest): Promise<CompletionResponse> {
-    const profile = await this.getPerformanceProfile(req.profile_override);
+    let profile: string;
+    let maxConcurrency: number;
+    try {
+      profile = await this.getPerformanceProfile(req.profile_override);
+    } catch (err) {
+      logger.warn('Failed to load performance profile, using default', { err: String(err) });
+      profile = 'balanced';
+    }
 
+    try {
     // Check if LLM work is paused (gaming mode may pause heavy jobs)
     const pauseRes = await this.pool.query(
       `SELECT value FROM settings_global WHERE key = 'performance.pause_jobs'`,
@@ -119,7 +130,7 @@ export class LLMRouter {
     const concurrencyRes = await this.pool.query(
       `SELECT value FROM settings_global WHERE key = 'performance.max_llm_concurrency'`,
     );
-    const maxConcurrency = this.normalizeMaxConcurrency(
+    maxConcurrency = this.normalizeMaxConcurrency(
       concurrencyRes.rows[0]
         ? Number(parseSettingValue(concurrencyRes.rows[0].value))
         : DEFAULT_MAX_LLM_CONCURRENCY,
@@ -155,20 +166,8 @@ export class LLMRouter {
       }
     }
 
-    const model = await this.selectModel(profile, req.chat_id, req.user_id, req.model_override);
-    const modelBudget = await this.getBudgetValue(`budgets.daily_tokens.${model.name}`);
-    if (modelBudget !== null) {
-      const modelUsage = await this.getUsageValue(`usage.${today}.${model.name}`);
-      if (modelUsage >= modelBudget) {
-        logger.warn('Model LLM budget exceeded', { model: model.name, modelUsage, modelBudget });
-        return {
-          text: `LLM budget for model ${model.name} is exhausted. Please try again later or adjust budgets.`,
-          provider_used: 'system',
-          model_used: 'budget_guard',
-          tokens_used: { prompt: 0, completion: 0 },
-        };
-      }
-    }
+    const classification = classifyPrompt(req.messages);
+    const candidates = await this.selectModelCandidates(profile, req.chat_id, req.user_id, req.model_override, classification.primary, classification.complexity);
 
     const liteLLMConfig = await this.getLiteLLMConfig();
     if (liteLLMConfig.enabled && liteLLMConfig.useVirtualKeys) {
@@ -193,46 +192,56 @@ export class LLMRouter {
       }
     }
 
-    logger.info('Routing LLM request', { model: model.name, profile, max_concurrency: maxConcurrency });
+    logger.info('Routing LLM request (HA)', {
+      task: classification.primary,
+      confidence: classification.confidence.toFixed(2),
+      complexity: classification.complexity,
+      candidates: candidates.map(c => ({ name: c.name, endpoint: c.endpoint })),
+      profile,
+      max_concurrency: maxConcurrency,
+    });
 
     try {
       return await this.withConcurrencyLimit(maxConcurrency, async () => {
-        try {
-          const startedAt = Date.now();
-          const response = await this.callProvider(model, req);
-          const latencyMs = Date.now() - startedAt;
+        let lastErr: Error | null = null;
 
-          // Record usage counter for budget tracking
-          await this.recordUsage(req.user_id, req.chat_id, model.name, response.tokens_used);
-          await this.recordUsageCost(model, req, response.tokens_used, latencyMs, 'success');
-
-          return response;
-        } catch (err) {
-          logger.warn('Primary model failed, attempting fallback', {
-            model: model.name,
-            err: String(err),
-            timeout: err instanceof ProviderTimeoutError,
-            timeout_ms: err instanceof ProviderTimeoutError ? err.timeoutMs : undefined,
-            provider: err instanceof ProviderTimeoutError ? err.provider : undefined,
-          });
-
-          // Gaming mode: no cloud fallback (preserve bandwidth)
-          if (profile === 'gaming') {
-            throw new Error(`Gaming mode: local model ${model.name} failed with no fallback allowed`);
+        for (const candidate of candidates) {
+          const modelBudget = await this.getBudgetValue(`budgets.daily_tokens.${candidate.name}`);
+          if (modelBudget !== null) {
+            const modelUsage = await this.getUsageValue(`usage.${today}.${candidate.name}`);
+            if (modelUsage >= modelBudget) {
+              logger.info('Skipping budget-exhausted model', { model: candidate.name });
+              continue;
+            }
           }
 
-          const fallbackModel = await this.getFallbackModel(profile);
-          if (fallbackModel) {
-            logger.info('Using fallback model', { fallback: fallbackModel.name });
+          const resolvedEndpoint = this.resolveOllamaEndpoint(candidate.endpoint, candidate.provider);
+          if (!this.isBackendAvailable(resolvedEndpoint)) {
+            logger.info('Skipping unhealthy backend', { model: candidate.name, endpoint: resolvedEndpoint });
+            continue;
+          }
+
+          try {
             const startedAt = Date.now();
-            const response = await this.callProvider(fallbackModel, req);
+            const response = await this.callProvider(candidate, req);
             const latencyMs = Date.now() - startedAt;
-            await this.recordUsage(req.user_id, req.chat_id, fallbackModel.name, response.tokens_used);
-            await this.recordUsageCost(fallbackModel, req, response.tokens_used, latencyMs, 'success');
+            await this.recordUsage(req.user_id, req.chat_id, candidate.name, response.tokens_used);
+            await this.recordUsageCost(candidate, req, response.tokens_used, latencyMs, 'success');
             return response;
+          } catch (err) {
+            lastErr = err instanceof Error ? err : new Error(String(err));
+            this.markBackendUnhealthy(resolvedEndpoint);
+            logger.warn('Backend failed, trying next candidate', {
+              model: candidate.name,
+              endpoint: resolvedEndpoint,
+              err: String(err),
+              remaining: candidates.length - candidates.indexOf(candidate) - 1,
+            });
+            continue;
           }
-          throw err;
         }
+
+        throw lastErr || new Error('All LLM backends exhausted — no healthy models available');
       });
     } catch (err) {
       if (err instanceof LLMConcurrencySaturationError) {
@@ -249,6 +258,15 @@ export class LLMRouter {
         };
       }
       throw err;
+    }
+    } catch (err) {
+      logger.error('LLM routing failed', { err: String(err), user_id: req.user_id, chat_id: req.chat_id });
+      return {
+        text: 'An internal error occurred while processing your request. Please try again.',
+        provider_used: 'system',
+        model_used: 'error_guard',
+        tokens_used: { prompt: 0, completion: 0 },
+      };
     }
   }
 
@@ -324,130 +342,135 @@ export class LLMRouter {
       : 'balanced';
   }
 
-  private async selectModel(
+  private async selectModelCandidates(
     profile: string,
     chatId: string,
     userId: string,
     modelOverride?: string,
-  ): Promise<ModelRecord> {
+    taskCategory?: TaskCategory,
+    complexity?: ComplexityTier,
+  ): Promise<ModelRecord[]> {
+    const candidates: ModelRecord[] = [];
+    const seenIds = new Set<string>();
+    const addUnique = (record: ModelRecord) => {
+      if (!seenIds.has(record.id)) {
+        seenIds.add(record.id);
+        candidates.push(record);
+      }
+    };
+
     if (modelOverride && modelOverride.trim().length > 0) {
       const overrideRes = await this.pool.query(
         `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens
          FROM model_registry
-         WHERE name = $1 OR model_id = $1
-         LIMIT 1`,
+         WHERE (name = $1 OR model_id = $1) AND is_active = TRUE`,
         [modelOverride.trim()],
       );
-      if (overrideRes.rows.length > 0) {
-        return overrideRes.rows[0];
-      }
+      overrideRes.rows.forEach(addUnique);
     }
 
-    // Chat-specific policy takes precedence over profile-based selection
-    const policyRes = await this.pool.query(
-      `SELECT mr.id, mr.name, mr.endpoint, mr.provider, mr.is_local, mr.cost_per_1k_tokens
-       FROM model_policies mp
-       JOIN model_registry mr ON mp.model_id = mr.id
-       WHERE (mp.scope = 'chat' AND mp.target_id = $1)
-          OR (mp.scope = 'user' AND mp.target_id = $2)
-          OR (mp.scope = 'global')
-       ORDER BY mp.priority DESC, mp.scope ASC
-       LIMIT 1`,
-      [chatId, userId],
-    );
-
-    if (policyRes.rows.length > 0) {
-      return policyRes.rows[0];
+    if (candidates.length === 0) {
+      const policyRes = await this.pool.query(
+        `SELECT mr.id, mr.name, mr.endpoint, mr.provider, mr.is_local, mr.cost_per_1k_tokens
+         FROM model_policies mp
+         JOIN model_registry mr ON mp.model_id = mr.id
+         WHERE ((mp.scope = 'chat' AND mp.target_id = $1)
+            OR (mp.scope = 'user' AND mp.target_id = $2)
+            OR (mp.scope = 'global'))
+           AND mr.is_active = TRUE
+         ORDER BY mp.priority DESC, mp.scope ASC`,
+        [chatId, userId],
+      );
+      policyRes.rows.forEach(addUnique);
     }
 
-    // Profile-based selection from model registry
+    let orderClause: string;
+    let whereExtra = '';
     switch (profile) {
-      case 'gaming': {
-        // Smallest local model — least resource usage
-        const res = await this.pool.query(
-          `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens FROM model_registry
-           WHERE is_local = TRUE
-           ORDER BY name ASC
-           LIMIT 1`,
-        );
-        if (res.rows.length > 0) return res.rows[0];
+      case 'gaming':
+        whereExtra = ` AND is_local = TRUE`;
+        orderClause = `COALESCE(parameters_b, 0) ASC, name ASC`;
         break;
-      }
-
-      case 'performance': {
-        // Best available — prefer cloud for quality, fall back to largest local
-        const cloudRes = await this.pool.query(
-          `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens FROM model_registry
-           WHERE is_local = FALSE
-           ORDER BY name DESC
-           LIMIT 1`,
-        );
-        if (cloudRes.rows.length > 0) return cloudRes.rows[0];
-
-        const localRes = await this.pool.query(
-          `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens FROM model_registry
-           WHERE is_local = TRUE
-           ORDER BY name DESC
-           LIMIT 1`,
-        );
-        if (localRes.rows.length > 0) return localRes.rows[0];
+      case 'performance':
+        orderClause = `COALESCE(parameters_b, 0) DESC, is_local ASC`;
         break;
-      }
-
       case 'balanced':
-      default: {
-        // Best local model, cloud as fallback only
-        const localRes = await this.pool.query(
-          `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens FROM model_registry
-           WHERE is_local = TRUE
-           ORDER BY name DESC
-           LIMIT 1`,
-        );
-        if (localRes.rows.length > 0) return localRes.rows[0];
-
-        const anyRes = await this.pool.query(
-          `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens FROM model_registry
-           ORDER BY is_local DESC, name DESC
-           LIMIT 1`,
-        );
-        if (anyRes.rows.length > 0) return anyRes.rows[0];
+      default:
+        orderClause = `COALESCE(parameters_b, 0) DESC, is_local DESC`;
         break;
-      }
     }
 
-    // Hardcoded local default
-    return {
-      id: 'ollama-default',
-      name: 'ollama-default',
-      endpoint: process.env.OLLAMA_URL || 'http://localhost:11434',
-      provider: 'ollama',
-      is_local: true,
-      cost_per_1k_tokens: null,
-    };
+    // For complex tasks, prefer models >= 7B; for moderate, >= 3B; simple can use anything
+    const minParamsB = complexity === 'complex' ? 7 : complexity === 'moderate' ? 3 : 0;
+    const sizeFilter = minParamsB > 0 ? ` AND COALESCE(parameters_b, 0) >= ${minParamsB}` : '';
+
+    const preferredCap = taskCategory ? getCapabilityForCategory(taskCategory) : null;
+
+    if (preferredCap && preferredCap !== 'chat') {
+      const specializedRes = await this.pool.query(
+        `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens
+         FROM model_registry
+         WHERE $1 = ANY(capabilities) AND is_active = TRUE${whereExtra}${sizeFilter}
+         ORDER BY ${orderClause}`,
+        [preferredCap],
+      );
+      specializedRes.rows.forEach(addUnique);
+    }
+
+    const allRes = await this.pool.query(
+      `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens
+       FROM model_registry
+       WHERE 'chat' = ANY(capabilities) AND is_active = TRUE${whereExtra}${sizeFilter}
+       ORDER BY ${orderClause}`,
+    );
+    allRes.rows.forEach(addUnique);
+
+    // If complexity filter yielded nothing, fall back without the size constraint
+    if (candidates.length === 0 && minParamsB > 0) {
+      const fallbackRes = await this.pool.query(
+        `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens
+         FROM model_registry
+         WHERE 'chat' = ANY(capabilities) AND is_active = TRUE${whereExtra}
+         ORDER BY ${orderClause}`,
+      );
+      fallbackRes.rows.forEach(addUnique);
+    }
+
+    if (candidates.length === 0) {
+      addUnique({
+        id: 'ollama-default',
+        name: process.env.OLLAMA_DEFAULT_MODEL || 'llama3.2:3b',
+        endpoint: process.env.OLLAMA_URL || 'http://localhost:11434',
+        provider: 'ollama',
+        is_local: true,
+        cost_per_1k_tokens: null,
+      });
+    }
+
+    return candidates;
   }
 
-  private async getFallbackModel(profile: string): Promise<ModelRecord | null> {
-    if (profile === 'gaming') {
-      // Gaming mode doesn't fall back to cloud
-      return null;
+  private resolveOllamaEndpoint(registeredEndpoint: string, provider: string): string {
+    if (provider !== 'ollama') return registeredEndpoint;
+    if (registeredEndpoint.startsWith('http://') || registeredEndpoint.startsWith('https://')) {
+      return registeredEndpoint;
     }
+    return process.env.OLLAMA_URL || 'http://localhost:11434';
+  }
 
-    // Balanced → try cloud. Performance → try local as backup.
-    if (profile === 'performance') {
-      // Already tried cloud; fall back to best local
-      const res = await this.pool.query(
-        `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens FROM model_registry
-         WHERE is_local = TRUE ORDER BY name DESC LIMIT 1`,
-      );
-      return res.rows[0] || null;
+  private isBackendAvailable(endpoint: string): boolean {
+    const unhealthyUntil = this.backendHealthStatus.get(endpoint);
+    if (!unhealthyUntil) return true;
+    if (Date.now() >= unhealthyUntil) {
+      this.backendHealthStatus.delete(endpoint);
+      return true;
     }
+    return false;
+  }
 
-    // Balanced or unknown → try cloud
-    const res = await this.pool.query(
-      `SELECT id, name, endpoint, provider, is_local, cost_per_1k_tokens FROM model_registry
-       WHERE is_local = FALSE ORDER BY name ASC LIMIT 1`,
-    );
-    return res.rows[0] || null;
+  private markBackendUnhealthy(endpoint: string): void {
+    this.backendHealthStatus.set(endpoint, Date.now() + LLMRouter.BACKEND_COOLDOWN_MS);
+    logger.warn('Backend marked unhealthy', { endpoint, cooldown_ms: LLMRouter.BACKEND_COOLDOWN_MS });
   }
 
   /**
@@ -582,9 +605,18 @@ export class LLMRouter {
     const rotationStrategy = await this.getProviderRotationStrategy(model.provider);
 
     if (model.provider === 'ollama') {
-      return this.callOllama(model.endpoint, model.name, messages, {
+      const ollamaEndpoint = this.resolveOllamaEndpoint(model.endpoint, model.provider);
+      return this.callOllama(ollamaEndpoint, model.name, messages, {
         temperature,
         max_tokens: maxTokens,
+      });
+    }
+
+    if (model.provider === 'llama_cpp') {
+      return this.callOpenAICompatible(model.endpoint, model.name, messages, {
+        temperature,
+        max_tokens: maxTokens,
+        provider_label: 'llama_cpp',
       });
     }
 
@@ -917,7 +949,8 @@ export class LLMRouter {
         `SELECT active_organization_id FROM users WHERE id = $1 LIMIT 1`,
         [userId],
       );
-      return res.rows.length > 0 ? String(res.rows[0].active_organization_id || '') : null;
+      const raw = res.rows[0]?.active_organization_id;
+      return raw ? String(raw) : null;
     } catch {
       return null;
     }
@@ -995,7 +1028,7 @@ export class LLMRouter {
     );
 
     if (!response.ok) {
-      throw new Error(`Ollama error: ${response.status} ${await response.text()}`);
+      throw new Error(`Ollama error: ${response.status}`);
     }
 
     const data = await response.json() as any;
@@ -1015,10 +1048,11 @@ export class LLMRouter {
     endpoint: string,
     modelName: string,
     messages: Array<{ role: string; content: string }>,
-    options?: { temperature?: number; max_tokens?: number; api_key?: string },
+    options?: { temperature?: number; max_tokens?: number; api_key?: string; provider_label?: 'openai_compatible' | 'llama_cpp' },
   ): Promise<CompletionResponse> {
     const apiKey = options?.api_key || process.env.LLM_API_KEY || '';
     const temperature = options?.temperature ?? 0.7;
+    const providerLabel = options?.provider_label ?? 'openai_compatible';
     const response = await this.fetchWithTimeout(
       `${endpoint}/v1/chat/completions`,
       {
@@ -1034,8 +1068,8 @@ export class LLMRouter {
           ...(options?.max_tokens !== undefined ? { max_tokens: options.max_tokens } : {}),
         }),
       },
-      this.getProviderTimeoutMs('openai_compatible'),
-      'openai_compatible',
+      this.getProviderTimeoutMs(providerLabel),
+      providerLabel,
     );
 
     if (!response.ok) {
@@ -1044,7 +1078,7 @@ export class LLMRouter {
       throw new ProviderHttpError(
         response.status,
         Number.isFinite(retryAfter) ? retryAfter : null,
-        `LLM API error: ${response.status} ${await response.text()}`,
+        `LLM API error: ${response.status}`,
       );
     }
 
@@ -1069,11 +1103,11 @@ export class LLMRouter {
     };
   }
 
-  private getProviderTimeoutMs(provider: 'ollama' | 'openai_compatible'): number {
-    const envKey = provider === 'ollama'
+  private getProviderTimeoutMs(provider: 'ollama' | 'openai_compatible' | 'llama_cpp'): number {
+    const envKey = provider === 'ollama' || provider === 'llama_cpp'
       ? 'AGENT_RUNTIME_OLLAMA_TIMEOUT_MS'
       : 'AGENT_RUNTIME_OPENAI_TIMEOUT_MS';
-    const fallback = provider === 'ollama'
+    const fallback = provider === 'ollama' || provider === 'llama_cpp'
       ? DEFAULT_OLLAMA_TIMEOUT_MS
       : DEFAULT_OPENAI_TIMEOUT_MS;
     const raw = Number(process.env[envKey] ?? fallback);

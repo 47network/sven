@@ -20,4 +20,5 @@ This document is the quick index for Sven's current feature surface and setup en
 - Public host: `sven.systems`
 - App host: `app.sven.systems`
 - Admin alias: `admin.sven.systems`
+- Chat host: `talk.sven.systems` (Rocket.Chat on `10.47.47.12`, proxied by VM4 edge nginx)
 - Soak gateway source: `127.0.0.1:56002`

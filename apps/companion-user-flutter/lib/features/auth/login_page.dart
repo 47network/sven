@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../app/sven_app_icon.dart';
 import 'auth_errors.dart';
 
 class LoginPage extends StatefulWidget {
@@ -148,25 +149,7 @@ class _LoginPageState extends State<LoginPage>
                           scale: _pulseAnim.value,
                           child: child,
                         ),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: primary.withValues(
-                                    alpha: isDark ? 0.45 : 0.22),
-                                blurRadius: isDark ? 36 : 20,
-                                spreadRadius: isDark ? 3 : 0,
-                              ),
-                            ],
-                          ),
-                          child: Image.asset(
-                            'assets/images/sven_logo.png',
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        child: const SvenAppIcon(size: 80, borderRadius: 24),
                       ),
                       const SizedBox(height: 32),
 

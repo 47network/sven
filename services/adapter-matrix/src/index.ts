@@ -9,6 +9,13 @@
  */
 
 import { randomUUID } from 'node:crypto';
+
+// Polyfill IndexedDB for Node.js before matrix-js-sdk loads crypto.
+// matrix-sdk-crypto-wasm stores OlmMachine state in IndexedDB; fake-indexeddb
+// provides an in-memory implementation that satisfies the interface. The
+// crypto-persistence module dumps/restores this state to disk for persistence.
+import 'fake-indexeddb/auto';
+
 import { createClient, MatrixEvent, type MatrixClient } from 'matrix-js-sdk';
 import {
   BaseAdapter,
@@ -18,13 +25,19 @@ import {
   runAdapter,
   createLogger,
 } from '@sven/shared';
+import { dumpIndexedDB, restoreIndexedDB } from './crypto-persistence.js';
 
 const logger = createLogger('adapter-matrix');
+
+const MAX_UPLOAD_SIZE = 100 * 1024 * 1024; // 100 MB
+const MAX_MESSAGE_BODY = 512 * 1024; // 512 KB
+const APPROVAL_REACTION_PATTERN = /^(approve|deny)[:\s]+(.+)$/i;
 
 interface MatrixConfig extends AdapterConfig {
   matrixHomeserverUrl: string;
   matrixAccessToken: string;
   matrixUserId: string;
+  matrixDeviceId?: string;
   matrixBotName?: string;
   matrixAutoJoin?: boolean;
   matrixTriggerPrefix?: string;
@@ -45,6 +58,7 @@ class MatrixAdapter extends BaseAdapter {
   private homeserverUrl: string;
   private accessToken: string;
   private userId: string;
+  private deviceId: string;
   private botName: string;
   private autoJoin: boolean;
   private triggerPrefix: string;
@@ -57,12 +71,17 @@ class MatrixAdapter extends BaseAdapter {
   private syncSince: string | null = null;
   private syncInFlight = false;
   private directRooms = new Set<string>();
+  /** Epoch ms when connect() started — events older than this are initial-sync backfill. */
+  private connectEpochMs = 0;
+  /** Sliding-window dedup set: recently processed Matrix event_ids (max 2000). */
+  private processedEventIds = new Set<string>();
 
   constructor(config: MatrixConfig) {
     super({ ...config, channel: 'matrix' });
     this.homeserverUrl = (config.matrixHomeserverUrl || process.env.MATRIX_HOMESERVER_URL || '').replace(/\/+$/, '');
     this.accessToken = config.matrixAccessToken || process.env.MATRIX_ACCESS_TOKEN || '';
     this.userId = config.matrixUserId || process.env.MATRIX_USER_ID || '';
+    this.deviceId = config.matrixDeviceId || process.env.MATRIX_DEVICE_ID || '';
     this.botName = config.matrixBotName || process.env.MATRIX_BOT_NAME || 'sven';
     this.autoJoin = config.matrixAutoJoin ?? ((process.env.MATRIX_AUTO_JOIN || 'true') !== 'false');
     this.triggerPrefix = config.matrixTriggerPrefix || process.env.MATRIX_TRIGGER_PREFIX || '/sven';
@@ -82,30 +101,59 @@ class MatrixAdapter extends BaseAdapter {
     if (!this.accessToken) throw new Error('MATRIX_ACCESS_TOKEN is required');
     if (!this.userId) throw new Error('MATRIX_USER_ID is required');
 
+    this.connectEpochMs = Date.now();
+
     this.matrixClient = createClient({
       baseUrl: this.homeserverUrl,
       accessToken: this.accessToken,
       userId: this.userId,
+      ...(this.deviceId ? { deviceId: this.deviceId } : {}),
     });
     await this.matrixClient.whoami();
     if (this.e2eeEnabled && typeof (this.matrixClient as any).initRustCrypto === 'function') {
       try {
-        await (this.matrixClient as any).initRustCrypto();
-        logger.info('Matrix E2EE support initialized');
+        await restoreIndexedDB();
+        await (this.matrixClient as any).initRustCrypto({});
+        logger.info('Matrix E2EE support initialized (persistent crypto store)');
       } catch (err) {
         logger.warn('Matrix E2EE initialization failed', { error: String(err) });
       }
     }
     await this.refreshDirectRooms();
-    await this.syncOnce();
-    this.syncTimer = setInterval(() => {
-      void this.syncOnce();
-    }, this.syncMs);
+
+    if (this.e2eeEnabled && this.matrixClient) {
+      // SDK sync handles the Olm/Megolm key-exchange protocol (device-key
+      // upload, one-time-key claims, to-device messages, room-key sharing).
+      this.matrixClient.on('Room.timeline' as any, (event: MatrixEvent, room: any, toStartOfTimeline: boolean) => {
+        if (toStartOfTimeline) return;
+        if (!room?.roomId) return;
+        if (this.allowedRooms.size > 0 && !this.allowedRooms.has(room.roomId)) return;
+        void this.handleTimelineEvent(room.roomId, event.getEffectiveEvent());
+      });
+
+      if (this.autoJoin) {
+        this.matrixClient.on('RoomMember.membership' as any, (_event: MatrixEvent, member: any) => {
+          if (member.membership === 'invite' && member.userId === this.userId) {
+            if (this.allowedRooms.size > 0 && !this.allowedRooms.has(member.roomId)) return;
+            void this.joinRoom(member.roomId);
+          }
+        });
+      }
+
+      await (this.matrixClient as any).startClient({ initialSyncLimit: 50, disablePresence: true });
+      logger.info('Matrix SDK sync started (E2EE mode)');
+    } else {
+      await this.syncOnce();
+      this.syncTimer = setInterval(() => {
+        void this.syncOnce();
+      }, this.syncMs);
+    }
 
     logger.info('Matrix adapter connected', {
       homeserver: this.homeserverUrl,
       user_id: this.userId,
       auto_join: this.autoJoin,
+      e2ee: this.e2eeEnabled,
     });
   }
 
@@ -113,6 +161,13 @@ class MatrixAdapter extends BaseAdapter {
     if (this.syncTimer) {
       clearInterval(this.syncTimer);
       this.syncTimer = null;
+    }
+    if (this.matrixClient) {
+      (this.matrixClient as any).stopClient();
+    }
+    // Dump AFTER stopping sync so outgoing request queue is flushed.
+    if (this.e2eeEnabled) {
+      await dumpIndexedDB();
     }
   }
 
@@ -220,6 +275,23 @@ class MatrixAdapter extends BaseAdapter {
   private async handleTimelineEvent(roomId: string, event: any): Promise<void> {
     if (event?.sender === this.userId) return;
 
+    // Skip events from before the adapter connected (initial-sync backfill).
+    const originTs = Number(event?.origin_server_ts || 0);
+    if (originTs > 0 && originTs < this.connectEpochMs) return;
+
+    // Dedup: skip events we already processed (SDK may fire Room.timeline
+    // twice for encrypted events — once encrypted, once after decryption).
+    const matrixEventId = String(event?.event_id || '');
+    if (matrixEventId && this.processedEventIds.has(matrixEventId)) return;
+    // Track immediately to prevent concurrent async entries for the same event.
+    if (matrixEventId) {
+      this.processedEventIds.add(matrixEventId);
+      if (this.processedEventIds.size > 2000) {
+        const first = this.processedEventIds.values().next().value;
+        if (first !== undefined) this.processedEventIds.delete(first);
+      }
+    }
+
     if (event?.type === 'm.reaction') {
       await this.handleReactionEvent(event);
       return;
@@ -228,8 +300,9 @@ class MatrixAdapter extends BaseAdapter {
     if (event?.type === 'm.room.encrypted') {
       const decrypted = await this.tryDecryptEncryptedEvent(roomId, event);
       if (!decrypted) return;
-      await this.handleTimelineEvent(roomId, decrypted);
-      return;
+      // Continue processing with decrypted payload (no recursion — event_id
+      // is already tracked from the encrypted envelope above).
+      event = decrypted;
     }
 
     if (event?.type !== 'm.room.message') return;
@@ -237,7 +310,8 @@ class MatrixAdapter extends BaseAdapter {
 
     const content = event?.content || {};
     const msgType = String(content?.msgtype || '');
-    const body = String(content?.body || '');
+    const rawBody = String(content?.body || '');
+    const body = rawBody.length > MAX_MESSAGE_BODY ? rawBody.slice(0, MAX_MESSAGE_BODY) : rawBody;
     const senderId = String(event?.sender || '');
     const eventId = String(event?.event_id || randomUUID());
     if (!senderId) return;
@@ -256,6 +330,11 @@ class MatrixAdapter extends BaseAdapter {
 
     const relatesTo = content?.['m.relates_to'];
     const metadata: Record<string, unknown> = {};
+    // Signal to agent-runtime that the adapter already confirmed the trigger
+    // (mention or prefix was matched and stripped from the text).
+    if (!dm && (isMention || hasPrefix)) {
+      metadata.trigger_matched = true;
+    }
     if (relatesTo?.event_id) metadata.reply_to_event_id = String(relatesTo.event_id);
     if (relatesTo?.rel_type === 'm.thread' && relatesTo?.event_id) {
       metadata.thread_root_event_id = String(relatesTo.event_id);
@@ -336,7 +415,7 @@ class MatrixAdapter extends BaseAdapter {
 
     let action = '';
     let approvalId = '';
-    const prefixed = new RegExp(`^(approve|deny)[:\\s]+(.+)$`, 'i').exec(key);
+    const prefixed = APPROVAL_REACTION_PATTERN.exec(key);
     if (prefixed) {
       action = prefixed[1].toLowerCase();
       approvalId = prefixed[2].trim();
@@ -458,9 +537,33 @@ class MatrixAdapter extends BaseAdapter {
 
   private async uploadFromUrl(url: string): Promise<{ content_uri: string; info?: Record<string, unknown> } | null> {
     try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+      const h = parsed.hostname.toLowerCase();
+      if (h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '0.0.0.0' || h === '169.254.169.254' || h === 'metadata.google.internal') {
+        logger.warn('Upload URL rejected: blocked host', { url: parsed.hostname });
+        return null;
+      }
+      const v4 = h.split('.');
+      if (v4.length === 4 && v4.every((p: string) => /^\d+$/.test(p))) {
+        const [a, b] = v4.map(Number);
+        if (a === 10 || a === 127 || a === 0 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254)) {
+          logger.warn('Upload URL rejected: private IP', { url: parsed.hostname });
+          return null;
+        }
+      }
       const res = await fetch(url);
       if (!res.ok) return null;
+      const declaredSize = Number(res.headers.get('content-length') || 0);
+      if (declaredSize > MAX_UPLOAD_SIZE) {
+        logger.warn('File download rejected: Content-Length exceeds limit', { url, size: declaredSize });
+        return null;
+      }
       const buf = await res.arrayBuffer();
+      if (buf.byteLength > MAX_UPLOAD_SIZE) {
+        logger.warn('File download rejected: actual size exceeds limit', { url, size: buf.byteLength });
+        return null;
+      }
       const contentType = res.headers.get('content-type') || 'application/octet-stream';
       const fileName = String(url.split('/').pop() || 'upload.bin');
       let contentUri = '';

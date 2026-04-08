@@ -13,6 +13,8 @@ const IMAGE_EXT = new Set(['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp']);
 export const DEFAULT_MEDIA_MAX_BYTES = 100 * 1024 * 1024;
 const DEFAULT_FRAME_INTERVAL_SEC = 10;
 const DEFAULT_MAX_FRAMES = 5;
+const MAX_ALLOWED_FRAMES = 50;
+const MIN_FRAME_INTERVAL_SEC = 1;
 const DEFAULT_TRANSCRIBE_TIMEOUT_MS = 300000;
 const DEFAULT_KEYFRAME_TIMEOUT_MS = 120000;
 const DEFAULT_MEDIA_FETCH_TIMEOUT_MS = 15000;
@@ -159,8 +161,10 @@ export async function extractKeyFramesWithFfmpeg(
   intervalSec: number,
   maxFrames: number,
 ): Promise<string[]> {
-  const safeInterval = Number.isFinite(intervalSec) && intervalSec > 0 ? intervalSec : DEFAULT_FRAME_INTERVAL_SEC;
-  const safeMaxFrames = Number.isFinite(maxFrames) && maxFrames > 0 ? maxFrames : DEFAULT_MAX_FRAMES;
+  const safeInterval = Number.isFinite(intervalSec) && intervalSec >= MIN_FRAME_INTERVAL_SEC
+    ? intervalSec : DEFAULT_FRAME_INTERVAL_SEC;
+  const safeMaxFrames = Number.isFinite(maxFrames) && maxFrames > 0
+    ? Math.min(maxFrames, MAX_ALLOWED_FRAMES) : DEFAULT_MAX_FRAMES;
   const outputPattern = path.join(outDir, 'frame-%03d.jpg');
   const keyframeTimeoutMs = resolveMediaSubprocessTimeoutMs(
     process.env.MEDIA_ANALYSIS_KEYFRAME_TIMEOUT_MS,
@@ -549,10 +553,10 @@ export async function analyzeMedia(
     }
 
     const interval = typeof inputs.frame_interval_sec === 'number'
-      ? inputs.frame_interval_sec
+      ? Math.max(MIN_FRAME_INTERVAL_SEC, inputs.frame_interval_sec)
       : DEFAULT_FRAME_INTERVAL_SEC;
     const maxFrames = typeof inputs.max_frames === 'number'
-      ? inputs.max_frames
+      ? Math.min(Math.max(1, inputs.max_frames), MAX_ALLOWED_FRAMES)
       : DEFAULT_MAX_FRAMES;
     keyFrameDir = await runtimeDeps.mkdtemp(path.join(runtimeDeps.tmpdir(), 'media-frames-'));
     const frames = await runtimeDeps.extractKeyFrames(resolved.filePath, keyFrameDir, interval, maxFrames);

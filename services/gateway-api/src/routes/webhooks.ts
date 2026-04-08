@@ -12,6 +12,41 @@ const jc = JSONCodec();
 const DEFAULT_WEBHOOK_MAX_SKEW_MS = 5 * 60 * 1000;
 const DEFAULT_WEBHOOK_REPLAY_WINDOW_MS = 10 * 60 * 1000;
 
+// Per-path rate limiting: sliding window, max requests per minute.
+const WEBHOOK_RATE_LIMIT_WINDOW_MS = 60_000;
+const WEBHOOK_RATE_LIMIT_MAX = Number(process.env.WEBHOOK_RATE_LIMIT_MAX) || 60;
+const webhookRateBuckets = new Map<string, number[]>();
+
+function isWebhookRateLimited(webhookPath: string): boolean {
+  const now = Date.now();
+  const cutoff = now - WEBHOOK_RATE_LIMIT_WINDOW_MS;
+  let timestamps = webhookRateBuckets.get(webhookPath);
+  if (!timestamps) {
+    timestamps = [];
+    webhookRateBuckets.set(webhookPath, timestamps);
+  }
+  // Prune expired entries.
+  while (timestamps.length > 0 && timestamps[0] <= cutoff) {
+    timestamps.shift();
+  }
+  if (timestamps.length >= WEBHOOK_RATE_LIMIT_MAX) {
+    return true;
+  }
+  timestamps.push(now);
+  return false;
+}
+
+// Periodic cleanup of stale buckets to prevent memory growth.
+setInterval(() => {
+  const now = Date.now();
+  const cutoff = now - WEBHOOK_RATE_LIMIT_WINDOW_MS * 2;
+  for (const [key, timestamps] of webhookRateBuckets) {
+    if (timestamps.length === 0 || timestamps[timestamps.length - 1] <= cutoff) {
+      webhookRateBuckets.delete(key);
+    }
+  }
+}, 5 * 60_000).unref();
+
 function publishRuntimeDispatch(nc: NatsConnection, data: RuntimeDispatchEvent) {
   const event: EventEnvelope<RuntimeDispatchEvent> = {
     schema_version: '1.0',
@@ -34,6 +69,13 @@ export async function registerWebhookRoutes(app: FastifyInstance, pool: pg.Pool,
     const correlationId = request.correlationId || String(request.id || uuidv7());
     const { path } = request.params as { path: string };
     const key = String(path || '').trim().replace(/^\/+/, '');
+    if (isWebhookRateLimited(key)) {
+      reply.status(429).send({
+        success: false,
+        error: { code: 'RATE_LIMITED', message: 'Webhook rate limit exceeded' },
+      });
+      return;
+    }
     const payload = normalizeWebhookPayload(request.body);
 
     const hookRes = await pool.query(
@@ -626,6 +668,9 @@ function compareWebhookNumbers(
   return predicate(leftNumber, rightNumber);
 }
 
+const BLOCKED_PROPERTY_NAMES = new Set(['__proto__', 'constructor', 'prototype']);
+const MAX_WEBHOOK_PATH_DEPTH = 10;
+
 function getWebhookValueAtPath(payload: Record<string, unknown>, path: string): unknown {
   const segments = String(path || '')
     .trim()
@@ -633,8 +678,10 @@ function getWebhookValueAtPath(payload: Record<string, unknown>, path: string): 
     .split('.')
     .map((segment) => segment.trim())
     .filter(Boolean);
+  if (segments.length > MAX_WEBHOOK_PATH_DEPTH) return undefined;
   let current: unknown = payload;
   for (const segment of segments) {
+    if (BLOCKED_PROPERTY_NAMES.has(segment)) return undefined;
     if (!current || typeof current !== 'object' || Array.isArray(current)) return undefined;
     current = (current as Record<string, unknown>)[segment];
   }

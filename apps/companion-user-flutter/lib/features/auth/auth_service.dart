@@ -48,6 +48,10 @@ class AuthService {
   final http.Client _client;
   final TokenStore _store;
 
+  /// Guards against concurrent token refreshes: all callers share the same
+  /// in-flight future so only one HTTP refresh request is ever issued at once.
+  Future<String>? _pendingRefresh;
+
   Future<String?> readToken() => _store.readAccessToken();
   Future<String?> readRefreshToken() => _store.readRefreshToken();
   Future<String?> readUserId() => _store.readUserId();
@@ -228,7 +232,14 @@ class AuthService {
     }
   }
 
-  Future<String> refresh() async {
+  Future<String> refresh() {
+    // Deduplicate concurrent refresh calls: reuse the in-flight future so
+    // only one HTTP request goes out even when many 401s arrive simultaneously.
+    _pendingRefresh ??= _doRefresh().whenComplete(() => _pendingRefresh = null);
+    return _pendingRefresh!;
+  }
+
+  Future<String> _doRefresh() async {
     final timer = Stopwatch()..start();
     final refreshToken = await readRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {

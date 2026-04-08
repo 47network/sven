@@ -691,7 +691,7 @@ function tryRipgrep(
   budgets: SearchBudgets,
 ): Promise<{ results: SearchResult[]; budgetExceeded: boolean } | null> {
   return new Promise<{ results: SearchResult[]; budgetExceeded: boolean } | null>((resolve) => {
-    const rg = spawn('rg', ['-n', '--color', 'never', '--hidden', '--glob', '!**/node_modules/**', '--glob', '!**/.git/**', query, rootPath]);
+    const rg = spawn('rg', ['-F', '-n', '--color', 'never', '--hidden', '--glob', '!**/node_modules/**', '--glob', '!**/.git/**', query, rootPath]);
     const results: SearchResult[] = [];
     let buffered = '';
     let timedOut = false;

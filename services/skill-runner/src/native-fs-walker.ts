@@ -113,6 +113,7 @@ async function fallbackWalk(
   filesOnly: boolean,
   maxDepth: number,
 ): Promise<FsWalkEntry[]> {
+  const canonicalRoot = await canonicalizeExistingPath(root) || root;
   const results: FsWalkEntry[] = [];
   async function visit(dir: string, depth: number): Promise<void> {
     if (depth > maxDepth || results.length >= maxResults) return;
@@ -126,6 +127,13 @@ async function fallbackWalk(
       if (results.length >= maxResults) return;
       if (!includeHidden && entry.name.startsWith('.')) continue;
       const fullPath = path.join(dir, entry.name);
+      const isSymlink = entry.isSymbolicLink();
+      if (isSymlink) {
+        const real = await canonicalizeExistingPath(fullPath);
+        if (!real || (real !== canonicalRoot && !real.startsWith(canonicalRoot + path.sep))) {
+          continue;
+        }
+      }
       const isDirectory = entry.isDirectory();
       const matches = !matcher || matcher(entry.name) || matcher(fullPath);
       if (matches && (!filesOnly || !isDirectory)) {

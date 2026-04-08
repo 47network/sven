@@ -27,7 +27,12 @@ export function encryptLiteLlmVirtualKey(value: string): string {
   if (input.startsWith(PREFIX)) return input;
 
   const key = getKey();
-  if (key.length === 0) return input;
+  if (key.length === 0) {
+    if (typeof process !== 'undefined' && process.stderr) {
+      process.stderr.write('[WARN] SVEN_MASTER_KEY_V1 not set — storing LiteLLM key in plaintext\n');
+    }
+    return input;
+  }
 
   const iv = randomBytes(IV_BYTES);
   const cipher = createCipheriv(ALGO, key, iv);

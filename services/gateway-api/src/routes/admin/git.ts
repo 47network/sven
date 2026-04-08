@@ -90,6 +90,21 @@ function isHttpUrl(value: string): boolean {
   return /^https?:\/\//i.test(value);
 }
 
+function isBlockedHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  if (h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '0.0.0.0') return true;
+  if (h === 'metadata.google.internal' || h === '169.254.169.254') return true;
+  const v4Parts = h.split('.');
+  if (v4Parts.length === 4 && v4Parts.every(p => /^\d+$/.test(p))) {
+    const [a, b] = v4Parts.map(Number);
+    if (a === 10 || a === 127 || a === 0) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 169 && b === 254) return true;
+  }
+  return false;
+}
+
 function validateRepoUrlForProvider(provider: string, repoUrl: string): string | null {
   if (provider === 'local') {
     if (isHttpUrl(repoUrl)) {
@@ -102,6 +117,9 @@ function validateRepoUrlForProvider(provider: string, repoUrl: string): string |
       const parsed = new URL(repoUrl);
       if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
         return 'repoUrl for forgejo/github must be an http(s) URL';
+      }
+      if (isBlockedHost(parsed.hostname)) {
+        return 'repoUrl cannot point to localhost, private, or metadata service addresses';
       }
       return null;
     } catch {

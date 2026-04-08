@@ -311,6 +311,7 @@ class DeviceService extends ChangeNotifier {
     Map<String, dynamic> payload = const {},
   }) async {
     try {
+      _error = null;
       final resp = await _client.postJson(
         Uri.parse('$_apiBase/v1/admin/devices/$deviceId/command'),
         {'command': command, 'payload': payload},
@@ -319,7 +320,12 @@ class DeviceService extends ChangeNotifier {
         return DeviceCommand.fromJson(
             jsonDecode(resp.body)['data'] as Map<String, dynamic>);
       }
-    } catch (_) {}
+      _error = _extractError(resp.body);
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
     return null;
   }
 

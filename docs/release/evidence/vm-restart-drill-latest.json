@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-03-24T01:11:56.688Z",
+  "status": "planned",
+  "execution_mode": "planned",
+  "env_file": "deploy/multi-vm/.env",
+  "vm5_compose": "deploy/multi-vm/docker-compose.vm5-ai.yml",
+  "vm7_compose": "deploy/multi-vm/docker-compose.vm7-adapters.yml",
+  "vm7_profiles": [
+    "adapters",
+    "tunnel"
+  ],
+  "head_sha": "e936b3c8ce930fb8bb6d34cde9fe130fef2e8653",
+  "commands": [
+    {
+      "step": "vm5_restart_wait",
+      "command": "sudo docker compose -f deploy/multi-vm/docker-compose.vm5-ai.yml --env-file deploy/multi-vm/.env up -d --wait",
+      "started_at": "2026-03-24T01:11:56.688Z",
+      "ended_at": "2026-03-24T01:11:56.688Z",
+      "pass": true,
+      "skipped": true,
+      "exit_code": 0,
+      "detail": "plan-only (execution not requested)",
+      "stdout_tail": "",
+      "stderr_tail": ""
+    },
+    {
+      "step": "vm5_status",
+      "command": "sudo docker compose -f deploy/multi-vm/docker-compose.vm5-ai.yml --env-file deploy/multi-vm/.env ps",
+      "started_at": "2026-03-24T01:11:56.688Z",
+      "ended_at": "2026-03-24T01:11:56.688Z",
+      "pass": true,
+      "skipped": true,
+      "exit_code": 0,
+      "detail": "plan-only (execution not requested)",
+      "stdout_tail": "",
+      "stderr_tail": ""
+    },
+    {
+      "step": "vm7_restart_wait",
+      "command": "sudo docker compose -f deploy/multi-vm/docker-compose.vm7-adapters.yml --env-file deploy/multi-vm/.env --profile adapters --profile tunnel up -d --wait",
+      "started_at": "2026-03-24T01:11:56.688Z",
+      "ended_at": "2026-03-24T01:11:56.688Z",
+      "pass": true,
+      "skipped": true,
+      "exit_code": 0,
+      "detail": "plan-only (execution not requested)",
+      "stdout_tail": "",
+      "stderr_tail": ""
+    },
+    {
+      "step": "vm7_status",
+      "command": "sudo docker compose -f deploy/multi-vm/docker-compose.vm7-adapters.yml --env-file deploy/multi-vm/.env --profile adapters --profile tunnel ps",
+      "started_at": "2026-03-24T01:11:56.688Z",
+      "ended_at": "2026-03-24T01:11:56.688Z",
+      "pass": true,
+      "skipped": true,
+      "exit_code": 0,
+      "detail": "plan-only (execution not requested)",
+      "stdout_tail": "",
+      "stderr_tail": ""
+    },
+    {
+      "step": "repo_contract",
+      "command": "npm run -s release:multi-vm:restart:health:check",
+      "started_at": "2026-03-24T01:11:56.688Z",
+      "ended_at": "2026-03-24T01:11:56.688Z",
+      "pass": true,
+      "skipped": true,
+      "exit_code": 0,
+      "detail": "plan-only (execution not requested)",
+      "stdout_tail": "",
+      "stderr_tail": ""
+    }
+  ]
+}

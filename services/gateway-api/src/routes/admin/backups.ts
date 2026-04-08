@@ -263,9 +263,17 @@ export async function registerBackupRoutes(app: FastifyInstance, pool: pg.Pool) 
           message: 'contentBase64 is required',
         });
       }
+      const MAX_BACKUP_BASE64_LENGTH = 134_217_728; // ~100 MB decoded
+      const base64Str = String(contentBase64);
+      if (base64Str.length > MAX_BACKUP_BASE64_LENGTH) {
+        return reply.status(413).send({
+          status: 'error',
+          message: `Uploaded file exceeds limit (${MAX_BACKUP_BASE64_LENGTH} base64 chars)`,
+        });
+      }
       const backup = await BackupService.registerUploadedBackup({
         fileName: String(fileName || ''),
-        contentBase64: String(contentBase64),
+        contentBase64: base64Str,
         configId: configId as string | undefined,
       });
       reply.send({

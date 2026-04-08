@@ -66,7 +66,7 @@ export interface DesktopAppState {
 export function useDesktopApp(): DesktopAppState {
     const [activeTab, setActiveTab] = useState<NavTab>('chat');
     const [config, setConfig] = useState<DesktopConfig>({
-        gateway_url: 'http://127.0.0.1:3001',
+        gateway_url: 'https://app.sven.systems',
         chat_id: '',
         polling_enabled: true,
     });

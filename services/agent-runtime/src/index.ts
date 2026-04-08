@@ -1,7 +1,6 @@
 import { connect, JSONCodec, consumerOpts, createInbox, NatsConnection } from 'nats';
 import pg from 'pg';
-import { v7 as uuidv7 } from 'uuid';
-import { createLogger, NATS_SUBJECTS } from '@sven/shared';
+import { createLogger, NATS_SUBJECTS, generateTaskId, PermissionHookManager, PromptGuard, QueryChain, CoordinatorSession, MemoryExtractor, AntiDistillation, BackgroundSessionManager, HeartbeatManager, PersonalityEngine, TokenBudgetTracker, FeatureFlagRegistry, ClientAttestor, type TranscriptMessage, type TokenUsage } from '@sven/shared';
 import type { EventEnvelope, InboundMessageEvent, RuntimeDispatchEvent, ToolRunResultEvent } from '@sven/shared';
 import { PolicyEngine } from './policy-engine.js';
 import { LLMRouter } from './llm-router.js';
@@ -31,6 +30,7 @@ import { buildSessionStitchingPrompt } from './session-stitching.js';
 import { normalizeToolRunId } from './tool-run-id.js';
 import { normalizeToolCalls } from './tool-calls.js';
 import { mapApprovalVoteErrorToUserMessage } from './approval-errors.js';
+import { isMissingChatQueueDispatchError } from './queue-dispatch.js';
 import { basename } from 'path';
 
 const logger = createLogger('agent-runtime');
@@ -67,10 +67,190 @@ async function main() {
   const approvalManager = new ApprovalManager(pool, nc);
   const canvasEmitter = new CanvasEmitter(pool, nc);
   const selfCorrection = new SelfCorrectionEngine(pool, nc, llmRouter, canvasEmitter);
+
+  // Initialize permission audit hook manager
+  const permissionHooks = new PermissionHookManager({
+    maxAuditEntries: 5_000,
+    persistSync: false,
+    persistFn: async (entry) => {
+      try {
+        await pool.query(
+          `INSERT INTO config_change_audit (id, change_type, changed_by, old_value, new_value, metadata)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT DO NOTHING`,
+          [
+            entry.entryId,
+            `tool.${entry.action}`,
+            entry.subjectId,
+            JSON.stringify({ resource: entry.resource }),
+            JSON.stringify({ decision: entry.decision, decidedBy: entry.decidedBy }),
+            JSON.stringify({ correlationId: entry.correlationId }),
+          ],
+        );
+      } catch (err) {
+        logger.warn('Failed to persist tool policy audit entry', { entryId: entry.entryId, err: String(err) });
+      }
+    },
+  });
+  permissionHooks.onDeny(async (entry) => {
+    logger.warn('Tool execution denied by policy', {
+      subjectId: entry.subjectId,
+      resource: entry.resource,
+      action: entry.action,
+      decidedBy: entry.decidedBy,
+      correlationId: entry.correlationId,
+    });
+  });
+
+  // Initialize feature flag registry for centralized runtime gating
+  const featureFlags = new FeatureFlagRegistry({ source: 'agent-runtime', warnOnStaleFlags: true });
+  featureFlags.register({
+    name: 'prompt-guard.enabled',
+    type: 'boolean',
+    value: false,
+    description: 'Enable prompt injection detection on inbound messages',
+    createdAt: '2026-04-06T00:00:00Z',
+    cleanupBy: '2027-04-06T00:00:00Z',
+    enabled: (process.env.FEATURE_PROMPT_GUARD_ENABLED || '').toLowerCase() === 'true',
+  });
+  featureFlags.register({
+    name: 'memory-extractor.enabled',
+    type: 'boolean',
+    value: false,
+    description: 'Enable background memory extraction and consolidation',
+    createdAt: '2026-04-06T00:00:00Z',
+    cleanupBy: '2027-04-06T00:00:00Z',
+    enabled: (process.env.FEATURE_MEMORY_EXTRACTOR_ENABLED || '').toLowerCase() === 'true',
+  });
+  featureFlags.register({
+    name: 'anti-distillation.enabled',
+    type: 'boolean',
+    value: false,
+    description: 'Enable response watermarking for anti-distillation',
+    createdAt: '2026-04-06T00:00:00Z',
+    cleanupBy: '2027-04-06T00:00:00Z',
+    enabled: (process.env.FEATURE_ANTI_DISTILLATION_ENABLED || '').toLowerCase() === 'true',
+  });
+  featureFlags.register({
+    name: 'token-budget.enabled',
+    type: 'boolean',
+    value: false,
+    description: 'Enable per-session token budget enforcement',
+    createdAt: '2026-04-07T00:00:00Z',
+    cleanupBy: '2027-04-07T00:00:00Z',
+    enabled: (process.env.FEATURE_TOKEN_BUDGET_ENABLED || '').toLowerCase() === 'true',
+  });
+  featureFlags.register({
+    name: 'client-attestation.enabled',
+    type: 'boolean',
+    value: false,
+    description: 'Enable HMAC attestation on inter-service messages',
+    createdAt: '2026-04-07T00:00:00Z',
+    cleanupBy: '2027-04-07T00:00:00Z',
+    enabled: (process.env.FEATURE_CLIENT_ATTESTATION_ENABLED || '').toLowerCase() === 'true',
+  });
+  logger.info('Feature flag registry initialized', { flags: featureFlags.getAllFlags().map(f => f.name) });
+
+  // Initialize prompt guard (gated by feature flag via NATS config)
+  const promptGuard = new PromptGuard({
+    blockOnDetection: true,
+    blockThreshold: 'medium',
+  });
+  const isPromptGuardEnabled = (): boolean => featureFlags.isEnabled('prompt-guard.enabled');
+
+  // Initialize memory extractor for pattern-based long-term knowledge consolidation
+  const memoryExtractor = new MemoryExtractor({
+    minConfidence: 0.5,
+    maxMemories: 500,
+    decayRatePerDay: 0.01,
+    reinforcementBoost: 0.15,
+    similarityThreshold: 0.7,
+  });
+  const isMemoryExtractorEnabled = (): boolean => featureFlags.isEnabled('memory-extractor.enabled');
+  logger.info('Memory extractor initialized', { enabled: isMemoryExtractorEnabled() });
+
+  // Initialize anti-distillation for response watermarking (gated by feature flag)
+  const antiDistillation = AntiDistillation.fromEnv('agent-runtime');
+  const isAntiDistillationEnabled = (): boolean => featureFlags.isEnabled('anti-distillation.enabled');
+  logger.info('Anti-distillation initialized', { enabled: isAntiDistillationEnabled() });
+
+  // Initialize background session manager for long-running tasks (memory consolidation, etc.)
+  const bgSessions = new BackgroundSessionManager({
+    maxConcurrent: Number(process.env.BG_SESSION_MAX_CONCURRENT || 4),
+    maxQueueSize: Number(process.env.BG_SESSION_MAX_QUEUE || 100),
+    defaultTimeoutMs: Number(process.env.BG_SESSION_TIMEOUT_MS || 30 * 60 * 1000),
+  });
+  logger.info('Background session manager initialized', {
+    maxConcurrent: Number(process.env.BG_SESSION_MAX_CONCURRENT || 4),
+  });
+
+  // Initialize heartbeat manager for NATS connection health monitoring
+  const heartbeat = new HeartbeatManager(
+    'nats',
+    async () => !nc.isClosed(),
+    async () => {
+      logger.warn('Heartbeat triggered NATS reconnect — relying on NATS client auto-reconnect');
+    },
+    {
+      intervalMs: Number(process.env.HEARTBEAT_INTERVAL_MS || 30_000),
+      maxFailures: Number(process.env.HEARTBEAT_MAX_FAILURES || 3),
+    },
+    (prev, next, status) => {
+      logger.info('NATS connection state change', { from: prev, to: next, failures: status.consecutiveFailures });
+    },
+  );
+  heartbeat.start();
+  logger.info('Heartbeat manager started', { intervalMs: Number(process.env.HEARTBEAT_INTERVAL_MS || 30_000) });
+
+  // Initialize personality engine for buddy mood, greetings, XP, and achievements
+  const personalityEngine = PersonalityEngine.fromEnv();
+  logger.info('Personality engine initialized', { mode: personalityEngine.mode });
+
+  // Initialize client attestation for inter-service HMAC verification
+  let clientAttestor: ClientAttestor | null = null;
+  const attestationSecret = process.env.SVEN_ATTESTATION_SECRET || '';
+  if (featureFlags.isEnabled('client-attestation.enabled') && attestationSecret.length >= 32) {
+    clientAttestor = new ClientAttestor({ secret: attestationSecret, serviceId: 'agent-runtime' });
+    logger.info('Client attestation initialized', { serviceId: 'agent-runtime' });
+  } else if (featureFlags.isEnabled('client-attestation.enabled')) {
+    logger.warn('Client attestation enabled but SVEN_ATTESTATION_SECRET missing or too short (need ≥32 chars)');
+  }
+
+  // Per-session token budget trackers (keyed by chat_id)
+  const sessionBudgets = new Map<string, TokenBudgetTracker>();
+  const isTokenBudgetEnabled = (): boolean => featureFlags.isEnabled('token-budget.enabled');
+  const getOrCreateBudget = (chatId: string): TokenBudgetTracker => {
+    let tracker = sessionBudgets.get(chatId);
+    if (!tracker) {
+      tracker = new TokenBudgetTracker({
+        maxTotalTokens: Number(process.env.TOKEN_BUDGET_MAX_TOKENS || 0),
+        maxCostUsd: Number(process.env.TOKEN_BUDGET_MAX_COST_USD || 0),
+        maxTurns: Number(process.env.TOKEN_BUDGET_MAX_TURNS || 50),
+        compactThreshold: Number(process.env.TOKEN_BUDGET_COMPACT_THRESHOLD || 0.8),
+        inputCostPer1M: Number(process.env.TOKEN_BUDGET_INPUT_COST_PER_1M || 3.0),
+        outputCostPer1M: Number(process.env.TOKEN_BUDGET_OUTPUT_COST_PER_1M || 15.0),
+      });
+      sessionBudgets.set(chatId, tracker);
+    }
+    return tracker;
+  };
+  // Periodically clean up stale session budgets (sessions idle > 2h)
+  const SESSION_BUDGET_TTL_MS = 2 * 60 * 60 * 1000;
+  const sessionBudgetLastSeen = new Map<string, number>();
+  setInterval(() => {
+    const cutoff = Date.now() - SESSION_BUDGET_TTL_MS;
+    for (const [chatId, lastSeen] of sessionBudgetLastSeen) {
+      if (lastSeen < cutoff) {
+        sessionBudgets.delete(chatId);
+        sessionBudgetLastSeen.delete(chatId);
+      }
+    }
+  }, 10 * 60 * 1000);
+
   const publishRuntimeDispatch = async (data: RuntimeDispatchEvent) => {
     const event: EventEnvelope<RuntimeDispatchEvent> = {
       schema_version: '1.0',
-      event_id: uuidv7(),
+      event_id: generateTaskId('event_envelope'),
       occurred_at: new Date().toISOString(),
       data,
     };
@@ -84,11 +264,25 @@ async function main() {
   approvalManager.startExpirationWorker();
 
   // Start buddy digests scheduler (checks every 60s)
-  startBuddyScheduler(pool, canvasEmitter);
-  startMemoryMaintenance(pool);
+  startBuddyScheduler(pool, canvasEmitter, personalityEngine);
+  startMemoryMaintenance(pool, memoryExtractor, isMemoryExtractorEnabled, bgSessions);
 
   // Periodic cleanup for self-correction tracking state
   setInterval(() => selfCorrection.cleanup(), 10 * 60 * 1000); // every 10 min
+
+  // Periodic cleanup for inbound event dedup records (>24h old)
+  setInterval(async () => {
+    try {
+      const result = await pool.query(
+        "DELETE FROM processed_inbound_events WHERE processed_at < NOW() - INTERVAL '24 hours'",
+      );
+      if (result.rowCount && result.rowCount > 0) {
+        logger.info('Cleaned up processed event dedup records', { deleted: result.rowCount });
+      }
+    } catch (err) {
+      logger.warn('Failed to clean up processed event dedup records', { err: String(err) });
+    }
+  }, 30 * 60 * 1000); // every 30 min
 
   // Get JetStream
   const js = nc.jetstream();
@@ -99,6 +293,8 @@ async function main() {
   opts.deliverTo(createInbox());
   opts.manualAck();
   opts.ackExplicit();
+  opts.ackWait(240_000);  // 4 min — must exceed LLM timeout (120s) + processing overhead
+  opts.maxDeliver(5);     // prevent infinite redelivery on poison messages
   const sub = await js.subscribe('inbound.message.>', opts);
 
   // Subscribe to tool run results for self-correction
@@ -145,6 +341,21 @@ async function main() {
       const envelope = jc.decode(msg.data) as EventEnvelope<InboundMessageEvent>;
       const event = envelope.data;
       const correlationId = extractCorrelationId(event.metadata, envelope.event_id);
+      if (!(await doesChatExist(pool, event.chat_id))) {
+        const deadLettered = await deadLetterQueuedMessagesForChat(
+          pool,
+          event.chat_id,
+          new Error(`inbound event dropped because chat ${event.chat_id} no longer exists`),
+        );
+        logger.warn('Dropping inbound event for deleted chat', {
+          chat_id: event.chat_id,
+          event_id: envelope.event_id,
+          correlation_id: correlationId,
+          dead_lettered: deadLettered,
+        });
+        msg.ack();
+        continue;
+      }
       if (await isAgentPaused(pool, event.chat_id)) {
         logger.info('Chat is paused; deferring message', {
           chat_id: event.chat_id,
@@ -155,6 +366,21 @@ async function main() {
         msg.nak(5000);
         continue;
       }
+      // Dedup: skip if this inbound event was already fully processed (NATS replay protection)
+      const alreadyProcessed = await pool.query(
+        'SELECT 1 FROM processed_inbound_events WHERE event_id = $1',
+        [envelope.event_id],
+      );
+      if (alreadyProcessed.rows.length > 0) {
+        logger.info('Skipping replayed event (already processed)', {
+          event_id: envelope.event_id,
+          chat_id: event.chat_id,
+          correlation_id: correlationId,
+        });
+        msg.ack();
+        continue;
+      }
+
       await markChatProcessing(pool, event.chat_id, true);
       const turnNudgeNonce = await getNudgeNonce(pool, event.chat_id);
       const routedAgentId =
@@ -249,7 +475,7 @@ async function main() {
             NATS_SUBJECTS.INBOUND_MESSAGE,
             jc.encode({
               schema_version: '1.0',
-              event_id: uuidv7(),
+              event_id: generateTaskId('event_envelope'),
               occurred_at: new Date().toISOString(),
               data: inboundEvent,
             }),
@@ -290,9 +516,9 @@ async function main() {
 
       const selfChatEnabled = await getChatSelfChatEnabled(pool, event.chat_id);
       const selfChatTurn = getSelfChatTurn(event.metadata);
-      const selfChatMaxTurns = await getNumberSetting(pool, 'chat.selfchat.max_turns', 2);
+      const selfChatMaxTurns = Math.min(50, Math.max(1, await getNumberSetting(pool, 'chat.selfchat.max_turns', 2)));
 
-      await extractLongTermMemories(pool, event.chat_id, context.user_id, event.text || '');
+      await extractLongTermMemories(pool, event.chat_id, context.user_id, event.text || '', memoryExtractor, isMemoryExtractorEnabled());
 
       if (buddyEnabled && isImproveYourselfRequest(event.text || '')) {
         const improvementId = await createImprovementItem(pool, {
@@ -386,6 +612,12 @@ async function main() {
       if (voiceLanguageHint) {
         systemPrompt = `${systemPrompt}\n\n${voiceLanguageHint}`;
       }
+      // Cap system prompt length to prevent unbounded memory growth from concatenated context
+      const MAX_SYSTEM_PROMPT_LENGTH = 500_000;
+      if (systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH) {
+        logger.warn('System prompt truncated', { chat_id: event.chat_id, original_length: systemPrompt.length });
+        systemPrompt = systemPrompt.slice(0, MAX_SYSTEM_PROMPT_LENGTH);
+      }
       const promptDriftDetected = await promptFirewall.checkSystemPromptDrift(
         context.systemPrompt,
       );
@@ -405,7 +637,95 @@ async function main() {
         context = await loadContext(pool, event.chat_id, event.sender_identity_id);
       }
 
-      // 4. Route to LLM
+      // Prompt guard: scan user input for injection/extraction attempts
+      if (isPromptGuardEnabled() && event.text) {
+        const inputScan = promptGuard.scanInput(event.text);
+        if (inputScan.blocked) {
+          logger.error('Prompt guard blocked input', {
+            chat_id: event.chat_id,
+            user_id: context.user_id,
+            pattern: inputScan.patternName,
+            severity: inputScan.severity,
+            correlation_id: correlationId,
+          });
+          await canvasEmitter.emit({
+            chat_id: event.chat_id,
+            channel: event.channel,
+            text: 'I detected a prompt that appears to be attempting to manipulate my instructions. This request has been blocked for security.',
+            blocks: [],
+            tool_calls: [],
+            citations: [],
+            metadata: { correlation_id: correlationId },
+          });
+          await markChatProcessing(pool, event.chat_id, false);
+          msg.ack();
+          continue;
+        }
+      }
+      // Register system prompt for leakage detection
+      if (isPromptGuardEnabled()) {
+        promptGuard.registerProtectedContent(systemPrompt, `system-prompt-${event.chat_id}`);
+      }
+
+      // Initialize query chain depth tracking for this agent turn
+      const queryChain = new QueryChain(
+        { maxDepth: 10, maxBreadth: 50, maxDurationMs: 300_000 },
+      );
+      const chainAccepted = queryChain.push('llm_call', {
+        chat_id: event.chat_id,
+        model: context.sessionSettings.model_name || 'default',
+        correlation_id: correlationId,
+      });
+      if (!chainAccepted) {
+        logger.error('Query chain rejected LLM call — circuit breaker tripped', {
+          chat_id: event.chat_id,
+          reason: queryChain.getCircuitBrokenReason(),
+          correlation_id: correlationId,
+        });
+        await canvasEmitter.emit({
+          chat_id: event.chat_id,
+          channel: event.channel,
+          text: 'This request exceeded the processing depth limit. Please try a simpler request.',
+          blocks: [],
+          tool_calls: [],
+          citations: [],
+          metadata: { correlation_id: correlationId },
+        });
+        await markChatProcessing(pool, event.chat_id, false);
+        msg.ack();
+        continue;
+      }
+
+      // 4. Token budget pre-check — reject if session has exceeded budget
+      if (isTokenBudgetEnabled()) {
+        sessionBudgetLastSeen.set(event.chat_id, Date.now());
+        const budget = getOrCreateBudget(event.chat_id);
+        const preStatus = budget.getStatus();
+        if (preStatus.anyBudgetExceeded) {
+          logger.warn('Token budget exceeded — blocking LLM call', {
+            chat_id: event.chat_id,
+            totalTokens: preStatus.totalTokens,
+            totalCostUsd: preStatus.totalCostUsd.toFixed(4),
+            turnCount: preStatus.turnCount,
+            correlation_id: correlationId,
+          });
+          await canvasEmitter.emit({
+            chat_id: event.chat_id,
+            channel: event.channel,
+            text: 'This session has exceeded its token budget. Please start a new conversation or contact your administrator.',
+            blocks: [],
+            tool_calls: [],
+            citations: [],
+            metadata: { correlation_id: correlationId },
+          });
+          await markChatProcessing(pool, event.chat_id, false);
+          msg.ack();
+          continue;
+        }
+      }
+
+      // 5. Route to LLM
+      msg.working(); // extend NATS ack deadline — LLM calls can take 30-120s+
       const llmStartedAt = Date.now();
       const llmResponse = await llmRouter.complete({
         messages: context.messages,
@@ -438,6 +758,33 @@ async function main() {
         Number(llmResponse.tokens_used?.prompt || 0),
         Number(llmResponse.tokens_used?.completion || 0),
       );
+
+      // Record token usage in session budget tracker
+      if (isTokenBudgetEnabled()) {
+        const budget = getOrCreateBudget(event.chat_id);
+        const budgetStatus = budget.recordUsage({
+          prompt_tokens: Number(llmResponse.tokens_used?.prompt || 0),
+          completion_tokens: Number(llmResponse.tokens_used?.completion || 0),
+          total_tokens: Number(llmResponse.tokens_used?.prompt || 0) + Number(llmResponse.tokens_used?.completion || 0),
+        });
+        if (budgetStatus.shouldCompact) {
+          logger.info('Token budget compact threshold reached', {
+            chat_id: event.chat_id,
+            totalTokens: budgetStatus.totalTokens,
+            remainingTokens: budgetStatus.remainingTokens,
+            correlation_id: correlationId,
+          });
+        }
+        if (budgetStatus.anyBudgetExceeded) {
+          logger.warn('Token budget exceeded after this turn', {
+            chat_id: event.chat_id,
+            totalTokens: budgetStatus.totalTokens,
+            totalCostUsd: budgetStatus.totalCostUsd.toFixed(4),
+            turnCount: budgetStatus.turnCount,
+            correlation_id: correlationId,
+          });
+        }
+      }
 
       // 5. Prompt firewall – validate tool calls
       if (promptDriftDetected && llmResponse.tool_calls) {
@@ -501,6 +848,21 @@ async function main() {
             model_name: llmResponse.model_used || undefined,
           });
 
+          // Record permission audit trail via hook manager
+          await permissionHooks.executeWithHooks(
+            {
+              subjectId: context.user_id,
+              resource: `tool.${toolCall.name}`,
+              action: 'execute',
+              correlationId,
+              metadata: { chat_id: event.chat_id, scope: toolCall.scope },
+            },
+            async () => ({
+              decision: decision.allowed ? 'allow' : 'deny',
+              decidedBy: decision.reason || 'policy-engine',
+            }),
+          );
+
           if (!decision.allowed) {
             if (decision.requires_approval) {
               // Create approval
@@ -526,7 +888,21 @@ async function main() {
         const approvedCalls = llmResponse.tool_calls.filter(
           (tc: any) => !tc.blocked && !tc.pending_approval,
         );
+        // Track tool calls in query chain for depth/breadth limiting
         for (const toolCall of approvedCalls) {
+          const toolAccepted = queryChain.push('tool_call', {
+            tool_name: toolCall.name,
+            chat_id: event.chat_id,
+          });
+          if (!toolAccepted) {
+            logger.warn('Query chain rejected tool call — depth/breadth limit hit', {
+              chat_id: event.chat_id,
+              tool_name: toolCall.name,
+              chain_status: queryChain.getStatus(),
+              correlation_id: correlationId,
+            });
+            break;
+          }
           runtimeMetrics.incToolCall(toolCall.name);
           const toolRunId = normalizeToolRunId(toolCall.run_id);
           // Publish tool run request to NATS
@@ -548,6 +924,17 @@ async function main() {
               },
             }),
           );
+          queryChain.pop();
+        }
+
+        // Check for circular patterns in tool call chains
+        const circularPattern = queryChain.detectCircularPattern(3);
+        if (circularPattern) {
+          logger.warn('Circular tool call pattern detected', {
+            chat_id: event.chat_id,
+            pattern: circularPattern,
+            correlation_id: correlationId,
+          });
         }
       }
 
@@ -589,7 +976,27 @@ async function main() {
         continue;
       }
 
-      // 8. Emit canvas blocks + outbox message
+      // 8. Prompt guard: scan output for system prompt leakage
+      if (isPromptGuardEnabled() && llmResponse.text) {
+        const outputScan = promptGuard.scanOutput(llmResponse.text);
+        if (outputScan.blocked) {
+          logger.error('Prompt guard blocked output — system prompt leakage detected', {
+            chat_id: event.chat_id,
+            user_id: context.user_id,
+            pattern: outputScan.patternName,
+            severity: outputScan.severity,
+            correlation_id: correlationId,
+          });
+          llmResponse.text = 'I\'m unable to provide that response. The output was blocked by our security system.';
+        }
+      }
+
+      // 9. Anti-distillation: watermark response before emitting
+      if (isAntiDistillationEnabled() && llmResponse.text) {
+        llmResponse.text = antiDistillation.watermark(llmResponse.text);
+      }
+
+      // 10. Emit canvas blocks + outbox message
       await canvasEmitter.emit({
         chat_id: event.chat_id,
         channel: event.channel,
@@ -615,7 +1022,7 @@ async function main() {
           NATS_SUBJECTS.INBOUND_MESSAGE,
           jc.encode({
             schema_version: '1.0',
-            event_id: uuidv7(),
+            event_id: generateTaskId('event_envelope'),
             occurred_at: new Date().toISOString(),
             data: {
               channel: event.channel,
@@ -634,6 +1041,27 @@ async function main() {
           }),
         );
       }
+
+      // Finalize query chain tracking for this turn
+      queryChain.pop(); // Pop the LLM call
+      const chainStatus = queryChain.getStatus();
+      if (chainStatus.totalOperations > 1) {
+        logger.info('Query chain turn summary', {
+          chain_id: chainStatus.chainId,
+          chat_id: event.chat_id,
+          total_operations: chainStatus.totalOperations,
+          max_depth_reached: queryChain.getMaxDepthReached(),
+          duration_ms: chainStatus.durationMs,
+          circuit_broken: chainStatus.isCircuitBroken,
+          correlation_id: correlationId,
+        });
+      }
+
+      // Record event as processed for dedup (before ack — survives crash between emit and ack)
+      await pool.query(
+        'INSERT INTO processed_inbound_events (event_id, chat_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [envelope.event_id, event.chat_id],
+      );
 
       await markChatProcessing(pool, event.chat_id, false);
       if (!(await isAgentPaused(pool, event.chat_id))) {
@@ -693,8 +1121,21 @@ async function markChatProcessing(pool: pg.Pool, chatId: string, processing: boo
     );
   } catch (err) {
     const code = String((err as { code?: string })?.code || '');
+    if (isMissingChatQueueDispatchError(err)) return;
     if (code !== '42P01' && code !== '42703') throw err;
   }
+}
+
+async function doesChatExist(pool: pg.Pool, chatId: string): Promise<boolean> {
+  if (!chatId) return false;
+  const res = await pool.query(
+    `SELECT 1
+     FROM chats
+     WHERE id = $1
+     LIMIT 1`,
+    [chatId],
+  );
+  return res.rows.length > 0;
 }
 
 async function isAgentPaused(pool: pg.Pool, chatId: string): Promise<boolean> {
@@ -850,6 +1291,20 @@ async function dispatchNextQueuedCanvasMessage(
   let attemptCount = 0;
   try {
     await pruneExpiredQueuedMessages(pool, chatId);
+    if (!(await doesChatExist(pool, chatId))) {
+      const deadLettered = await deadLetterQueuedMessagesForChat(
+        pool,
+        chatId,
+        new Error(`queued chat ${chatId} no longer exists`),
+      );
+      if (deadLettered > 0) {
+        logger.warn('Dead-lettered queued messages for deleted chat', {
+          chat_id: chatId,
+          dead_lettered: deadLettered,
+        });
+      }
+      return;
+    }
     await client.query('BEGIN');
     const queued = await client.query(
       `SELECT id, user_id, text, attempt_count
@@ -890,7 +1345,7 @@ async function dispatchNextQueuedCanvasMessage(
     if (identityRes.rows.length > 0) {
       identityId = String(identityRes.rows[0].id);
     } else {
-      identityId = uuidv7();
+      identityId = generateTaskId('identity');
       await client.query(
         `INSERT INTO identities (id, user_id, channel, channel_user_id, display_name, linked_at)
          VALUES ($1, $2, 'canvas', $3, $4, NOW())`,
@@ -898,7 +1353,7 @@ async function dispatchNextQueuedCanvasMessage(
       );
     }
 
-    const messageId = uuidv7();
+    const messageId = generateTaskId('message');
     await client.query(
       `INSERT INTO messages (id, chat_id, sender_user_id, sender_identity_id, role, content_type, text, channel_message_id, created_at)
        VALUES ($1, $2, $3, $4, 'user', 'text', $5, $6, NOW())`,
@@ -948,6 +1403,15 @@ async function dispatchNextQueuedCanvasMessage(
       await client.query('ROLLBACK');
     } catch {
       // ignore rollback failure
+    }
+    if (isMissingChatQueueDispatchError(err)) {
+      const deadLettered = await deadLetterQueuedMessagesForChat(pool, chatId, err);
+      logger.warn('Dead-lettered queued messages after missing-chat dispatch failure', {
+        chat_id: chatId,
+        queue_id: queueId || undefined,
+        dead_lettered: deadLettered,
+      });
+      return;
     }
     if (queueId) {
       await markQueueDispatchFailure(pool, queueId, attemptCount || 1, err);
@@ -1189,7 +1653,7 @@ async function buildAvailableToolsPrompt(pool: pg.Pool, chatId: string): Promise
        FROM tools
        WHERE status = 'active'
        ORDER BY name ASC
-       LIMIT 80`,
+       LIMIT 200`,
     );
   } catch {
     return '';
@@ -1345,7 +1809,7 @@ async function createImprovementItem(
   pool: pg.Pool,
   params: { title: string; description: string; evidence: Record<string, unknown> },
 ): Promise<string> {
-  const id = uuidv7();
+  const id = generateTaskId('improvement');
   await pool.query(
     `INSERT INTO improvement_items (id, source, title, description, evidence, status, priority, created_at, updated_at)
      VALUES ($1, 'buddy', $2, $3, $4, 'proposed', 0, NOW(), NOW())`,
@@ -1621,6 +2085,8 @@ async function extractLongTermMemories(
   chatId: string,
   userId: string,
   text: string,
+  extractor?: MemoryExtractor,
+  extractorEnabled?: boolean,
 ): Promise<void> {
   const normalized = String(text || '').replace(/\s+/g, ' ').trim();
   if (!normalized) return;
@@ -1633,6 +2099,34 @@ async function extractLongTermMemories(
   if (mLike) candidates.push({ key: 'preference.general', value: mLike[1].trim(), visibility: 'user_private' });
   if (mTimezone) candidates.push({ key: 'profile.timezone', value: mTimezone[1].trim(), visibility: 'user_private' });
   if (mRemember) candidates.push({ key: `memory.note.${Date.now()}`, value: mRemember[1].trim(), visibility: 'chat_shared' });
+
+  // Enhanced extraction via MemoryExtractor (pattern-based category extraction)
+  if (extractor && extractorEnabled) {
+    try {
+      const transcript: TranscriptMessage[] = [{ role: 'user', content: normalized, timestamp: new Date() }];
+      const extracted = extractor.extract(transcript, chatId);
+      if (extracted.length > 0) {
+        const ingested = extractor.ingest(extracted);
+        for (const mem of extracted) {
+          candidates.push({
+            key: `${mem.category}.${mem.id}`,
+            value: mem.content,
+            visibility: 'chat_shared',
+          });
+        }
+        logger.debug('Memory extractor found patterns', {
+          chat_id: chatId,
+          extracted: extracted.length,
+          added: ingested.added,
+          reinforced: ingested.reinforced,
+          totalStore: extractor.size,
+        });
+      }
+    } catch (err) {
+      logger.warn('Memory extractor failed', { chat_id: chatId, err: String(err) });
+    }
+  }
+
   if (candidates.length === 0) return;
 
   for (const item of candidates) {
@@ -1640,7 +2134,7 @@ async function extractLongTermMemories(
       await pool.query(
         `INSERT INTO memories (id, user_id, chat_id, visibility, key, value, source, importance, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, 'auto_extract', 1.15, NOW(), NOW())`,
-        [uuidv7(), userId || null, chatId || null, item.visibility, item.key, item.value],
+        [generateTaskId('memory'), userId || null, chatId || null, item.visibility, item.key, item.value],
       );
     } catch (err) {
       logger.warn('Memory extraction insert skipped', { err: String(err), key: item.key });
@@ -1756,7 +2250,7 @@ async function compactChatContext(
   await pool.query(
     `INSERT INTO messages (id, chat_id, role, content_type, text, created_at)
      VALUES ($1, $2, 'system', 'text', $3, NOW())`,
-    [uuidv7(), chatId, summaryText],
+    [generateTaskId('message'), chatId, summaryText],
   );
 
   const afterTokens = estimateRowsTokens(recent) + estimateTextTokens(summaryText);
@@ -1764,7 +2258,7 @@ async function compactChatContext(
     await pool.query(
       `INSERT INTO compaction_events (id, session_id, before_tokens, after_tokens, summary_text, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())`,
-      [uuidv7(), chatId, beforeTokens, afterTokens, summaryText],
+      [generateTaskId('audit_entry'), chatId, beforeTokens, afterTokens, summaryText],
     );
   } catch {
     // Best effort for pre-migration environments.
@@ -1862,7 +2356,7 @@ async function maybeIndexSessionTranscript(pool: pg.Pool, chatId: string, userId
       lines.push(`[${ts}] tool:${String(row.tool_name)} => ${outputs.slice(0, 1200)}`);
     }
 
-    const memoryId = uuidv7();
+    const memoryId = generateTaskId('memory');
     const key = `session.transcript.${chatId}.${Date.now()}`;
     const value = lines.join('\n').slice(0, 64000);
     await pool.query(
@@ -1957,7 +2451,7 @@ async function recordSessionTokenUsage(
     await pool.query(
       `INSERT INTO session_token_usage (id, session_id, model_name, input_tokens, output_tokens, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())`,
-      [uuidv7(), sessionId, modelName, Math.max(0, inputTokens), Math.max(0, outputTokens)],
+      [generateTaskId('audit_entry'), sessionId, modelName, Math.max(0, inputTokens), Math.max(0, outputTokens)],
     );
   } catch (err) {
     logger.warn('Failed to record session token usage', { err: String(err), session_id: sessionId });
@@ -1977,7 +2471,7 @@ async function recordLlmAudit(
     await pool.query(
       `INSERT INTO llm_audit_log (id, chat_id, user_id, model_name, think_level, prompt_tokens, completion_tokens, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
-      [uuidv7(), chatId, userId, modelName, thinkLevel, promptTokens, completionTokens],
+      [generateTaskId('audit_entry'), chatId, userId, modelName, thinkLevel, promptTokens, completionTokens],
     );
   } catch (err) {
     logger.warn('Failed to record LLM audit log', { err: String(err) });
@@ -2155,7 +2649,7 @@ async function maybeHandleVoiceShortcut(params: {
     return true;
   }
 
-  const runId = uuidv7();
+  const runId = generateTaskId('tool_run');
   nc.publish(
     NATS_SUBJECTS.TOOL_RUN_REQUEST,
     jc.encode({
@@ -2197,6 +2691,7 @@ async function sendBuddyDigest(
   pool: pg.Pool,
   canvasEmitter: CanvasEmitter,
   title: string,
+  personalityEngine: PersonalityEngine,
 ): Promise<void> {
   const hqRes = await pool.query(
     `SELECT id, channel FROM chats WHERE type = 'hq' LIMIT 1`,
@@ -2206,6 +2701,7 @@ async function sendBuddyDigest(
   const hqChatId = hqRes.rows[0].id;
   const channel = hqRes.rows[0].channel || 'internal';
 
+  // ── Core metrics ──
   const approvalsRes = await pool.query(
     `SELECT COUNT(*)::int AS c FROM approvals WHERE status = 'pending'`,
   );
@@ -2217,12 +2713,154 @@ async function sendBuddyDigest(
      WHERE status IN ('error', 'timeout') AND created_at > NOW() - INTERVAL '24 hours'`,
   );
 
-  const text = [
-    `**${title}**`,
-    `Pending approvals: ${approvalsRes.rows[0].c}`,
-    `Open improvements: ${improvementsRes.rows[0].c}`,
-    `Tool run errors (24h): ${errorsRes.rows[0].c}`,
-  ].join('\n');
+  // ── Enhanced metrics: success rate, busiest tools, error patterns ──
+  const toolStatsRes = await pool.query(`
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE status = 'success')::int AS successes,
+      COUNT(*) FILTER (WHERE status IN ('error', 'timeout'))::int AS failures
+    FROM tool_runs
+    WHERE created_at > NOW() - INTERVAL '24 hours'
+  `);
+  const totalRuns = toolStatsRes.rows[0]?.total ?? 0;
+  const successes = toolStatsRes.rows[0]?.successes ?? 0;
+  const errorRate = totalRuns > 0 ? (totalRuns - successes) / totalRuns : 0;
+  const successRate = totalRuns > 0 ? Math.round((successes / totalRuns) * 100) : 100;
+
+  const topToolsRes = await pool.query(`
+    SELECT tool_name, COUNT(*)::int AS cnt
+    FROM tool_runs
+    WHERE created_at > NOW() - INTERVAL '24 hours'
+    GROUP BY tool_name
+    ORDER BY cnt DESC
+    LIMIT 5
+  `);
+
+  const errPatternRes = await pool.query(`
+    SELECT tool_name, COUNT(*)::int AS cnt
+    FROM tool_runs
+    WHERE status IN ('error', 'timeout') AND created_at > NOW() - INTERVAL '24 hours'
+    GROUP BY tool_name
+    ORDER BY cnt DESC
+    LIMIT 3
+  `);
+
+  // ── Conversation activity ──
+  const chatActivityRes = await pool.query(`
+    SELECT COUNT(DISTINCT chat_id)::int AS active_chats,
+           COUNT(*)::int AS total_messages
+    FROM messages
+    WHERE created_at > NOW() - INTERVAL '24 hours'
+  `);
+  const activeChats = chatActivityRes.rows[0]?.active_chats ?? 0;
+  const totalMessages = chatActivityRes.rows[0]?.total_messages ?? 0;
+
+  // ── Streak tracking ──
+  const streakRes = await pool.query(`
+    SELECT COUNT(DISTINCT created_at::date)::int AS streak_days
+    FROM messages
+    WHERE created_at > NOW() - INTERVAL '30 days'
+      AND created_at::date <= CURRENT_DATE
+  `);
+  const streakDays = streakRes.rows[0]?.streak_days ?? 0;
+
+  // ── Last activity check for returning-user greeting ──
+  const lastActivityRes = await pool.query(`
+    SELECT EXTRACT(EPOCH FROM (NOW() - MAX(created_at)))::int AS seconds_since
+    FROM messages
+  `);
+  const minutesSinceActivity = Math.round((lastActivityRes.rows[0]?.seconds_since ?? 0) / 60);
+  const hour = new Date().getHours();
+
+  // ── Derive mood via personality engine ──
+  const milestones = personalityEngine.checkMilestones(totalRuns, totalRuns);
+  personalityEngine.deriveMood({
+    errorRate,
+    pendingApprovals: approvalsRes.rows[0].c,
+    streakDays,
+    toolRuns: totalRuns,
+    milestoneHit: milestones.length > 0,
+    hourOfDay: hour,
+    minutesSinceActivity,
+  });
+
+  // Award XP for daily activity
+  if (totalRuns > 0) personalityEngine.awardXp('tool_run', totalRuns);
+  if (streakDays > 0) personalityEngine.awardXp('streak_day', 1);
+  const newAchievements = personalityEngine.awardXp('tool_run', 0); // trigger achievement check without extra XP
+
+  // ── Build digest sections ──
+  const sections: string[] = [];
+
+  // Header with personality-driven greeting
+  const isReturning = minutesSinceActivity > 120;
+  const greeting = personalityEngine.getGreeting(hour, isReturning);
+  sections.push(`**${greeting} — ${title}**`);
+
+  // Mood message
+  const moodMsg = personalityEngine.getMoodMessage();
+  if (moodMsg) sections.push(moodMsg);
+
+  // Buddy profile summary
+  const profile = personalityEngine.getProfile();
+  const progress = personalityEngine.getLevelProgress();
+  sections.push(`\n**Buddy Status** — Level ${profile.level} (${Math.round(progress.progress * 100)}% → ${profile.level + 1}) | ${profile.xp} XP | Mood: ${profile.mood}`);
+
+  // Activity summary
+  if (totalMessages > 0) {
+    sections.push(`\n**Activity**`);
+    sections.push(`Conversations: ${activeChats} active chats, ${totalMessages} messages`);
+    if (streakDays > 1) {
+      sections.push(`Streak: ${streakDays} days active in the last 30 days`);
+    }
+  }
+
+  // Tool performance
+  sections.push(`\n**Tool Performance**`);
+  sections.push(`Runs: ${totalRuns} | Success rate: ${successRate}%`);
+  if (topToolsRes.rows.length > 0) {
+    const topTools = topToolsRes.rows.map((r: any) => `${r.tool_name} (${r.cnt})`).join(', ');
+    sections.push(`Most used: ${topTools}`);
+  }
+
+  // Error patterns — proactive insight
+  if (errPatternRes.rows.length > 0) {
+    sections.push(`\n**Error Patterns**`);
+    for (const row of errPatternRes.rows) {
+      sections.push(`- ${row.tool_name}: ${row.cnt} failures`);
+    }
+    if (errPatternRes.rows.length > 0 && errPatternRes.rows[0].cnt >= 3) {
+      sections.push(`_I noticed repeated failures in **${errPatternRes.rows[0].tool_name}**. Want me to investigate and create an improvement ticket?_`);
+    }
+  }
+
+  // Action items
+  const actionItems: string[] = [];
+  if (approvalsRes.rows[0].c > 0) actionItems.push(`${approvalsRes.rows[0].c} pending approvals`);
+  if (improvementsRes.rows[0].c > 0) actionItems.push(`${improvementsRes.rows[0].c} open improvements`);
+  if (errorsRes.rows[0].c > 0) actionItems.push(`${errorsRes.rows[0].c} tool errors (24h)`);
+  if (actionItems.length > 0) {
+    sections.push(`\n**Action Items**`);
+    for (const item of actionItems) sections.push(`- ${item}`);
+  } else {
+    sections.push(`\n_All clear — no pending actions._`);
+  }
+
+  // Milestone celebrations
+  for (const m of milestones) {
+    sections.push(`\n🎯 **Milestone:** ${m.message}`);
+  }
+
+  // New achievements
+  for (const a of newAchievements) {
+    sections.push(`\n${a.icon} **Achievement Unlocked:** ${a.title} — ${a.description}`);
+  }
+
+  // Signoff
+  const signoff = personalityEngine.getSignoff();
+  if (signoff) sections.push(`\n_${signoff}_`);
+
+  const text = sections.join('\n');
 
   await canvasEmitter.emit({
     chat_id: hqChatId,
@@ -2231,7 +2869,7 @@ async function sendBuddyDigest(
   });
 }
 
-function startBuddyScheduler(pool: pg.Pool, canvasEmitter: CanvasEmitter): void {
+function startBuddyScheduler(pool: pg.Pool, canvasEmitter: CanvasEmitter, personalityEngine: PersonalityEngine): void {
   let running = false;
 
   const tick = async () => {
@@ -2250,7 +2888,7 @@ function startBuddyScheduler(pool: pg.Pool, canvasEmitter: CanvasEmitter): void 
       const todayKey = now.toISOString().slice(0, 10);
       const lastDaily = await getSettingValue(pool, 'buddy.last_daily_digest');
       if (lastDaily !== todayKey) {
-        await sendBuddyDigest(pool, canvasEmitter, 'Daily Digest');
+        await sendBuddyDigest(pool, canvasEmitter, 'Daily Digest', personalityEngine);
         await upsertSettingValue(pool, 'buddy.last_daily_digest', todayKey);
       }
 
@@ -2258,7 +2896,7 @@ function startBuddyScheduler(pool: pg.Pool, canvasEmitter: CanvasEmitter): void 
         const weekKey = getIsoWeekKey(now);
         const lastWeekly = await getSettingValue(pool, 'buddy.last_weekly_digest');
         if (lastWeekly !== weekKey) {
-          await sendBuddyDigest(pool, canvasEmitter, 'Weekly Digest');
+          await sendBuddyDigest(pool, canvasEmitter, 'Weekly Digest', personalityEngine);
           await upsertSettingValue(pool, 'buddy.last_weekly_digest', weekKey);
         }
       }
@@ -2273,7 +2911,7 @@ function startBuddyScheduler(pool: pg.Pool, canvasEmitter: CanvasEmitter): void 
   setInterval(tick, 60_000);
 }
 
-function startMemoryMaintenance(pool: pg.Pool): void {
+function startMemoryMaintenance(pool: pg.Pool, extractor: MemoryExtractor, isEnabled: () => boolean, bgSessions: BackgroundSessionManager): void {
   let running = false;
   const tick = async () => {
     if (running) return;
@@ -2300,6 +2938,20 @@ function startMemoryMaintenance(pool: pg.Pool): void {
         WHERE m.id = r.id
           AND r.rn > 1
       `);
+
+      // Memory extractor consolidation ("dream" — merge similar, apply decay, prune weak)
+      if (isEnabled() && extractor.size > 0) {
+        bgSessions.submit(async (report) => {
+          report(10);
+          const result = extractor.consolidate();
+          report(100);
+          logger.info('Memory extractor dream consolidation complete', {
+            merged: result.merged,
+            pruned: result.pruned,
+            remaining: result.remaining,
+          });
+        }, { type: 'memory-consolidation', parentSessionId: 'maintenance' });
+      }
     } catch (err) {
       logger.warn('Memory maintenance skipped', { err: String(err) });
     } finally {

@@ -85,11 +85,10 @@ export async function resolveSecretSopsRef(
     env,
   });
   if (result.error) {
-    throw new Error(result.error.message);
+    throw new Error(`sops decryption failed: ${(result.error as NodeJS.ErrnoException).code || 'UNKNOWN'}`);
   }
   if (result.status !== 0) {
-    const stderr = String(result.stderr || '').trim();
-    throw new Error(stderr || `sops exited with status ${result.status}`);
+    throw new Error(`sops exited with status ${result.status}`);
   }
   return String(result.stdout || '').trim();
 }

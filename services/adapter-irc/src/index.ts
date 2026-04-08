@@ -64,6 +64,9 @@ class IrcAdapter extends BaseAdapter {
     this.triggerPrefix = config.ircTriggerPrefix || process.env.IRC_TRIGGER_PREFIX || '/sven';
     this.reconnectMs = Number(config.ircReconnectMs || process.env.IRC_RECONNECT_MS || 5000);
     this.nickservPassword = config.ircNickservPassword || process.env.IRC_NICKSERV_PASSWORD || '';
+    if (this.nickservPassword && !this.useTls) {
+      logger.warn('NickServ password is set but TLS is disabled — credentials will be sent in plaintext');
+    }
     this.healthPort = Number(config.ircHealthPort || process.env.IRC_HEALTH_PORT || 8496);
   }
 

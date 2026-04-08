@@ -1,9 +1,11 @@
 $ErrorActionPreference = 'Stop'
 
-$RepoUrl = if ($env:SVEN_REPO_URL) { $env:SVEN_REPO_URL } else { 'https://github.com/47network/thesven.git' }
+$RepoUrl = if ($env:SVEN_REPO_URL) { $env:SVEN_REPO_URL } else { '' }
+$SourceArchiveUrl = if ($env:SVEN_SOURCE_ARCHIVE_URL) { $env:SVEN_SOURCE_ARCHIVE_URL } else { 'https://sven.systems/source/thesven-src.tar.gz' }
 $Branch = if ($env:SVEN_BRANCH) { $env:SVEN_BRANCH } else { 'main' }
-$InstallDir = if ($env:SVEN_INSTALL_DIR) { $env:SVEN_INSTALL_DIR } else { Join-Path $env:USERPROFILE '.sven-src' }
-$GatewayUrl = if ($env:SVEN_GATEWAY_URL) { $env:SVEN_GATEWAY_URL } else { 'https://app.sven.example.com' }
+$DefaultProfileRoot = if ($env:USERPROFILE) { $env:USERPROFILE } elseif ($env:HOME) { $env:HOME } else { [System.IO.Path]::GetTempPath() }
+$InstallDir = if ($env:SVEN_INSTALL_DIR) { $env:SVEN_INSTALL_DIR } else { Join-Path $DefaultProfileRoot '.sven-src' }
+$GatewayUrl = if ($env:SVEN_GATEWAY_URL) { $env:SVEN_GATEWAY_URL } else { 'https://app.sven.systems' }
 $DryRun = if ($env:SVEN_INSTALLER_DRY_RUN) { $env:SVEN_INSTALLER_DRY_RUN } else { '0' }
 $Bootstrap = if ($env:SVEN_INSTALL_BOOTSTRAP) { $env:SVEN_INSTALL_BOOTSTRAP } else { '0' }
 
@@ -25,7 +27,11 @@ function Emit-InstallStatus {
 }
 
 Write-Output '==> Sven quick installer (Windows PowerShell)'
-Write-Output "repo:    $RepoUrl"
+if ($RepoUrl) {
+  Write-Output "repo:    $RepoUrl"
+} else {
+  Write-Output "archive: $SourceArchiveUrl"
+}
 Write-Output "branch:  $Branch"
 Write-Output "install: $InstallDir"
 Write-Output "dry-run: $DryRun"
@@ -38,9 +44,13 @@ function Require-Command {
   }
 }
 
-Require-Command git
 Require-Command node
 Require-Command npm
+if ($RepoUrl) {
+  Require-Command git
+} else {
+  Require-Command tar
+}
 
 if ($DryRun -eq '1') {
   Write-Output '==> Dry-run mode enabled. Prerequisite checks passed.'
@@ -49,13 +59,27 @@ if ($DryRun -eq '1') {
   exit 0
 }
 
-if (-not (Test-Path (Join-Path $InstallDir '.git'))) {
-  New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
-  git clone --branch $Branch $RepoUrl $InstallDir
+if ($RepoUrl) {
+  if (-not (Test-Path (Join-Path $InstallDir '.git'))) {
+    New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
+    git clone --branch $Branch $RepoUrl $InstallDir
+  } else {
+    git -C $InstallDir fetch origin
+    git -C $InstallDir checkout $Branch
+    git -C $InstallDir pull --ff-only origin $Branch
+  }
 } else {
-  git -C $InstallDir fetch origin
-  git -C $InstallDir checkout $Branch
-  git -C $InstallDir pull --ff-only origin $Branch
+  $ArchivePath = Join-Path ([System.IO.Path]::GetTempPath()) 'thesven-src.tar.gz'
+  if (Test-Path $InstallDir) {
+    Remove-Item -Recurse -Force $InstallDir
+  }
+  New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
+  Invoke-WebRequest -UseBasicParsing -Uri $SourceArchiveUrl -OutFile $ArchivePath
+  & tar -xzf $ArchivePath -C $InstallDir
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to extract source archive."
+  }
+  Remove-Item -Force $ArchivePath -ErrorAction SilentlyContinue
 }
 
 Write-Output '==> Installing Sven CLI globally'

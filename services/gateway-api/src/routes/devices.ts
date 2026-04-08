@@ -71,8 +71,7 @@ function computeDeviceApiKeyLookup(apiKey: string): string {
 }
 
 function getDeviceAuthRateKey(request: FastifyRequest): string {
-    const forwardedFor = String(request.headers?.['x-forwarded-for'] || '').split(',')[0]?.trim();
-    return forwardedFor || request.ip || 'unknown';
+    return request.ip || 'unknown';
 }
 
 function isDeviceAuthLocked(rateKey: string): number {
@@ -123,6 +122,13 @@ function isProductionProfile(): boolean {
     if (env === 'production') return true;
     const profile = String(process.env.SVEN_HARDENING_PROFILE || process.env.SVEN_PROFILE || '').trim().toLowerCase();
     return ['strict', 'hardened', 'isolated', 'production'].includes(profile);
+}
+
+function safeProvisioningTokenEqual(a: string, b: string): boolean {
+    const bufA = Buffer.from(String(a));
+    const bufB = Buffer.from(String(b));
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
 }
 
 function isPairStartLocked(rateKey: string): number {
@@ -417,7 +423,7 @@ export async function registerDeviceAgentRoutes(app: FastifyInstance, pool: pg.P
         const expectedProvisioningToken = String(process.env.DEVICE_PROVISIONING_TOKEN || '').trim();
         const isAuthenticated = Boolean(authenticatedOrgId);
         if (!isAuthenticated && isProductionProfile()) {
-            if (!expectedProvisioningToken || provisioningToken !== expectedProvisioningToken) {
+            if (!expectedProvisioningToken || !safeProvisioningTokenEqual(provisioningToken, expectedProvisioningToken)) {
                 const lockoutAfterMs = recordPairStartFailure(rateKey);
                 if (lockoutAfterMs > 0) {
                     reply.header('Retry-After', String(Math.max(1, Math.ceil(lockoutAfterMs / 1000))));
@@ -428,7 +434,7 @@ export async function registerDeviceAgentRoutes(app: FastifyInstance, pool: pg.P
                 });
             }
         }
-        if (expectedProvisioningToken && provisioningToken && provisioningToken !== expectedProvisioningToken) {
+        if (expectedProvisioningToken && provisioningToken && !safeProvisioningTokenEqual(provisioningToken, expectedProvisioningToken)) {
             const lockoutAfterMs = recordPairStartFailure(rateKey);
             if (lockoutAfterMs > 0) {
                 reply.header('Retry-After', String(Math.max(1, Math.ceil(lockoutAfterMs / 1000))));

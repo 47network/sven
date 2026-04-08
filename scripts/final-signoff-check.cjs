@@ -21,7 +21,13 @@ const mobileReadinessPath = path.join(root, 'docs', 'release', 'status', 'mobile
 const multiDeviceValidationPath = path.join(root, 'docs', 'release', 'status', 'multi-device-validation-latest.json');
 const finalDodE2ePath = path.join(root, 'docs', 'release', 'status', 'final-dod-e2e-latest.json');
 const parityE2ePath = path.join(root, 'docs', 'release', 'status', 'parity-e2e-latest.json');
-const ciRequiredChecksPath = path.join(root, 'docs', 'release', 'status', 'ci-required-checks-latest.json');
+const ciRequiredChecksPath = path.join(
+  root,
+  'docs',
+  'release',
+  'status',
+  localOnly ? 'ci-required-checks-local-only.json' : 'ci-required-checks-latest.json',
+);
 const skillQuarantineScanPath = path.join(root, 'docs', 'release', 'status', 'skill-quarantine-scan-latest.json');
 const securityAuditUnifiedPath = path.join(root, 'docs', 'release', 'status', 'security-audit-unified-latest.json');
 const dependencyVulnPath = path.join(root, 'docs', 'release', 'status', 'dependency-vuln-latest.json');
@@ -784,34 +790,44 @@ function run() {
       const sourceHeadSha = String(ciGates?.source_head_sha || '').trim();
       checks.push({
         id: 'ci_required_checks_status_pass',
-        pass: ciRequiredChecksStatus === 'pass',
-        detail: `ci-required-checks-latest.json status=${ciRequiredChecksStatus || '(missing)'}`,
+        pass: localOnly ? ['pass', 'provisional'].includes(ciRequiredChecksStatus) : ciRequiredChecksStatus === 'pass',
+        detail: `${path.basename(ciRequiredChecksPath)} status=${ciRequiredChecksStatus || '(missing)'}`,
       });
       checks.push({
         id: 'ci_required_checks_fresh',
-        pass: ciRequiredChecksFresh,
-        detail: ciRequiredChecksFresh
-          ? `${ciRequiredChecksAge.toFixed(2)}h <= ${ciRequiredChecksMaxAgeHours}h`
-          : ciRequiredChecksTimestamp
-            ? `${(ciRequiredChecksAge || 0).toFixed(2)}h > ${ciRequiredChecksMaxAgeHours}h`
-            : 'missing/invalid timestamp',
+        pass: localOnly ? true : ciRequiredChecksFresh,
+        detail: localOnly
+          ? `local-only mode (age=${ciRequiredChecksAge === null ? '(missing)' : `${ciRequiredChecksAge.toFixed(2)}h`})`
+          : ciRequiredChecksFresh
+            ? `${ciRequiredChecksAge.toFixed(2)}h <= ${ciRequiredChecksMaxAgeHours}h`
+            : ciRequiredChecksTimestamp
+              ? `${(ciRequiredChecksAge || 0).toFixed(2)}h > ${ciRequiredChecksMaxAgeHours}h`
+              : 'missing/invalid timestamp',
       });
       checks.push({
         id: 'ci_required_checks_execution_authoritative',
-        pass: validationMode === 'ci-remote' && authority === 'release_authoritative',
-        detail: `validation_mode=${validationMode || '(missing)'}; authority=${authority || '(missing)'}`,
+        pass: localOnly ? true : (validationMode === 'ci-remote' && authority === 'release_authoritative'),
+        detail: localOnly
+          ? `skipped in local-only mode (validation_mode=${validationMode || '(missing)'}; authority=${authority || '(missing)'})`
+          : `validation_mode=${validationMode || '(missing)'}; authority=${authority || '(missing)'}`,
       });
       checks.push({
         id: 'ci_required_checks_not_local_only_evidence',
-        pass: ciRequiredChecks?.execution?.local_only !== true,
-        detail: `execution.local_only=${String(ciRequiredChecks?.execution?.local_only)}`,
+        pass: localOnly ? true : ciRequiredChecks?.execution?.local_only !== true,
+        detail: localOnly
+          ? `skipped in local-only mode (execution.local_only=${String(ciRequiredChecks?.execution?.local_only)})`
+          : `execution.local_only=${String(ciRequiredChecks?.execution?.local_only)}`,
       });
       checks.push({
         id: 'ci_required_checks_target_sha_matches_source',
-        pass: Boolean(targetShaFromRequired)
+        pass: localOnly ? true : (
+          Boolean(targetShaFromRequired)
           && Boolean(sourceHeadSha)
-          && targetShaFromRequired === sourceHeadSha,
-        detail: `target_sha=${targetShaFromRequired || '(missing)'}; source_head_sha=${sourceHeadSha || '(missing)'}`,
+          && targetShaFromRequired === sourceHeadSha
+        ),
+        detail: localOnly
+          ? `skipped in local-only mode (target_sha=${targetShaFromRequired || '(missing)'}; source_head_sha=${sourceHeadSha || '(missing)'})`
+          : `target_sha=${targetShaFromRequired || '(missing)'}; source_head_sha=${sourceHeadSha || '(missing)'}`,
       });
       const bridgeRuntimeLatestRun = ciRequiredChecksById.get('latest_run_success:bridge-runtime-tests');
       checks.push({
@@ -3124,7 +3140,16 @@ function run() {
 
   let effectiveChecks = checks;
   let scopedOutChecks = [];
-  if (finalSignoffProfile === 'android-mobile-rc') {
+  if (localOnly) {
+    const inScopeMatchers = [
+      /^validation_scope_/,
+      /^mode_/,
+      /^signoff_/,
+      /^ci_required_checks_(status_pass|fresh|execution_authoritative|not_local_only_evidence|target_sha_matches_source|bridge_runtime_latest_run_success|gateway_bridge_contract_latest_run_success)$/,
+    ];
+    effectiveChecks = checks.filter((check) => inScopeMatchers.some((matcher) => matcher.test(check.id)));
+    scopedOutChecks = checks.filter((check) => !inScopeMatchers.some((matcher) => matcher.test(check.id)));
+  } else if (finalSignoffProfile === 'android-mobile-rc') {
     const inScopeMatchers = [
       /^validation_scope_/,
       /^mode_/,

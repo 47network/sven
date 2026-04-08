@@ -999,7 +999,8 @@ export async function registerPerformanceRoutes(app: FastifyInstance, pool: Pool
          JOIN chats c ON c.id = tr.chat_id
          WHERE c.organization_id = $1
            AND tr.created_at >= NOW() - ($2::int * INTERVAL '1 hour')
-         GROUP BY intent_key, tr.tool_name`,
+         GROUP BY intent_key, tr.tool_name
+         LIMIT 5000`,
         [orgId, windowHours],
       );
 
@@ -1021,8 +1022,10 @@ export async function registerPerformanceRoutes(app: FastifyInstance, pool: Pool
         byIntent.set(intentKey, existing);
       }
 
+      const MAX_TOOL_SUGGESTIONS = 500;
       const suggestions: Array<Record<string, unknown>> = [];
       for (const [intentKey, candidates] of byIntent.entries()) {
+        if (suggestions.length >= MAX_TOOL_SUGGESTIONS) break;
         if (candidates.length === 0) continue;
         candidates.sort((a, b) => {
           if (b.success_rate_pct !== a.success_rate_pct) return b.success_rate_pct - a.success_rate_pct;

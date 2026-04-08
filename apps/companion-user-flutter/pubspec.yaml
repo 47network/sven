@@ -73,7 +73,9 @@ dev_dependencies:
   flutter_gen_runner: ^5.8.0
   # drift_dev omitted: conflicts with freezed over build pkg version; .g.dart written manually
   widgetbook: ^3.0.0
-  patrol: ^3.14.0
+  patrol: ^4.0.0
+
+dependency_overrides:
 
 # ── flutter_gen configuration ─────────────────────────────────────────────────
 # Generates lib/gen/assets.gen.dart with type-safe asset accessors.
@@ -96,3 +98,6 @@ flutter:
 
   shaders:
     - shaders/entity.frag
+
+patrol:
+  test_directory: integration_test

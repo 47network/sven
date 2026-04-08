@@ -146,7 +146,33 @@ export async function registerFrigateRoutes(app: FastifyInstance, pool: pg.Pool)
     }
 
     const updates: Array<{ key: string; value: string }> = [];
-    if (body.base_url) updates.push({ key: 'frigate.base_url', value: body.base_url.trim() });
+    if (body.base_url) {
+      const trimmed = body.base_url.trim();
+      try {
+        const parsed = new URL(trimmed);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+          reply.status(400).send({
+            success: false,
+            error: { code: 'VALIDATION', message: 'base_url must use http or https' },
+          });
+          return;
+        }
+      } catch {
+        reply.status(400).send({
+          success: false,
+          error: { code: 'VALIDATION', message: 'base_url must be a valid URL' },
+        });
+        return;
+      }
+      if (trimmed.length > 2048) {
+        reply.status(400).send({
+          success: false,
+          error: { code: 'VALIDATION', message: 'base_url is too long' },
+        });
+        return;
+      }
+      updates.push({ key: 'frigate.base_url', value: trimmed });
+    }
     if (body.token_ref) updates.push({ key: 'frigate.token_ref', value: body.token_ref.trim() });
 
     for (const update of updates) {
@@ -276,10 +302,17 @@ export async function registerFrigateRoutes(app: FastifyInstance, pool: pg.Pool)
       });
       return;
     }
-    if (!reqPath.startsWith('/api/')) {
+    if (!reqPath.startsWith('/api/') || reqPath.includes('..') || reqPath.includes('//')) {
       reply.status(400).send({
         success: false,
-        error: { code: 'VALIDATION', message: 'path must start with /api/' },
+        error: { code: 'VALIDATION', message: 'path must start with /api/ and not contain traversal sequences' },
+      });
+      return;
+    }
+    if (reqPath.length > 512) {
+      reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'path is too long' },
       });
       return;
     }

@@ -7,8 +7,11 @@ import { embedTextFromEnv } from '../../services/embeddings.js';
 const logger = createLogger('admin-rag');
 
 const OPENSEARCH_URL = process.env.OPENSEARCH_URL || 'https://localhost:9200';
-const OPENSEARCH_USER = process.env.OPENSEARCH_USER || 'admin';
-const OPENSEARCH_PASSWORD = process.env.OPENSEARCH_PASSWORD || 'admin';
+const OPENSEARCH_USER = String(process.env.OPENSEARCH_USER || '').trim();
+const OPENSEARCH_PASSWORD = String(process.env.OPENSEARCH_PASSWORD || '').trim();
+if (!OPENSEARCH_USER || !OPENSEARCH_PASSWORD) {
+  logger.warn('OPENSEARCH_USER and OPENSEARCH_PASSWORD not configured — RAG indexing will fail');
+}
 
 const EMBEDDINGS_ENABLED = (process.env.EMBEDDINGS_ENABLED || 'true').toLowerCase() !== 'false';
 const EMBEDDINGS_DIM = Number(process.env.EMBEDDINGS_DIM || 1536);
@@ -881,6 +884,12 @@ export async function registerRagRoutes(app: FastifyInstance, pool: pg.Pool) {
         error: { code: 'VALIDATION', message: 'source, source_type, and transcript are required' },
       });
     }
+    if (transcript.length > 5_000_000) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'transcript exceeds 5MB size limit' },
+      });
+    }
     if (!MULTIMODAL_SOURCE_TYPES.has(sourceType)) {
       return reply.status(400).send({
         success: false,
@@ -916,7 +925,7 @@ export async function registerRagRoutes(app: FastifyInstance, pool: pg.Pool) {
           .map((v) => String(v || '').trim())
           .filter(Boolean),
       ),
-    );
+    ).slice(0, 100);
     const baseMetadata = body.metadata && typeof body.metadata === 'object' && !Array.isArray(body.metadata)
       ? body.metadata
       : {};
@@ -1100,6 +1109,12 @@ export async function registerRagRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
     }
 
+    if (rowsInput.length > 5000) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'rows array exceeds 5000 item limit' },
+      });
+    }
     const rows = rowsInput.filter((row) => row && typeof row === 'object' && !Array.isArray(row));
     if (rows.length === 0) {
       return reply.status(400).send({
@@ -1138,7 +1153,7 @@ export async function registerRagRoutes(app: FastifyInstance, pool: pg.Pool) {
           .map((v) => String(v || '').trim())
           .filter(Boolean),
       ),
-    );
+    ).slice(0, 100);
 
     const rowLines = rows
       .map((row, idx) => `row ${idx + 1}: ${stringifyStructuredRow(row)}`)

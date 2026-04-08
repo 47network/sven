@@ -1,10 +1,11 @@
 #!/usr/bin/env sh
 set -eu
 
-REPO_URL="${SVEN_REPO_URL:-https://github.com/47network/thesven.git}"
+REPO_URL="${SVEN_REPO_URL:-}"
+SOURCE_ARCHIVE_URL="${SVEN_SOURCE_ARCHIVE_URL:-https://sven.systems/source/thesven-src.tar.gz}"
 BRANCH="${SVEN_BRANCH:-main}"
 INSTALL_DIR="${SVEN_INSTALL_DIR:-$HOME/.sven-src}"
-GATEWAY_URL="${SVEN_GATEWAY_URL:-https://app.sven.example.com}"
+GATEWAY_URL="${SVEN_GATEWAY_URL:-https://app.sven.systems}"
 DRY_RUN="${SVEN_INSTALLER_DRY_RUN:-0}"
 BOOTSTRAP="${SVEN_INSTALL_BOOTSTRAP:-0}"
 
@@ -20,7 +21,11 @@ emit_status() {
 }
 
 echo "==> Sven quick installer (Unix)"
-echo "repo:    $REPO_URL"
+if [ -n "$REPO_URL" ]; then
+  echo "repo:    $REPO_URL"
+else
+  echo "archive: $SOURCE_ARCHIVE_URL"
+fi
 echo "branch:  $BRANCH"
 echo "install: $INSTALL_DIR"
 echo "dry-run: $DRY_RUN"
@@ -33,9 +38,15 @@ need_cmd() {
   fi
 }
 
-need_cmd git
 need_cmd npm
 need_cmd node
+
+if [ -n "$REPO_URL" ]; then
+  need_cmd git
+else
+  need_cmd curl
+  need_cmd tar
+fi
 
 if [ "$DRY_RUN" = "1" ]; then
   echo "==> Dry-run mode enabled. Prerequisite checks passed."
@@ -44,13 +55,22 @@ if [ "$DRY_RUN" = "1" ]; then
   exit 0
 fi
 
-if [ ! -d "$INSTALL_DIR/.git" ]; then
-  mkdir -p "$INSTALL_DIR"
-  git clone --branch "$BRANCH" "$REPO_URL" "$INSTALL_DIR"
+if [ -n "$REPO_URL" ]; then
+  if [ ! -d "$INSTALL_DIR/.git" ]; then
+    mkdir -p "$INSTALL_DIR"
+    git clone --branch "$BRANCH" "$REPO_URL" "$INSTALL_DIR"
+  else
+    git -C "$INSTALL_DIR" fetch origin
+    git -C "$INSTALL_DIR" checkout "$BRANCH"
+    git -C "$INSTALL_DIR" pull --ff-only origin "$BRANCH"
+  fi
 else
-  git -C "$INSTALL_DIR" fetch origin
-  git -C "$INSTALL_DIR" checkout "$BRANCH"
-  git -C "$INSTALL_DIR" pull --ff-only origin "$BRANCH"
+  TMP_ARCHIVE="$(mktemp "${TMPDIR:-/tmp}/sven-src.XXXXXX.tar.gz")"
+  trap 'rm -f "$TMP_ARCHIVE"' EXIT INT TERM
+  rm -rf "$INSTALL_DIR"
+  mkdir -p "$INSTALL_DIR"
+  curl -fsSL "$SOURCE_ARCHIVE_URL" -o "$TMP_ARCHIVE"
+  tar -xzf "$TMP_ARCHIVE" -C "$INSTALL_DIR"
 fi
 
 echo "==> Installing Sven CLI globally"

@@ -664,9 +664,14 @@ export async function registerMemoryRoutes(app: FastifyInstance, pool: pg.Pool) 
       text?: string;
       visibility?: string;
     }) || {};
+    const MAX_EXTRACT_TEXT_LENGTH = 50_000;
     const text = String(body.text || '').trim();
     if (!text) {
       reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'text is required' } });
+      return;
+    }
+    if (text.length > MAX_EXTRACT_TEXT_LENGTH) {
+      reply.status(413).send({ success: false, error: { code: 'VALIDATION', message: `text exceeds maximum length of ${MAX_EXTRACT_TEXT_LENGTH} characters` } });
       return;
     }
 

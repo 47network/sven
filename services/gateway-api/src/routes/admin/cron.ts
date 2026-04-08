@@ -159,10 +159,12 @@ export async function registerCronRoutes(app: FastifyInstance, pool: pg.Pool, nc
         ? `SELECT id, name, expression, handler, payload, enabled, last_run, next_run, created_at, updated_at
            FROM cron_jobs
            WHERE organization_id = $1
-           ORDER BY created_at DESC`
+           ORDER BY created_at DESC
+           LIMIT 500`
         : `SELECT id, name, expression, handler, payload, enabled, last_run, next_run, created_at, updated_at
            FROM cron_jobs
-           ORDER BY created_at DESC`,
+           ORDER BY created_at DESC
+           LIMIT 500`,
       hasOrgColumn ? [orgId] : [],
     );
     reply.send({ success: true, data: res.rows });

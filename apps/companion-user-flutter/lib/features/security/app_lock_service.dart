@@ -51,12 +51,20 @@ class AppLockService extends ChangeNotifier {
   bool _isLocked = false;
   DateTime? _backgroundedAt;
   bool _loaded = false;
+  bool _disposed = false;
 
   // ── Getters ──
   bool get lockEnabled => _lockEnabled;
   AutoLockTimeout get timeout => _timeout;
   bool get isLocked => _isLocked;
   bool get loaded => _loaded;
+
+  @override
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    super.dispose();
+  }
 
   // ── Persistence ──
 

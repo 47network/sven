@@ -8,6 +8,7 @@ COPY services/agent-runtime/package.json services/agent-runtime/
 RUN npm install
 COPY packages/shared packages/shared
 COPY services/agent-runtime services/agent-runtime
+RUN rm -f packages/shared/tsconfig.tsbuildinfo services/agent-runtime/tsconfig.tsbuildinfo
 RUN npm run build --workspace=packages/shared
 RUN npm run build --workspace=services/agent-runtime
 

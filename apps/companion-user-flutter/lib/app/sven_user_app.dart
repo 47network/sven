@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:battery_plus/battery_plus.dart';
@@ -19,6 +19,8 @@ import '../features/chat/chat_thread_page.dart';
 import '../features/chat/prompt_templates_service.dart';
 import '../features/chat/prompt_history_service.dart';
 import '../features/chat/sync_service.dart';
+import '../features/chat/android_wake_word_service.dart';
+import '../features/chat/wake_word_capture_service.dart';
 import '../features/chat/voice_overlay.dart';
 import '../features/chat/voice_service.dart';
 import '../features/memory/memory_service.dart';
@@ -42,6 +44,7 @@ import 'app_models.dart';
 import 'app_state.dart';
 import 'scoped_preferences.dart';
 import 'service_locator.dart';
+import 'sven_app_icon.dart';
 import 'sven_glass.dart';
 import 'sven_theme.dart';
 import 'sven_tokens.dart';
@@ -60,6 +63,11 @@ class SvenUserApp extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<SvenUserApp> createState() => _SvenUserAppState();
+}
+
+bool shouldInvalidateStoredSession(AuthFailure failure) {
+  return failure == AuthFailure.sessionExpired ||
+      failure == AuthFailure.invalidCredentials;
 }
 
 class _SvenUserAppState extends ConsumerState<SvenUserApp>
@@ -89,7 +97,12 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   StreamSubscription<dynamic>? _foregroundNotifSub;
   StreamSubscription<BatteryState>? _batterySub;
   StreamSubscription<RemoteMessage>? _fcmOpenedAppSub;
+  StreamSubscription<WakeWordMatch>? _androidWakeWordSub;
+  StreamSubscription<WakeWordAudioWindow>? _androidWakeWordAudioSub;
   bool _wakeWordLaunchInFlight = false;
+  bool _wakeWordUploadInFlight = false;
+  final _androidWakeWordService = AndroidWakeWordService();
+  late final WakeWordCaptureService _wakeWordCaptureService;
 
   @override
   void initState() {
@@ -97,7 +110,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     WidgetsBinding.instance.addObserver(this);
     _authClient = AuthenticatedClient(
       onSessionExpired: _handleActiveSessionExpired,
+      onTokenRefresh: _auth.refresh,
     );
+    _wakeWordCaptureService = WakeWordCaptureService(client: _authClient);
     _deviceService = DeviceService(client: _authClient);
     _syncService = SyncService(repository: sl<MessagesRepository>())
       ..setClient(_authClient);
@@ -110,8 +125,18 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     // launch/display isn't delayed by bootstrapping side effects.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      unawaited(_syncService.init());
-      unawaited(_bootstrap());
+      if (AndroidWakeWordService.isSupported) {
+        unawaited(_androidWakeWordService.initialize());
+        _androidWakeWordSub ??=
+            _androidWakeWordService.matches.listen(_handleAndroidWakeWordMatch);
+        _androidWakeWordAudioSub ??= _androidWakeWordService.audioWindows
+            .listen(_handleAndroidWakeWordAudioWindow);
+      }
+      unawaited(() async {
+        await _bootstrap();
+        if (!mounted) return;
+        await _syncService.init();
+      }());
       unawaited(_initDeepLinks());
       unawaited(_initFcmTapHandlers());
       _initForegroundNotifications();
@@ -131,7 +156,10 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     _foregroundNotifSub?.cancel();
     _batterySub?.cancel();
     _fcmOpenedAppSub?.cancel();
+    _androidWakeWordSub?.cancel();
+    _androidWakeWordAudioSub?.cancel();
     _state.removeListener(_handleStateChanged);
+    unawaited(_androidWakeWordService.dispose());
     _voiceService.dispose();
     _syncService.dispose();
     _memoryService.dispose();
@@ -147,7 +175,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       PerformanceTracker.startWarmResume();
       _lockService.onBackground();
       PushNotificationManager.instance.onAppBackgrounded();
-      unawaited(_voiceService.stopWakeWordMonitor());
+      if (!AndroidWakeWordService.isSupported) {
+        unawaited(_voiceService.stopWakeWordMonitor());
+      }
       return;
     }
     if (state == AppLifecycleState.resumed) {
@@ -344,13 +374,18 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
 
   Future<void> _bootstrap() async {
     await ApiBaseService.load();
+    final token = await _auth.readToken();
+    if (token != null && token.isNotEmpty) {
+      // Decide session-restore intent before prefs finish hydrating so the
+      // router never flashes the login screen for a cached session.
+      _state.setRestoringSession(true);
+      _authClient.suppressSessionExpiryHandling = true;
+    }
     await _state.loadPrefs();
     await _syncWakeWordMonitor();
 
     // Fetch deployment config in background so startup isn't blocked on network.
     unawaited(_refreshDeploymentConfig());
-
-    final token = await _auth.readToken();
     if (token == null || token.isEmpty) {
       // In personal mode, try transparent auto-login
       if (_state.deploymentMode == DeploymentMode.personal) {
@@ -361,14 +396,15 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
       return;
     }
 
-    // Restore session immediately for faster startup, then refresh in background.
-    _state.setToken(token);
+    // Hold the app on the lightweight splash while we validate the saved
+    // session. This prevents expired cached access tokens from racing into the
+    // authenticated shell and triggering a burst of 401s before refresh runs.
     _state.setAuthMessage(null);
-    _consumePendingLink();
 
     final storedUserId = await _auth.readUserId();
     final storedUsername = await _auth.readUsername();
     unawaited(_completeAuthenticatedBootstrap(
+      cachedToken: token,
       storedUserId: storedUserId,
       storedUsername: storedUsername,
     ));
@@ -388,6 +424,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   }
 
   Future<void> _completeAuthenticatedBootstrap({
+    required String cachedToken,
     String? storedUserId,
     String? storedUsername,
   }) async {
@@ -398,22 +435,39 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
 
       final refreshed = await _auth.refresh();
       _state.setToken(refreshed);
-
-      final remotePrefs = await _prefsService.fetch();
-      if (remotePrefs != null) {
-        await _state.applyRemotePrefs(remotePrefs);
-      }
-
       _consumePendingLink();
-      await PushNotificationManager.instance.retryRegistration();
+      _state.setRestoringSession(false);
+      _authClient.suppressSessionExpiryHandling = false;
+
+      unawaited(() async {
+        final remotePrefs = await _prefsService.fetch();
+        if (remotePrefs != null) {
+          await _state.applyRemotePrefs(remotePrefs);
+        }
+      }());
+      unawaited(PushNotificationManager.instance.retryRegistration());
     } on AuthException catch (e) {
-      await _auth.clearToken();
-      if (_state.deploymentMode == DeploymentMode.personal) {
-        final ok = await _tryAutoLogin();
-        if (ok) return;
+      if (shouldInvalidateStoredSession(e.failure)) {
+        await _auth.clearToken();
+        if (_state.deploymentMode == DeploymentMode.personal) {
+          final ok = await _tryAutoLogin();
+          if (ok) return;
+        }
+        _state.setToken(null);
+        _state.setAuthMessage(e.userMessage);
+        return;
       }
-      _state.setToken(null);
-      _state.setAuthMessage(e.userMessage);
+
+      // Keep the restored session if bootstrap hits a transient network/server
+      // failure during refresh or follow-up authenticated startup calls.
+      _state.setToken(cachedToken);
+      _state.setAuthMessage(null);
+      _consumePendingLink();
+    } finally {
+      _authClient.suppressSessionExpiryHandling = false;
+      if (_state.restoringSession) {
+        _state.setRestoringSession(false);
+      }
     }
   }
 
@@ -624,6 +678,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   Future<void> _openWakeWordCapture(WakeWordMatch match) async {
     if (_wakeWordLaunchInFlight) return;
     _wakeWordLaunchInFlight = true;
+    await _syncWakeWordMonitor();
     try {
       _router.go(appRouteHome);
       await Future<void>.delayed(const Duration(milliseconds: 120));
@@ -655,21 +710,83 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   Future<void> _syncWakeWordMonitor() async {
     if (!_state.loaded) return;
     final lifecycleState = WidgetsBinding.instance.lifecycleState;
+    final usingAndroidWake = AndroidWakeWordService.isSupported;
     final shouldArm = _state.isLoggedIn &&
         _state.wakeWordEnabled &&
-        lifecycleState != AppLifecycleState.paused &&
         lifecycleState != AppLifecycleState.detached &&
+        (usingAndroidWake || lifecycleState != AppLifecycleState.paused) &&
         !_wakeWordLaunchInFlight;
 
+    if (usingAndroidWake) {
+      await _voiceService.stopWakeWordMonitor();
+      if (!shouldArm) {
+        _state.setWakeWordStatus(WakeWordStatus.idle);
+        await _androidWakeWordService.stop();
+        return;
+      }
+      await _androidWakeWordService.start(wakePhrase: _state.wakeWordPhrase);
+      _state.setWakeWordStatus(WakeWordStatus.listening);
+      return;
+    }
+
     if (!shouldArm) {
+      _state.setWakeWordStatus(WakeWordStatus.idle);
       await _voiceService.stopWakeWordMonitor();
       return;
     }
 
+    _state.setWakeWordStatus(WakeWordStatus.listening);
     await _voiceService.startWakeWordMonitor(
       wakePhrase: _state.wakeWordPhrase,
       onDetected: _openWakeWordCapture,
     );
+  }
+
+  void _handleAndroidWakeWordMatch(WakeWordMatch match) {
+    unawaited(_openWakeWordCapture(match));
+  }
+
+  void _handleAndroidWakeWordAudioWindow(WakeWordAudioWindow window) {
+    unawaited(_submitWakeWordAudioWindow(window));
+  }
+
+  Future<void> _submitWakeWordAudioWindow(WakeWordAudioWindow window) async {
+    if (!_state.isLoggedIn ||
+        _wakeWordLaunchInFlight ||
+        _wakeWordUploadInFlight) {
+      return;
+    }
+    _wakeWordUploadInFlight = true;
+    try {
+      final result = await _wakeWordCaptureService.submitAudioWindow(
+        wakePhrase: window.phrase,
+        audioBase64: window.audioBase64,
+        audioMime: window.audioMime,
+      );
+      if (!result.detected) {
+        _state.setWakeWordStatus(WakeWordStatus.rejected);
+        debugPrint(
+          'Wake-word not detected phrase=${window.phrase} '
+          'target=${result.targetLabel ?? ''} '
+          'confidence=${result.confidence?.toStringAsFixed(3) ?? 'n/a'} '
+          'top=${result.topScores}',
+        );
+        return;
+      }
+
+      _state.setWakeWordStatus(WakeWordStatus.detected);
+      await _openWakeWordCapture(
+        WakeWordMatch(
+          phrase: window.phrase,
+          transcript: result.matchedLabel ?? window.phrase,
+          remainder: '',
+        ),
+      );
+    } catch (_) {
+      _state.setWakeWordStatus(WakeWordStatus.rejected);
+    } finally {
+      _wakeWordUploadInFlight = false;
+    }
   }
 
   // ── Router ──────────────────────────────────────────────────────────────────
@@ -688,6 +805,9 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
         // Keep initial launch on lightweight splash until prefs/bootstrap
         // have established baseline state to avoid expensive early route churn.
         if (!_state.loaded) {
+          return loc == '/' ? null : '/';
+        }
+        if (_state.restoringSession) {
           return loc == '/' ? null : '/';
         }
         // ── First-time setup ──
@@ -720,18 +840,99 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
         // Loading splash — only ever shown transiently before redirect fires.
         GoRoute(
           path: '/',
-          builder: (_, __) => const Scaffold(
-            body: ColoredBox(
-              color: Color(0xFF040712),
+          builder: (_, __) => Scaffold(
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF030711),
+                    Color(0xFF081225),
+                    Color(0xFF031A25),
+                  ],
+                ),
+              ),
               child: Center(
-                child: Text(
-                  'Sven',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                    color: Color(0xFFE8EEFF),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 168,
+                          height: 168,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                const Color(0x44FF39C6),
+                                const Color(0x2212C8FF),
+                                Colors.transparent,
+                              ],
+                              stops: const [0.18, 0.58, 1],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 124,
+                          height: 124,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(36),
+                            color: const Color(0xCC0A1225),
+                            border: Border.all(
+                              color: const Color(0x22E8EEFF),
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x330B1020),
+                                blurRadius: 28,
+                                offset: Offset(0, 16),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SvenAppIcon(size: 96, borderRadius: 30),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    const Text(
+                      'Sven',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                        color: Color(0xFFE8EEFF),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      _state.restoringSession
+                          ? 'Restoring session...'
+                          : 'Starting Sven...',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.2,
+                        color: Color(0xFFAAB9D6),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      width: 132,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(999),
+                        child: LinearProgressIndicator(
+                          minHeight: 4,
+                          backgroundColor: const Color(0x2200D9FF),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xFF6BE6FF),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -836,33 +1037,7 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
                       ),
                       title: Row(
                         children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: cinematic
-                                    ? [tokens.primary, tokens.secondary]
-                                    : [
-                                        tokens.primary,
-                                        tokens.primary.withValues(alpha: 0.7),
-                                      ],
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'S',
-                                style: TextStyle(
-                                  color: cinematic
-                                      ? const Color(0xFF040712)
-                                      : Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ),
+                          const SvenAppIcon(size: 28, borderRadius: 9),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(

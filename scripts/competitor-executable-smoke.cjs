@@ -97,6 +97,8 @@ function run() {
   const payload = {
     generated_at: new Date().toISOString(),
     status,
+    source_run_id: sourceRunId,
+    head_sha: headSha || null,
     summary: {
       total_commands: results.length,
       passed,

@@ -67,6 +67,7 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
 
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
   bool _initialized = false;
+  bool _disposed = false;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -88,6 +89,7 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
 
     // Seed the pending count from the DB.
     final items = await _repo.getAllOutboxItems();
+    if (_disposed) return;
     _pendingCount = items.length;
     notifyListeners();
 
@@ -105,6 +107,8 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    if (_disposed) return;
+    _disposed = true;
     WidgetsBinding.instance.removeObserver(this);
     _connectivitySub?.cancel();
     super.dispose();
@@ -126,6 +130,7 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
   ///
   /// Immediately attempts a drain if the device is online.
   Future<void> enqueue(String chatId, String text) async {
+    if (_disposed) return;
     final id = 'outbox-${chatId.hashCode.toUnsigned(32).toRadixString(16)}-'
         '${DateTime.now().millisecondsSinceEpoch}';
     await _repo.enqueueOutbox(
@@ -134,6 +139,7 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
       text: text,
       queuedAt: DateTime.now().millisecondsSinceEpoch,
     );
+    if (_disposed) return;
     _pendingCount++;
     notifyListeners();
 
@@ -148,10 +154,11 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
   /// queue (which was already enqueued here), so the messages are not sent
   /// twice when the thread page and the sync service are both online.
   Future<void> purgeFor(String chatId) async {
+    if (_disposed) return;
     final purged = await _repo.purgeOutboxFor(chatId);
-    if (purged > 0) {
+    if (purged > 0 && !_disposed) {
       _pendingCount = (await _repo.getAllOutboxItems()).length;
-      notifyListeners();
+      if (!_disposed) notifyListeners();
     }
   }
 
@@ -162,24 +169,28 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
   /// Only one drain runs at a time (concurrent calls are no-ops).
   /// Messages that repeatedly fail are dropped after [_kMaxAttempts] attempts.
   Future<void> drain() async {
-    if (_isDraining || _client == null) return;
+    if (_isDraining || _client == null || _disposed) return;
     _isDraining = true;
     notifyListeners();
 
     try {
       final items = await _repo.getAllOutboxItems();
       for (final item in items) {
+        if (_disposed) return;
         if (item.attemptCount >= _kMaxAttempts) {
           // Give up — remove abandoned message.
           await _repo.deleteOutboxItem(item.id);
+          if (_disposed) return;
           _pendingCount = (_pendingCount - 1).clamp(0, _pendingCount);
           notifyListeners();
           continue;
         }
 
         final delivered = await _trySend(item);
+        if (_disposed) return;
         if (delivered) {
           await _repo.deleteOutboxItem(item.id);
+          if (_disposed) return;
           _pendingCount = (_pendingCount - 1).clamp(0, _pendingCount);
           _lastSynced = DateTime.now();
           notifyListeners();
@@ -188,11 +199,15 @@ class SyncService extends ChangeNotifier with WidgetsBindingObserver {
         }
       }
     } finally {
-      // Refresh count to stay accurate after any error paths.
-      final remaining = await _repo.getAllOutboxItems();
-      _pendingCount = remaining.length;
-      _isDraining = false;
-      notifyListeners();
+      if (!_disposed) {
+        // Refresh count to stay accurate after any error paths.
+        final remaining = await _repo.getAllOutboxItems();
+        _pendingCount = remaining.length;
+        _isDraining = false;
+        notifyListeners();
+      } else {
+        _isDraining = false;
+      }
     }
   }
 

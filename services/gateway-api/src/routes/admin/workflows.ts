@@ -88,6 +88,12 @@ function validateWorkflowDefinition(
   steps: unknown[],
   edges: unknown[],
 ): { ok: true } | { ok: false; message: string } {
+  if (steps.length > 100) {
+    return { ok: false, message: 'workflow cannot exceed 100 steps' };
+  }
+  if (edges.length > 200) {
+    return { ok: false, message: 'workflow cannot exceed 200 edges' };
+  }
   const stepIds = new Set<string>();
   for (const rawStep of steps) {
     if (!rawStep || typeof rawStep !== 'object' || Array.isArray(rawStep)) {
@@ -687,6 +693,9 @@ export async function registerWorkflowRoutes(app: FastifyInstance, pool: Pool, n
       return reply.code(400).send({ success: false, error: { code: 'VALIDATION', message: bodyParsed.message } });
     }
     const { input_variables } = bodyParsed.value;
+    if (input_variables && JSON.stringify(input_variables).length > 100_000) {
+      return reply.code(413).send({ success: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'input_variables must be 100KB or fewer' } });
+    }
     const actorIdentityId = await resolveActorIdentityId(request as any, reply);
     if (!actorIdentityId) return;
 
@@ -775,7 +784,8 @@ export async function registerWorkflowRoutes(app: FastifyInstance, pool: Pool, n
         `SELECT *
          FROM workflow_step_runs
          WHERE workflow_run_id = $1
-         ORDER BY COALESCE(started_at, completed_at) ASC NULLS LAST, id ASC`,
+         ORDER BY COALESCE(started_at, completed_at) ASC NULLS LAST, id ASC
+         LIMIT 500`,
         [run_id]
       );
 

@@ -1,4 +1,4 @@
-package com.example.sven_user_flutter
+package com.fortyseven.thesven
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider

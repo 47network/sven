@@ -165,8 +165,17 @@ export class CanvasEmitter {
       },
     };
     const payload = jc.encode(envelope);
-    this.nc.publish(NATS_SUBJECTS.OUTBOX_ENQUEUE, payload);
-    this.nc.publish(NATS_SUBJECTS.TTS_OUTBOX_ENQUEUE, payload);
+    try {
+      this.nc.publish(NATS_SUBJECTS.OUTBOX_ENQUEUE, payload);
+      this.nc.publish(NATS_SUBJECTS.TTS_OUTBOX_ENQUEUE, payload);
+    } catch (err) {
+      logger.error('NATS publish failed after DB commit', {
+        message_id: messageId,
+        chat_id: params.chat_id,
+        outbox_id: outboxId,
+        err: String(err),
+      });
+    }
 
     logger.info('Canvas emitted', {
       message_id: messageId,

@@ -8,31 +8,38 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./integrations/*": {
       "types": "./dist/integrations/*.d.ts",
-      "import": "./dist/integrations/*.js"
+      "import": "./dist/integrations/*.js",
+      "default": "./dist/integrations/*.js"
     },
     "./integrations/*.js": {
       "types": "./dist/integrations/*.d.ts",
-      "import": "./dist/integrations/*.js"
+      "import": "./dist/integrations/*.js",
+      "default": "./dist/integrations/*.js"
     },
     "./nats/*": {
       "types": "./dist/nats/*.d.ts",
-      "import": "./dist/nats/*.js"
+      "import": "./dist/nats/*.js",
+      "default": "./dist/nats/*.js"
     },
     "./nats/*.js": {
       "types": "./dist/nats/*.d.ts",
-      "import": "./dist/nats/*.js"
+      "import": "./dist/nats/*.js",
+      "default": "./dist/nats/*.js"
     },
     "./sdk/*": {
       "types": "./dist/sdk/*.d.ts",
-      "import": "./dist/sdk/*.js"
+      "import": "./dist/sdk/*.js",
+      "default": "./dist/sdk/*.js"
     },
     "./sdk/*.js": {
       "types": "./dist/sdk/*.d.ts",
-      "import": "./dist/sdk/*.js"
+      "import": "./dist/sdk/*.js",
+      "default": "./dist/sdk/*.js"
     }
   },
   "typesVersions": {

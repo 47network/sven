@@ -117,19 +117,36 @@ function sanitizeSsoConfig(raw: unknown): SsoConfig {
   const mapIn = Array.isArray(input.group_mapping) ? input.group_mapping : [];
   const validTenantRoles = new Set(['owner', 'admin', 'operator', 'member', 'viewer']);
 
+  const validateSsoUrl = (value: unknown): string | undefined => {
+    const s = toStringValue(value).trim();
+    if (!s) return undefined;
+    try {
+      const u = new URL(s);
+      if (u.protocol !== 'https:' && u.protocol !== 'http:') return undefined;
+      const h = u.hostname.toLowerCase();
+      if (h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '0.0.0.0' || h === '169.254.169.254' || h === 'metadata.google.internal') return undefined;
+      const v4 = h.split('.');
+      if (v4.length === 4 && v4.every((p: string) => /^\d+$/.test(p))) {
+        const [a, b] = v4.map(Number);
+        if (a === 10 || a === 127 || a === 0 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254)) return undefined;
+      }
+      return u.toString();
+    } catch { return undefined; }
+  };
+
   const toProvider = (provider: Record<string, unknown>): SsoProviderConfig => ({
     enabled: parseBool(provider.enabled, false),
-    issuer_url: toStringValue(provider.issuer_url) || undefined,
+    issuer_url: validateSsoUrl(provider.issuer_url),
     client_id: toStringValue(provider.client_id) || undefined,
     client_secret: toStringValue(provider.client_secret) || undefined,
-    authorization_endpoint: toStringValue(provider.authorization_endpoint) || undefined,
-    token_endpoint: toStringValue(provider.token_endpoint) || undefined,
-    userinfo_endpoint: toStringValue(provider.userinfo_endpoint) || undefined,
+    authorization_endpoint: validateSsoUrl(provider.authorization_endpoint),
+    token_endpoint: validateSsoUrl(provider.token_endpoint),
+    userinfo_endpoint: validateSsoUrl(provider.userinfo_endpoint),
     scopes: toStringValue(provider.scopes) || undefined,
-    entrypoint_url: toStringValue(provider.entrypoint_url) || undefined,
+    entrypoint_url: validateSsoUrl(provider.entrypoint_url),
     entity_id: toStringValue(provider.entity_id) || undefined,
     cert_pem: toStringValue(provider.cert_pem) || undefined,
-    callback_url: toStringValue(provider.callback_url) || undefined,
+    callback_url: validateSsoUrl(provider.callback_url),
   });
 
   const group_mapping = mapIn

@@ -3,7 +3,7 @@ import pg from 'pg';
 import { v7 as uuidv7 } from 'uuid';
 import webpush from 'web-push';
 import path from 'node:path';
-import { createLogger, NATS_SUBJECTS } from '@sven/shared';
+import { createLogger, NATS_SUBJECTS, generateTaskId, BackgroundSessionManager, ClientAttestor, FeatureFlagRegistry } from '@sven/shared';
 import { ensureStreams } from '@sven/shared/nats/streams.js';
 import type { ApprovalCreatedEvent, ApprovalUpdatedEvent, AudioIngestEvent, EventEnvelope, NotifyPushEvent } from '@sven/shared';
 
@@ -229,7 +229,8 @@ async function sendWebhookNotificationWithRetry(
     }
 
     if (attempt < maxAttempts) {
-      const backoffMs = Math.min(10000, backoffBaseMs * (2 ** (attempt - 1)));
+      const backoffMs = Math.min(10000, backoffBaseMs * (2 ** (attempt - 1)))
+        + Math.floor(Math.random() * 500);
       await waitMs(backoffMs);
     }
   }
@@ -277,6 +278,12 @@ function isPrivateOrLocalIpv6(hostname: string): boolean {
   if (normalized === '::1') return true;
   if (normalized.startsWith('fe80:')) return true;
   if (normalized.startsWith('fc') || normalized.startsWith('fd')) return true;
+  // IPv4-mapped IPv6 (::ffff:a.b.c.d) — check the embedded IPv4
+  const v4mapped = normalized.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (v4mapped) return isPrivateOrLocalIpv4(v4mapped[1]);
+  // IPv4-compatible IPv6 (::a.b.c.d)
+  const v4compat = normalized.match(/^::(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (v4compat) return isPrivateOrLocalIpv4(v4compat[1]);
   return false;
 }
 
@@ -552,10 +559,13 @@ async function resolveSecretRef(ref: string): Promise<string> {
 
   if (ref.startsWith('sops://')) {
     const sopsBin = process.env.SVEN_SOPS_BIN || 'sops';
-    const { execSync } = await import('node:child_process');
+    const { spawnSync } = await import('node:child_process');
     const filePath = ref.slice('sops://'.length);
-    if (!filePath) throw new Error('Invalid sops ref');
-    return execSync(`${sopsBin} -d ${filePath}`, { encoding: 'utf8' }).trim();
+    if (!filePath || !/^[a-zA-Z0-9._\/ -]+$/.test(filePath)) throw new Error('Invalid sops ref');
+    const result = spawnSync(sopsBin, ['-d', filePath], { encoding: 'utf8', timeout: 30_000 });
+    if (result.error) throw new Error(`sops exec failed: ${String(result.error.message || result.error)}`);
+    if (result.status !== 0) throw new Error(`sops -d failed (exit ${result.status}): ${String(result.stderr || '').slice(0, 200)}`);
+    return result.stdout.trim();
   }
 
   if (ref.startsWith('vault://')) {
@@ -1538,7 +1548,8 @@ async function pollHaSubscriptions(
     `SELECT id, chat_id, user_id, entity_id, match_state, match_attribute, match_value,
             cooldown_seconds, enabled, last_state, last_attributes, last_notified_at
      FROM ha_subscriptions
-     WHERE enabled = TRUE`,
+     WHERE enabled = TRUE
+     LIMIT 2000`,
   );
 
   for (const sub of subsRes.rows as HaSubscriptionRow[]) {
@@ -1633,7 +1644,8 @@ async function pollHaAutomations(
     `SELECT id, name, description, chat_id, user_id, enabled, trigger, conditions, actions,
             cooldown_seconds, last_state, last_attributes, last_triggered_at
      FROM ha_automations
-     WHERE enabled = TRUE`,
+     WHERE enabled = TRUE
+     LIMIT 2000`,
   );
 
   for (const raw of autosRes.rows as HaAutomationRow[]) {
@@ -1784,6 +1796,48 @@ async function main(): Promise<void> {
     max: 5,
   });
   logger.info('Connected to Postgres');
+
+  // Initialize feature flag registry for runtime gating
+  const featureFlags = new FeatureFlagRegistry({ source: 'notification-service', warnOnStaleFlags: true });
+  featureFlags.register({
+    name: 'async-delivery.enabled',
+    type: 'boolean',
+    value: true,
+    description: 'Use background session manager for async notification delivery',
+    createdAt: '2026-04-07T00:00:00Z',
+    cleanupBy: '2027-04-07T00:00:00Z',
+    enabled: (process.env.FEATURE_ASYNC_DELIVERY_ENABLED || 'true').toLowerCase() !== 'false',
+  });
+  featureFlags.register({
+    name: 'client-attestation.enabled',
+    type: 'boolean',
+    value: false,
+    description: 'Enable HMAC attestation for outbound webhook requests',
+    createdAt: '2026-04-07T00:00:00Z',
+    cleanupBy: '2027-04-07T00:00:00Z',
+    enabled: (process.env.FEATURE_CLIENT_ATTESTATION_ENABLED || '').toLowerCase() === 'true',
+  });
+  logger.info('Feature flag registry initialized', { flags: featureFlags.getAllFlags().map(f => f.name) });
+
+  // Initialize client attestation for inter-service HMAC verification
+  let clientAttestor: ClientAttestor | null = null;
+  const attestationSecret = process.env.SVEN_ATTESTATION_SECRET || '';
+  if (featureFlags.isEnabled('client-attestation.enabled') && attestationSecret.length >= 32) {
+    clientAttestor = new ClientAttestor({ secret: attestationSecret, serviceId: 'notification-service' });
+    logger.info('Client attestation initialized', { serviceId: 'notification-service' });
+  } else if (featureFlags.isEnabled('client-attestation.enabled')) {
+    logger.warn('Client attestation enabled but SVEN_ATTESTATION_SECRET missing or too short (need ≥32 chars)');
+  }
+
+  // Initialize background session manager for async notification delivery
+  const bgSessions = new BackgroundSessionManager({
+    maxConcurrent: Number(process.env.NOTIFY_BG_MAX_CONCURRENT || 8),
+    maxQueueSize: Number(process.env.NOTIFY_BG_MAX_QUEUE || 200),
+    defaultTimeoutMs: Number(process.env.NOTIFY_BG_TIMEOUT_MS || 60_000),
+  });
+  logger.info('Background session manager initialized', {
+    maxConcurrent: Number(process.env.NOTIFY_BG_MAX_CONCURRENT || 8),
+  });
 
   // Runtime remains read-only for schema governance; migrations own table lifecycle.
   await ensureNotificationsRecipientUserIdText(pool);

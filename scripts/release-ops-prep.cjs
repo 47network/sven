@@ -14,6 +14,14 @@ const soakSummaryPath = path.join(root, 'docs', 'release', 'status', 'soak-72h-s
 const soakEventsPath = path.join(root, 'docs', 'release', 'status', 'soak-72h-events.jsonl');
 const multiDeviceValidationSummaryPath = path.join(root, 'docs', 'release', 'status', 'multi-device-validation-latest.json');
 const mirrorAgentHostValidationSummaryPath = path.join(root, 'docs', 'release', 'status', 'mirror-agent-host-validation-latest.json');
+const vmRestartDrillSummaryPath = path.join(root, 'docs', 'release', 'status', 'vm-restart-drill-latest.json');
+const vmRestartDrillEvidenceStatusPath = path.join(root, 'docs', 'release', 'status', 'vm-restart-drill-evidence-latest.json');
+const finalDodExecutionStatusPath = path.join(root, 'docs', 'release', 'status', 'final-dod-execution-latest.json');
+const releaseOpsDrillStatusPath = path.join(root, 'docs', 'release', 'status', 'release-ops-drill-latest.json');
+const d9KeycloakInteropGateStatusPath = path.join(root, 'docs', 'release', 'status', 'd9-keycloak-interop-gate-latest.json');
+const d9KeycloakInteropEvidenceCheckStatusPath = path.join(root, 'docs', 'release', 'status', 'd9-keycloak-interop-evidence-check-latest.json');
+const d9KeycloakInteropPreflightStatusPath = path.join(root, 'docs', 'release', 'status', 'd9-keycloak-interop-preflight-latest.json');
+const ciGatesPath = path.join(root, 'docs', 'release', 'status', 'ci-gates.json');
 const defaultApiUrl = String(
   process.env.API_URL
   || process.env.SVEN_APP_HOST
@@ -109,7 +117,59 @@ function buildSoakView(soakSummary, latestStatus) {
   };
 }
 
-function buildNextSteps({ soak, mobile, signoff, checklist, rollout, multi_device, strict_profile_applied }) {
+function buildBlockingReasons(latestStatus) {
+  return Array.isArray(latestStatus?.blocking_reasons) ? latestStatus.blocking_reasons : [];
+}
+
+function buildExecutionOrder({ soak, rollout, mirrorAgentHostValidationStatus, multiDeviceOverall, finalDodCiGate, d9CiGate, releaseOpsDrillCiGate }) {
+  const steps = [];
+  const soakStatus = String(soak?.status || '').toLowerCase();
+  if (soakStatus !== 'pass') {
+    steps.push('Start or finalize the 72h soak lane first so summary_status becomes pass.');
+  }
+
+  const vmRestartDrillStatus = String(rollout?.vm_restart_drill?.status || '').toLowerCase();
+  const vmRestartDrillEvidenceStatus = String(rollout?.vm_restart_drill?.evidence_status || '').toLowerCase();
+  if (!['pass', 'planned'].includes(vmRestartDrillStatus) || vmRestartDrillEvidenceStatus !== 'pass' || vmRestartDrillStatus === 'planned') {
+    steps.push('Run VM restart drill execute on the operator host and recheck the drill evidence.');
+  }
+
+  if (String(mirrorAgentHostValidationStatus || '').toLowerCase() !== 'pass') {
+    steps.push('Capture and finalize mirror-agent host validation evidence.');
+  }
+
+  if (String(multiDeviceOverall || '').toLowerCase() !== 'pass') {
+    steps.push('Capture and finalize multi-device validation evidence in strict mode.');
+  }
+
+  if (!finalDodCiGate) {
+    steps.push('Dispatch final-dod-e2e in GitHub Actions for the target SHA.');
+  }
+
+  if (!d9CiGate) {
+    steps.push('Dispatch d9-keycloak-interop-gate in GitHub Actions for the target SHA.');
+  }
+
+  if (!releaseOpsDrillCiGate) {
+    steps.push('Dispatch release-ops-drill in GitHub Actions for the target SHA.');
+  }
+
+  steps.push('Refresh local gate snapshots and rerun strict release status.');
+  return steps;
+}
+
+function buildNextSteps({
+  soak,
+  mobile,
+  signoff,
+  checklist,
+  rollout,
+  multi_device,
+  final_dod,
+  d9_keycloak_interop,
+  release_ops_drill,
+  strict_profile_applied,
+}) {
   const steps = [];
 
   const soakStatus = String(soak?.status || '').toLowerCase();
@@ -127,6 +187,13 @@ function buildNextSteps({ soak, mobile, signoff, checklist, rollout, multi_devic
 
   if (String(rollout?.status || '').toLowerCase() !== 'pass') {
     steps.push('Refresh release rollout execution evidence using the rollout commands listed below.');
+  }
+  const vmRestartDrillStatus = String(rollout?.vm_restart_drill?.status || '').toLowerCase();
+  const vmRestartDrillEvidenceStatus = String(rollout?.vm_restart_drill?.evidence_status || '').toLowerCase();
+  if (!['pass', 'planned'].includes(vmRestartDrillStatus) || vmRestartDrillEvidenceStatus !== 'pass') {
+    steps.push('Refresh VM restart drill artifacts before rollout signoff using the VM restart drill commands listed below.');
+  } else if (vmRestartDrillStatus === 'planned') {
+    steps.push('Run the live VM restart drill on the operator host to replace the planned artifact with executed evidence.');
   }
   const enforceMirrorHostValidation = String(strict_profile_applied || '').toLowerCase() !== 'android-mobile-rc';
   if (enforceMirrorHostValidation && String(rollout?.mirror_agent_host_validation?.status || '').toLowerCase() !== 'pass') {
@@ -148,12 +215,61 @@ function buildNextSteps({ soak, mobile, signoff, checklist, rollout, multi_devic
   if (String(multi_device?.summary?.overall || '').toLowerCase() !== 'pass') {
     steps.push('Run multi-device validation evidence finalize in strict mode after completing relay/policy checks.');
   }
+  if (!final_dod?.ci_gate) {
+    steps.push('Dispatch the final-dod-e2e GitHub Actions workflow and confirm final-dod-execution-latest.json is produced with live_checks_executed=true.');
+  }
+  if (!d9_keycloak_interop?.ci_gate) {
+    steps.push('Dispatch the d9-keycloak-interop-gate GitHub Actions workflow and confirm the gate artifact refreshes for the target SHA.');
+  }
+  if (!release_ops_drill?.ci_gate) {
+    steps.push('Dispatch the release-ops-drill GitHub Actions workflow and capture the backup/scope/restore artifacts for the target SHA.');
+  }
 
   steps.push('Rerun npm run release:status -- --strict after the blocking lanes above are complete.');
   return steps;
 }
 
 function renderMarkdown(summary) {
+  const unresolvedMandatoryGateSections = [
+    summary.final_dod?.ci_gate ? null : {
+      title: 'Final DoD',
+      lines: [
+        `- Final DoD CI gate: ${String(summary.final_dod?.ci_gate ?? '(missing)')}`,
+        `- Final DoD local execution status: ${summary.final_dod?.local_execution_status ?? '(missing)'}`,
+        `- Final DoD live checks executed: ${String(summary.final_dod?.live_checks_executed ?? '(missing)')}`,
+        `- Final DoD executed/declared: ${summary.final_dod?.executed_cases ?? '(missing)'}/${summary.final_dod?.declared_cases ?? '(missing)'}`,
+        ...((summary.final_dod?.artifact_paths || []).map((artifact) => `- ${artifact.label}: ${artifact.path}`)),
+        ...((summary.final_dod?.workflow_refs || []).map((artifact) => `- workflow: ${artifact.label}: ${artifact.path}`)),
+        ...((summary.final_dod?.commands || []).map((command) => `- final_dod_${command.step}: ${command.command}`)),
+      ],
+    },
+    summary.d9_keycloak_interop?.ci_gate ? null : {
+      title: 'D9 Keycloak Interop',
+      lines: [
+        `- D9 interop CI gate: ${String(summary.d9_keycloak_interop?.ci_gate ?? '(missing)')}`,
+        `- D9 local gate status: ${summary.d9_keycloak_interop?.local_gate_status ?? '(missing)'}`,
+        `- D9 evidence check status: ${summary.d9_keycloak_interop?.evidence_check_status ?? '(missing)'}`,
+        `- D9 preflight status: ${summary.d9_keycloak_interop?.preflight_status ?? '(missing)'}`,
+        `- D9 local selfcheck status: ${summary.d9_keycloak_interop?.local_selfcheck_status ?? '(missing)'}`,
+        ...((summary.d9_keycloak_interop?.artifact_paths || []).map((artifact) => `- ${artifact.label}: ${artifact.path}`)),
+        ...((summary.d9_keycloak_interop?.workflow_refs || []).map((artifact) => `- workflow: ${artifact.label}: ${artifact.path}`)),
+        ...((summary.d9_keycloak_interop?.commands || []).map((command) => `- d9_${command.step}: ${command.command}`)),
+      ],
+    },
+    summary.release_ops_drill?.ci_gate ? null : {
+      title: 'Release Ops Drill',
+      lines: [
+        `- Release ops drill CI gate: ${String(summary.release_ops_drill?.ci_gate ?? '(missing)')}`,
+        `- Release ops drill local status: ${summary.release_ops_drill?.local_status ?? '(missing)'}`,
+        `- Release ops drill artifact present: ${String(summary.release_ops_drill?.artifact_present ?? '(missing)')}`,
+        `- Release ops drill source SHA present: ${String(summary.release_ops_drill?.source_sha_present ?? '(missing)')}`,
+        ...((summary.release_ops_drill?.artifact_paths || []).map((artifact) => `- ${artifact.label}: ${artifact.path}`)),
+        ...((summary.release_ops_drill?.workflow_refs || []).map((artifact) => `- workflow: ${artifact.label}: ${artifact.path}`)),
+        ...((summary.release_ops_drill?.commands || []).map((command) => `- release_ops_drill_${command.step}: ${command.command}`)),
+      ],
+    },
+  ].filter(Boolean);
+
   const lines = [
     '# Release Ops Prep',
     '',
@@ -180,8 +296,25 @@ function renderMarkdown(summary) {
     `- Mobile readiness: ${summary.mobile?.readiness_status ?? '(missing)'}`,
     `- Final signoff: ${summary.signoff?.final_signoff_status ?? '(missing)'}`,
     `- Release rollout: ${summary.rollout?.status ?? '(missing)'}`,
+    `- Final DoD CI gate: ${String(summary.final_dod?.ci_gate ?? '(missing)')}`,
+    `- D9 Keycloak interop CI gate: ${String(summary.d9_keycloak_interop?.ci_gate ?? '(missing)')}`,
+    `- Release ops drill CI gate: ${String(summary.release_ops_drill?.ci_gate ?? '(missing)')}`,
     `- Mirror-agent host validation: ${summary.rollout?.mirror_agent_host_validation?.status ?? '(missing)'}`,
     `- Multi-device validation: ${summary.multi_device?.summary?.overall ?? '(missing)'}`,
+    '',
+    '## Execution Order',
+    '',
+    ...((summary.execution_order || []).map((step, index) => `${index + 1}. ${step}`)),
+    '',
+    '## Remaining Strict Blockers',
+    '',
+    ...((summary.blocking_reasons || []).map((reason) => `- ${reason.id}: ${reason.detail}`)),
+    '',
+    '## Mandatory CI Gates',
+    '',
+    ...(unresolvedMandatoryGateSections.length > 0
+      ? unresolvedMandatoryGateSections.flatMap((section) => [`### ${section.title}`, '', ...section.lines, ''])
+      : ['- All mandatory CI gates currently pass.']),
     '',
     '## Checklist',
     '',
@@ -360,9 +493,18 @@ function renderPs1(summary) {
     `# - mobile_readiness: ${summary.mobile?.readiness_status ?? '(missing)'}`,
     `# - final_signoff: ${summary.signoff?.final_signoff_status ?? '(missing)'}`,
     `# - release_rollout: ${summary.rollout?.status ?? '(missing)'}`,
+    `# - final_dod_ci_gate: ${String(summary.final_dod?.ci_gate ?? '(missing)')}`,
+    `# - final_dod_local_execution_status: ${summary.final_dod?.local_execution_status ?? '(missing)'}`,
+    `# - d9_keycloak_interop_ci_gate: ${String(summary.d9_keycloak_interop?.ci_gate ?? '(missing)')}`,
+    `# - d9_local_gate_status: ${summary.d9_keycloak_interop?.local_gate_status ?? '(missing)'}`,
+    `# - release_ops_drill_ci_gate: ${String(summary.release_ops_drill?.ci_gate ?? '(missing)')}`,
+    `# - release_ops_drill_local_status: ${summary.release_ops_drill?.local_status ?? '(missing)'}`,
     `# - mirror_agent_host_validation: ${summary.rollout?.mirror_agent_host_validation?.status ?? '(missing)'}`,
     `# - multi_device_validation: ${summary.multi_device?.summary?.overall ?? '(missing)'}`,
     `# - checklist_unchecked_count: ${summary.latest_status?.checklist?.unchecked_count ?? '(missing)'}`,
+    '',
+    '# Recommended execution order',
+    ...((summary.execution_order || []).map((step, index) => `# ${index + 1}. ${step}`)),
     '',
     '# Remaining checklist rows',
     ...((summary.checklist?.unchecked_items || []).map((item) => `# - ${item.path}: ${item.text}`)),
@@ -428,6 +570,15 @@ function renderPs1(summary) {
     ...(summary.rollout?.observed_phase_evidence?.length
       ? summary.rollout.observed_phase_evidence.map((item) => `# - rollout_observed_phase_evidence: ${item}`)
       : ['# - rollout_observed_phase_evidence: (none found; only templates are present)']),
+    '',
+    '# Mandatory CI/local gate diagnostics',
+    ...((summary.blocking_reasons || []).map((blocker) => `# - blocker: ${blocker.id}: ${blocker.detail}`)),
+    ...((summary.final_dod?.workflow_refs || []).map((item) => `# - final_dod_workflow: ${item.path}`)),
+    ...((summary.final_dod?.artifact_paths || []).map((item) => `# - final_dod_artifact: ${item.path}`)),
+    ...((summary.d9_keycloak_interop?.workflow_refs || []).map((item) => `# - d9_workflow: ${item.path}`)),
+    ...((summary.d9_keycloak_interop?.artifact_paths || []).map((item) => `# - d9_artifact: ${item.path}`)),
+    ...((summary.release_ops_drill?.workflow_refs || []).map((item) => `# - release_ops_drill_workflow: ${item.path}`)),
+    ...((summary.release_ops_drill?.artifact_paths || []).map((item) => `# - release_ops_drill_artifact: ${item.path}`)),
     '',
     '# Fill these placeholders before running the commands below.',
     "$Branch = '<branch>'",
@@ -674,6 +825,31 @@ function renderPs1(summary) {
   lines.push('# 7. Re-run strict release status.');
   lines.push('npm run release:status -- --strict');
   lines.push('');
+  lines.push('# 8. Mandatory CI workflows still need to be dispatched outside this shell.');
+  if (!summary.final_dod?.ci_gate) {
+    lines.push('# final_dod workflow');
+    for (const command of summary.final_dod?.commands || []) {
+      lines.push(`# final_dod_${command.step}`);
+      lines.push(command.command);
+      lines.push('');
+    }
+  }
+  if (!summary.d9_keycloak_interop?.ci_gate) {
+    lines.push('# d9 keycloak interop workflow');
+    for (const command of summary.d9_keycloak_interop?.commands || []) {
+      lines.push(`# d9_${command.step}`);
+      lines.push(command.command);
+      lines.push('');
+    }
+  }
+  if (!summary.release_ops_drill?.ci_gate) {
+    lines.push('# release ops drill workflow');
+    for (const command of summary.release_ops_drill?.commands || []) {
+      lines.push(`# release_ops_drill_${command.step}`);
+      lines.push(command.command);
+      lines.push('');
+    }
+  }
   lines.push('# Optional: enforce multi-device strict finalization after matrix completion.');
   lines.push("if ($MultiDeviceEvidenceFile) { npm run ops:release:multi-device:evidence:finalize -- -EvidenceFile $MultiDeviceEvidenceFile -Strict } else { npm run ops:release:multi-device:evidence:finalize -- -Strict }");
   lines.push('');
@@ -687,10 +863,19 @@ function main() {
   const soakSummary = readJsonIfExists(soakSummaryPath);
   const multiDeviceValidationSummary = readJsonIfExists(multiDeviceValidationSummaryPath);
   const mirrorAgentHostValidationSummary = readJsonIfExists(mirrorAgentHostValidationSummaryPath);
+  const vmRestartDrillSummary = readJsonIfExists(vmRestartDrillSummaryPath);
+  const vmRestartDrillEvidenceStatus = readJsonIfExists(vmRestartDrillEvidenceStatusPath);
+  const finalDodExecutionStatus = readJsonIfExists(finalDodExecutionStatusPath);
+  const releaseOpsDrillStatus = readJsonIfExists(releaseOpsDrillStatusPath);
+  const d9KeycloakInteropGateStatus = readJsonIfExists(d9KeycloakInteropGateStatusPath);
+  const d9KeycloakInteropEvidenceCheckStatus = readJsonIfExists(d9KeycloakInteropEvidenceCheckStatusPath);
+  const d9KeycloakInteropPreflightStatus = readJsonIfExists(d9KeycloakInteropPreflightStatusPath);
+  const ciGates = readJsonIfExists(ciGatesPath);
   const latestStatus = readJsonIfExists(path.join(outDir, 'latest.json')) || signoff.latest_status;
   const strictProfileApplied = String(latestStatus?.strict_policy?.strict_profile_applied || '').trim().toLowerCase() || 'production-cutover';
   const shouldEnforceMirrorAgentHostValidation = strictProfileApplied !== 'android-mobile-rc';
   const uncheckedChecklistItems = extractUncheckedChecklistItems(strictProfileApplied);
+  const blockingReasons = buildBlockingReasons(latestStatus);
 
   const soak = buildSoakView(soakSummary, latestStatus);
   const mirrorAgentHostValidationStatus = String(
@@ -719,6 +904,9 @@ function main() {
       { label: 'release rollout prep markdown', path: 'docs/release/status/release-rollout-prep-latest.md' },
       { label: 'release rollout next steps ps1', path: 'docs/release/status/release-rollout-next-steps.ps1' },
       { label: 'release rollout execution evidence', path: 'docs/release/evidence/release-rollout-execution-latest.json' },
+      { label: 'vm restart drill status json', path: 'docs/release/status/vm-restart-drill-latest.json' },
+      { label: 'vm restart drill evidence status json', path: 'docs/release/status/vm-restart-drill-evidence-latest.json' },
+      { label: 'vm restart drill evidence json', path: 'docs/release/evidence/vm-restart-drill-latest.json' },
     ],
     selected_execution_evidence: rolloutPrep.selected_execution_evidence || null,
     execution_evidence_defaults: rolloutPrep.execution_evidence_defaults || null,
@@ -726,7 +914,24 @@ function main() {
     validation_commands: rolloutPrep.validation_commands || [],
     observed_phase_evidence: rolloutPrep.observed_phase_evidence || [],
     commands: rolloutPrep.commands || [],
-      mirror_agent_host_validation: {
+    vm_restart_drill: {
+      status: vmRestartDrillSummary?.status || null,
+      execution_mode: vmRestartDrillSummary?.execution_mode || null,
+      evidence_status: vmRestartDrillEvidenceStatus?.status || null,
+      artifact_paths: [
+        { label: 'vm restart drill latest json', path: 'docs/release/status/vm-restart-drill-latest.json' },
+        { label: 'vm restart drill latest markdown', path: 'docs/release/status/vm-restart-drill-latest.md' },
+        { label: 'vm restart drill evidence latest json', path: 'docs/release/status/vm-restart-drill-evidence-latest.json' },
+        { label: 'vm restart drill evidence latest markdown', path: 'docs/release/status/vm-restart-drill-evidence-latest.md' },
+        { label: 'vm restart drill canonical evidence', path: 'docs/release/evidence/vm-restart-drill-latest.json' },
+      ],
+      commands: [
+        { step: 'plan', command: 'npm run ops:release:vm-restart-drill:strict' },
+        { step: 'execute', command: 'npm run ops:release:vm-restart-drill:execute' },
+        { step: 'evidence_check', command: 'npm run release:vm-restart:drill:evidence:check' },
+      ],
+    },
+    mirror_agent_host_validation: {
         status: mirrorAgentHostValidationStatus || null,
         enforced_in_profile: shouldEnforceMirrorAgentHostValidation,
         blockers: mirrorAgentHostValidationBlockers,
@@ -766,6 +971,8 @@ function main() {
         { label: 'release rollout prep json', path: 'docs/release/status/release-rollout-prep-latest.json' },
         { label: 'release rollout prep markdown', path: 'docs/release/status/release-rollout-prep-latest.md' },
         { label: 'release rollout next steps ps1', path: 'docs/release/status/release-rollout-next-steps.ps1' },
+        { label: 'vm restart drill latest json', path: 'docs/release/status/vm-restart-drill-latest.json' },
+        { label: 'vm restart drill evidence latest json', path: 'docs/release/status/vm-restart-drill-evidence-latest.json' },
         { label: 'mirror-agent host validation latest json', path: 'docs/release/status/mirror-agent-host-validation-latest.json' },
         { label: 'mirror-agent host validation latest markdown', path: 'docs/release/status/mirror-agent-host-validation-latest.md' },
         { label: 'release signoff prep json', path: 'docs/release/status/release-signoff-prep-latest.json' },
@@ -826,7 +1033,84 @@ function main() {
       final_signoff_role_summary: signoff.final_signoff_role_summary || [],
       commands: signoff.commands || [],
     },
+    blocking_reasons: blockingReasons,
+    final_dod: {
+      ci_gate: Boolean(ciGates?.final_dod_ci),
+      local_execution_status: finalDodExecutionStatus?.status || null,
+      live_checks_executed: finalDodExecutionStatus?.live_checks_executed ?? null,
+      executed_cases: finalDodExecutionStatus?.executed_cases ?? null,
+      declared_cases: finalDodExecutionStatus?.declared_cases ?? null,
+      artifact_paths: [
+        { label: 'final-dod execution latest json', path: 'docs/release/status/final-dod-execution-latest.json' },
+        { label: 'final-dod execution latest markdown', path: 'docs/release/status/final-dod-execution-latest.md' },
+        { label: 'final-dod workflow latest json', path: 'docs/release/status/final-dod-e2e-latest.json' },
+        { label: 'final-dod workflow latest markdown', path: 'docs/release/status/final-dod-e2e-latest.md' },
+        { label: 'final-dod jest results', path: 'docs/release/status/final-dod-e2e-jest-results.json' },
+      ],
+      workflow_refs: [
+        { label: 'final-dod-e2e workflow', path: '.github/workflows/final-dod-e2e.yml' },
+      ],
+      commands: [
+        { step: 'local_diagnostic', command: 'npm run test:final-dod:local' },
+        { step: 'status_refresh', command: 'npm run release:ci:gates:refresh:local && npm run release:status -- --strict' },
+        { step: 'dispatch_note', command: 'Write-Host "Dispatch .github/workflows/final-dod-e2e.yml in GitHub Actions for the target SHA/ref."' },
+      ],
+    },
+    d9_keycloak_interop: {
+      ci_gate: Boolean(ciGates?.d9_keycloak_interop_ci),
+      local_gate_status: d9KeycloakInteropGateStatus?.status || latestStatus?.d9_keycloak_interop?.local_gate_status || null,
+      evidence_check_status: d9KeycloakInteropEvidenceCheckStatus?.status || latestStatus?.d9_keycloak_interop?.evidence_check_status || null,
+      preflight_status: d9KeycloakInteropPreflightStatus?.status || latestStatus?.d9_keycloak_interop?.preflight_status || null,
+      local_selfcheck_status: latestStatus?.d9_keycloak_interop?.local_selfcheck_status || null,
+      artifact_paths: [
+        { label: 'd9 keycloak interop gate latest json', path: 'docs/release/status/d9-keycloak-interop-gate-latest.json' },
+        { label: 'd9 keycloak interop gate latest markdown', path: 'docs/release/status/d9-keycloak-interop-gate-latest.md' },
+        { label: 'd9 keycloak interop evidence check latest json', path: 'docs/release/status/d9-keycloak-interop-evidence-check-latest.json' },
+        { label: 'd9 keycloak interop evidence check latest markdown', path: 'docs/release/status/d9-keycloak-interop-evidence-check-latest.md' },
+        { label: 'd9 keycloak interop preflight latest json', path: 'docs/release/status/d9-keycloak-interop-preflight-latest.json' },
+        { label: 'd9 keycloak local selfcheck latest json', path: 'docs/release/status/d9-keycloak-local-selfcheck-latest.json' },
+      ],
+      workflow_refs: [
+        { label: 'd9-keycloak-interop-gate workflow', path: '.github/workflows/d9-keycloak-interop-gate.yml' },
+      ],
+      commands: [
+        { step: 'local_diagnostic', command: 'npm run release:sso:keycloak:interop:gate:with-idp-preflight' },
+        { step: 'status_refresh', command: 'npm run release:ci:gates:refresh:local && npm run release:status -- --strict' },
+        { step: 'dispatch_note', command: 'Write-Host "Dispatch .github/workflows/d9-keycloak-interop-gate.yml in GitHub Actions for the target SHA/ref."' },
+      ],
+    },
+    release_ops_drill: {
+      ci_gate: Boolean(ciGates?.release_ops_drill_ci),
+      local_status: releaseOpsDrillStatus?.status || null,
+      artifact_present: releaseOpsDrillStatus?.checks?.some?.((check) => check.id === 'ops_drill_artifact_present' && check.pass) || false,
+      source_sha_present: releaseOpsDrillStatus?.checks?.some?.((check) => check.id === 'ops_drill_provenance_present' && check.pass) || false,
+      artifact_paths: [
+        { label: 'release ops drill latest json', path: 'docs/release/status/release-ops-drill-latest.json' },
+        { label: 'release ops drill latest markdown', path: 'docs/release/status/release-ops-drill-latest.md' },
+        { label: 'backup drill artifact', path: 'sven_copy.sql' },
+        { label: 'migration drill scope', path: 'migration-drill-scope.json' },
+        { label: 'restore validation', path: 'restore-validation.json' },
+      ],
+      workflow_refs: [
+        { label: 'release-ops-drill workflow', path: '.github/workflows/release-ops-drill.yml' },
+      ],
+      commands: [
+        { step: 'local_diagnostic', command: 'npm run release:ops:drill:status' },
+        { step: 'status_refresh', command: 'npm run release:ci:gates:refresh:local && npm run release:status -- --strict' },
+        { step: 'dispatch_note', command: 'Write-Host "Dispatch .github/workflows/release-ops-drill.yml in GitHub Actions for the target SHA/ref."' },
+      ],
+    },
   };
+
+  summary.execution_order = buildExecutionOrder({
+    soak,
+    rollout,
+    mirrorAgentHostValidationStatus,
+    multiDeviceOverall: multiDeviceValidationSummary?.summary?.overall || null,
+    finalDodCiGate: summary.final_dod.ci_gate,
+    d9CiGate: summary.d9_keycloak_interop.ci_gate,
+    releaseOpsDrillCiGate: summary.release_ops_drill.ci_gate,
+  });
 
   summary.strict_profile_applied = strictProfileApplied;
   summary.next_steps = buildNextSteps(summary);

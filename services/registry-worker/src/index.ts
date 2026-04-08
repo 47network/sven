@@ -216,6 +216,9 @@ async function verifyCosign(imageRef: string): Promise<{ signature?: string; err
   }
 
   const { spawnSync } = await import('node:child_process');
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9.\-/:@_]+$/.test(imageRef)) {
+    return { error: 'invalid image reference format' };
+  }
   const result = spawnSync(cosignBin, ['verify', '--key', publicKey, '--output', 'json', imageRef], {
     encoding: 'utf8',
   });
@@ -415,7 +418,7 @@ function computeRiskFromVuln(summary: Record<string, number>): 'low' | 'medium' 
 }
 
 function runToolJson(bin: string, args: string[]): { ok: boolean; output?: any; error?: string; status?: number } {
-  const result = spawnSync(bin, args, { encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });
+  const result = spawnSync(bin, args, { encoding: 'utf8', maxBuffer: 5 * 1024 * 1024 });
   if (result.error) {
     const err = String(result.error.message || result.error);
     if (err.toLowerCase().includes('enoent')) {
@@ -464,8 +467,13 @@ async function runStaticChecks(skillDir: string): Promise<{ status: string; chec
 
   if (handlerFile) {
     try {
-      const handlerPath = path.join(skillDir, handlerFile);
-      await fs.access(handlerPath);
+      const handlerPath = path.resolve(skillDir, handlerFile);
+      if (!handlerPath.startsWith(path.resolve(skillDir) + path.sep)) {
+        status = 'failed';
+        checks.push({ id: 'handler', status: 'failed', message: 'handler_file escapes skill directory' });
+      } else {
+        await fs.access(handlerPath);
+      }
     } catch (err) {
       status = 'failed';
       checks.push({ id: 'handler', status: 'failed', message: `Missing ${handlerFile}: ${String(err)}` });

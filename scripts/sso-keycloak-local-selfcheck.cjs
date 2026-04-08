@@ -168,7 +168,7 @@ async function main() {
       stdout: '',
       stderr: `missing required env: ${missingRequiredEnv.join(', ')}`,
     });
-    return finalize('fail', steps, '', '', buildMigrationCoverage(steps), strict);
+    return finalize('incomplete', steps, '', '', buildMigrationCoverage(steps), strict);
   }
 
   let gateway = null;

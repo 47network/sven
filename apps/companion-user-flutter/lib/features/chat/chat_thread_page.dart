@@ -33,6 +33,7 @@ import '../home/streak_service.dart';
 import '../../app/app_models.dart';
 import '../../app/performance_tracker.dart';
 import '../../app/skeleton.dart';
+import '../../app/sven_app_icon.dart';
 import '../../app/sven_tokens.dart';
 
 class ChatThreadPage extends StatefulWidget {
@@ -118,6 +119,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
   bool _loadingMore = false;
   String? _loadError;
   String? _pendingText;
+  /// Real server-assigned chat ID once a `new-{timestamp}` thread is persisted.
+  String? _resolvedChatId;
   final List<String> _offlineQueue = [];
   Stopwatch? _chatLatencyStopwatch;
   bool _firstTokenLogged = false;
@@ -332,7 +335,12 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     super.initState();
     _promptHistory = PromptHistoryService();
     widget.promptTemplatesService?.load();
-    widget.onRegisterExport?.call(_exportConversation);
+    // Defer to avoid setState on the parent while it is still building.
+    if (widget.onRegisterExport != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onRegisterExport!(_exportConversation);
+      });
+    }
     _initConnectivity();
     _loadMessages();
     _loadAgentState();
@@ -494,8 +502,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
   }
 
   Future<void> _loadMessages() async {
-    // In incognito mode there is no server thread — start empty immediately.
-    if (widget.incognito) {
+    // In incognito mode, or for a client-generated new-thread placeholder,
+    // there is no server thread yet — start empty immediately.
+    if (widget.incognito || widget.thread.id.startsWith('new-')) {
       if (!mounted) return;
       setState(() {
         _messages.clear();
@@ -633,6 +642,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
 
   void _startSse() {
     if (widget.incognito) return; // No SSE in incognito mode
+    final effectiveId = _resolvedChatId ?? widget.thread.id;
+    if (effectiveId.startsWith('new-')) return; // No SSE for unsaved threads
     final sseService = ChatSseService(
       client: widget.chatService.authClient,
     );
@@ -642,14 +653,14 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
         if ((event.type == 'agent.paused' || event.type == 'agent.resumed') &&
             event.data != null) {
           final chatId = event.data!['chat_id'] as String?;
-          if (chatId != null && chatId == widget.thread.id && mounted) {
+          if (chatId != null && chatId == effectiveId && mounted) {
             setState(() {
               _agentPaused = event.type == 'agent.paused';
             });
           }
         } else if (event.type == 'agent.nudged' && event.data != null) {
           final chatId = event.data!['chat_id'] as String?;
-          if (chatId != null && chatId == widget.thread.id && mounted) {
+          if (chatId != null && chatId == effectiveId && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Agent nudged. Retrying latest step.'),
@@ -661,7 +672,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
         } else if (event.type == 'message' && event.data != null) {
           final msg = chatMessageFromSse(event.data!);
           if (msg == null) return;
-          if (msg.chatId != null && msg.chatId != widget.thread.id) return;
+          if (msg.chatId != null && msg.chatId != effectiveId) return;
           if (!mounted) return;
           final existingIds = _messages.map((m) => m.id).toSet();
           if (!existingIds.contains(msg.id)) {
@@ -688,11 +699,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
           // ── Streaming token-by-token ──
           _handleStreamingToken(event.data!);
         } else if (event.type == 'heartbeat') {
-          if (!_sseActive) {
-            _sseActive = true;
-            _fallbackPollTimer?.cancel();
-            _fallbackPollTimer = null;
-          }
+          _sseActive = true;
         }
       },
       onError: (_) {
@@ -828,6 +835,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
 
   void _startFallbackPoll() {
     _fallbackPollTimer?.cancel();
+    // Keep a periodic refresh even while SSE is active so open threads do not
+    // go stale if the stream misses a cross-device message event.
     _fallbackPollTimer = Timer.periodic(
       const Duration(seconds: 10),
       (_) => _pollNewMessages(),
@@ -1059,14 +1068,24 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     _tryExtractMemory(text);
 
     try {
+      // Resolve the real server chat ID: if this thread is a client-generated
+      // placeholder (new-{timestamp}), create it on the server first.
+      var effectiveChatId = _resolvedChatId ?? widget.thread.id;
+      if (effectiveChatId.startsWith('new-')) {
+        effectiveChatId = await widget.chatService.createChat();
+        if (mounted) {
+          setState(() => _resolvedChatId = effectiveChatId);
+          _startSse(); // begin streaming subscription now that we have a real ID
+        }
+      }
       final sent = await widget.chatService.sendMessage(
-        widget.thread.id,
+        effectiveChatId,
         text,
         mode: _currentMode.name,
         responseLength: widget.responseLength.name,
         personality: widget.voicePersonality.name,
         memoryContext: widget.memoryService?.buildSystemPrompt(
-          currentChatId: widget.thread.id,
+          currentChatId: effectiveChatId,
           personality: widget.voicePersonality,
         ),
         images: imagePaths?.map((p) => XFile(p)).toList(),
@@ -2461,15 +2480,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Text(
-                    'S',
-                    style: TextStyle(
-                      color: cinematic ? const Color(0xFF040712) : Colors.white,
-                      fontSize: 34,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+              child: Center(
+                  child: const SvenAppIcon(size: 56, borderRadius: 22),
                 ),
               ),
               const SizedBox(height: 28),
@@ -4508,7 +4520,7 @@ class _RunResultPill extends StatelessWidget {
   }
 }
 
-/// Branded assistant avatar — gradient circle with "S".
+/// Branded assistant avatar.
 class _AssistantAvatar extends StatelessWidget {
   const _AssistantAvatar({required this.tokens, required this.cinematic});
 
@@ -4521,14 +4533,7 @@ class _AssistantAvatar extends StatelessWidget {
       width: 30,
       height: 30,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: cinematic
-              ? [tokens.primary, tokens.secondary]
-              : [tokens.primary, tokens.primary.withValues(alpha: 0.75)],
-        ),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: cinematic
             ? [
                 BoxShadow(
@@ -4538,16 +4543,7 @@ class _AssistantAvatar extends StatelessWidget {
               ]
             : null,
       ),
-      child: Center(
-        child: Text(
-          'S',
-          style: TextStyle(
-            color: cinematic ? const Color(0xFF040712) : Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
+      child: const SvenAppIcon(size: 30, borderRadius: 10),
     );
   }
 }

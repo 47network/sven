@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@sven/shared": "*",
+    "fake-indexeddb": "^6.0.0",
     "matrix-js-sdk": "^37.8.0"
   },
   "devDependencies": {

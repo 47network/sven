@@ -1,5 +1,35 @@
 # Sven Companion Desktop (Tauri)
 
+## Current live status
+
+- Native build: passes locally
+- Live API contract: verified for device login, chat send, timeline fetch, and approval vote
+- Rendered desktop shell: launches and renders on Linux
+- Session restore: resilient on Linux via OS keyring plus local fallback mirror for environments where Secret Service is flaky under automation
+
+## Linux launch note
+
+If you start the companion from a Snap-hosted shell (for example VS Code
+Insiders from Snap), Snap GTK/glibc paths can leak into the Tauri process and
+cause native symbol errors even though Sven itself is healthy.
+
+Use the clean launcher from the app root:
+
+```bash
+./run-clean.sh
+```
+
+The clean launcher preserves `DBUS_SESSION_BUS_ADDRESS` and `XDG_RUNTIME_DIR`
+so Sven can still access the user session bus and secure storage while avoiding
+Snap GTK/glibc leakage.
+
+If the binary does not exist yet, build it first:
+
+```bash
+cd src-tauri
+cargo build
+```
+
 Production desktop target replacing Electron for Windows/Linux.
 
 ## Core Features
@@ -8,7 +38,7 @@ Production desktop target replacing Electron for Windows/Linux.
 - Session refresh rotation (`/v1/auth/refresh`)
 - Chat send (`/v1/chats/:chat_id/messages`)
 - Approval polling (`/v1/approvals?status=pending`)
-- Secure token storage via OS keyring (`keyring` crate)
+- Secure token storage via OS keyring (`keyring` crate) with local fallback mirror for restore resilience
 
 ## Security Controls
 

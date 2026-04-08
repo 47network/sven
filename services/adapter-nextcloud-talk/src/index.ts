@@ -1,4 +1,5 @@
 import http from 'node:http';
+import crypto from 'node:crypto';
 import {
   BaseAdapter,
   type AdapterConfig,
@@ -184,7 +185,10 @@ class NextcloudTalkAdapter extends BaseAdapter {
     if (!token) {
       return false;
     }
-    return token === this.webhookToken;
+    const tokenBuf = Buffer.from(token);
+    const expectedBuf = Buffer.from(this.webhookToken);
+    if (tokenBuf.length !== expectedBuf.length) return false;
+    return crypto.timingSafeEqual(tokenBuf, expectedBuf);
   }
 
   private async handleWebhook(payload: any): Promise<void> {

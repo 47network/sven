@@ -73,12 +73,100 @@ function Get-FreeTcpPort {
   return $port
 }
 
+function ConvertTo-BashSingleQuoted {
+  param(
+    [Parameter(Mandatory = $true)][string]$Value
+  )
+
+  return "'" + ($Value -replace "'", "'""'""'") + "'"
+}
+
+function Start-DetachedProcessPortable {
+  param(
+    [Parameter(Mandatory = $true)][string]$FilePath,
+    [Parameter(Mandatory = $true)][string[]]$ArgumentList,
+    [Parameter(Mandatory = $true)][string]$StdoutPath,
+    [Parameter(Mandatory = $true)][string]$StderrPath,
+    [string]$UnitNamePrefix = 'sven-soak',
+    [hashtable]$Environment = @{}
+  )
+
+  if ($IsWindows) {
+    return Start-Process -FilePath $FilePath `
+      -ArgumentList $ArgumentList `
+      -PassThru `
+      -RedirectStandardOutput $StdoutPath `
+      -RedirectStandardError $StderrPath
+  }
+
+  $systemdRun = Get-Command systemd-run -ErrorAction SilentlyContinue
+  if ($systemdRun) {
+    $unitName = "$UnitNamePrefix-$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())-$([System.Guid]::NewGuid().ToString('N').Substring(0, 6))"
+    $systemdArgs = @(
+      '--user',
+      '--collect',
+      '--same-dir',
+      '--service-type=exec',
+      '--unit', $unitName
+    )
+    foreach ($entry in $Environment.GetEnumerator()) {
+      $systemdArgs += @('--setenv', "$($entry.Key)=$($entry.Value)")
+    }
+    $systemdArgs += @($FilePath)
+    $systemdArgs += $ArgumentList
+    $null = & $systemdRun.Source @systemdArgs
+    if ($LASTEXITCODE -ne 0) {
+      throw "failed to start detached systemd unit: $unitName"
+    }
+    $mainPid = 0
+    for ($attempt = 0; $attempt -lt 20; $attempt++) {
+      $activeState = (& systemctl --user show --property ActiveState --value $unitName 2>$null | Out-String).Trim().ToLowerInvariant()
+      $mainPidText = (& systemctl --user show --property MainPID --value $unitName 2>$null | Out-String).Trim()
+      if ($mainPidText -match '^\d+$') {
+        $mainPid = [int]$mainPidText
+      }
+      if (($activeState -eq 'active' -or $activeState -eq 'activating') -and $mainPid -gt 0) {
+        return [pscustomobject]@{ Id = $mainPid; Unit = $unitName }
+      }
+      Start-Sleep -Milliseconds 250
+    }
+    return [pscustomobject]@{ Id = $mainPid; Unit = $unitName }
+  }
+
+  $bashCommand = Get-Command bash -ErrorAction Stop
+  $quotedFile = ConvertTo-BashSingleQuoted -Value $FilePath
+  $quotedArgs = @($quotedFile) + @($ArgumentList | ForEach-Object { ConvertTo-BashSingleQuoted -Value ([string]$_) })
+  $quotedStdout = ConvertTo-BashSingleQuoted -Value $StdoutPath
+  $quotedStderr = ConvertTo-BashSingleQuoted -Value $StderrPath
+  $envPrefix = @()
+  foreach ($entry in $Environment.GetEnumerator()) {
+    $envPrefix += "$(ConvertTo-BashSingleQuoted -Value ([string]$entry.Key))=$(ConvertTo-BashSingleQuoted -Value ([string]$entry.Value))"
+  }
+  $launch = "setsid nohup env $($envPrefix -join ' ') $($quotedArgs -join ' ') >> $quotedStdout 2>> $quotedStderr < /dev/null & echo `$!"
+  $pidText = & $bashCommand.Source -lc $launch
+  if ($LASTEXITCODE -ne 0) {
+    throw "failed to start detached process: $FilePath"
+  }
+  $pidValue = [int](([string]$pidText).Trim())
+  if ($pidValue -le 0) {
+    throw "launcher returned invalid pid for $FilePath"
+  }
+  return [pscustomobject]@{ Id = $pidValue }
+}
+
 if (Test-Path $runPath) {
   $existing = Get-Content $runPath | ConvertFrom-Json
   if ($existing.soak_pid) {
     $existingProc = Get-Process -Id $existing.soak_pid -ErrorAction SilentlyContinue
     if ($existingProc) {
       Write-Output "72h soak already running (PID=$($existing.soak_pid), started_at=$($existing.started_at), expected_end_at=$($existing.expected_end_at))."
+      exit 0
+    }
+  }
+  if ($existing.soak_unit) {
+    $existingUnitState = (& systemctl --user is-active ([string]$existing.soak_unit) 2>$null | Out-String).Trim().ToLowerInvariant()
+    if ($existingUnitState -eq 'active' -or $existingUnitState -eq 'activating') {
+      Write-Output "72h soak already running (unit=$($existing.soak_unit), started_at=$($existing.started_at), expected_end_at=$($existing.expected_end_at))."
       exit 0
     }
   }
@@ -165,11 +253,21 @@ if ($missingTables.Count -gt 0) {
   throw "soak migration preflight failed; missing required tables: $($missingTables -join ', ')"
 }
 
-$gatewayProc = Start-Process -FilePath $nodeExe `
-  -ArgumentList 'services/gateway-api/dist/index.js' `
-  -PassThru `
-  -RedirectStandardOutput $gatewayStdoutPath `
-  -RedirectStandardError $gatewayStderrPath
+$gatewayProc = Start-DetachedProcessPortable `
+  -FilePath $nodeExe `
+  -ArgumentList @('services/gateway-api/dist/index.js') `
+  -StdoutPath $gatewayStdoutPath `
+  -StderrPath $gatewayStderrPath `
+  -UnitNamePrefix 'sven-soak-gateway' `
+  -Environment @{
+    DATABASE_URL = $env:DATABASE_URL
+    NATS_URL = $env:NATS_URL
+    GATEWAY_PORT = $env:GATEWAY_PORT
+    GATEWAY_HOST = $env:GATEWAY_HOST
+    API_URL = $env:API_URL
+    SVEN_MIGRATION_ID_MODE = $env:SVEN_MIGRATION_ID_MODE
+    COOKIE_SECRET = $env:COOKIE_SECRET
+  }
 
 $healthy = $false
 for ($i = 0; $i -lt 60; $i++) {
@@ -187,17 +285,24 @@ if (-not $healthy) {
 $startedAt = [DateTimeOffset]::UtcNow
 $expectedEnd = $startedAt.AddHours(72)
 
-$soakProc = Start-Process -FilePath $nodeExe `
+$soakProc = Start-DetachedProcessPortable `
+  -FilePath $nodeExe `
   -ArgumentList @('scripts/soak-monitor.cjs', '--duration-hours', '72', '--interval-seconds', '60') `
-  -PassThru `
-  -RedirectStandardOutput $soakStdoutPath `
-  -RedirectStandardError $soakStderrPath
+  -StdoutPath $soakStdoutPath `
+  -StderrPath $soakStderrPath `
+  -UnitNamePrefix 'sven-soak-monitor' `
+  -Environment @{
+    API_URL = $env:API_URL
+    DATABASE_URL = $env:DATABASE_URL
+  }
 
 $run = [ordered]@{
   started_at = $startedAt.ToString('o')
   expected_end_at = $expectedEnd.ToString('o')
   soak_pid = $soakProc.Id
+  soak_unit = $soakProc.Unit
   gateway_pid = $gatewayProc.Id
+  gateway_unit = $gatewayProc.Unit
   pg_container = $pg
   nats_container = $nats
   api_url = $env:API_URL

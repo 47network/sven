@@ -9,21 +9,34 @@ import 'approvals_models.dart';
 import 'approvals_service.dart';
 
 class ApprovalsPage extends StatefulWidget {
-  const ApprovalsPage({super.key, required this.client});
+  const ApprovalsPage({
+    super.key,
+    required this.client,
+    this.service,
+    this.enableSse = true,
+    this.enableFallbackPolling = true,
+    this.pollInterval = const Duration(seconds: 5),
+  });
 
   final AuthenticatedClient client;
+  final ApprovalsService? service;
+  final bool enableSse;
+  final bool enableFallbackPolling;
+  final Duration pollInterval;
 
   @override
   State<ApprovalsPage> createState() => _ApprovalsPageState();
 }
 
 class _ApprovalsPageState extends State<ApprovalsPage> {
-  final _service = ApprovalsService();
+  late final ApprovalsService _service;
   bool _loading = true;
   String? _error;
   String _tab = 'pending';
   List<ApprovalItem> _pending = [];
   List<ApprovalItem> _history = [];
+  Timer? _pollTimer;
+  Future<void>? _refreshInFlight;
 
   ChatSseService? _sseService;
   StreamSubscription<SseEvent>? _sseSub;
@@ -31,8 +44,14 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
   @override
   void initState() {
     super.initState();
+    _service = widget.service ?? ApprovalsService(client: widget.client);
     _load();
-    _startSse();
+    if (widget.enableSse) {
+      _startSse();
+    }
+    if (widget.enableFallbackPolling) {
+      _startFallbackPolling();
+    }
   }
 
   void _startSse() {
@@ -47,14 +66,28 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
     sseService.connect();
   }
 
+  void _startFallbackPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(widget.pollInterval, (_) {
+      if (!mounted) return;
+      _load(silent: true);
+    });
+  }
+
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _sseSub?.cancel();
     _sseService?.dispose();
     super.dispose();
   }
 
   Future<void> _load({bool silent = false}) async {
+    if (_refreshInFlight != null) {
+      return _refreshInFlight!;
+    }
+    final completer = Completer<void>();
+    _refreshInFlight = completer.future;
     if (!silent) {
       setState(() {
         _loading = true;
@@ -69,9 +102,15 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
         _history = history.where((a) => a.status != 'pending').toList();
       });
     } catch (e) {
-      setState(() => _error = e.toString());
+      if (mounted) {
+        setState(() => _error = e.toString());
+      }
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+      _refreshInFlight = null;
+      completer.complete();
     }
   }
 

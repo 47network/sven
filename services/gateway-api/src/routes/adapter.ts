@@ -6,13 +6,25 @@ import { createLogger, NATS_SUBJECTS } from '@sven/shared';
 import type { AudioIngestEvent, EventEnvelope, InboundMessageEvent } from '@sven/shared';
 import type { NotifyPushEvent } from '@sven/shared';
 import { withCorrelationMetadata } from '../lib/correlation.js';
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import bcrypt from 'bcrypt';
 import { upsertChatMember } from './chat-members.js';
 
 const logger = createLogger('gateway-adapter');
 const sc = StringCodec();
 const jc = JSONCodec();
+
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) {
+    const padded = Buffer.alloc(ab.length);
+    bb.copy(padded);
+    timingSafeEqual(ab, padded);
+    return false;
+  }
+  return timingSafeEqual(ab, bb);
+}
 
 function normalizeAdapterBody<T extends object>(
   body: unknown,
@@ -66,8 +78,8 @@ export async function registerAdapterRoutes(
       expectedChannelToken = String(channelTokenRow.rows[0]?.value || '').trim();
     }
 
-    const tokenMatchesGlobal = expectedGlobalToken.length > 0 && providedToken === expectedGlobalToken;
-    const tokenMatchesChannel = expectedChannelToken.length > 0 && providedToken === expectedChannelToken;
+    const tokenMatchesGlobal = expectedGlobalToken.length > 0 && safeEqual(providedToken, expectedGlobalToken);
+    const tokenMatchesChannel = expectedChannelToken.length > 0 && safeEqual(providedToken, expectedChannelToken);
     if (!tokenMatchesGlobal && !tokenMatchesChannel) {
       reply.status(403).send({
         success: false,

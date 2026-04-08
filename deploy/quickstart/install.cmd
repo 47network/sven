@@ -2,7 +2,8 @@
 setlocal enabledelayedexpansion
 
 set "REPO_URL=%SVEN_REPO_URL%"
-if "%REPO_URL%"=="" set "REPO_URL=https://github.com/47network/thesven.git"
+set "SOURCE_ARCHIVE_URL=%SVEN_SOURCE_ARCHIVE_URL%"
+if "%SOURCE_ARCHIVE_URL%"=="" set "SOURCE_ARCHIVE_URL=https://sven.systems/source/thesven-src.tar.gz"
 
 set "BRANCH=%SVEN_BRANCH%"
 if "%BRANCH%"=="" set "BRANCH=main"
@@ -14,7 +15,7 @@ set "TEMP_DIR=%TMP_ROOT%\temp"
 set "NPM_CACHE_DIR=%TMP_ROOT%\npm-cache"
 
 set "GATEWAY_URL=%SVEN_GATEWAY_URL%"
-if "%GATEWAY_URL%"=="" set "GATEWAY_URL=https://app.sven.example.com"
+if "%GATEWAY_URL%"=="" set "GATEWAY_URL=https://app.sven.systems"
 set "DRY_RUN=%SVEN_INSTALLER_DRY_RUN%"
 if "%DRY_RUN%"=="" set "DRY_RUN=0"
 set "BOOTSTRAP=%SVEN_INSTALL_BOOTSTRAP%"
@@ -27,15 +28,23 @@ set "BOOTSTRAP_REQUESTED=false"
 set "BOOTSTRAP_EXECUTED=false"
 
 echo ==^> Sven quick installer (Windows CMD)
-echo repo:    %REPO_URL%
+if not "%REPO_URL%"=="" (
+  echo repo:    %REPO_URL%
+) else (
+  echo archive: %SOURCE_ARCHIVE_URL%
+)
 echo branch:  %BRANCH%
 echo install: %INSTALL_DIR%
 echo dry-run: %DRY_RUN%
 echo bootstrap: %BOOTSTRAP%
 
-where git >nul 2>&1 || (echo Missing required command: git & exit /b 2)
 where node >nul 2>&1 || (echo Missing required command: node & exit /b 2)
 where npm >nul 2>&1 || (echo Missing required command: npm & exit /b 2)
+if not "%REPO_URL%"=="" (
+  where git >nul 2>&1 || (echo Missing required command: git & exit /b 2)
+) else (
+  where tar >nul 2>&1 || (echo Missing required command: tar & exit /b 2)
+)
 
 if "%DRY_RUN%"=="1" (
   echo ==^> Dry-run mode enabled. Prerequisite checks passed.
@@ -44,13 +53,21 @@ if "%DRY_RUN%"=="1" (
   endlocal & exit /b 0
 )
 
-if not exist "%INSTALL_DIR%\.git" (
-  if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
-  git clone --branch "%BRANCH%" "%REPO_URL%" "%INSTALL_DIR%" || exit /b 1
+if not "%REPO_URL%"=="" (
+  if not exist "%INSTALL_DIR%\.git" (
+    if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
+    git clone --branch "%BRANCH%" "%REPO_URL%" "%INSTALL_DIR%" || exit /b 1
+  ) else (
+    git -C "%INSTALL_DIR%" fetch origin || exit /b 1
+    git -C "%INSTALL_DIR%" checkout "%BRANCH%" || exit /b 1
+    git -C "%INSTALL_DIR%" pull --ff-only origin "%BRANCH%" || exit /b 1
+  )
 ) else (
-  git -C "%INSTALL_DIR%" fetch origin || exit /b 1
-  git -C "%INSTALL_DIR%" checkout "%BRANCH%" || exit /b 1
-  git -C "%INSTALL_DIR%" pull --ff-only origin "%BRANCH%" || exit /b 1
+  if exist "%INSTALL_DIR%" rmdir /s /q "%INSTALL_DIR%"
+  mkdir "%INSTALL_DIR%" || exit /b 1
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -UseBasicParsing -Uri '%SOURCE_ARCHIVE_URL%' -OutFile '%TEMP%\\thesven-src.tar.gz'" || exit /b 1
+  tar -xzf "%TEMP%\thesven-src.tar.gz" -C "%INSTALL_DIR%" || exit /b 1
+  del /q "%TEMP%\thesven-src.tar.gz" >nul 2>&1
 )
 
 if not exist "%TEMP_DIR%" mkdir "%TEMP_DIR%"

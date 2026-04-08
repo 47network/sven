@@ -101,6 +101,7 @@ class AppState extends ChangeNotifier {
   double ttsPitch = 1.0;
   bool wakeWordEnabled = false;
   String wakeWordPhrase = 'Hey Sven';
+  WakeWordStatus wakeWordStatus = WakeWordStatus.idle;
 
   /// Stored as "name|locale", e.g. "en-us-x-sfg#male_1-local|en-US".
   String? ttsVoice;
@@ -129,6 +130,7 @@ class AppState extends ChangeNotifier {
   String? mfaToken;
   bool loaded = false;
   bool onboardingComplete = false;
+  bool restoringSession = false;
 
   /// True when the user has a non-empty auth token.
   bool get isLoggedIn => (token ?? '').isNotEmpty;
@@ -349,6 +351,7 @@ class AppState extends ChangeNotifier {
 
   /// Reset in-memory state on logout.
   void resetForLogout() {
+    final preservedOnboardingComplete = onboardingComplete;
     unbindUser();
     token = null;
     authMessage = null;
@@ -365,6 +368,7 @@ class AppState extends ChangeNotifier {
     ttsVoice = null;
     wakeWordEnabled = false;
     wakeWordPhrase = 'Hey Sven';
+    wakeWordStatus = WakeWordStatus.idle;
     archivedIds = {};
     threadTags = {};
     voicePersonality = VoicePersonality.friendly;
@@ -379,7 +383,8 @@ class AppState extends ChangeNotifier {
     dndStartMinute = 0;
     dndEndHour = 7;
     dndEndMinute = 0;
-    onboardingComplete = false;
+    onboardingComplete = preservedOnboardingComplete;
+    restoringSession = false;
     loaded = true;
     notifyListeners();
   }
@@ -484,6 +489,12 @@ class AppState extends ChangeNotifier {
     wakeWordPhrase = trimmed.isEmpty ? 'Hey Sven' : trimmed;
     notifyListeners();
     await _setString(_kWakeWordPhrase, wakeWordPhrase);
+  }
+
+  void setWakeWordStatus(WakeWordStatus status) {
+    if (wakeWordStatus == status) return;
+    wakeWordStatus = status;
+    notifyListeners();
   }
 
   Future<void> setTextScale(double scale) async {
@@ -626,6 +637,12 @@ class AppState extends ChangeNotifier {
 
   void setMfaToken(String? value) {
     mfaToken = value;
+    notifyListeners();
+  }
+
+  void setRestoringSession(bool value) {
+    if (restoringSession == value) return;
+    restoringSession = value;
     notifyListeners();
   }
 

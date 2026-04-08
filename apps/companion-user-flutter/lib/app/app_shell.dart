@@ -10,9 +10,11 @@ import 'keyboard_nav.dart';
 import 'performance_tracker.dart';
 import 'providers.dart';
 import 'service_locator.dart';
+import 'sven_app_icon.dart';
 import 'settings_sheet.dart';
 import 'sven_page_route.dart';
 import 'sven_tokens.dart';
+import 'wake_word_status_indicator.dart';
 import '../features/chat/chat_models.dart';
 import '../features/chat/chat_service.dart';
 import '../features/chat/chat_thread_page.dart';
@@ -120,6 +122,8 @@ class _AppShellState extends ConsumerState<AppShell> {
                       cinematic: cinematic,
                       onOpenSettings: () => _showSettings(context),
                       isLoading: false,
+                      wakeWordStatus: state.wakeWordStatus,
+                      wakeWordPhrase: state.wakeWordPhrase,
                     ),
                   ),
                   // ── Content (Hub: Canvas / Form / Chat) ──
@@ -265,19 +269,23 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 }
 
-/// Premium header — brand mark + title + settings gear.
+/// Premium header — brand mark + title + wake-word status + settings gear.
 class _SvenHeader extends StatelessWidget {
   const _SvenHeader({
     required this.tokens,
     required this.cinematic,
     required this.onOpenSettings,
     required this.isLoading,
+    required this.wakeWordStatus,
+    required this.wakeWordPhrase,
   });
 
   final SvenModeTokens tokens;
   final bool cinematic;
   final VoidCallback onOpenSettings;
   final bool isLoading;
+  final WakeWordStatus wakeWordStatus;
+  final String wakeWordPhrase;
 
   @override
   Widget build(BuildContext context) {
@@ -285,39 +293,7 @@ class _SvenHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
       child: Row(
         children: [
-          // Brand mark
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: cinematic
-                    ? [tokens.primary, tokens.secondary]
-                    : [tokens.primary, tokens.primary.withValues(alpha: 0.7)],
-              ),
-              boxShadow: cinematic
-                  ? [
-                      BoxShadow(
-                        color: tokens.primary.withValues(alpha: 0.25),
-                        blurRadius: 10,
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Center(
-              child: Text(
-                'S',
-                style: TextStyle(
-                  color: cinematic ? const Color(0xFF040712) : Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ),
+          _SvenBrandIcon(size: 34, cinematic: cinematic, tokens: tokens),
           const SizedBox(width: 10),
           Text(
             'Sven',
@@ -339,6 +315,12 @@ class _SvenHeader extends StatelessWidget {
               ),
             ),
           ],
+          const SizedBox(width: 6),
+          WakeWordStatusIndicator(
+            status: wakeWordStatus,
+            tokens: tokens,
+            phrase: wakeWordPhrase,
+          ),
           const Spacer(),
           // Settings
           IconButton(
@@ -353,6 +335,37 @@ class _SvenHeader extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SvenBrandIcon extends StatelessWidget {
+  const _SvenBrandIcon({
+    required this.size,
+    required this.cinematic,
+    required this.tokens,
+  });
+
+  final double size;
+  final bool cinematic;
+  final SvenModeTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(size * 0.3),
+        boxShadow: [
+          BoxShadow(
+            color: tokens.primary.withValues(alpha: cinematic ? 0.22 : 0.14),
+            blurRadius: cinematic ? 18 : 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: SvenAppIcon(size: size, borderRadius: size * 0.3),
     );
   }
 }
@@ -535,31 +548,7 @@ class _NewChatPageState extends State<_NewChatPage> {
                 ),
               )
             else
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: cinematic
-                        ? [tokens.primary, tokens.secondary]
-                        : [
-                            tokens.primary,
-                            tokens.primary.withValues(alpha: 0.7),
-                          ],
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    'S',
-                    style: TextStyle(
-                      color: cinematic ? const Color(0xFF040712) : Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
+              const SvenAppIcon(size: 28, borderRadius: 9),
             const SizedBox(width: 10),
             Text(
               widget.incognito ? 'Incognito chat' : 'New chat',

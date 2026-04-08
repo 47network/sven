@@ -32,6 +32,8 @@ enum ResponseLength {
 
 enum MotionLevel { off, reduced, full }
 
+enum WakeWordStatus { idle, listening, detected, rejected }
+
 enum AvatarMode { orb, robot, human, animal, custom, lottie }
 
 /// Conversation mode controls the system prompt personality injected with

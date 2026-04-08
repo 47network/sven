@@ -23,6 +23,7 @@ class FakeDeviceService extends DeviceService {
   final List<Device> _devicesState;
   final Map<String, DeviceDetail> _detailsState;
   final List<String> sentCommands = <String>[];
+  final List<Map<String, dynamic>> sentPayloads = <Map<String, dynamic>>[];
 
   @override
   List<Device> get devices => List<Device>.unmodifiable(_devicesState);
@@ -101,6 +102,11 @@ class FakeDeviceService extends DeviceService {
     Map<String, dynamic> payload = const <String, dynamic>{},
   }) async {
     sentCommands.add(command);
+    sentPayloads.add(<String, dynamic>{
+      'deviceId': deviceId,
+      'command': command,
+      'payload': payload,
+    });
     final cmd = DeviceCommand(
       id: 'cmd-${sentCommands.length}',
       command: command,
@@ -283,6 +289,150 @@ void main() {
 
       expect(service.sentCommands, contains('ping'));
       expect(find.text('Command sent: ping'), findsOneWidget);
+    });
+
+    testWidgets('device control open url normalizes host-only input and queues command', (tester) async {
+      final device = sampleDevice(
+        id: 'online-open-url',
+        name: 'Desk Screen Live',
+        status: DeviceStatus.online,
+        capabilities: const <String>['display', 'desktop_control'],
+      );
+      final service = FakeDeviceService(
+        devices: <Device>[device],
+        details: <String, DeviceDetail>{
+          device.id: DeviceDetail(
+            device: device,
+            recentEvents: const <DeviceEvent>[],
+            recentCommands: const <DeviceCommand>[],
+          ),
+        },
+      );
+
+      await tester.pumpWidget(
+        wrapPage(DeviceControlPage(
+          deviceService: service,
+          device: device,
+          visualMode: VisualMode.cinematic,
+        )),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final openUrlAction = find.ancestor(
+        of: find.byIcon(Icons.open_in_browser_rounded),
+        matching: find.byType(InkWell),
+      );
+      await tester.tap(openUrlAction.first);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).last, 'sven.systems');
+      await tester.tap(find.widgetWithText(FilledButton, 'Open'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+
+      expect(service.sentCommands, contains('open_url'));
+      expect(
+        service.sentPayloads.last['payload'],
+        <String, dynamic>{'url': 'https://sven.systems'},
+      );
+      expect(find.text('Command sent: open_url'), findsOneWidget);
+    });
+
+    testWidgets('device control display sends plain text as text content', (tester) async {
+      final device = sampleDevice(
+        id: 'online-display',
+        name: 'Desk Screen Live',
+        status: DeviceStatus.online,
+        capabilities: const <String>['display', 'desktop_control'],
+      );
+      final service = FakeDeviceService(
+        devices: <Device>[device],
+        details: <String, DeviceDetail>{
+          device.id: DeviceDetail(
+            device: device,
+            recentEvents: const <DeviceEvent>[],
+            recentCommands: const <DeviceCommand>[],
+          ),
+        },
+      );
+
+      await tester.pumpWidget(
+        wrapPage(DeviceControlPage(
+          deviceService: service,
+          device: device,
+          visualMode: VisualMode.cinematic,
+        )),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final displayAction = find.ancestor(
+        of: find.byIcon(Icons.monitor_rounded),
+        matching: find.byType(InkWell),
+      );
+      await tester.tap(displayAction.first);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).last, 'release status');
+      await tester.tap(find.widgetWithText(FilledButton, 'Send'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+
+      expect(service.sentCommands, contains('display'));
+      expect(
+        service.sentPayloads.last['payload'],
+        <String, dynamic>{'type': 'text', 'content': 'release status'},
+      );
+      expect(find.text('Command sent: display'), findsOneWidget);
+    });
+
+    testWidgets('device control type text trims input before queueing command', (tester) async {
+      final device = sampleDevice(
+        id: 'online-type',
+        name: 'Desk Screen Live',
+        status: DeviceStatus.online,
+        capabilities: const <String>['display', 'desktop_control'],
+      );
+      final service = FakeDeviceService(
+        devices: <Device>[device],
+        details: <String, DeviceDetail>{
+          device.id: DeviceDetail(
+            device: device,
+            recentEvents: const <DeviceEvent>[],
+            recentCommands: const <DeviceCommand>[],
+          ),
+        },
+      );
+
+      await tester.pumpWidget(
+        wrapPage(DeviceControlPage(
+          deviceService: service,
+          device: device,
+          visualMode: VisualMode.cinematic,
+        )),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final typeTextAction = find.ancestor(
+        of: find.byIcon(Icons.keyboard_rounded),
+        matching: find.byType(InkWell),
+      );
+      await tester.tap(typeTextAction.first);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).last, '  hello desk  ');
+      await tester.tap(find.widgetWithText(FilledButton, 'Send'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+
+      expect(service.sentCommands, contains('type_text'));
+      expect(
+        service.sentPayloads.last['payload'],
+        <String, dynamic>{'text': 'hello desk'},
+      );
+      expect(find.text('Command sent: type_text'), findsOneWidget);
     });
 
     testWidgets('deployment setup completes and returns submitted credentials', (tester) async {

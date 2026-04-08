@@ -37,6 +37,7 @@ export class TriggerGate {
   constructor(private pool: pg.Pool) {}
 
   async evaluate(event: InboundMessageEvent): Promise<TriggerGateDecision> {
+    try {
     // Get chat info
     const chatRes = await this.pool.query(
       `SELECT type FROM chats WHERE id = $1`,
@@ -108,18 +109,25 @@ export class TriggerGate {
         return { allow: true, reason: 'allowed' };
       }
 
+      // Adapter-level trigger: adapter already confirmed mention/prefix and
+      // stripped the trigger word from the text before forwarding.
+      if (event.metadata?.trigger_matched === true) {
+        return { allow: true, reason: 'allowed' };
+      }
+
       // Commands are explicit triggers across channels.
       if (await isCommandMessage(this.pool, text)) {
         return { allow: true, reason: 'allowed' };
       }
 
       // Check mention
-      if (text.includes('@sven') || text.includes('@Sven')) {
+      if (text.toLowerCase().includes('sven')) {
         return { allow: true, reason: 'allowed' };
       }
 
-      // Check /sven prefix
-      if (text.startsWith('/sven ') || text === '/sven') {
+      // Check /sven prefix (case-insensitive)
+      const lower = text.toLowerCase();
+      if (lower.startsWith('/sven ') || lower === '/sven') {
         return { allow: true, reason: 'allowed' };
       }
 
@@ -138,5 +146,12 @@ export class TriggerGate {
     }
 
     return { allow: false, reason: 'unsupported_chat_type' };
+    } catch (err) {
+      logger.error('Trigger gate evaluation failed, denying access', {
+        chat_id: event.chat_id,
+        err: String(err),
+      });
+      return { allow: false, reason: 'chat_not_found' };
+    }
   }
 }

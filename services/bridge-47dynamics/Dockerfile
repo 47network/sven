@@ -2,11 +2,12 @@ FROM node:22-slim AS builder
 WORKDIR /build
 
 # Copy workspace-level files for dependency resolution
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json .npmrc ./
 COPY packages/shared/package.json packages/shared/
 COPY services/bridge-47dynamics/package.json services/bridge-47dynamics/
 
-RUN corepack enable && pnpm install --frozen-lockfile
+# Use shamefully-hoist to flatten node_modules for Docker COPY compatibility
+RUN corepack enable && pnpm install --frozen-lockfile --shamefully-hoist
 
 COPY packages/shared/ packages/shared/
 COPY services/bridge-47dynamics/ services/bridge-47dynamics/
@@ -22,8 +23,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY --from=builder /build/node_modules ./node_modules
-COPY --from=builder /build/packages/shared/dist ./packages/shared/dist
-COPY --from=builder /build/packages/shared/package.json ./packages/shared/
+COPY --from=builder /build/packages/shared/package.json ./node_modules/@sven/shared/package.json
+COPY --from=builder /build/packages/shared/dist ./node_modules/@sven/shared/dist
 COPY --from=builder /build/services/bridge-47dynamics/dist ./dist
 COPY --from=builder /build/services/bridge-47dynamics/package.json ./
 

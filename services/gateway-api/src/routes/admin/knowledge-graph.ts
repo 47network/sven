@@ -140,6 +140,19 @@ export async function registerKnowledgeGraphRoutes(
           });
         }
 
+        if (typeof confidence !== 'number' || !Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+          return reply.status(400).send({ error: 'confidence must be a number between 0 and 1' });
+        }
+        if (String(name).length > 1000) {
+          return reply.status(400).send({ error: 'name must be 1000 characters or fewer' });
+        }
+        if (description && String(description).length > 10_000) {
+          return reply.status(400).send({ error: 'description must be 10000 characters or fewer' });
+        }
+        if (metadata && JSON.stringify(metadata).length > 100_000) {
+          return reply.status(400).send({ error: 'metadata too large' });
+        }
+
         const id = nanoid();
         const result = await pool.query(
           `INSERT INTO kg_entities (id, type, name, description, confidence, created_by, metadata)
@@ -510,6 +523,12 @@ export async function registerKnowledgeGraphRoutes(
             error: 'Missing required fields: (entity_id OR relation_id), source_id, source_chat_id, context',
           });
         }
+        if (typeof context === 'string' && context.length > 100_000) {
+          return reply.status(413).send({ error: 'context must be 100KB or fewer' });
+        }
+        if (quote && typeof quote === 'string' && quote.length > 50_000) {
+          return reply.status(413).send({ error: 'quote must be 50KB or fewer' });
+        }
 
         const id = nanoid();
         const result = await pool.query(
@@ -624,6 +643,12 @@ export async function registerKnowledgeGraphRoutes(
       try {
         const { chat_id, message_id, text, job_type } = request.body;
 
+        if (!text || typeof text !== 'string') {
+          return reply.status(400).send({ error: 'text is required' });
+        }
+        if (text.length > 1_000_000) {
+          return reply.status(413).send({ error: 'text must be 1MB or fewer' });
+        }
         // Create extraction job
         const jobId = await createExtractionJob(chat_id, message_id || null, job_type);
 

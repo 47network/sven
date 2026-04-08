@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../app/app_models.dart';
 import '../../app/authenticated_client.dart';
 import '../../app/service_locator.dart';
+import '../../app/sven_app_icon.dart';
 import 'messages_repository.dart';
 import '../../app/sven_tokens.dart';
 import '../../features/memory/memory_service.dart';
@@ -104,7 +105,8 @@ class _ChatHomePageState extends State<ChatHomePage> {
     _sseSub = _sseService!.events.listen(_onSseEvent);
     _sseService!.connect();
 
-    // Fallback poll — cancelled on first heartbeat to confirm SSE is live.
+    // Keep a lightweight poll even when SSE is healthy so thread previews still
+    // catch up if the stream misses an event or reconnects mid-session.
     _fallbackPollTimer = Timer.periodic(
       const Duration(seconds: 10),
       (_) => _loadChats(silent: true),
@@ -125,12 +127,7 @@ class _ChatHomePageState extends State<ChatHomePage> {
     if (!mounted) return;
     switch (event.type) {
       case 'heartbeat':
-        if (!_sseActive) {
-          _sseActive = true;
-          // SSE confirmed live — stop redundant polling timer.
-          _fallbackPollTimer?.cancel();
-          _fallbackPollTimer = null;
-        }
+        _sseActive = true;
       case 'message':
       case 'approval':
         // Any real event means the chat list may have changed.
@@ -461,6 +458,14 @@ class _ThreadScaffold extends StatefulWidget {
 class _ThreadScaffoldState extends State<_ThreadScaffold> {
   VoidCallback? _exportFn;
 
+  void _registerExport(VoidCallback? fn) {
+    if (_exportFn == fn) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _exportFn == fn) return;
+      setState(() => _exportFn = fn);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final tokens = SvenTokens.forMode(widget.visualMode);
@@ -475,32 +480,7 @@ class _ThreadScaffoldState extends State<_ThreadScaffold> {
         ),
         title: Row(
           children: [
-            // Small brand mark
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: cinematic
-                      ? [tokens.primary, tokens.secondary]
-                      : [
-                          tokens.primary,
-                          tokens.primary.withValues(alpha: 0.7),
-                        ],
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  'S',
-                  style: TextStyle(
-                    color: cinematic ? const Color(0xFF040712) : Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
+            const SvenAppIcon(size: 28, borderRadius: 9),
             const SizedBox(width: 10),
             Expanded(
               child: Hero(
@@ -541,7 +521,7 @@ class _ThreadScaffoldState extends State<_ThreadScaffold> {
         promptTemplatesService: widget.promptTemplatesService,
         voicePersonality: widget.voicePersonality,
         syncService: widget.syncService,
-        onRegisterExport: (fn) => setState(() => _exportFn = fn),
+        onRegisterExport: _registerExport,
       ),
     );
   }

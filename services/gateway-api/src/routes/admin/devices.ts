@@ -143,7 +143,8 @@ export async function registerDeviceRoutes(app: FastifyInstance, pool: pg.Pool) 
             `SELECT id, name, device_type, status, capabilities, config,
               last_seen_at, paired_at, created_at, updated_at
        FROM devices ${where}
-       ORDER BY created_at DESC`,
+       ORDER BY created_at DESC
+       LIMIT 500`,
             params,
         );
 

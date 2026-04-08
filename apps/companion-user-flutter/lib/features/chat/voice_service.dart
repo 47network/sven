@@ -68,9 +68,14 @@ class VoiceService extends ChangeNotifier {
   Future<void> Function(WakeWordMatch match)? _onWakeWordDetected;
   Timer? _wakeWordRestartTimer;
   bool _wakeWordTriggering = false;
+  bool _wakeWordSessionActive = false;
+  static const Duration _wakeWordPauseFor = Duration(seconds: 30);
+  static const Duration _wakeWordRestartDelay = Duration(milliseconds: 1200);
 
   // ── Streaming TTS buffer ──
   final StringBuffer _streamingTtsBuffer = StringBuffer();
+
+  bool _disposed = false;
 
   // ── Duplex barge-in monitor (detect speech while TTS is speaking) ──
   bool _bargeInMode = false;
@@ -173,8 +178,12 @@ class VoiceService extends ChangeNotifier {
       return;
     }
     if (_wakeWordMonitoring) {
+      if (status == 'listening') {
+        _wakeWordSessionActive = true;
+      }
       if ((status == 'notListening' || status == 'done') &&
           !_wakeWordTriggering) {
+        _wakeWordSessionActive = false;
         _scheduleWakeWordRestart();
       }
       return;
@@ -198,6 +207,7 @@ class VoiceService extends ChangeNotifier {
       return;
     }
     if (_wakeWordMonitoring) {
+      _wakeWordSessionActive = false;
       _scheduleWakeWordRestart();
       return;
     }
@@ -410,11 +420,25 @@ class VoiceService extends ChangeNotifier {
     final normalizedPhrase = normalizeWakePhrase(wakePhrase);
     if (normalizedPhrase.isEmpty) return;
 
+    final isSameConfiguration = _wakeWordMonitoring &&
+        !_wakeWordTriggering &&
+        _wakeWordPhrase == normalizedPhrase &&
+        _wakeWordLocaleId == localeId;
+    if (isSameConfiguration) {
+      _onWakeWordDetected = onDetected;
+      return;
+    }
+
+    if (_wakeWordMonitoring || _wakeWordTriggering) {
+      await stopWakeWordMonitor();
+    }
+
     _wakeWordMonitoring = true;
     _wakeWordPhrase = normalizedPhrase;
     _wakeWordLocaleId = localeId;
     _onWakeWordDetected = onDetected;
     _wakeWordTriggering = false;
+    _wakeWordSessionActive = false;
     notifyListeners();
     await _startWakeWordSession();
   }
@@ -423,6 +447,7 @@ class VoiceService extends ChangeNotifier {
     if (!_wakeWordMonitoring && !_wakeWordTriggering) return;
     _wakeWordMonitoring = false;
     _wakeWordTriggering = false;
+    _wakeWordSessionActive = false;
     _onWakeWordDetected = null;
     _wakeWordRestartTimer?.cancel();
     _wakeWordRestartTimer = null;
@@ -434,16 +459,21 @@ class VoiceService extends ChangeNotifier {
 
   Future<void> _startWakeWordSession() async {
     if (!_wakeWordMonitoring || _wakeWordTriggering) return;
+    if (_wakeWordSessionActive) return;
     if (_sttState == SttState.listening || _ttsState == TtsState.speaking) {
       _scheduleWakeWordRestart();
       return;
     }
 
     try {
+      _wakeWordSessionActive = true;
       await _stt.listen(
         onResult: (result) {
           if (!_wakeWordMonitoring || _wakeWordTriggering) return;
           final transcript = result.recognizedWords.trim();
+          if (transcript.isNotEmpty) {
+            debugPrint('Wake-word transcript: $transcript');
+          }
           if (!transcriptContainsWakePhrase(transcript, _wakeWordPhrase)) {
             return;
           }
@@ -457,6 +487,7 @@ class VoiceService extends ChangeNotifier {
           final detected = _onWakeWordDetected;
           unawaited(_stt.stop());
           _wakeWordMonitoring = false;
+          _wakeWordSessionActive = false;
           _wakeWordRestartTimer?.cancel();
           _wakeWordRestartTimer = null;
           _onWakeWordDetected = null;
@@ -467,7 +498,7 @@ class VoiceService extends ChangeNotifier {
         },
         onSoundLevelChange: (_) {},
         listenFor: const Duration(minutes: 5),
-        pauseFor: const Duration(seconds: 2),
+        pauseFor: _wakeWordPauseFor,
         localeId: _wakeWordLocaleId,
         listenOptions: SpeechListenOptions(
           partialResults: true,
@@ -475,6 +506,7 @@ class VoiceService extends ChangeNotifier {
         ),
       );
     } catch (_) {
+      _wakeWordSessionActive = false;
       _scheduleWakeWordRestart();
     }
   }
@@ -482,7 +514,7 @@ class VoiceService extends ChangeNotifier {
   void _scheduleWakeWordRestart() {
     if (!_wakeWordMonitoring || _wakeWordTriggering) return;
     _wakeWordRestartTimer?.cancel();
-    _wakeWordRestartTimer = Timer(const Duration(milliseconds: 350), () {
+    _wakeWordRestartTimer = Timer(_wakeWordRestartDelay, () {
       unawaited(_startWakeWordSession());
     });
   }
@@ -590,27 +622,48 @@ class VoiceService extends ChangeNotifier {
         .trim();
   }
 
+  static List<String> _wakePhraseCandidates(String phrase) {
+    final normalized = normalizeWakePhrase(phrase);
+    if (normalized.isEmpty) return const [];
+
+    final variants = <String>{normalized};
+    if (normalized.contains('sven')) {
+      variants.add(normalized.replaceAll('sven', 'seven'));
+    }
+    if (normalized.contains('seven')) {
+      variants.add(normalized.replaceAll('seven', 'sven'));
+    }
+    return variants.toList(growable: false);
+  }
+
   static bool transcriptContainsWakePhrase(String transcript, String phrase) {
     final normalizedTranscript = ' ${normalizeWakePhrase(transcript)} ';
-    final normalizedPhrase = normalizeWakePhrase(phrase);
-    if (normalizedPhrase.isEmpty) return false;
-    return normalizedTranscript.contains(' $normalizedPhrase ');
+    final candidates = _wakePhraseCandidates(phrase);
+    if (candidates.isEmpty) return false;
+    for (final candidate in candidates) {
+      if (normalizedTranscript.contains(' $candidate ')) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static String stripWakePhrase(String transcript, String phrase) {
     final normalizedTranscript = normalizeWakePhrase(transcript);
-    final normalizedPhrase = normalizeWakePhrase(phrase);
-    if (normalizedPhrase.isEmpty) return normalizedTranscript;
-    final index = normalizedTranscript.indexOf(normalizedPhrase);
-    if (index < 0) return normalizedTranscript;
-    final remainder = normalizedTranscript
-        .substring(index + normalizedPhrase.length)
-        .trimLeft();
-    return remainder;
+    final candidates = _wakePhraseCandidates(phrase);
+    if (candidates.isEmpty) return normalizedTranscript;
+    for (final candidate in candidates) {
+      final index = normalizedTranscript.indexOf(candidate);
+      if (index < 0) continue;
+      return normalizedTranscript.substring(index + candidate.length).trimLeft();
+    }
+    return normalizedTranscript;
   }
 
   @override
   void dispose() {
+    if (_disposed) return;
+    _disposed = true;
     _wakeWordRestartTimer?.cancel();
     unawaited(stopWakeWordMonitor());
     unawaited(stopBargeInMonitor());

@@ -1,6 +1,7 @@
-import http from 'http';
-import Fastify from 'fastify';
-import { beforeEach, afterEach, describe, expect, it, jest } from '@jest/globals';
+import assert from 'node:assert/strict';
+import http from 'node:http';
+import { afterEach, beforeEach, describe, it } from 'node:test';
+import Fastify, { type FastifyInstance } from 'fastify';
 import { registerStreamRoutes } from '../routes/streams.js';
 
 const TOKENS = {
@@ -9,8 +10,25 @@ const TOKENS = {
   foreignOrg: 'session-foreign-org',
 };
 
+type SessionRow = {
+  user_id: string;
+  role: string;
+  active_organization_id: string;
+};
+
+type ApiResponse = {
+  statusCode: number;
+  data: Record<string, unknown>;
+};
+
+type SseEvent = {
+  id: string;
+  event: string;
+  data: string;
+};
+
 function createPoolQueryMock() {
-  const sessions = new Map([
+  const sessions = new Map<string, SessionRow>([
     [
       TOKENS.owner,
       {
@@ -37,7 +55,7 @@ function createPoolQueryMock() {
     ],
   ]);
 
-  return jest.fn(async (query, params) => {
+  return async (query: unknown, params?: unknown[]) => {
     const sql = String(query || '');
     if (sql.includes('FROM sessions s')) {
       const session = sessions.get(String(params?.[0] || ''));
@@ -49,14 +67,20 @@ function createPoolQueryMock() {
       };
     }
     return { rows: [] };
-  });
+  };
 }
 
-async function apiCall(apiBase, method, endpoint, body, bearerToken) {
+async function apiCall(
+  apiBase: string,
+  method: string,
+  endpoint: string,
+  body?: Record<string, unknown>,
+  bearerToken?: string,
+): Promise<ApiResponse> {
   return new Promise((resolve, reject) => {
     const url = `${apiBase}${endpoint}`;
     const parsed = new URL(url);
-    const headers = { 'Content-Type': 'application/json' };
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (bearerToken) headers.Authorization = `Bearer ${bearerToken}`;
 
     const req = http.request(
@@ -69,7 +93,9 @@ async function apiCall(apiBase, method, endpoint, body, bearerToken) {
       },
       (res) => {
         let payload = '';
-        res.on('data', (chunk) => (payload += chunk));
+        res.on('data', (chunk) => {
+          payload += chunk;
+        });
         res.on('end', () => {
           try {
             resolve({ statusCode: res.statusCode || 0, data: payload ? JSON.parse(payload) : {} });
@@ -85,9 +111,9 @@ async function apiCall(apiBase, method, endpoint, body, bearerToken) {
   });
 }
 
-function parseSseEvent(raw) {
+function parseSseEvent(raw: string): SseEvent {
   const lines = raw.split('\n');
-  const out = { id: '', event: '', data: '' };
+  const out: SseEvent = { id: '', event: '', data: '' };
   for (const line of lines) {
     if (line.startsWith('id:')) out.id = line.slice(3).trim();
     if (line.startsWith('event:')) out.event = line.slice(6).trim();
@@ -96,12 +122,11 @@ function parseSseEvent(raw) {
   return out;
 }
 
-async function readFirstSseEvent(endpoint, cookie, lastEventId) {
+async function readFirstSseEvent(endpoint: string, token?: string, lastEventId?: string): Promise<SseEvent> {
   return new Promise((resolve, reject) => {
-    const url = endpoint;
-    const parsed = new URL(url);
-    const headers = {};
-    if (cookie) headers.Authorization = `Bearer ${cookie}`;
+    const parsed = new URL(endpoint);
+    const headers: Record<string, string> = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
     if (lastEventId) headers['Last-Event-ID'] = String(lastEventId);
 
     const req = http.request(
@@ -124,9 +149,9 @@ async function readFirstSseEvent(endpoint, cookie, lastEventId) {
             const ev = parts.shift();
             if (ev && ev.includes('data:')) {
               clearTimeout(timeout);
-              const parsedEv = parseSseEvent(ev);
+              const parsedEvent = parseSseEvent(ev);
               req.destroy();
-              resolve(parsedEv);
+              resolve(parsedEvent);
               return;
             }
           }
@@ -141,13 +166,13 @@ async function readFirstSseEvent(endpoint, cookie, lastEventId) {
 }
 
 describe('Resumable Streaming', () => {
-  let app;
-  let apiBase;
+  let app: FastifyInstance;
+  let apiBase: string;
 
   beforeEach(async () => {
     const poolQuery = createPoolQueryMock();
     app = Fastify({ logger: false });
-    await registerStreamRoutes(app, { query: poolQuery });
+    await registerStreamRoutes(app, { query: poolQuery } as never);
     await app.listen({ host: '127.0.0.1', port: 0 });
     const address = app.server.address();
     const port = address && typeof address === 'object' ? address.port : 0;
@@ -160,90 +185,90 @@ describe('Resumable Streaming', () => {
 
   it('disconnect mid-stream -> reconnect with Last-Event-ID -> resume from next event', async () => {
     const created = await apiCall(apiBase, 'POST', '/v1/streams', { ttl_ms: 60000 }, TOKENS.owner);
-    expect(created.statusCode).toBe(201);
+    assert.equal(created.statusCode, 201);
     const streamId = created.data?.data?.stream_id;
-    expect(typeof streamId).toBe('string');
+    assert.equal(typeof streamId, 'string');
 
     const first = await apiCall(
       apiBase,
       'POST',
-      `/v1/streams/${encodeURIComponent(streamId)}/events`,
+      `/v1/streams/${encodeURIComponent(String(streamId))}/events`,
       { type: 'token', data: { idx: 1, text: 'hello' } },
       TOKENS.owner,
     );
-    expect(first.statusCode).toBe(200);
+    assert.equal(first.statusCode, 200);
 
-    const ev1 = await readFirstSseEvent(`${apiBase}/v1/streams/${encodeURIComponent(streamId)}/sse`, TOKENS.owner);
-    expect(ev1.id).toBe(String(first.data?.data?.event_id || '1'));
+    const ev1 = await readFirstSseEvent(`${apiBase}/v1/streams/${encodeURIComponent(String(streamId))}/sse`, TOKENS.owner);
+    assert.equal(ev1.id, String(first.data?.data?.event_id || '1'));
 
     const second = await apiCall(
       apiBase,
       'POST',
-      `/v1/streams/${encodeURIComponent(streamId)}/events`,
+      `/v1/streams/${encodeURIComponent(String(streamId))}/events`,
       { type: 'token', data: { idx: 2, text: 'world' } },
       TOKENS.owner,
     );
-    expect(second.statusCode).toBe(200);
+    assert.equal(second.statusCode, 200);
 
     const ev2 = await readFirstSseEvent(
-      `${apiBase}/v1/streams/${encodeURIComponent(streamId)}/sse`,
+      `${apiBase}/v1/streams/${encodeURIComponent(String(streamId))}/sse`,
       TOKENS.owner,
       ev1.id,
     );
-    expect(ev2.id).toBe(String(second.data?.data?.event_id || '2'));
-    const parsedData = JSON.parse(ev2.data || '{}');
-    expect(parsedData.idx).toBe(2);
+    assert.equal(ev2.id, String(second.data?.data?.event_id || '2'));
+    const parsedData = JSON.parse(ev2.data || '{}') as { idx?: number };
+    assert.equal(parsedData.idx, 2);
   });
 
   it('denies foreign user stream reads/writes/SSE access', async () => {
     const created = await apiCall(apiBase, 'POST', '/v1/streams', { ttl_ms: 60000 }, TOKENS.owner);
-    expect(created.statusCode).toBe(201);
+    assert.equal(created.statusCode, 201);
     const streamId = created.data?.data?.stream_id;
 
     const postForeign = await apiCall(
       apiBase,
       'POST',
-      `/v1/streams/${encodeURIComponent(streamId)}/events`,
+      `/v1/streams/${encodeURIComponent(String(streamId))}/events`,
       { type: 'token', data: { idx: 9 } },
       TOKENS.foreignUser,
     );
-    expect(postForeign.statusCode).toBe(403);
-    expect(postForeign.data?.error?.code).toBe('FORBIDDEN');
+    assert.equal(postForeign.statusCode, 403);
+    assert.equal(postForeign.data?.error?.code, 'FORBIDDEN');
 
     const getForeign = await apiCall(
       apiBase,
       'GET',
-      `/v1/streams/${encodeURIComponent(streamId)}/events?after=0&limit=10`,
+      `/v1/streams/${encodeURIComponent(String(streamId))}/events?after=0&limit=10`,
       undefined,
       TOKENS.foreignUser,
     );
-    expect(getForeign.statusCode).toBe(403);
-    expect(getForeign.data?.error?.code).toBe('FORBIDDEN');
+    assert.equal(getForeign.statusCode, 403);
+    assert.equal(getForeign.data?.error?.code, 'FORBIDDEN');
 
     const sseForeign = await apiCall(
       apiBase,
       'GET',
-      `/v1/streams/${encodeURIComponent(streamId)}/sse`,
+      `/v1/streams/${encodeURIComponent(String(streamId))}/sse`,
       undefined,
       TOKENS.foreignUser,
     );
-    expect(sseForeign.statusCode).toBe(403);
-    expect(sseForeign.data?.error?.code).toBe('FORBIDDEN');
+    assert.equal(sseForeign.statusCode, 403);
+    assert.equal(sseForeign.data?.error?.code, 'FORBIDDEN');
   });
 
   it('denies same-user access when org does not match stream owner org', async () => {
     const created = await apiCall(apiBase, 'POST', '/v1/streams', { ttl_ms: 60000 }, TOKENS.owner);
-    expect(created.statusCode).toBe(201);
+    assert.equal(created.statusCode, 201);
     const streamId = created.data?.data?.stream_id;
 
     const foreignOrgRead = await apiCall(
       apiBase,
       'GET',
-      `/v1/streams/${encodeURIComponent(streamId)}/events?after=0&limit=10`,
+      `/v1/streams/${encodeURIComponent(String(streamId))}/events?after=0&limit=10`,
       undefined,
       TOKENS.foreignOrg,
     );
-    expect(foreignOrgRead.statusCode).toBe(403);
-    expect(foreignOrgRead.data?.error?.code).toBe('FORBIDDEN');
+    assert.equal(foreignOrgRead.statusCode, 403);
+    assert.equal(foreignOrgRead.data?.error?.code, 'FORBIDDEN');
   });
 });
