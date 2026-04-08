@@ -10,6 +10,7 @@ import { ImageBlock } from './ImageBlock';
 import { AudioBlock } from './AudioBlock';
 import { LinkBlock } from './LinkBlock';
 import { ActionsBlock } from './ActionsBlock';
+import { BrainBlock } from './BrainBlock';
 import { Copy } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -17,7 +18,7 @@ export interface CanvasBlock {
   type:
     | 'markdown' | 'table' | 'chart' | 'code'
     | 'tool_card' | 'file_preview' | 'image'
-    | 'audio' | 'link' | 'actions';
+    | 'audio' | 'link' | 'actions' | 'brain';
   content: unknown;
   metadata?: Record<string, unknown>;
 }
@@ -173,6 +174,13 @@ export function BlockRenderer({ block, chatId, messageId }: BlockRendererProps) 
           metadata={block.metadata}
           chatId={chatId}
           messageId={messageId}
+        />
+      );
+    case 'brain':
+      return (
+        <BrainBlock
+          content={block.content as any}
+          metadata={block.metadata}
         />
       );
     default:
