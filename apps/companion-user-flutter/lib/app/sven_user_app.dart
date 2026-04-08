@@ -1018,13 +1018,13 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
             // Brain visualization (knowledge graph map)
             GoRoute(
               path: 'brain',
-              builder: (_, __) => const BrainPage(),
+              builder: (_, __) => BrainPage(brainService: _brainService),
             ),
 
             // On-device inference (local model management)
             GoRoute(
               path: 'inference',
-              builder: (_, __) => const InferencePage(),
+              builder: (_, __) => InferencePage(inferenceService: _inferenceService),
             ),
 
             // Deep-link: sven://chat/<id>

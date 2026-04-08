@@ -7,7 +7,7 @@ import {
   Cpu, HardDrive, Zap, ToggleLeft, ToggleRight,
   Eye, Mic, Wrench, Globe, ChevronDown, ChevronUp,
 } from 'lucide-react';
-import { AppShell } from '@/components/AppShell';
+import AppShell from '@/components/AppShell';
 
 /**
  * 6.9 Settings UI — Model Management
@@ -251,9 +251,9 @@ export default function SettingsModelsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {model.supports_vision && <Eye className="h-3.5 w-3.5 text-blue-400" title="Vision" />}
-                      {model.supports_audio && <Mic className="h-3.5 w-3.5 text-amber-400" title="Audio" />}
-                      {model.supports_function_calling && <Wrench className="h-3.5 w-3.5 text-purple-400" title="Function Calling" />}
+                      {model.supports_vision && <Eye className="h-3.5 w-3.5 text-blue-400" aria-label="Vision" />}
+                      {model.supports_audio && <Mic className="h-3.5 w-3.5 text-amber-400" aria-label="Audio" />}
+                      {model.supports_function_calling && <Wrench className="h-3.5 w-3.5 text-purple-400" aria-label="Function Calling" />}
                       {expandedModel === model.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </div>
                   </button>

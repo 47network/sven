@@ -168,13 +168,13 @@ describe('Flutter SvenUserApp (sven_user_app.dart)', () => {
   test('has GoRoute for brain page', () => {
     const content = readFile(filePath);
     expect(content).toContain("path: 'brain'");
-    expect(content).toContain('BrainPage()');
+    expect(content).toContain('BrainPage(brainService: _brainService)');
   });
 
   test('has GoRoute for inference page', () => {
     const content = readFile(filePath);
     expect(content).toContain("path: 'inference'");
-    expect(content).toContain('InferencePage()');
+    expect(content).toContain('InferencePage(inferenceService: _inferenceService)');
   });
 
   test('brainServiceProvider override in ProviderScope', () => {
