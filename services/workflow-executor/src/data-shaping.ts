@@ -1,6 +1,7 @@
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 const RESERVED_MAP_TEMPLATE_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 const SAFE_MAP_TEMPLATE_KEY = /^[a-zA-Z0-9_.-]{1,128}$/;
+const MAX_PIPELINE_ARRAY_LENGTH = 100_000;
 
 export type DataShapeOperator =
   | {
@@ -42,6 +43,9 @@ export type DataShapeOperator =
 
 export function applyDataShapingPipeline(input: any, operators: DataShapeOperator[]): any {
   let current = input;
+  if (Array.isArray(current) && current.length > MAX_PIPELINE_ARRAY_LENGTH) {
+    throw new Error(`Data shaping input exceeds max array length: ${current.length} > ${MAX_PIPELINE_ARRAY_LENGTH}`);
+  }
   for (const operator of operators) {
     current = applyOperator(current, operator);
   }
@@ -153,7 +157,12 @@ function asArray(input: any): any[] {
 
 function getByPath(value: any, path: string): any {
   if (!path) return value;
-  return path.split('.').reduce((acc, key) => (acc == null ? undefined : acc[key]), value);
+  const segments = path.split('.');
+  return segments.reduce((acc, key) => {
+    if (acc == null) return undefined;
+    if (key === '__proto__' || key === 'prototype' || key === 'constructor') return undefined;
+    return acc[key];
+  }, value);
 }
 
 function renderTemplate(template: Record<string, any>, row: any, index: number) {

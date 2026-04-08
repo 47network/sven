@@ -351,6 +351,27 @@ export async function registerAccountRoutes(app: FastifyInstance, pool: pg.Pool)
       });
     }
 
+    if (role === 'owner' || role === 'admin') {
+      const actorMembership = await pool.query(
+        `SELECT role FROM organization_memberships WHERE organization_id = $1 AND user_id = $2 AND status = 'active'`,
+        [accountId, actorUserId],
+      );
+      const actorRole = actorMembership.rows[0]?.role;
+      if (actorRole !== 'owner') {
+        return reply.status(403).send({
+          success: false,
+          error: { code: 'FORBIDDEN', message: 'Only account owner can assign owner or admin roles' },
+        });
+      }
+    }
+
+    if (userId === actorUserId && (role === 'owner' || role === 'admin')) {
+      return reply.status(403).send({
+        success: false,
+        error: { code: 'FORBIDDEN', message: 'Cannot self-assign elevated roles' },
+      });
+    }
+
     const targetUser = await pool.query(`SELECT id FROM users WHERE id = $1`, [userId]);
     if (targetUser.rows.length === 0) {
       return reply.status(404).send({

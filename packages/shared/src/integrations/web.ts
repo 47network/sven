@@ -185,6 +185,7 @@ export function validateDomainAllowlist(url: string, allowlist: string[]): { val
 
       // Regex match: ^https://api\.example\.com/.*
       if (pattern.startsWith('^') || pattern.includes('$') || pattern.includes('.*')) {
+        if (pattern.length > 500) continue; // Skip overly long regex patterns
         try {
           const regex = new RegExp(pattern);
           if (regex.test(url)) {

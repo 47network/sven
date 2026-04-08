@@ -13,6 +13,16 @@ This runbook covers provisioning, operating, and troubleshooting the Sven multi-
 | VM6 | Data & Observability | 10.47.47.10 | 10.47.0.8 | 12 | OpenSearch, RAG Indexer, RAG Ingestors, SearXNG, Egress Proxy, OTEL, Prometheus, Grafana, Loki, Promtail, node-exporter |
 | VM7 | Adapters | 10.47.47.11 | 10.47.0.9 | 7 active + 14 stopped | Channel Adapters (Discord, Slack, Telegram, etc.), Cloudflared, Mirror, Promtail |
 
+## Integrated External Service Hosts
+
+These are Sven-managed companion services that are not part of the core 4-VM
+stack, but are still fronted by the VM4 edge ingress and should be treated as
+part of the live Sven environment.
+
+| Host VM | Internal IP | Public Host | Service | Notes |
+|---|---|---|---|---|
+| VM12 | 10.47.47.12 | `talk.sven.systems` | Rocket.Chat | Reverse-proxied by VM4 nginx with WebSocket upgrade support and dedicated Let's Encrypt certificate paths under `/etc/letsencrypt/live/talk.sven.systems/` |
+
 ### Resource Requirements
 
 #### Minimum Specifications
@@ -259,6 +269,32 @@ sudo docker compose -f deploy/multi-vm/docker-compose.vm4-platform.yml --env-fil
 sudo docker compose -f deploy/multi-vm/docker-compose.vm4-platform.yml --env-file deploy/multi-vm/.env pull <service>
 sudo docker compose -f deploy/multi-vm/docker-compose.vm4-platform.yml --env-file deploy/multi-vm/.env up -d <service>
 ```
+
+### Restart-stable VM5/VM7 recovery
+
+Use `up -d --wait` after restarts so Docker waits for compose healthchecks instead of returning immediately while AI and adapter processes are still cold-starting.
+
+```bash
+# VM5: restart AI/voice services and wait for healthchecks
+sudo docker compose -f deploy/multi-vm/docker-compose.vm5-ai.yml --env-file deploy/multi-vm/.env up -d --wait
+
+# VM7: restart only the enabled profiles and wait for healthchecks
+sudo docker compose -f deploy/multi-vm/docker-compose.vm7-adapters.yml --env-file deploy/multi-vm/.env --profile adapters --profile tunnel up -d --wait
+
+# Repo-side regression check for VM5/VM7 restart health coverage
+npm run -s release:multi-vm:restart:health:check
+
+# Emit a dated VM restart drill artifact without touching live services
+npm run -s ops:release:vm-restart-drill:strict
+
+# Execute the waited restart drill on-host and refresh the latest evidence
+npm run -s ops:release:vm-restart-drill:execute
+
+# Verify the emitted drill evidence is fresh and structurally valid
+npm run -s release:vm-restart:drill:evidence:check
+```
+
+This preserves the current LAN and WireGuard bindings. The change is limited to health verification and safer restart sequencing.
 
 ### Start / Stop Services
 

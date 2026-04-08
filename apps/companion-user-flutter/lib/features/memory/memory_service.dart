@@ -44,6 +44,7 @@ class MemoryService extends ChangeNotifier {
   CustomInstructions _instructions = const CustomInstructions();
   bool _memoryEnabled = true;
   bool _loaded = false;
+  bool _disposed = false;
   int _idCounter = 0;
   List<ConversationSummary> _conversationSummaries = [];
   String _personalityOverride = '';
@@ -57,6 +58,13 @@ class MemoryService extends ChangeNotifier {
 
   /// Maximum number of recent conversation summaries to keep.
   static const _maxSummaries = 10;
+
+  @override
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    super.dispose();
+  }
 
   // ── Scoped storage helpers ──
 

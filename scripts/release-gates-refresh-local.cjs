@@ -124,7 +124,7 @@ function main() {
   const now = new Date().toISOString();
 
   const gateCatalog = {
-    final_dod_ci: existingGate(existing, 'final_dod_ci', 'final-dod-e2e'),
+    final_dod_ci: statusGate(existing, 'final_dod_ci', 'final-dod-e2e', 'docs/release/status/final-dod-execution-latest.json'),
     parity_e2e_ci: existingGate(existing, 'parity_e2e_ci', 'parity-e2e'),
     parity_checklist_verify_ci: statusGate(existing, 'parity_checklist_verify_ci', 'parity-checklist-verify', 'docs/release/status/parity-checklist-verify-latest.json'),
     agent_zero_parity_verify_ci: statusGate(existing, 'agent_zero_parity_verify_ci', 'agent-zero-parity-verify', 'docs/release/status/agent-zero-parity-verify-latest.json'),
@@ -132,7 +132,7 @@ function main() {
     mcp_server_compat_ci: statusGate(existing, 'mcp_server_compat_ci', 'mcp-server-compat', 'docs/release/status/mcp-server-compat-latest.json'),
     a2a_compat_ci: statusGate(existing, 'a2a_compat_ci', 'a2a-compat', 'docs/release/status/a2a-compat-latest.json'),
     d9_keycloak_interop_ci: statusGate(existing, 'd9_keycloak_interop_ci', 'd9-keycloak-interop-gate', 'docs/release/status/d9-keycloak-interop-gate-latest.json'),
-    release_ops_drill_ci: existingGate(existing, 'release_ops_drill_ci', 'release-ops-drill'),
+    release_ops_drill_ci: statusGate(existing, 'release_ops_drill_ci', 'release-ops-drill', 'docs/release/status/release-ops-drill-latest.json'),
     mobile_auth_session_smoke_ci: existingGate(existing, 'mobile_auth_session_smoke_ci', 'mobile-auth-session-smoke'),
     mobile_release_readiness_ci: statusGate(existing, 'mobile_release_readiness_ci', 'mobile-release-readiness', 'docs/release/status/mobile-release-readiness-latest.json'),
     backup_restore_api_ci: existingGate(existing, 'backup_restore_api_ci', 'backup-restore-api-e2e'),

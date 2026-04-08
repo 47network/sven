@@ -1,0 +1,9 @@
+{
+  "generated_at": "2026-03-24T01:26:42.039Z",
+  "status": "pass",
+  "exit_code": 0,
+  "run_id": "local-rollout-1774315601",
+  "head_sha": "e936b3c8ce930fb8bb6d34cde9fe130fef2e8653",
+  "immutable_log_uri": "docs/release/evidence/release-rollout-immutable-log-latest.txt",
+  "notes": "local rollout evidence refreshed from repo-side prep"
+}

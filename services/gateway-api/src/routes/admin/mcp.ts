@@ -780,6 +780,42 @@ export async function registerMcpRoutes(app: FastifyInstance, pool: pg.Pool) {
       );
     }
 
+    if (transport === 'http' || transport === 'sse') {
+      const validated = validHttpUrl(url);
+      if (!validated) {
+        reply.status(400).send({
+          success: false,
+          error: { code: 'VALIDATION', message: 'url must be a valid http(s) URL for http/sse transport' },
+        });
+        return;
+      }
+      try {
+        const parsed = new URL(validated);
+        const h = parsed.hostname.toLowerCase();
+        if (
+          h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '0.0.0.0' ||
+          h === 'metadata.google.internal' || h === '169.254.169.254'
+        ) {
+          reply.status(400).send({
+            success: false,
+            error: { code: 'VALIDATION', message: 'url cannot point to localhost, private, or metadata service addresses' },
+          });
+          return;
+        }
+        const v4Parts = h.split('.');
+        if (v4Parts.length === 4 && v4Parts.every((p: string) => /^\d+$/.test(p))) {
+          const [a, b] = v4Parts.map(Number);
+          if (a === 10 || a === 127 || a === 0 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254)) {
+            reply.status(400).send({
+              success: false,
+              error: { code: 'VALIDATION', message: 'url cannot point to private or internal network addresses' },
+            });
+            return;
+          }
+        }
+      } catch { /* validated already checked above */ }
+    }
+
     const id = uuidv7();
     await mcp.createServer(orgId, {
       id,

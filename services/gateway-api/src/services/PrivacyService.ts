@@ -614,10 +614,14 @@ export async function detectPII(
   for (const [type, pattern] of Object.entries(patterns)) {
     const matches = text.matchAll(pattern);
     for (const match of matches) {
+      const raw = match[0];
+      const masked = raw.length <= 4
+        ? '****'
+        : raw.slice(0, 2) + '*'.repeat(Math.min(raw.length - 4, 20)) + raw.slice(-2);
       detected.push({
         type,
-        value: match[0],
-        confidence: 0.95, // High confidence for regex matches
+        value: masked,
+        confidence: 0.95,
       });
     }
   }

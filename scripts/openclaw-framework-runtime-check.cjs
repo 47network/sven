@@ -47,6 +47,22 @@ function runNpm(args) {
   });
 }
 
+function runInGatewayApi(commandArgs) {
+  if (process.platform === 'win32') {
+    const cmdline = `npm exec -- ${commandArgs.join(' ')}`;
+    return spawnSync('cmd.exe', ['/d', '/s', '/c', cmdline], {
+      cwd: path.join(root, 'services', 'gateway-api'),
+      encoding: 'utf8',
+      stdio: 'pipe',
+    });
+  }
+  return spawnSync('npm', ['exec', '--', ...commandArgs], {
+    cwd: path.join(root, 'services', 'gateway-api'),
+    encoding: 'utf8',
+    stdio: 'pipe',
+  });
+}
+
 function resultPayload(id, command, result) {
   const exitCode = typeof result.status === 'number' ? result.status : 1;
   return {
@@ -64,18 +80,14 @@ function run() {
   const checks = [];
   const commandRuns = [];
 
-  const streamResumeRun = runNpm([
-    '--prefix',
-    'services/gateway-api',
-    'run',
-    'test',
-    '--',
-    'stream-resume.e2e.test.js',
-    '--runInBand',
+  const streamResumeRun = runInGatewayApi([
+    'tsx',
+    '--test',
+    'src/__tests__/stream-resume.e2e.test.ts',
   ]);
   commandRuns.push(resultPayload(
     'stream_resume_runtime_test_check',
-    'npm --prefix services/gateway-api run test -- stream-resume.e2e.test.js --runInBand',
+    'cd services/gateway-api && npm exec -- tsx --test src/__tests__/stream-resume.e2e.test.ts',
     streamResumeRun,
   ));
 

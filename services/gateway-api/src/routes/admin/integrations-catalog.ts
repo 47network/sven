@@ -243,7 +243,11 @@ function deriveStoragePath(orgId: string, integrationType: string): string {
   const root = String(process.env.SVEN_INTEGRATION_STORAGE_ROOT || '/var/lib/sven/integrations')
     .replace(/[\\]+/g, '/')
     .replace(/\/+$/, '');
-  return `${root}/${orgId}/${integrationType}`;
+  const resolved = require('path').resolve(root, orgId, integrationType);
+  if (!resolved.startsWith(root + '/')) {
+    throw new Error('Storage path traversal detected');
+  }
+  return resolved;
 }
 
 function deriveNetworkScope(orgId: string): string {
@@ -367,7 +371,11 @@ async function applyTemplateForIntegration(params: {
   const settingOverrides =
     body.setting_overrides && typeof body.setting_overrides === 'object' ? body.setting_overrides : {};
   const runtimeMode = body.runtime_mode === 'local_worker' ? 'local_worker' : plan.runtime.mode;
-  const imageRef = String(body.image_ref || plan.runtime.image_ref || '').trim() || null;
+  const imageRefRaw = String(body.image_ref || plan.runtime.image_ref || '').trim() || null;
+  if (imageRefRaw && !/^[a-zA-Z0-9][a-zA-Z0-9._\/-]{0,200}(:[a-zA-Z0-9._-]{1,128})?$/.test(imageRefRaw)) {
+    throw { statusCode: 400, error: { code: 'VALIDATION', message: 'image_ref contains invalid characters' } };
+  }
+  const imageRef = imageRefRaw;
   let commandExecuted: boolean | null = null;
   let executionStatus: 'not_requested' | 'executed' | 'not_executed' = 'not_requested';
 
@@ -735,7 +743,7 @@ export async function registerIntegrationsCatalogRoutes(app: FastifyInstance, po
           },
           data: {
             table_name: readinessError.tableName,
-            readiness_error_detail: readinessError.message,
+            readiness_error_detail: 'Table readiness query failed',
           },
         });
       }
@@ -1002,7 +1010,7 @@ export async function registerIntegrationsCatalogRoutes(app: FastifyInstance, po
           },
           data: {
             table_name: readinessError.tableName,
-            readiness_error_detail: readinessError.message,
+            readiness_error_detail: 'Table readiness query failed',
           },
         });
       }
@@ -1462,7 +1470,7 @@ export async function registerIntegrationsCatalogRoutes(app: FastifyInstance, po
           data: {
             run_id: runId,
             table_name: readinessError.tableName,
-            readiness_error_detail: readinessError.message,
+            readiness_error_detail: 'Table readiness query failed',
           },
         });
       }

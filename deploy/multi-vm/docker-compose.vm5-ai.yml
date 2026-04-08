@@ -60,7 +60,8 @@ services:
       OLLAMA_HOST: "0.0.0.0"
       OLLAMA_NUM_PARALLEL: "2"
       OLLAMA_MAX_LOADED_MODELS: "2"
-      # Pin to RX 9070 XT only (renderD128 = 0000:01:00.0)
+      # Pin to RX 9070 XT only (guest PCI 0000:01:00.0)
+      # Device nodes shift on reboot — mount all of /dev/dri and let ROCR select.
       ROCR_VISIBLE_DEVICES: "GPU-3a7504a1b2638bee"
     ports:
       - "${VM5_INTERNAL_IP:-10.74.47.9}:11434:11434"
@@ -68,8 +69,7 @@ services:
     volumes:
       - ollama_9070_data:/root/.ollama
     devices:
-      - /dev/dri/card1:/dev/dri/card1
-      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri:/dev/dri
       - /dev/kfd:/dev/kfd
     group_add:
       - "44"    # video
@@ -105,7 +105,8 @@ services:
       OLLAMA_HOST: "0.0.0.0"
       OLLAMA_NUM_PARALLEL: "2"
       OLLAMA_MAX_LOADED_MODELS: "2"
-      # Pin to RX 6700 only (renderD129 = 0000:02:00.0); override required for gfx1031 ROCm compat
+      # Pin to RX 6750 XT only (guest PCI 0000:02:00.0); override required for gfx1031 ROCm compat
+      # Device nodes shift on reboot — mount all of /dev/dri and let HSA select.
       HSA_OVERRIDE_GFX_VERSION: "10.3.0"
     ports:
       - "${VM5_INTERNAL_IP:-10.74.47.9}:11435:11434"
@@ -113,8 +114,7 @@ services:
     volumes:
       - ollama_6700_data:/root/.ollama
     devices:
-      - /dev/dri/card2:/dev/dri/card2
-      - /dev/dri/renderD129:/dev/dri/renderD129
+      - /dev/dri:/dev/dri
       - /dev/kfd:/dev/kfd
     group_add:
       - "44"    # video
@@ -162,7 +162,7 @@ services:
     networks:
       - platform
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:4000/health || exit 1"]
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:4000/health/liveliness').status==200 else 1)\""]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -178,7 +178,7 @@ services:
           cpus: "0.5"
           memory: 512M
 
-  # ─── faster-whisper (Speech-to-Text with GPU) ───
+  # ─── faster-whisper (Speech-to-Text — CPU mode on AMD GPU hosts) ───
   faster-whisper:
     <<: *common
     image: ${REGISTRY:-sven}/faster-whisper:${FASTER_WHISPER_TAG:-latest}

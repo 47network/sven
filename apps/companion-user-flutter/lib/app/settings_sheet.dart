@@ -112,7 +112,7 @@ class SettingsSheet extends StatelessWidget {
                           trailing: Switch.adaptive(
                             value: voiceService!.autoReadAloud,
                             onChanged: voiceService!.setAutoReadAloud,
-                            activeThumbColor: tokens.primary,
+                            activeColor: tokens.primary,
                           ),
                           tokens: tokens,
                           cinematic: cinematic,
@@ -127,7 +127,7 @@ class SettingsSheet extends StatelessWidget {
                         trailing: Switch.adaptive(
                           value: state.wakeWordEnabled,
                           onChanged: state.setWakeWordEnabled,
-                          activeThumbColor: tokens.primary,
+                          activeColor: tokens.primary,
                         ),
                         onTap: () => state.setWakeWordEnabled(!state.wakeWordEnabled),
                         tokens: tokens,
@@ -523,7 +523,7 @@ class SettingsSheet extends StatelessWidget {
                       subtitle: 'Maximise text-to-background contrast',
                       trailing: Switch(
                         value: state.highContrast,
-                        activeThumbColor: tokens.primary,
+                        activeColor: tokens.primary,
                         onChanged: state.setHighContrast,
                       ),
                       tokens: tokens,
@@ -536,7 +536,7 @@ class SettingsSheet extends StatelessWidget {
                       subtitle: 'Blue/orange palette — safe for red-green CVD',
                       trailing: Switch(
                         value: state.colorBlindMode,
-                        activeThumbColor: tokens.primary,
+                        activeColor: tokens.primary,
                         onChanged: state.setColorBlindMode,
                       ),
                       tokens: tokens,
@@ -549,7 +549,7 @@ class SettingsSheet extends StatelessWidget {
                       subtitle: 'Replace frosted glass with solid backgrounds',
                       trailing: Switch(
                         value: state.reduceTransparency,
-                        activeThumbColor: tokens.primary,
+                        activeColor: tokens.primary,
                         onChanged: state.setReduceTransparency,
                       ),
                       tokens: tokens,
@@ -691,7 +691,7 @@ class SettingsSheet extends StatelessWidget {
                           : 'Off',
                       trailing: Switch.adaptive(
                         value: state.dndEnabled,
-                        activeThumbColor: tokens.primary,
+                        activeColor: tokens.primary,
                         onChanged: (v) => state.setDndEnabled(v),
                       ),
                       onTap: () async {
@@ -1324,7 +1324,7 @@ class _AppLockSettingsPageState extends State<_AppLockSettingsPage> {
             subtitle: 'Require biometric or PIN when resuming',
             trailing: Switch(
               value: lock.lockEnabled,
-              activeThumbColor: tokens.primary,
+              activeColor: tokens.primary,
               onChanged: (v) => lock.setLockEnabled(v),
             ),
             tokens: tokens,
@@ -1415,15 +1415,22 @@ class _UserApiKeyModeTileState extends State<_UserApiKeyModeTile> {
   }
 
   Future<void> _load() async {
-    final snapshot = await _service.fetchAll();
-    if (!mounted) return;
-    setState(() {
-      _loading = false;
-      _allowPersonalOverride = snapshot?.allowPersonalOverride ?? true;
-      _personalMode = (snapshot?.mode ?? 'org_default') == 'personal';
-      _allowedKeys = snapshot?.allowedKeys ?? const [];
-      _configuredCount = snapshot?.rows.length ?? 0;
-    });
+    try {
+      final snapshot = await _service.fetchAll();
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _allowPersonalOverride = snapshot?.allowPersonalOverride ?? true;
+        _personalMode = (snapshot?.mode ?? 'org_default') == 'personal';
+        _allowedKeys = snapshot?.allowedKeys ?? const [];
+        _configuredCount = snapshot?.rows.length ?? 0;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _setMode(bool personal) async {
@@ -1466,7 +1473,7 @@ class _UserApiKeyModeTileState extends State<_UserApiKeyModeTile> {
             onChanged: (!_allowPersonalOverride || _loading || _saving)
                 ? null
                 : _setMode,
-            activeThumbColor: widget.tokens.primary,
+            activeColor: widget.tokens.primary,
           ),
           tokens: widget.tokens,
           cinematic: widget.cinematic,

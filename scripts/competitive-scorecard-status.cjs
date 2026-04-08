@@ -31,6 +31,7 @@ const signals = {
   release_bundle_hygiene: 'docs/release/status/release-bundle-hygiene-latest.json',
   competitor_delta_sheet: 'docs/release/status/competitor-delta-sheet-latest.json',
   community_ecosystem_readiness: 'docs/release/status/community-ecosystem-readiness-latest.json',
+  agent_zero_community_runtime: 'docs/release/status/agent-zero-community-runtime-latest.json',
   openclaw_ui_runtime: 'docs/release/status/openclaw-ui-runtime-latest.json',
   openclaw_chat_commands_runtime: 'docs/release/status/openclaw-chat-commands-runtime-latest.json',
   openclaw_discovery_runtime: 'docs/release/status/openclaw-discovery-runtime-latest.json',
@@ -79,7 +80,7 @@ const dimensions = [
   {
     id: 'ux_operator_usability',
     weight: 0.10,
-    required: ['community_ecosystem_readiness', 'openclaw_ui_runtime', 'openclaw_chat_commands_runtime'],
+    required: ['community_operator_usability', 'openclaw_ui_runtime', 'openclaw_chat_commands_runtime'],
     surpass: ['openclaw_discovery_runtime'],
   },
   {
@@ -121,6 +122,30 @@ function artifactStatus(relPath) {
   };
 }
 
+function compositeArtifactStatus(ids, signalState) {
+  const parts = ids.map((id) => ({ id, ...(signalState[id] || { present: false, pass: false, status: 'missing', generated_at: null, path: null }) }));
+  const firstPassing = parts.find((part) => part.pass);
+  if (firstPassing) {
+    return {
+      present: true,
+      pass: true,
+      status: 'pass',
+      generated_at: firstPassing.generated_at,
+      path: firstPassing.path,
+      composite_of: ids,
+    };
+  }
+  const firstPresent = parts.find((part) => part.present);
+  return {
+    present: Boolean(firstPresent),
+    pass: false,
+    status: firstPresent ? firstPresent.status : 'missing',
+    generated_at: firstPresent ? firstPresent.generated_at : null,
+    path: firstPresent ? firstPresent.path : null,
+    composite_of: ids,
+  };
+}
+
 function baseScore(requiredSignals, signalState) {
   if (requiredSignals.length === 0) return 3;
   const passed = requiredSignals.filter((id) => signalState[id] && signalState[id].pass).length;
@@ -137,6 +162,10 @@ function run() {
   for (const [id, relPath] of Object.entries(signals)) {
     signalState[id] = artifactStatus(relPath);
   }
+  signalState.community_operator_usability = compositeArtifactStatus(
+    ['community_ecosystem_readiness', 'agent_zero_community_runtime'],
+    signalState,
+  );
 
   const dimensionRows = dimensions.map((dimension) => {
     const requiredPassed = dimension.required.every((id) => signalState[id] && signalState[id].pass);
@@ -198,6 +227,8 @@ function run() {
   const report = {
     generated_at: new Date().toISOString(),
     status,
+    source_run_id: sourceRunId,
+    head_sha: headSha || null,
     summary: {
       weighted_score: weightedScore,
       min_dimension_score: minDimensionScore,

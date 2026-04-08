@@ -3,8 +3,8 @@ set -eu
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 TARGET_DIR="${1:-/opt/sven/quickstart}"
-INSTALL_HOST="${2:-sven.example.com}"
-APP_HOST="${3:-app.sven.example.com}"
+INSTALL_HOST="${2:-sven.systems}"
+APP_HOST="${3:-app.sven.systems}"
 
 echo "Publishing quickstart assets..."
 sh "$DIR/publish-quickstart.sh" "$TARGET_DIR"

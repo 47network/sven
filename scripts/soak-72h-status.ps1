@@ -20,14 +20,44 @@ if (-not (Test-Path $runPath)) {
 
 $run = Get-Content $runPath | ConvertFrom-Json
 $soakProc = $null
+$soakUnitActive = $false
 if ($run.soak_pid) { $soakProc = Get-Process -Id $run.soak_pid -ErrorAction SilentlyContinue }
+if (-not $soakProc -and $run.soak_unit) {
+  $soakUnitState = (& systemctl --user is-active ([string]$run.soak_unit) 2>$null | Out-String).Trim().ToLowerInvariant()
+  $soakUnitActive = $soakUnitState -eq 'active' -or $soakUnitState -eq 'activating'
+  if ($soakUnitActive) {
+    $soakMainPid = (& systemctl --user show --property MainPID --value ([string]$run.soak_unit) 2>$null | Out-String).Trim()
+    if ($soakMainPid -match '^\d+$' -and [int]$soakMainPid -gt 0) {
+      $soakProc = Get-Process -Id ([int]$soakMainPid) -ErrorAction SilentlyContinue
+      if (-not $soakProc) {
+        $soakProc = [pscustomobject]@{ Id = [int]$soakMainPid }
+      }
+    }
+  }
+}
 $gatewayProc = $null
+$gatewayUnitActive = $false
 if ($run.gateway_pid) { $gatewayProc = Get-Process -Id $run.gateway_pid -ErrorAction SilentlyContinue }
+if (-not $gatewayProc -and $run.gateway_unit) {
+  $gatewayUnitState = (& systemctl --user is-active ([string]$run.gateway_unit) 2>$null | Out-String).Trim().ToLowerInvariant()
+  $gatewayUnitActive = $gatewayUnitState -eq 'active' -or $gatewayUnitState -eq 'activating'
+  if ($gatewayUnitActive) {
+    $gatewayMainPid = (& systemctl --user show --property MainPID --value ([string]$run.gateway_unit) 2>$null | Out-String).Trim()
+    if ($gatewayMainPid -match '^\d+$' -and [int]$gatewayMainPid -gt 0) {
+      $gatewayProc = Get-Process -Id ([int]$gatewayMainPid) -ErrorAction SilentlyContinue
+      if (-not $gatewayProc) {
+        $gatewayProc = [pscustomobject]@{ Id = [int]$gatewayMainPid }
+      }
+    }
+  }
+}
 
 $status = [ordered]@{
   running = [bool]$soakProc
-  soak_pid = $run.soak_pid
-  gateway_pid = $run.gateway_pid
+  soak_pid = if ($soakProc) { $soakProc.Id } else { $run.soak_pid }
+  soak_unit = $run.soak_unit
+  gateway_pid = if ($gatewayProc) { $gatewayProc.Id } else { $run.gateway_pid }
+  gateway_unit = $run.gateway_unit
   gateway_running = [bool]$gatewayProc
   started_at = $run.started_at
   expected_end_at = $run.expected_end_at

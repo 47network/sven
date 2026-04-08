@@ -13,6 +13,13 @@ import {
 const logger = createLogger('adapter-feishu');
 const FEISHU_MAX_WEBHOOK_BYTES = Number(process.env.FEISHU_MAX_WEBHOOK_BYTES || 512 * 1024);
 
+function safeTokenEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ab, bb);
+}
+
 interface FeishuConfig extends AdapterConfig {
   feishuAppId: string;
   feishuAppSecret: string;
@@ -184,7 +191,7 @@ class FeishuAdapter extends BaseAdapter {
   private async handleWebhook(payload: any, rawBody: string, headers: http.IncomingHttpHeaders): Promise<Record<string, unknown>> {
     if (this.verifyToken) {
       const token = String(payload?.token || payload?.header?.token || '').trim();
-      if (!token || token !== this.verifyToken) {
+      if (!token || !safeTokenEqual(token, this.verifyToken)) {
         throw new FeishuWebhookAuthError('invalid verify token');
       }
     }
@@ -201,7 +208,7 @@ class FeishuAdapter extends BaseAdapter {
         .createHmac('sha256', this.encryptKey)
         .update(`${timestamp}${nonce}${rawBody}`)
         .digest('base64');
-      if (signature !== expected) {
+      if (!safeTokenEqual(signature, expected)) {
         throw new FeishuWebhookAuthError('invalid signature');
       }
     }

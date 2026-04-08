@@ -132,9 +132,10 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
     );
     if (!mounted) return;
     final ok = result != null;
+    final errorMessage = widget.deviceService.error ?? 'Failed to send command';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(ok ? 'Command sent: $command' : 'Failed to send command'),
+        content: Text(ok ? 'Command sent: $command' : errorMessage),
         backgroundColor: ok ? Colors.green : Colors.red,
       ),
     );
@@ -175,7 +176,7 @@ class _DeviceControlPageState extends State<DeviceControlPage> {
               const Text('Capture from source camera and display on this device'),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: selected.id,
+                value: selected.id,
                 decoration: const InputDecoration(
                   labelText: 'Source camera device',
                   border: OutlineInputBorder(),
@@ -652,6 +653,37 @@ class _QuickActions extends StatelessWidget {
       onCommand;
   final Future<void> Function(BuildContext context) onRelaySnapshot;
 
+  String? _normalizeUrlInput(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return null;
+
+    final parsed = Uri.tryParse(trimmed);
+    if (parsed != null && parsed.hasScheme) {
+      return parsed.toString();
+    }
+
+    final withHttps = 'https://$trimmed';
+    final normalized = Uri.tryParse(withHttps);
+    if (normalized == null || !normalized.hasScheme || normalized.host.isEmpty) {
+      return null;
+    }
+    return normalized.toString();
+  }
+
+  Map<String, dynamic>? _buildDisplayPayload(String rawInput) {
+    final value = rawInput.trim();
+    if (value.isEmpty) return null;
+
+    final looksLikeUrl = !value.contains(RegExp(r'\s')) &&
+        (value.contains('.') || value.contains('localhost') || value.contains('/'));
+    final normalized = looksLikeUrl ? _normalizeUrlInput(value) : null;
+    if (normalized != null) {
+      return <String, dynamic>{'type': 'url', 'content': normalized};
+    }
+
+    return <String, dynamic>{'type': 'text', 'content': value};
+  }
+
   @override
   Widget build(BuildContext context) {
     final caps = device.capabilities;
@@ -731,33 +763,63 @@ class _QuickActions extends StatelessWidget {
   }
 
   void _showDisplayDialog(BuildContext context) {
-    final urlCtrl = TextEditingController();
+    final contentCtrl = TextEditingController();
+    var submitting = false;
     showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Display Content'),
-        content: TextField(
-          controller: urlCtrl,
-          decoration: const InputDecoration(
-            labelText: 'URL or content to display',
-            hintText: 'https://example.com or text',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () {
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          Future<void> submit() async {
+            if (submitting) return;
+            FocusScope.of(ctx).unfocus();
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+            final payload = _buildDisplayPayload(contentCtrl.text);
+            if (payload == null) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Enter a URL or display content'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+              return;
+            }
+
+            setDialogState(() => submitting = true);
+            await onCommand('display', payload: payload);
+            if (ctx.mounted) {
               Navigator.pop(ctx);
-              onCommand('display', payload: {
-                'type': 'url',
-                'content': urlCtrl.text.trim(),
-              });
-            },
-            child: const Text('Send'),
-          ),
-        ],
+            }
+          }
+
+          return AlertDialog(
+            title: const Text('Display Content'),
+            content: TextField(
+              controller: contentCtrl,
+              autofocus: true,
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.go,
+              onSubmitted: (_) => submit(),
+              decoration: const InputDecoration(
+                labelText: 'URL or content to display',
+                hintText: 'https://example.com or text',
+                helperText: 'URLs open directly. Plain text is shown on screen.',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: submitting ? null : () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: submitting ? null : submit,
+                child: Text(submitting ? 'Sending...' : 'Send'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -796,31 +858,64 @@ class _QuickActions extends StatelessWidget {
 
   void _showOpenUrlDialog(BuildContext context) {
     final urlCtrl = TextEditingController();
+    var submitting = false;
     showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Open URL'),
-        content: TextField(
-          controller: urlCtrl,
-          decoration: const InputDecoration(
-            labelText: 'URL',
-            hintText: 'https://example.com',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () {
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          Future<void> submit() async {
+            if (submitting) return;
+            FocusScope.of(ctx).unfocus();
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+            final normalized = _normalizeUrlInput(urlCtrl.text);
+            if (normalized == null) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Enter a valid URL'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+              return;
+            }
+
+            setDialogState(() => submitting = true);
+            await onCommand('open_url', payload: {
+              'url': normalized,
+            });
+            if (ctx.mounted) {
               Navigator.pop(ctx);
-              onCommand('open_url', payload: {
-                'url': urlCtrl.text.trim(),
-              });
-            },
-            child: const Text('Open'),
-          ),
-        ],
+            }
+          }
+
+          return AlertDialog(
+            title: const Text('Open URL'),
+            content: TextField(
+              controller: urlCtrl,
+              autofocus: true,
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.go,
+              onSubmitted: (_) => submit(),
+              decoration: const InputDecoration(
+                labelText: 'URL',
+                hintText: 'https://example.com',
+                helperText: 'Adds https:// automatically if omitted',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: submitting ? null : () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: submitting ? null : submit,
+                child: Text(submitting ? 'Opening...' : 'Open'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -874,30 +969,61 @@ class _QuickActions extends StatelessWidget {
 
   void _showTypeTextDialog(BuildContext context) {
     final textCtrl = TextEditingController();
+    var submitting = false;
     showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Type Text'),
-        content: TextField(
-          controller: textCtrl,
-          maxLines: 3,
-          decoration: const InputDecoration(
-            labelText: 'Text',
-            hintText: 'Type this into focused app',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () {
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          Future<void> submit() async {
+            if (submitting) return;
+            FocusScope.of(ctx).unfocus();
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+            final value = textCtrl.text.trim();
+            if (value.isEmpty) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Enter text to type'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+              return;
+            }
+
+            setDialogState(() => submitting = true);
+            await onCommand('type_text', payload: {'text': value});
+            if (ctx.mounted) {
               Navigator.pop(ctx);
-              onCommand('type_text', payload: {'text': textCtrl.text});
-            },
-            child: const Text('Send'),
-          ),
-        ],
+            }
+          }
+
+          return AlertDialog(
+            title: const Text('Type Text'),
+            content: TextField(
+              controller: textCtrl,
+              autofocus: true,
+              maxLines: 3,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => submit(),
+              decoration: const InputDecoration(
+                labelText: 'Text',
+                hintText: 'Type this into focused app',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: submitting ? null : () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: submitting ? null : submit,
+                child: Text(submitting ? 'Sending...' : 'Send'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

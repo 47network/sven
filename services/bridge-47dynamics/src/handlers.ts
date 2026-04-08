@@ -246,7 +246,7 @@ export function registerBridgeHandlers(deps: BridgeDeps) {
             contextParts.push(`[Open Tickets: ${ctx.ticket_summary.open}]`);
           }
           if (ctx.context_devices && ctx.context_devices.length > 0) {
-            const deviceInfo = ctx.context_devices.map(
+            const deviceInfo = ctx.context_devices.slice(0, 200).map(
               (d: { hostname: string; os: string; status: string; last_seen: string }) => `${d.hostname} (${d.os}, ${d.status}, last seen: ${d.last_seen})`
             ).join('; ');
             contextParts.push(`[Devices in context: ${deviceInfo}]`);
@@ -610,6 +610,9 @@ export function registerBridgeHandlers(deps: BridgeDeps) {
       if (!req.text || req.text.length === 0) {
         return callback({ code: grpcStatus.INVALID_ARGUMENT, message: 'text required' });
       }
+      if (req.text.length > 50_000) {
+        return callback({ code: grpcStatus.INVALID_ARGUMENT, message: 'text exceeds maximum length of 50000 characters' });
+      }
 
       const correlationId = req.tenant.correlation_id || uuidv7();
 
@@ -675,6 +678,13 @@ export function registerBridgeHandlers(deps: BridgeDeps) {
       // Cap batch size
       if (req.documents.length > 100) {
         return callback({ code: grpcStatus.INVALID_ARGUMENT, message: 'max 100 documents per batch' });
+      }
+
+      const MAX_DOC_CONTENT_LENGTH = 1_000_000;
+      for (const doc of req.documents) {
+        if (doc.content && doc.content.length > MAX_DOC_CONTENT_LENGTH) {
+          return callback({ code: grpcStatus.INVALID_ARGUMENT, message: `document ${doc.document_id || 'unknown'} content exceeds ${MAX_DOC_CONTENT_LENGTH} character limit` });
+        }
       }
 
       const correlationId = req.tenant.correlation_id || uuidv7();
@@ -770,7 +780,7 @@ export function registerBridgeHandlers(deps: BridgeDeps) {
           `Alert type: ${req.alert_type}`,
           `Severity: ${req.alert_severity || 'unknown'}`,
           req.alert_description ? `Description: ${req.alert_description}` : '',
-          req.device_context.length > 0 ? `Device context: ${req.device_context.join(', ')}` : '',
+          req.device_context.slice(0, 200).length > 0 ? `Device context: ${req.device_context.slice(0, 200).join(', ')}` : '',
           'Find the most relevant operational runbooks for this alert.',
         ].filter(Boolean).join('\n');
 

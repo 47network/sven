@@ -125,7 +125,7 @@ class WebChatAdapter extends BaseAdapter {
     });
 
     // WebSocket server
-    this.wss = new WebSocketServer({ server: this.server });
+    this.wss = new WebSocketServer({ server: this.server, maxPayload: 65_536 });
 
     this.wss.on('connection', (ws: WebSocket, request: http.IncomingMessage) => {
       const originPolicy = this.validateSocketOrigin(request);
@@ -223,12 +223,17 @@ class WebChatAdapter extends BaseAdapter {
           this.wsSend(ws, { type: 'error', message: 'Not authenticated' });
           return;
         }
+        const text = String(msg.text || '').slice(0, 8000);
+        if (!text) {
+          this.wsSend(ws, { type: 'error', message: 'text is required' });
+          return;
+        }
 
         await this.gateway.sendMessage('webchat', {
           channel_message_id: `wc_${Date.now()}`,
           chat_id: auth.chatId,
           sender_identity_id: auth.userId,
-          text: msg.text,
+          text,
           metadata: auth.widgetApiKey ? { widget_instance_key: auth.widgetApiKey } : undefined,
         });
         break;
@@ -237,14 +242,21 @@ class WebChatAdapter extends BaseAdapter {
       case 'file': {
         const auth = this.socketAuth.get(ws);
         if (!auth) return;
+        const fileUrl = String(msg.file_url || '').slice(0, 2048);
+        const fileName = String(msg.file_name || '').slice(0, 255);
+        const fileMime = String(msg.file_mime || '').slice(0, 127);
+        if (!fileUrl) {
+          this.wsSend(ws, { type: 'error', message: 'file_url is required' });
+          return;
+        }
 
         await this.gateway.sendFile('webchat', {
           channel_message_id: `wc_${Date.now()}`,
           chat_id: auth.chatId,
           sender_identity_id: auth.userId,
-          file_url: msg.file_url,
-          file_name: msg.file_name,
-          file_mime: msg.file_mime,
+          file_url: fileUrl,
+          file_name: fileName,
+          file_mime: fileMime,
           metadata: auth.widgetApiKey ? { widget_instance_key: auth.widgetApiKey } : undefined,
         });
         break;
@@ -253,12 +265,17 @@ class WebChatAdapter extends BaseAdapter {
       case 'audio': {
         const auth = this.socketAuth.get(ws);
         if (!auth) return;
+        const audioUrl = String(msg.audio_url || '').slice(0, 2048);
+        if (!audioUrl) {
+          this.wsSend(ws, { type: 'error', message: 'audio_url is required' });
+          return;
+        }
 
         await this.gateway.sendAudio('webchat', {
           channel_message_id: `wc_${Date.now()}`,
           chat_id: auth.chatId,
           sender_identity_id: auth.userId,
-          audio_url: msg.audio_url,
+          audio_url: audioUrl,
           metadata: auth.widgetApiKey ? { widget_instance_key: auth.widgetApiKey } : undefined,
         });
         break;
@@ -750,8 +767,17 @@ function connect(){
     if(msg.type==='audio'){addMessage('🎵 Audio message','assistant');return;}
     if(msg.type==='approval'){
       const div=document.createElement('div');div.className='msg assistant';
-      div.innerHTML='🗳 Approval Required<div class="approval-btns">'+
-        msg.buttons.map(b=>'<button class="'+b.action+'" onclick="vote(\\''+b.approval_id+'\\',\\''+b.action+'\\')">'+b.label+'</button>').join('')+'</div>';
+      const heading=document.createTextNode('🗳 Approval Required');
+      div.appendChild(heading);
+      const btnContainer=document.createElement('div');btnContainer.className='approval-btns';
+      (msg.buttons||[]).forEach(b=>{
+        const btn=document.createElement('button');
+        btn.className=String(b.action||'').replace(/[^a-zA-Z0-9_-]/g,'');
+        btn.textContent=b.label||'';
+        btn.addEventListener('click',()=>vote(b.approval_id,b.action));
+        btnContainer.appendChild(btn);
+      });
+      div.appendChild(btnContainer);
       messagesEl.appendChild(div);messagesEl.scrollTop=messagesEl.scrollHeight;
       return;
     }

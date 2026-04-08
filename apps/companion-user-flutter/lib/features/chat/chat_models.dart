@@ -7,8 +7,56 @@ part 'chat_models.g.dart';
 
 // Top-level helper referenced by @JsonKey(fromJson: ...) on ChatMessage.timestamp.
 // Must be top-level so it can be used as an annotation argument.
-DateTime _parseNullableDateTime(dynamic value) =>
-    value != null ? DateTime.parse(value as String) : DateTime.now();
+DateTime _parseNullableDateTime(dynamic value) {
+  if (value == null) return DateTime.now();
+  final raw = value.toString().trim();
+  if (raw.isEmpty) return DateTime.now();
+
+  final parsed = DateTime.tryParse(raw);
+  if (parsed != null) return parsed;
+
+  final normalized = raw.replaceFirst(RegExp(r' \([^)]*\)$'), '');
+  final match = RegExp(
+    r'^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) '
+    r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) '
+    r'(\d{1,2}) '
+    r'(\d{4}) '
+    r'(\d{2}):(\d{2}):(\d{2}) '
+    r'GMT([+-])(\d{2})(\d{2})$',
+  ).firstMatch(normalized);
+  if (match == null) return DateTime.now();
+
+  const months = <String, int>{
+    'Jan': 1,
+    'Feb': 2,
+    'Mar': 3,
+    'Apr': 4,
+    'May': 5,
+    'Jun': 6,
+    'Jul': 7,
+    'Aug': 8,
+    'Sep': 9,
+    'Oct': 10,
+    'Nov': 11,
+    'Dec': 12,
+  };
+
+  final month = months[match.group(2)];
+  if (month == null) return DateTime.now();
+
+  final day = int.parse(match.group(3)!);
+  final year = int.parse(match.group(4)!);
+  final hour = int.parse(match.group(5)!);
+  final minute = int.parse(match.group(6)!);
+  final second = int.parse(match.group(7)!);
+  final sign = match.group(8) == '-' ? -1 : 1;
+  final tzHours = int.parse(match.group(9)!);
+  final tzMinutes = int.parse(match.group(10)!);
+  final offsetMinutes = sign * ((tzHours * 60) + tzMinutes);
+
+  return DateTime.utc(year, month, day, hour, minute, second)
+      .subtract(Duration(minutes: offsetMinutes));
+}
 
 // ── ChatThreadSummary ─────────────────────────────────────────────────────────
 

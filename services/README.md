@@ -29,6 +29,7 @@ All backend microservices in the Sven platform. Each service has its own `README
 | [`faster-whisper`](./faster-whisper/README.md) | 8100 | Local STT (CTranslate2 Whisper) — no audio leaves infrastructure |
 | [`piper`](./piper/README.md) | 8200 | Local TTS (Piper) — no text leaves infrastructure |
 | [`wake-word`](./wake-word/README.md) | 8300 | Always-on local wake-word detection |
+| [`openwakeword-detector`](./openwakeword-detector/README.md) | 4410 | Open-source wake-word backend for custom hotword matching |
 
 ## Infrastructure
 

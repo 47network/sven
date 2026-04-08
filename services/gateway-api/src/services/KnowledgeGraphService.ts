@@ -629,7 +629,8 @@ export async function findPotentialDuplicates(
            OR LOWER(e1.name) = LOWER(e2.name)
            OR ABS(LENGTH(e1.name) - LENGTH(e2.name)) <= 2
          )
-       ORDER BY similarity DESC`,
+       ORDER BY similarity DESC
+       LIMIT 500`,
       []
     );
 

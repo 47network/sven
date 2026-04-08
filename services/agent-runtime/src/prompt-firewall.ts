@@ -4,6 +4,8 @@ import { parseSettingValue } from './settings-utils.js';
 import type { InboundMessageEvent } from '@sven/shared';
 
 const logger = createLogger('prompt-firewall');
+const MAX_PLAN_IDS = 100;
+const MAX_TOOL_NAME_LENGTH = 256;
 
 interface ToolCallValidation {
   allowed: boolean;
@@ -29,13 +31,21 @@ export class PromptFirewall {
     event: InboundMessageEvent,
     requesterUserId: string,
   ): Promise<ToolCallValidation> {
+    const toolName = String(toolCall.name || '').trim();
+    if (!toolName || toolName.length > MAX_TOOL_NAME_LENGTH) {
+      return {
+        allowed: false,
+        reason: `Invalid tool name (empty or exceeds ${MAX_TOOL_NAME_LENGTH} chars)`,
+      };
+    }
+
     // 1. Check justification – must reference user messages or RAG citations
     const justification = toolCall.justification;
     if (!justification) {
       // Check if it's a trusted read-only skill
       const toolRes = await this.pool.query(
         `SELECT is_first_party, trust_level, permissions_required FROM tools WHERE name = $1`,
-        [toolCall.name],
+        [toolName],
       );
 
       if (toolRes.rows.length > 0) {
@@ -64,6 +74,7 @@ export class PromptFirewall {
         if (typeof planId === 'string' && planId.trim().length > 0) {
           planIds.push(planId.trim());
         }
+        if (planIds.length >= MAX_PLAN_IDS) break;
       }
     }
 

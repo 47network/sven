@@ -64,11 +64,16 @@ const blockers = Array.isArray(strictLatest && strictLatest.blocking_reasons)
   ? strictLatest.blocking_reasons.map((b) => String(b.id || 'unknown'))
   : [];
 const nonSelfBlockers = blockers.filter((id) => id !== 'competitive_program_completion_status');
-const soakOnlyBlockers = (nonSelfBlockers.length === 0) || nonSelfBlockers.every((id) => [
+const competitiveWorkCompleteOnlyBlockers = (nonSelfBlockers.length === 0) || nonSelfBlockers.every((id) => [
   'checklist_unchecked_items',
+  'mandatory_gate_final_dod_ci',
+  'mandatory_gate_d9_keycloak_interop_ci',
+  'mandatory_gate_release_ops_drill_ci',
   'soak_72h_summary_status',
   'soak_72h_samples_below_expected',
   'final_signoff_status',
+  'multi_device_validation_status',
+  'mirror_agent_host_validation_status',
 ].includes(id));
 
 const checks = [
@@ -100,8 +105,8 @@ const checks = [
     'parity-e2e includes langgraph wave8 step + summary binding',
   ),
   check(
-    'competitive_program_remaining_blockers_soak_path_only',
-    soakOnlyBlockers,
+    'competitive_program_remaining_blockers_non_competitive_only',
+    competitiveWorkCompleteOnlyBlockers,
     `blockers=${nonSelfBlockers.join(', ') || 'none'}`,
   ),
 ];

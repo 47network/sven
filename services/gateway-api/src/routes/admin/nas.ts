@@ -83,7 +83,9 @@ function normalizeNasBody<T extends object>(
 }
 
 function isExactOrChildPath(candidatePath: string, rootPath: string): boolean {
-  return candidatePath === rootPath || candidatePath.startsWith(`${rootPath}/`);
+  const normalizedCandidate = path.posix.normalize(candidatePath);
+  const normalizedRoot = path.posix.normalize(rootPath);
+  return normalizedCandidate === normalizedRoot || normalizedCandidate.startsWith(`${normalizedRoot}/`);
 }
 
 function normalizeNasVirtualPath(filePath: string): string {

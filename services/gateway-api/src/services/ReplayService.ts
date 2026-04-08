@@ -86,6 +86,9 @@ function resolveReplayLiveExecutionConfig(apiBaseUrl: string): {
 
 function normalizeReplayScenarioIds(raw: unknown): string[] {
   if (Array.isArray(raw)) {
+    if (raw.length > 500) {
+      throw new Error('scenario_ids exceeds maximum of 500 entries');
+    }
     const normalized = raw
       .map((entry) => String(entry || '').trim())
       .filter(Boolean);

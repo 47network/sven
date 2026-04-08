@@ -1,0 +1,6 @@
+{
+  "deployment_label": "Production",
+  "install_origin": "https://sven.systems",
+  "runtime_origin": "https://app.sven.systems",
+  "proof_origin": "https://app.sven.systems"
+}

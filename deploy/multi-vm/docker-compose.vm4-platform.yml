@@ -31,6 +31,7 @@ volumes:
   pgwalarchive:
   natsdata:
   tunnel-data:
+  matrix-crypto-store:
 
 services:
   # ─── PostgreSQL 16 + pgvector ───
@@ -192,9 +193,10 @@ services:
       OPENSEARCH_URL: http://${VM6_INTERNAL_IP:-10.74.47.10}:9200
       OPENSEARCH_USER: ${OPENSEARCH_USER:-admin}
       OPENSEARCH_PASSWORD: ${OPENSEARCH_PASSWORD}
-      # Cross-VM: Ollama on kaldorei (10.47.47.13) — RTX 3060, CUDA
-      # VM5 Ollama containers are stopped; llama-server (port 8080) owns both AMD GPUs.
-      # Embeddings and small-model inference route to kaldorei instead.
+      # Cross-VM: LLM inference across multiple GPU hosts (HA).
+      # model_registry holds per-model endpoints; OLLAMA_URL is fallback only for
+      # models with non-URL endpoints (e.g. ollama://local).
+      # Active backends: VM9 (10.47.47.9, 2x AMD GPU), VM13 (10.47.47.13, RTX 3060).
       OLLAMA_URL: http://${KALDOREI_IP:-10.47.47.13}:11434
       EMBEDDINGS_ENABLED: ${EMBEDDINGS_ENABLED:-true}
       EMBEDDINGS_PROVIDER: ${EMBEDDINGS_PROVIDER:-ollama}
@@ -222,6 +224,16 @@ services:
       AUTH_DISABLE_TOKEN_EXCHANGE: "true"
       SVEN_METRICS_AUTH_TOKEN: ${SVEN_METRICS_AUTH_TOKEN}
       NODE_EXTRA_CA_CERTS: /etc/ssl/sven/ca.crt
+      # ── Pattern module env vars (gateway-api) ──
+      SVEN_ATTESTATION_SECRET: ${SVEN_ATTESTATION_SECRET:-}
+      SVEN_DISTILLATION_SECRET: ${SVEN_DISTILLATION_SECRET:-}
+      SVEN_DISTILLATION_SERVICE_ID: gateway-api
+      FEATURE_PROMPT_GUARD_ENABLED: ${FEATURE_PROMPT_GUARD_ENABLED:-false}
+      FEATURE_ANTI_DISTILLATION_ENABLED: ${FEATURE_ANTI_DISTILLATION_ENABLED:-false}
+      FEATURE_ANTI_DISTILLATION_PERCENTAGE: ${FEATURE_ANTI_DISTILLATION_PERCENTAGE:-0}
+      FEATURE_CLIENT_ATTESTATION_ENABLED: ${FEATURE_CLIENT_ATTESTATION_ENABLED:-false}
+      FEATURE_MEMORY_EXTRACTOR_AUTO_DREAM: ${FEATURE_MEMORY_EXTRACTOR_AUTO_DREAM:-false}
+      FEATURE_BUDDY_ENHANCED_DIGEST: ${FEATURE_BUDDY_ENHANCED_DIGEST:-false}
     ports:
       - "${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}:${GATEWAY_PORT:-3000}"
       - "127.0.0.1:${GATEWAY_PORT:-3000}:${GATEWAY_PORT:-3000}"
@@ -272,11 +284,30 @@ services:
       SVEN_DEPLOYMENT_MODE: production
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=require
       NATS_URL: nats://nats:4222
-      # Cross-VM: Ollama on kaldorei (10.47.47.13) — RTX 3060, CUDA
+      # Cross-VM: OLLAMA_URL is fallback only; model_registry drives per-model routing.
       OLLAMA_URL: http://${KALDOREI_IP:-10.47.47.13}:11434
       OLLAMA_DEFAULT_MODEL: ${OLLAMA_DEFAULT_MODEL:-llama3.2:3b}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://${VM6_INTERNAL_IP:-10.74.47.10}:4318
       NODE_EXTRA_CA_CERTS: /etc/ssl/sven/ca.crt
+      # ── Pattern Module Feature Flags ──
+      FEATURE_PROMPT_GUARD_ENABLED: "true"
+      FEATURE_MEMORY_EXTRACTOR_ENABLED: "true"
+      FEATURE_ANTI_DISTILLATION_ENABLED: "true"
+      SVEN_FINGERPRINT_SECRET: ${SVEN_FINGERPRINT_SECRET:-sven-fp-default-change-me}
+      SVEN_WATERMARK_ENABLED: "true"
+      SVEN_WATERMARK_PAYLOAD: sven
+      SVEN_WATERMARK_DENSITY: "0.3"
+      # ── Buddy Enhancement ──
+      BUDDY_PERSONALITY_MODE: ${BUDDY_PERSONALITY_MODE:-professional}
+      BUDDY_STREAK_TRACKING: "true"
+      # ── Token Budget ──
+      FEATURE_TOKEN_BUDGET_ENABLED: "true"
+      TOKEN_BUDGET_MAX_TOKENS: ${TOKEN_BUDGET_MAX_TOKENS:-0}
+      TOKEN_BUDGET_MAX_COST_USD: ${TOKEN_BUDGET_MAX_COST_USD:-0}
+      TOKEN_BUDGET_MAX_TURNS: ${TOKEN_BUDGET_MAX_TURNS:-50}
+      # ── Client Attestation ──
+      FEATURE_CLIENT_ATTESTATION_ENABLED: ${FEATURE_CLIENT_ATTESTATION_ENABLED:-false}
+      SVEN_ATTESTATION_SECRET: ${SVEN_ATTESTATION_SECRET:-}
     volumes:
       - ${SVEN_PROD_ARTIFACTS_DIR:-/srv/sven/prod/data/artifacts}:${SVEN_STORAGE_ROOT:-/var/lib/sven/artifacts}
       - ${SVEN_PROD_NAS_DIR:-/srv/sven/prod/data/nas}:${SVEN_NAS_ROOT:-/var/lib/sven/nas}
@@ -323,6 +354,18 @@ services:
       SVEN_INTEGRATION_STORAGE_ROOT: ${SVEN_INTEGRATION_STORAGE_ROOT:-/var/lib/sven/integrations}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://${VM6_INTERNAL_IP:-10.74.47.10}:4318
       NODE_EXTRA_CA_CERTS: /etc/ssl/sven/ca.crt
+      # ── Pattern Module Config ──
+      SVEN_COMMIT_AUTHOR_NAME: ${SVEN_COMMIT_AUTHOR_NAME:-Sven}
+      SVEN_COMMIT_AUTHOR_EMAIL: ${SVEN_COMMIT_AUTHOR_EMAIL:-sven@sven.systems}
+      # ── Security Scanning ──
+      FEATURE_PROMPT_GUARD_OUTPUT_SCAN: "true"
+      FEATURE_ANTI_DISTILLATION_TOOL_OUTPUTS: "true"
+      SVEN_FINGERPRINT_SECRET: ${SVEN_FINGERPRINT_SECRET:-sven-fp-default-change-me}
+      SVEN_WATERMARK_ENABLED: "true"
+      SVEN_WATERMARK_PAYLOAD: sven
+      # ── Client Attestation ──
+      FEATURE_CLIENT_ATTESTATION_ENABLED: ${FEATURE_CLIENT_ATTESTATION_ENABLED:-false}
+      SVEN_ATTESTATION_SECRET: ${SVEN_ATTESTATION_SECRET:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${SVEN_REGISTRY_ROOT:-/srv/sven/prod/data/skills}:/opt/sven/registry:ro
@@ -406,6 +449,10 @@ services:
       HA_TOKEN: ${HA_TOKEN:-}
       HA_POLL_INTERVAL_MS: ${HA_POLL_INTERVAL_MS:-30000}
       NODE_EXTRA_CA_CERTS: /etc/ssl/sven/ca.crt
+      # ── Pattern Module Config ──
+      FEATURE_ASYNC_DELIVERY_ENABLED: "true"
+      FEATURE_CLIENT_ATTESTATION_ENABLED: ${FEATURE_CLIENT_ATTESTATION_ENABLED:-false}
+      SVEN_ATTESTATION_SECRET: ${SVEN_ATTESTATION_SECRET:-}
     volumes:
       - ./ssl/ca.crt:/etc/ssl/sven/ca.crt:ro
     depends_on:
@@ -443,6 +490,10 @@ services:
       NATS_URL: nats://nats:4222
       OTEL_EXPORTER_OTLP_ENDPOINT: http://${VM6_INTERNAL_IP:-10.74.47.10}:4318
       NODE_EXTRA_CA_CERTS: /etc/ssl/sven/ca.crt
+      # ── Pattern Module Config ──
+      FEATURE_TOKEN_BUDGET_WORKFLOW: ${FEATURE_TOKEN_BUDGET_WORKFLOW:-false}
+      FEATURE_CLIENT_ATTESTATION_ENABLED: ${FEATURE_CLIENT_ATTESTATION_ENABLED:-false}
+      SVEN_ATTESTATION_SECRET: ${SVEN_ATTESTATION_SECRET:-}
     volumes:
       - ./ssl/ca.crt:/etc/ssl/sven/ca.crt:ro
     depends_on:
@@ -595,6 +646,56 @@ services:
           cpus: "1.0"
           memory: 256M
           pids: 128
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+  # ─── Matrix Adapter (Sven AI bot for Matrix) ───
+  adapter-matrix:
+    <<: *common
+    image: ${REGISTRY:-sven}/adapter-matrix:${ADAPTER_MATRIX_TAG:-latest}
+    container_name: sven-adapter-matrix
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,noexec,nosuid,nodev
+    volumes:
+      - matrix-crypto-store:/data/crypto
+    extra_hosts:
+      - "deception.sven.systems:${VM12_MATRIX_IP:-10.47.47.12}"
+      - "auth.deception.sven.systems:${VM12_MATRIX_IP:-10.47.47.12}"
+    environment:
+      ADAPTER_CHANNEL: matrix
+      GATEWAY_URL: http://gateway-api:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      SVEN_ORG_ID: ${SVEN_ORG_ID:?SVEN_ORG_ID is required}
+      MATRIX_HOMESERVER_URL: ${MATRIX_HOMESERVER_URL:?MATRIX_HOMESERVER_URL is required}
+      MATRIX_ACCESS_TOKEN: ${MATRIX_ACCESS_TOKEN:?MATRIX_ACCESS_TOKEN is required}
+      MATRIX_USER_ID: ${MATRIX_USER_ID:?MATRIX_USER_ID is required}
+      MATRIX_DEVICE_ID: ${MATRIX_DEVICE_ID:-SVENBOT}
+      MATRIX_BOT_NAME: ${MATRIX_BOT_NAME:-sven}
+      MATRIX_AUTO_JOIN: ${MATRIX_AUTO_JOIN:-true}
+      MATRIX_ALLOWED_ROOM_IDS: ${MATRIX_ALLOWED_ROOM_IDS:-}
+      MATRIX_TRIGGER_PREFIX: ${MATRIX_TRIGGER_PREFIX:-/sven}
+      MATRIX_SYNC_MS: ${MATRIX_SYNC_MS:-1500}
+      MATRIX_E2EE_ENABLED: ${MATRIX_E2EE_ENABLED:-false}
+      MATRIX_CRYPTO_STORE_PATH: /data/crypto
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    depends_on:
+      gateway-api:
+        condition: service_healthy
+    networks:
+      - platform
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+          pids: 64
         reservations:
           cpus: "0.1"
           memory: 64M

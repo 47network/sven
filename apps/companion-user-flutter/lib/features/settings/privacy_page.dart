@@ -38,8 +38,8 @@ class PrivacyPage extends StatelessWidget {
   /// back to the login / onboarding flow.
   final VoidCallback? onClearData;
 
-  static const _privacyUrl = 'https://app.sven.example.com/privacy';
-  static const _tosUrl = 'https://app.sven.example.com/terms';
+  static const _privacyUrl = 'https://app.sven.systems/privacy';
+  static const _tosUrl = 'https://app.sven.systems/terms';
 
   Future<void> _exportData(BuildContext context) async {
     final ms = memoryService;
@@ -252,7 +252,7 @@ class PrivacyPage extends StatelessWidget {
             cinematic: cinematic,
             trailing: Switch(
               value: state.analyticsConsent,
-              activeThumbColor: tokens.primary,
+              activeColor: tokens.primary,
               onChanged: state.setAnalyticsConsent,
             ),
           ),

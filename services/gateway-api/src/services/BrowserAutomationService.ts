@@ -3,7 +3,7 @@ import { v7 as uuidv7 } from 'uuid';
 import { Pool } from 'pg';
 import { mkdir, access, readFile, stat } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 
 const logger = createLogger('browser-automation');
@@ -186,11 +186,16 @@ export class BrowserAutomationService {
       }
       case 'upload_file': {
         const selector = String(payload.selector || '');
-        const filePath = String(payload.file_path || '');
-        if (!selector || !filePath) {
+        const rawPath = String(payload.file_path || '');
+        if (!selector || !rawPath) {
           throw new Error('selector and file_path are required for upload_file');
         }
-        await page.setInputFiles(selector, filePath);
+        const resolvedPath = resolve(rawPath);
+        const allowedUploadRoot = resolve(process.env.SVEN_BROWSER_UPLOAD_ROOT || join(process.cwd(), 'uploads'));
+        if (resolvedPath !== allowedUploadRoot && !resolvedPath.startsWith(allowedUploadRoot + '/')) {
+          throw new Error('file_path must be within the uploads directory');
+        }
+        await page.setInputFiles(selector, resolvedPath);
         await this.persistRuntime(profileId);
         return { ok: true };
       }

@@ -147,6 +147,9 @@ function validateRoutingRulesPayload(
       if (raw !== undefined && typeof raw !== 'string') {
         return { ok: false, message: `routing_rules.subordinate_overrides.${key} must be a string when provided` };
       }
+      if (typeof raw === 'string' && raw.length > 10_000) {
+        return { ok: false, message: `routing_rules.subordinate_overrides.${key} must be 10000 characters or fewer` };
+      }
     }
   }
   return { ok: true, value: routingRules };
@@ -158,6 +161,9 @@ function validateRequiredCapabilitiesPayload(
   if (value === undefined) return { ok: true, value: [] };
   if (!Array.isArray(value)) {
     return { ok: false, message: 'required_capabilities must be an array of strings when provided' };
+  }
+  if (value.length > 100) {
+    return { ok: false, message: 'required_capabilities cannot exceed 100 entries' };
   }
   if (value.some((entry) => typeof entry !== 'string' || !entry.trim())) {
     return { ok: false, message: 'required_capabilities must contain only non-empty strings' };

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-03-17T04:18:31.477Z",
-  "source": "local-bootstrap-from-openapi-contract-report-plus-community-routes",
+  "generated_at": "2026-03-24T01:30:00.000Z",
+  "source": "local-bootstrap-plus-wave340-undocumented-route-refresh",
   "entries": [
     "post /v1/a2a",
     "post /v1/events/message",
@@ -531,6 +531,23 @@
     "get /v1/public/community/feed",
     "get /v1/public/community/leaderboard",
     "get /v1/public/community/capability-proof",
-    "post /v1/public/community/access-request"
+    "post /v1/public/community/access-request",
+    "get /v1/admin/integrations/47dynamics/tenant-mappings/health",
+    "get /v1/admin/integrations/47dynamics/tenant-mappings",
+    "get /v1/admin/integrations/47dynamics/tenant-mappings/resolve/{}",
+    "post /v1/admin/integrations/47dynamics/tenant-mappings",
+    "patch /v1/admin/integrations/47dynamics/tenant-mappings/{}",
+    "delete /v1/admin/integrations/47dynamics/tenant-mappings/{}",
+    "get /v1/public/community/access-request/{}",
+    "get /v1/admin/mcp-shared-token-config",
+    "put /v1/admin/mcp-shared-token-config",
+    "get /v1/registry/catalog",
+    "get /v1/registry/marketplace",
+    "get /v1/registry/versions",
+    "get /v1/registry/reviews",
+    "get /v1/registry/installed",
+    "post /v1/registry/install/{}",
+    "post /v1/registry/purchase/{}",
+    "post /v1/registry/reviews"
   ]
 }

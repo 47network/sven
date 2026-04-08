@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,7 +88,7 @@ class _MemoryPageState extends ConsumerState<MemoryPage>
                 Switch.adaptive(
                   value: memoryService.memoryEnabled,
                   onChanged: (v) => memoryService.setMemoryEnabled(v),
-                  activeThumbColor: tokens.primary,
+                  activeColor: tokens.primary,
                   activeTrackColor: tokens.primary.withValues(alpha: 0.3),
                 ),
               ],
@@ -700,6 +702,7 @@ class _InstructionsTabState extends State<_InstructionsTab> {
   late final TextEditingController _contextCtrl;
   late final TextEditingController _styleCtrl;
   bool _unsaved = false;
+  Timer? _autosaveTimer;
 
   @override
   void initState() {
@@ -713,20 +716,35 @@ class _InstructionsTabState extends State<_InstructionsTab> {
 
   @override
   void dispose() {
+    _autosaveTimer?.cancel();
     _contextCtrl.dispose();
     _styleCtrl.dispose();
     super.dispose();
   }
 
-  void _onChanged() => setState(() => _unsaved = true);
+  void _onChanged() {
+    if (mounted) {
+      setState(() => _unsaved = true);
+    }
+    _autosaveTimer?.cancel();
+    _autosaveTimer = Timer(const Duration(milliseconds: 600), _saveSilently);
+  }
 
-  Future<void> _save() async {
-    await widget.memoryService.setInstructions(CustomInstructions(
+  Future<void> _saveSilently() async {
+    final nextInstructions = CustomInstructions(
       userContext: _contextCtrl.text,
       responseStyle: _styleCtrl.text,
-    ));
+    );
+    await widget.memoryService.setInstructions(nextInstructions);
     if (mounted) {
       setState(() => _unsaved = false);
+    }
+  }
+
+  Future<void> _save() async {
+    _autosaveTimer?.cancel();
+    await _saveSilently();
+    if (mounted) {
       HapticFeedback.lightImpact();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

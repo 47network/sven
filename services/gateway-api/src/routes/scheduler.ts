@@ -30,6 +30,7 @@ let schedulerTimer: ReturnType<typeof setInterval> | null = null;
 // ─── Cron helpers (shared with admin cron.ts) ─────────────────────
 
 function isValidCron(expression: string): boolean {
+  if (expression.length > 120) return false;
   const fields = expression.trim().split(/\s+/);
   if (fields.length !== 5) return false;
   return fields.every((field, i) => isValidField(field, i));
@@ -317,6 +318,9 @@ function isPrivateOrLocalIpv6(hostname: string): boolean {
   if (normalized === '::1') return true;
   if (normalized.startsWith('fe80:')) return true;
   if (normalized.startsWith('fc') || normalized.startsWith('fd')) return true;
+  // IPv4-mapped IPv6 (::ffff:x.x.x.x) — extract and check the IPv4 part
+  const v4MappedMatch = normalized.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (v4MappedMatch && isPrivateOrLocalIpv4(v4MappedMatch[1])) return true;
   return false;
 }
 

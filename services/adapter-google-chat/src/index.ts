@@ -7,6 +7,7 @@
  */
 
 import http from 'node:http';
+import crypto from 'node:crypto';
 import { google } from 'googleapis';
 import {
   BaseAdapter,
@@ -20,6 +21,13 @@ import {
 
 const logger = createLogger('adapter-google-chat');
 const GOOGLE_CHAT_MAX_WEBHOOK_BYTES = Number(process.env.GOOGLE_CHAT_MAX_WEBHOOK_BYTES || 512 * 1024);
+
+function safeTokenEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ab, bb);
+}
 
 // ──── Google Chat Adapter ────────────────────────────────────────────────────
 
@@ -191,9 +199,9 @@ class GoogleChatAdapter extends BaseAdapter {
     const payloadToken = String(event?.token || '').trim();
 
     return (
-      (authBearer.length > 0 && authBearer === expected) ||
-      (headerToken.length > 0 && headerToken === expected) ||
-      (payloadToken.length > 0 && payloadToken === expected)
+      (authBearer.length > 0 && safeTokenEqual(authBearer, expected)) ||
+      (headerToken.length > 0 && safeTokenEqual(headerToken, expected)) ||
+      (payloadToken.length > 0 && safeTokenEqual(payloadToken, expected))
     );
   }
 

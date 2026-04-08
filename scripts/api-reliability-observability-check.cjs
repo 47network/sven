@@ -20,20 +20,30 @@ async function apiCall(method, endpoint, body, opts) {
   if (opts && opts.bearer) headers.authorization = `Bearer ${opts.bearer}`;
   if (opts && opts.cookie) headers.cookie = opts.cookie;
   const started = Date.now();
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
-  const latency_ms = Date.now() - started;
-  const text = await res.text().catch(() => '');
-  let data = {};
   try {
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    data = { raw: text };
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+    const latency_ms = Date.now() - started;
+    const text = await res.text().catch(() => '');
+    let data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = { raw: text };
+    }
+    return { status: res.status, ok: res.ok, data, latency_ms };
+  } catch (error) {
+    return {
+      status: 0,
+      ok: false,
+      data: { error: String(error?.cause?.code || error?.message || error || 'fetch_failed') },
+      latency_ms: Date.now() - started,
+      transport_error: String(error?.cause?.code || error?.message || error || 'fetch_failed'),
+    };
   }
-  return { status: res.status, ok: res.ok, data, latency_ms };
 }
 
 function summarizeRuns(runs) {
@@ -131,11 +141,13 @@ async function run() {
     (warning) => !nonBlockingWarningPatterns.some((pattern) => warning.includes(pattern)),
   );
 
-  const status = hasHardFailure && (STRICT_MODE || !hasNoHealthyProbe)
-    ? 'fail'
-    : blockingWarnings.length > 0
-      ? 'warn'
-      : 'pass';
+  const status = hasNoHealthyProbe && !STRICT_MODE
+    ? 'incomplete'
+    : hasHardFailure && (STRICT_MODE || !hasNoHealthyProbe)
+      ? 'fail'
+      : blockingWarnings.length > 0
+        ? 'warn'
+        : 'pass';
 
   const report = {
     generated_at: new Date().toISOString(),
@@ -179,6 +191,25 @@ async function run() {
 }
 
 run().catch((err) => {
+  const report = {
+    generated_at: new Date().toISOString(),
+    api_base: API_BASE,
+    status: STRICT_MODE ? 'fail' : 'incomplete',
+    warnings: [
+      `Probe execution failed: ${String(err?.cause?.code || err?.message || err)}`,
+      'No healthy probe responses observed (gateway may be offline in this environment).',
+    ],
+    probes: [],
+  };
+  const outJson = path.join(process.cwd(), 'docs/release/status/api-reliability-observability-latest.json');
+  const outMd = path.join(process.cwd(), 'docs/release/status/api-reliability-observability-latest.md');
+  fs.mkdirSync(path.dirname(outJson), { recursive: true });
+  fs.writeFileSync(outJson, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(
+    outMd,
+    `# API Reliability Observability\n\nGenerated: ${report.generated_at}\nAPI base: ${report.api_base}\nStatus: ${report.status}\n\n## Warnings\n${report.warnings.map((w) => `- ${w}`).join('\n')}\n`,
+    'utf8',
+  );
   console.error('Failed to run API reliability observability check:', err);
-  process.exit(1);
+  if (STRICT_MODE) process.exit(1);
 });

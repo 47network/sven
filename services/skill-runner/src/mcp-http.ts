@@ -51,8 +51,11 @@ function isPrivateOrLocalIpv4(hostname: string): boolean {
 function isPrivateOrLocalIpv6(hostname: string): boolean {
   const normalized = hostname.toLowerCase();
   if (normalized === '::1') return true;
+  if (normalized === '::') return true;
   if (normalized.startsWith('fe80:')) return true; // link-local
   if (normalized.startsWith('fc') || normalized.startsWith('fd')) return true; // unique local
+  const ipv4Mapped = normalized.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (ipv4Mapped && isPrivateOrLocalIpv4(ipv4Mapped[1])) return true;
   return false;
 }
 

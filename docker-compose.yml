@@ -677,6 +677,11 @@ services:
       - WAKE_WORD_BASE_URL=${WAKE_WORD_BASE_URL:-http://wake-word:${WAKE_WORD_PORT:-4400}}
       - WAKE_WORD_STORAGE=${WAKE_WORD_STORAGE:-/var/lib/sven/wake-word}
       - WAKE_WORD_STORAGE_RETENTION_DAYS=${WAKE_WORD_STORAGE_RETENTION_DAYS:-7}
+      - WAKE_WORD_SELF_DETECT=${WAKE_WORD_SELF_DETECT:-true}
+      - WAKE_WORD_SIGNING_SECRET=${WAKE_WORD_SIGNING_SECRET}
+      - OPENWAKEWORD_DETECT_URL=${OPENWAKEWORD_DETECT_URL:-http://openwakeword-detector:4410}
+      - OPENWAKEWORD_DETECT_TIMEOUT_MS=${OPENWAKEWORD_DETECT_TIMEOUT_MS:-10000}
+      - OPENWAKEWORD_THRESHOLD=${OPENWAKEWORD_THRESHOLD:-0.4}
       - WAKE_WORD_GATEWAY_URL=${WAKE_WORD_GATEWAY_URL:-http://gateway-api:${GATEWAY_PORT:-3000}}
       - SVEN_ADAPTER_TOKEN=${SVEN_ADAPTER_TOKEN}
       - NODE_ENV=${NODE_ENV:-production}
@@ -691,6 +696,28 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
+      openwakeword-detector:
+        condition: service_started
+    logging: *default-logging
+
+  openwakeword-detector:
+    build:
+      context: ./services/openwakeword-detector
+    image: ${REGISTRY:-sven}/openwakeword-detector:${OPENWAKEWORD_DETECTOR_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - OPENWAKEWORD_PORT=${OPENWAKEWORD_PORT:-4410}
+      - OPENWAKEWORD_MODEL_PATHS=${OPENWAKEWORD_MODEL_PATHS:-}
+      - OPENWAKEWORD_MODEL_NAMES=${OPENWAKEWORD_MODEL_NAMES:-hey_mycroft_v0.1}
+      - OPENWAKEWORD_PHRASE_MAP=${OPENWAKEWORD_PHRASE_MAP:-hey sven=hey mycroft}
+      - OPENWAKEWORD_THRESHOLD=${OPENWAKEWORD_THRESHOLD:-0.4}
+      - OPENWAKEWORD_MAX_AUDIO_BYTES=${OPENWAKEWORD_MAX_AUDIO_BYTES:-2097152}
+      - OPENWAKEWORD_DEBUG_TOP_K=${OPENWAKEWORD_DEBUG_TOP_K:-5}
+      - LOG_LEVEL=${OPENWAKEWORD_LOG_LEVEL:-INFO}
+    ports:
+      - "${OPENWAKEWORD_PORT:-4410}:4410"
+    networks:
+      - core
     logging: *default-logging
 
   # ── Workflow Executor ───────────────────────────────────────

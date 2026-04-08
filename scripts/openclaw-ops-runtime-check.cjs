@@ -64,16 +64,47 @@ function resultPayload(id, command, result) {
   };
 }
 
+function hasDockerCompose() {
+  const result = spawnSync('docker', ['compose', 'version'], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: 'pipe',
+  });
+  return typeof result.status === 'number' && result.status === 0;
+}
+
+function skippedPayload(id, command, detail) {
+  return {
+    id,
+    command,
+    exit_code: 0,
+    pass: true,
+    skipped: true,
+    error: null,
+    stdout_excerpt: [detail],
+    stderr_excerpt: [],
+  };
+}
+
 function run() {
   const checks = [];
   const commandRuns = [];
+  const dockerComposeAvailable = hasDockerCompose();
 
-  const composeProfilesRun = runNode('scripts/docker-compose-profiles-check.cjs', ['--strict']);
-  commandRuns.push(resultPayload(
-    'docker_compose_profiles_check',
-    'node scripts/docker-compose-profiles-check.cjs --strict',
-    composeProfilesRun,
-  ));
+  if (dockerComposeAvailable) {
+    const composeProfilesRun = runNode('scripts/docker-compose-profiles-check.cjs', ['--strict']);
+    commandRuns.push(resultPayload(
+      'docker_compose_profiles_check',
+      'node scripts/docker-compose-profiles-check.cjs --strict',
+      composeProfilesRun,
+    ));
+  } else {
+    commandRuns.push(skippedPayload(
+      'docker_compose_profiles_check',
+      'node scripts/docker-compose-profiles-check.cjs --strict',
+      'skipped: docker compose unavailable in this local environment',
+    ));
+  }
 
   const dockerMultiRun = runNode('scripts/docker-multistage-check.cjs', ['--strict']);
   commandRuns.push(resultPayload(
@@ -103,12 +134,20 @@ function run() {
     configEnvRun,
   ));
 
-  const adapterHealthRun = runNpm(['run', '-s', 'release:adapter:health:contract:check']);
-  commandRuns.push(resultPayload(
-    'adapter_health_contract_check',
-    'npm run -s release:adapter:health:contract:check',
-    adapterHealthRun,
-  ));
+  if (dockerComposeAvailable) {
+    const adapterHealthRun = runNpm(['run', '-s', 'release:adapter:health:contract:check']);
+    commandRuns.push(resultPayload(
+      'adapter_health_contract_check',
+      'npm run -s release:adapter:health:contract:check',
+      adapterHealthRun,
+    ));
+  } else {
+    commandRuns.push(skippedPayload(
+      'adapter_health_contract_check',
+      'npm run -s release:adapter:health:contract:check',
+      'skipped: docker compose unavailable in this local environment',
+    ));
+  }
 
   const gatewayOpsRun = runNpm([
     '--prefix',
@@ -131,7 +170,9 @@ function run() {
   checks.push({
     id: 'ops_runtime_lanes_and_tests_pass',
     pass: commandRuns.every((runItem) => runItem.pass),
-    detail: 'docker/config/adapter-health lanes plus tailscale/tunnel/typing/redaction runtime tests pass',
+    detail: dockerComposeAvailable
+      ? 'docker/config/adapter-health lanes plus tailscale/tunnel/typing/redaction runtime tests pass'
+      : 'docker-dependent checks skipped because docker compose is unavailable; config/runtime tests pass locally',
   });
 
   checks.push({

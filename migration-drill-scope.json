@@ -1,0 +1,11 @@
+{
+  "mode": "full_series",
+  "skip_incompatible": false,
+  "id_mode": "text",
+  "max_series": null,
+  "validated_databases": [
+    "sven",
+    "sven_copy",
+    "sven_restore"
+  ]
+}

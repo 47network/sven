@@ -135,7 +135,8 @@ class CustomShapeSpec {
   int get primaryArgb {
     final c = HSLColor.fromAHSL(1.0, primaryHue.clamp(0.0, 360.0), 0.75, 0.55);
     final rgb = c.toColor();
-    return rgb.toARGB32();
+    // ignore: deprecated_member_use
+    return rgb.value;
   }
 
   /// Derived: secondary Color
@@ -143,13 +144,15 @@ class CustomShapeSpec {
     final c =
         HSLColor.fromAHSL(1.0, secondaryHue.clamp(0.0, 360.0), 0.70, 0.60);
     final rgb = c.toColor();
-    return rgb.toARGB32();
+    // ignore: deprecated_member_use
+    return rgb.value;
   }
 
   /// Derived: background gradient
   List<int> get gradientArgb {
     final bg = HSLColor.fromAHSL(1.0, primaryHue.clamp(0.0, 360.0), 0.30, 0.07);
-    return [bg.toColor().toARGB32(), primaryArgb, secondaryArgb];
+    // ignore: deprecated_member_use
+    return [bg.toColor().value, primaryArgb, secondaryArgb];
   }
 
   /// Serialize to JSON for persistence.

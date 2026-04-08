@@ -1,9 +1,8 @@
-import fastify from 'fastify';
+import fastify, { type FastifyReply, type FastifyRequest } from 'fastify';
 import { join, basename, extname } from 'node:path';
 import { promises as fs } from 'node:fs';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { lookup } from 'node:dns/promises';
-import { isIP } from 'node:net';
 import { connect, JSONCodec, NatsConnection } from 'nats';
 import pg from 'pg';
 import { fetch } from 'undici';
@@ -11,6 +10,24 @@ import { nanoid } from 'nanoid';
 import { v7 as uuidv7 } from 'uuid';
 import { createLogger, NATS_SUBJECTS } from '@sven/shared';
 import type { EventEnvelope, WakeWordDetectionEvent } from '@sven/shared';
+import {
+  WakeWordValidationError,
+  stripTrailingSlash,
+  normalizeWakeWordMaxAudioBytes,
+  normalizeWakeWordMaxRequestBodyBytes,
+  normalizeBoolean,
+  normalizeDetectorTimeoutMs,
+  normalizeDetectorThreshold,
+  normalizeBase64AudioPayload,
+  estimateBase64DecodedBytes,
+  isBlockedAudioHostname,
+  isBlockedAudioIp,
+  guessExtension,
+  guessMimeFromExtension,
+  buildMetadata,
+  attachDetectorMetadata,
+  type WakeWordDetectorDecision,
+} from './utils.js';
 
 const logger = createLogger('wake-word');
 const jc = JSONCodec<EventEnvelope<WakeWordDetectionEvent>>();
@@ -31,6 +48,12 @@ const wakeWordAudioUrlAllowlist = (process.env.WAKE_WORD_AUDIO_URL_ALLOWLIST || 
   .split(',')
   .map((value) => value.trim().toLowerCase())
   .filter(Boolean);
+const wakeWordSelfDetect = normalizeBoolean(process.env.WAKE_WORD_SELF_DETECT);
+const openWakeWordDetectUrl = stripTrailingSlash(
+  process.env.OPENWAKEWORD_DETECT_URL || 'http://openwakeword-detector:4410',
+);
+const openWakeWordDetectTimeoutMs = normalizeDetectorTimeoutMs(process.env.OPENWAKEWORD_DETECT_TIMEOUT_MS);
+const openWakeWordThreshold = normalizeDetectorThreshold(process.env.OPENWAKEWORD_THRESHOLD);
 const gatewayUrl = process.env.WAKE_WORD_GATEWAY_URL || `http://gateway-api:${process.env.GATEWAY_PORT || 3000}`;
 const adapterToken = process.env.SVEN_ADAPTER_TOKEN;
 const databaseUrl = process.env.DATABASE_URL;
@@ -52,23 +75,11 @@ if (!wakeWordSigningSecret) {
 const pool = new pg.Pool({ connectionString: databaseUrl });
 let nc: NatsConnection | null = null;
 
-class WakeWordValidationError extends Error {
-  statusCode: number;
-  code: string;
-
-  constructor(statusCode: number, code: string, message: string) {
-    super(message);
-    this.name = 'WakeWordValidationError';
-    this.statusCode = statusCode;
-    this.code = code;
-  }
-}
-
 async function main() {
   await fs.mkdir(storageDir, { recursive: true });
 
   const app = fastify({ logger: false, bodyLimit: wakeWordMaxRequestBodyBytes });
-  app.get('/audio/:file', async (request, reply) => {
+  app.get('/audio/:file', async (request: FastifyRequest, reply: FastifyReply) => {
     const params = request.params as { file?: string };
     const query = request.query as { expires?: string | number; sig?: string };
 
@@ -113,12 +124,12 @@ async function main() {
     reply.header('Content-Type', contentType).send(audio);
   });
   app.get('/healthz', async () => ({ success: true }));
-  app.setErrorHandler((error, _, reply) => {
+  app.setErrorHandler((error: Error, _: FastifyRequest, reply: FastifyReply) => {
     logger.error('Request error', { error: String(error) });
     reply.status(500).send({ success: false, error: { message: 'Internal server error' } });
   });
 
-  app.post('/v1/wake-word/detection', async (request, reply) => {
+  app.post('/v1/wake-word/detection', async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as WakeWordRequestBody;
     if (!body.chat_id || !body.channel || !body.sender_identity_id || !body.wake_word) {
       reply.status(400).send({
@@ -131,7 +142,26 @@ async function main() {
     try {
       const channelMessageId = body.channel_message_id || `wake-${nanoid()}`;
       const audio = await resolveAudio(body);
-      const metadata = buildMetadata(body);
+      const detectorDecision = wakeWordSelfDetect ? await detectWakeWord(body, audio) : null;
+      if (detectorDecision && !detectorDecision.detected) {
+        logger.info('Wake-word detector rejected audio window', {
+          wake_word: body.wake_word,
+          target_label: detectorDecision.targetLabel,
+          confidence: detectorDecision.confidence,
+        });
+        reply.status(202).send({
+          success: true,
+          data: {
+            detected: false,
+            confidence: detectorDecision.confidence ?? null,
+            matched_label: detectorDecision.matchedLabel ?? null,
+          },
+        });
+        return;
+      }
+
+      const metadata = attachDetectorMetadata(buildMetadata(body), detectorDecision);
+      const effectiveConfidence = detectorDecision?.confidence ?? body.confidence;
       const gatewayResponse = await forwardToGateway({
         channel: body.channel,
         channel_message_id: channelMessageId,
@@ -146,11 +176,20 @@ async function main() {
       const messageEventId = gatewayResponse.event_id;
 
       await Promise.all([
-        storeWakeWordEvent(detectionId, body, audio, metadata, channelMessageId, messageEventId),
-        publishWakeWordEvent(detectionId, body, audio, metadata, channelMessageId, messageEventId),
+        storeWakeWordEvent(detectionId, body, audio, metadata, channelMessageId, messageEventId, effectiveConfidence),
+        publishWakeWordEvent(detectionId, body, audio, metadata, channelMessageId, messageEventId, effectiveConfidence),
       ]);
 
-      reply.status(202).send({ success: true, data: { detection_id: detectionId, message_event_id: messageEventId } });
+      reply.status(202).send({
+        success: true,
+        data: {
+          detection_id: detectionId,
+          message_event_id: messageEventId,
+          detected: true,
+          confidence: effectiveConfidence ?? null,
+          matched_label: detectorDecision?.matchedLabel ?? null,
+        },
+      });
     } catch (error) {
       if (error instanceof WakeWordValidationError) {
         reply.status(error.statusCode).send({
@@ -176,10 +215,6 @@ main().catch((err) => {
   process.exit(1);
 });
 
-function stripTrailingSlash(value: string): string {
-  return value.endsWith('/') ? value.slice(0, -1) : value;
-}
-
 interface WakeWordRequestBody {
   chat_id: string;
   channel: string;
@@ -199,6 +234,17 @@ interface WakeWordRequestBody {
 interface AudioReference {
   audio_url: string;
   audio_mime?: string;
+}
+
+interface WakeWordDetectorResponseBody {
+  data?: {
+    detected?: boolean;
+    confidence?: number;
+    matched_label?: string | null;
+    target_label?: string | null;
+    threshold?: number;
+    scores?: Record<string, number>;
+  };
 }
 
 function signStoredAudioUrl(fileName: string, expires: number): string {
@@ -263,65 +309,6 @@ async function storeBase64Audio(base64: string, mime?: string): Promise<AudioRef
   };
 }
 
-function normalizeWakeWordMaxAudioBytes(raw: string | undefined): number {
-  const parsed = Number(raw);
-  if (!Number.isFinite(parsed) || parsed <= 0) return 2 * 1024 * 1024;
-  return Math.min(Math.max(Math.floor(parsed), 32 * 1024), 10 * 1024 * 1024);
-}
-
-function normalizeWakeWordMaxRequestBodyBytes(raw: string | undefined): number {
-  const parsed = Number(raw);
-  if (!Number.isFinite(parsed) || parsed <= 0) return 4 * 1024 * 1024;
-  return Math.min(Math.max(Math.floor(parsed), 128 * 1024), 20 * 1024 * 1024);
-}
-
-function normalizeBase64AudioPayload(payload: string): string {
-  const raw = String(payload || '').trim();
-  const comma = raw.indexOf(',');
-  const candidate = raw.startsWith('data:') && comma >= 0 ? raw.slice(comma + 1) : raw;
-  return candidate.replace(/\s+/g, '');
-}
-
-function estimateBase64DecodedBytes(payload: string): number {
-  const normalized = normalizeBase64AudioPayload(payload);
-  if (!normalized) return 0;
-  let padding = 0;
-  if (normalized.endsWith('==')) padding = 2;
-  else if (normalized.endsWith('=')) padding = 1;
-  return Math.floor((normalized.length * 3) / 4) - padding;
-}
-
-function isBlockedAudioHostname(hostnameRaw: string): boolean {
-  const hostname = String(hostnameRaw || '').trim().toLowerCase();
-  if (!hostname) return true;
-  if (hostname === 'localhost' || hostname === 'metadata.google.internal') return true;
-  if (hostname.endsWith('.local') || hostname.endsWith('.internal')) return true;
-  return false;
-}
-
-function isBlockedAudioIp(ipRaw: string): boolean {
-  const ip = String(ipRaw || '').trim().toLowerCase();
-  if (!ip) return true;
-  const family = isIP(ip);
-  if (family === 4) {
-    const [a, b] = ip.split('.').map((part) => Number(part));
-    if (a === 10) return true;
-    if (a === 127) return true;
-    if (a === 0) return true;
-    if (a === 169 && b === 254) return true;
-    if (a === 172 && b >= 16 && b <= 31) return true;
-    if (a === 192 && b === 168) return true;
-    return false;
-  }
-  if (family === 6) {
-    if (ip === '::1') return true;
-    if (ip.startsWith('fe80:')) return true;
-    if (ip.startsWith('fc') || ip.startsWith('fd')) return true;
-    return false;
-  }
-  return false;
-}
-
 function isAllowlistedAudioHost(hostnameRaw: string): boolean {
   if (wakeWordAudioUrlAllowlist.length === 0) return true;
   const hostname = String(hostnameRaw || '').trim().toLowerCase();
@@ -369,53 +356,45 @@ async function validateExternalAudioUrl(urlRaw: string): Promise<string> {
   return url.toString();
 }
 
-function guessExtension(mime?: string): string {
-  const normalized = mime?.toLowerCase() || '';
-  const mapping: Record<string, string> = {
-    'audio/wav': '.wav',
-    'audio/x-wav': '.wav',
-    'audio/webm': '.webm',
-    'audio/mp4': '.mp4',
-    'audio/mpeg': '.mp3',
-    'audio/ogg': '.ogg',
-    'audio/flac': '.flac',
-  };
+async function detectWakeWord(
+  body: WakeWordRequestBody,
+  audio: AudioReference,
+): Promise<WakeWordDetectorDecision> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), openWakeWordDetectTimeoutMs);
 
-  if (mapping[normalized]) {
-    return mapping[normalized];
-  }
-  if (normalized.includes('/')) {
-    return `.${normalized.split('/')[1]}`;
-  }
-  return '.wav';
-}
+  try {
+    const response = await fetch(`${openWakeWordDetectUrl}/v1/detect`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        wake_word: body.wake_word,
+        threshold: openWakeWordThreshold,
+        audio_url: audio.audio_url,
+      }),
+      signal: controller.signal,
+    });
 
-function guessMimeFromExtension(extension: string): string {
-  const normalized = extension.toLowerCase();
-  const reverseMap: Record<string, string> = {
-    '.wav': 'audio/wav',
-    '.webm': 'audio/webm',
-    '.mp3': 'audio/mpeg',
-    '.ogg': 'audio/ogg',
-    '.flac': 'audio/flac',
-  };
-  return reverseMap[normalized] || 'audio/wav';
-}
+    if (!response.ok) {
+      const bodyText = await response.text().catch(() => '');
+      throw new Error(`Detector responded ${response.status}: ${bodyText}`);
+    }
 
-function buildMetadata(body: WakeWordRequestBody): Record<string, unknown> {
-  const base = { ...(body.metadata || {}) };
-  base.wake_word = { name: body.wake_word, confidence: body.confidence };
-  if (body.language) {
-    base.language = body.language;
+    const detectorBody = (await response.json().catch(() => null)) as WakeWordDetectorResponseBody | null;
+    return {
+      detected: Boolean(detectorBody?.data?.detected),
+      confidence: detectorBody?.data?.confidence,
+      matchedLabel: detectorBody?.data?.matched_label ?? null,
+      targetLabel: detectorBody?.data?.target_label ?? null,
+      threshold: detectorBody?.data?.threshold,
+      scores: detectorBody?.data?.scores ?? {},
+    };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new WakeWordValidationError(502, 'WAKE_WORD_DETECTOR_FAILED', `Wake-word detector failed: ${reason}`);
+  } finally {
+    clearTimeout(timeout);
   }
-  if (typeof body.mode === 'string') {
-    base.mode = body.mode;
-  }
-  base.source = 'wake-word';
-  if (typeof body.transcribe === 'boolean') {
-    base.transcribe = body.transcribe;
-  }
-  return base;
 }
 
 interface GatewayResponseBody {
@@ -469,6 +448,7 @@ async function storeWakeWordEvent(
   metadata: Record<string, unknown>,
   channelMessageId: string,
   messageId: string,
+  confidence: number | null | undefined,
 ) {
   try {
     await pool.query(
@@ -483,7 +463,7 @@ async function storeWakeWordEvent(
         messageId,
         audio.audio_url,
         audio.audio_mime,
-        body.confidence ?? null,
+        confidence ?? null,
         JSON.stringify(metadata || {}),
       ],
     );
@@ -499,6 +479,7 @@ async function publishWakeWordEvent(
   metadata: Record<string, unknown>,
   channelMessageId: string,
   messageId: string,
+  confidence: number | null | undefined,
 ) {
   if (!nc) {
     logger.warn('NATS connection unavailable; skipping wake-word event publish');
@@ -518,7 +499,7 @@ async function publishWakeWordEvent(
       audio_url: audio.audio_url,
       audio_mime: audio.audio_mime,
       wake_word: body.wake_word,
-      confidence: body.confidence,
+      confidence: confidence ?? undefined,
       language: body.language,
       mode: body.mode,
       metadata,

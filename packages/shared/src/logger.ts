@@ -17,7 +17,7 @@ const REDACTED = '[REDACTED]';
 const SENSITIVE_KEY_PATTERN = /(password|passphrase|token|secret|api[_-]?key|authorization|cookie|private[_-]?key|access[_-]?key)/i;
 const BUILTIN_REDACTION_PATTERNS: RegExp[] = [
   /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
-  /\b(?:\d[ -]*?){13,19}\b/g,
+  /\b\d(?:[ -]?\d){12,18}\b/g,
   /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g,
   /\bsk-[a-z0-9_-]{16,}\b/gi,
   /\bgh[pousr]_[A-Za-z0-9]{20,}\b/g,

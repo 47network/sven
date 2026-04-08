@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../app/app_models.dart';
+import '../../app/sven_app_icon.dart';
 import '../../app/sven_tokens.dart';
 
 /// Premium 4-screen onboarding — meet Sven, features, pick style, let's go.
@@ -228,33 +229,20 @@ class _MeetSvenPage extends StatelessWidget {
               return Transform.scale(
                 scale: scale,
                 child: Container(
-                  width: 120,
-                  height: 120,
+                  width: 136,
+                  height: 136,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [tokens.primary, tokens.secondary],
+                    gradient: RadialGradient(
+                      colors: [
+                        tokens.primary.withValues(alpha: glowAlpha + 0.08),
+                        tokens.secondary.withValues(alpha: 0.18),
+                        Colors.transparent,
+                      ],
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: tokens.primary.withValues(alpha: glowAlpha),
-                        blurRadius: 40,
-                        spreadRadius: 10,
-                      ),
-                    ],
                   ),
-                  child: const Center(
-                    child: Text(
-                      'S',
-                      style: TextStyle(
-                        color: Color(0xFF040712),
-                        fontSize: 52,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -2,
-                      ),
-                    ),
+                  child: Center(
+                    child: const SvenAppIcon(size: 104, borderRadius: 32),
                   ),
                 ),
               );
@@ -533,22 +521,19 @@ class _StyleCard extends StatelessWidget {
           children: [
             // Mini orb preview
             Container(
-              width: 40,
-              height: 40,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: accentColor,
-              ),
-              child: Center(
-                child: Text(
-                  'S',
-                  style: TextStyle(
-                    color: bgColor,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: accentColor.withValues(alpha: 0.18),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                ),
+                ],
               ),
+              child: const SvenAppIcon(size: 32, borderRadius: 14),
             ),
             const SizedBox(height: 16),
             Text(

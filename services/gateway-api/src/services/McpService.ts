@@ -167,6 +167,18 @@ export class McpService {
       authToken?: string | null;
     },
   ): Promise<void> {
+    if (params.transport === 'http' || params.transport === 'sse') {
+      let parsed: URL;
+      try { parsed = new URL(params.url); } catch { throw new Error('MCP server URL is not a valid URL'); }
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        throw new Error('MCP server URL must use http or https');
+      }
+      const host = parsed.hostname.toLowerCase();
+      if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '::1'
+        || host === '169.254.169.254' || host === 'metadata.google.internal') {
+        throw new Error('MCP server URL targets a blocked host');
+      }
+    }
     await this.requireOrganizationScopedTable('mcp_servers', 'servers');
     const hasServerOrg = true;
     const hasAuthToken = await this.hasAuthTokenColumn();
@@ -690,7 +702,7 @@ export class McpService {
       const child = spawn(spec.command, spec.args, {
         cwd: spec.cwd || process.cwd(),
         env: { ...process.env, ...(spec.env || {}) },
-        shell: spec.shell ?? false,
+        shell: false,
         stdio: ['pipe', 'pipe', 'pipe'],
       });
 
@@ -726,6 +738,10 @@ export class McpService {
 
       child.stdout.on('data', (chunk) => {
         stdoutBuffer += String(chunk || '');
+        if (stdoutBuffer.length > 10_485_760) {
+          finish(new Error('MCP stdio response exceeded max buffer size (10MB)'));
+          return;
+        }
         const lines = stdoutBuffer.split(/\r?\n/);
         stdoutBuffer = lines.pop() || '';
 

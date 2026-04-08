@@ -466,7 +466,8 @@ async function callOllamaNonStreaming(
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`Ollama error: ${response.status} ${errText}`);
+    logger.error('Ollama upstream error', { status: response.status, detail: errText.slice(0, 1024) });
+    throw new Error(`LLM provider returned ${response.status}`);
   }
 
   const data = (await response.json()) as any;
@@ -515,7 +516,8 @@ async function callOpenAINonStreaming(
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`LLM API error: ${response.status} ${errText}`);
+    logger.error('OpenAI-compat upstream error', { status: response.status, detail: errText.slice(0, 1024) });
+    throw new Error(`LLM provider returned ${response.status}`);
   }
 
   const data = (await response.json()) as any;
@@ -561,6 +563,17 @@ const openAiCompatUserWindow = new Map<string, { count: number; windowStartMs: n
 const openAiCompatOrgWindow = new Map<string, { count: number; windowStartMs: number }>();
 const openAiCompatCallerWindow = new Map<string, { count: number; windowStartMs: number }>();
 const OPENAI_COMPAT_WINDOW_MS = 60_000;
+const MAX_RATE_LIMIT_MAP_SIZE = 50_000;
+
+function pruneExpiredWindows(nowMs: number): void {
+  const expiry = OPENAI_COMPAT_WINDOW_MS * 2;
+  for (const bucket of [openAiCompatUserWindow, openAiCompatOrgWindow, openAiCompatCallerWindow]) {
+    if (bucket.size <= MAX_RATE_LIMIT_MAP_SIZE) continue;
+    for (const [key, data] of bucket) {
+      if (nowMs - data.windowStartMs >= expiry) bucket.delete(key);
+    }
+  }
+}
 
 function hashCallerToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex').slice(0, 16);
@@ -695,6 +708,7 @@ function shouldRateLimitOpenAiCompat(
   subject: OpenAIRateLimitSubject,
 ): OpenAIRateLimitDecision {
   const nowMs = Date.now();
+  pruneExpiredWindows(nowMs);
   const baseUserLimit = parsePositiveInt(process.env.OPENAI_COMPAT_USER_RPM, 60);
   const baseOrgLimit = parsePositiveInt(process.env.OPENAI_COMPAT_ORG_RPM, 180);
   const baseCallerLimit = parsePositiveInt(process.env.OPENAI_COMPAT_CALLER_RPM, 90);
@@ -1106,6 +1120,17 @@ export async function registerOpenAIRoutes(app: FastifyInstance, pool: pg.Pool) 
       });
     }
 
+    if (body.messages.length > 2048) {
+      return reply.status(400).send({
+        error: {
+          message: '`messages` array exceeds maximum length of 2048.',
+          type: 'invalid_request_error',
+          param: 'messages',
+          code: null,
+        },
+      });
+    }
+
     // Resolve model from registry
     const model = await resolveModel(pool, body.model, auth.orgId);
     if (!model) {
@@ -1311,6 +1336,17 @@ export async function registerOpenAIRoutes(app: FastifyInstance, pool: pg.Pool) 
       return reply.status(400).send({
         error: {
           message: '`input` must be a string or a non-empty message array.',
+          type: 'invalid_request_error',
+          param: 'input',
+          code: null,
+        },
+      });
+    }
+
+    if (messages.length > 2048) {
+      return reply.status(400).send({
+        error: {
+          message: '`input` array exceeds maximum length of 2048.',
           type: 'invalid_request_error',
           param: 'input',
           code: null,

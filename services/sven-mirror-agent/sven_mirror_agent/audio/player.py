@@ -66,7 +66,7 @@ class AudioService:
         Speak text aloud. Strategy:
         1. If gateway TTS is reachable, use Sven's piper service
         2. Fallback to pyttsx3 local TTS
-        3. Fallback to espeak
+        3. Fallback to speech-dispatcher / espeak
         """
         # Try gateway TTS (piper) first
         if gateway_url and api_key:
@@ -84,6 +84,12 @@ class AudioService:
             return {"spoken": True, "engine": "pyttsx3", "text": text}
         except (ImportError, RuntimeError):
             pass
+
+        # Fallback: speech-dispatcher
+        spd_say = shutil.which("spd-say")
+        if spd_say:
+            subprocess.run([spd_say, text], capture_output=True)
+            return {"spoken": True, "engine": "spd-say", "text": text}
 
         # Fallback: espeak
         espeak = shutil.which("espeak") or shutil.which("espeak-ng")

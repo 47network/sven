@@ -361,6 +361,24 @@ async function seed() {
     }
     logger.info('Seeded registry publishers');
 
+    // ── Seed default Ollama models ──
+    // Endpoint stored as 'ollama://local'; agent-runtime overrides with OLLAMA_URL at call time.
+    const ollamaModels = [
+      { name: 'llama3.2:3b',      modelId: 'llama3.2:3b',      capabilities: ['chat'],       description: 'Meta Llama 3.2 3B — fast, compact, general purpose' },
+      { name: 'nomic-embed-text', modelId: 'nomic-embed-text', capabilities: ['embed'],      description: 'Nomic Embed Text — local embeddings' },
+    ];
+
+    for (const m of ollamaModels) {
+      await client.query(
+        `INSERT INTO model_registry
+           (id, name, provider, model_id, endpoint, capabilities, is_local, is_active, organization_id, created_by, created_at)
+         SELECT gen_random_uuid()::text, $1, 'ollama', $2, 'ollama://local', $3, TRUE, TRUE, $4, $5, NOW()
+         WHERE NOT EXISTS (SELECT 1 FROM model_registry WHERE provider = 'ollama' AND model_id = $2)`,
+        [m.name, m.modelId, m.capabilities, organizationId, actualAdminId],
+      );
+    }
+    logger.info('Seeded default Ollama models', { count: ollamaModels.length });
+
     logger.info('Seed complete');
   } finally {
     await client.end();

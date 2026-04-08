@@ -1,8 +1,6 @@
 import { AckPolicy, DeliverPolicy, connect, JSONCodec, StringCodec, type NatsConnection } from 'nats';
 import { Pool } from 'pg';
-import { nanoid } from 'nanoid';
-import { randomUUID } from 'node:crypto';
-import { NATS_SUBJECTS, type EventEnvelope, type RuntimeDispatchEvent } from '@sven/shared';
+import { NATS_SUBJECTS, generateTaskId, ClientAttestor, CoordinatorSession, FeatureFlagRegistry, TokenBudgetTracker, type EventEnvelope, type RuntimeDispatchEvent } from '@sven/shared';
 import { applyDataShapingPipeline, type DataShapeOperator } from './data-shaping.js';
 
 const DEFAULT_WORKFLOW_LLM_TIMEOUT_MS = 45_000;
@@ -58,10 +56,80 @@ class WorkflowExecutor {
   private pool: Pool;
   private nats_url: string;
   private nc: NatsConnection | null = null;
+  private clientAttestor: ClientAttestor | null = null;
+  private featureFlags: FeatureFlagRegistry;
+  private workflowBudgets = new Map<string, TokenBudgetTracker>();
 
   constructor(pool: Pool, nats_url: string) {
     this.pool = pool;
     this.nats_url = nats_url;
+
+    // Initialize feature flag registry for workflow runtime gating
+    this.featureFlags = new FeatureFlagRegistry({ source: 'workflow-executor', warnOnStaleFlags: true });
+    this.featureFlags.register({
+      name: 'token-budget.workflow',
+      type: 'boolean',
+      value: false,
+      description: 'Enable per-workflow token budget tracking',
+      createdAt: '2026-04-07T00:00:00Z',
+      cleanupBy: '2027-04-07T00:00:00Z',
+      enabled: (process.env.FEATURE_TOKEN_BUDGET_WORKFLOW || '').toLowerCase() === 'true',
+    });
+    this.featureFlags.register({
+      name: 'client-attestation.enabled',
+      type: 'boolean',
+      value: false,
+      description: 'Enable HMAC attestation on inter-service messages',
+      createdAt: '2026-04-07T00:00:00Z',
+      cleanupBy: '2027-04-07T00:00:00Z',
+      enabled: (process.env.FEATURE_CLIENT_ATTESTATION_ENABLED || '').toLowerCase() === 'true',
+    });
+    console.log(`Feature flag registry initialized: ${this.featureFlags.getAllFlags().map(f => f.name).join(', ')}`);
+
+    // Initialize client attestation for inter-service message verification
+    const attestationSecret = process.env.SVEN_ATTESTATION_SECRET || '';
+    if (this.featureFlags.isEnabled('client-attestation.enabled') && attestationSecret.length >= 32) {
+      this.clientAttestor = new ClientAttestor({ secret: attestationSecret, serviceId: 'workflow-executor' });
+      console.log('Client attestation initialized for workflow-executor');
+    } else if (attestationSecret.length >= 32) {
+      this.clientAttestor = new ClientAttestor({ secret: attestationSecret, serviceId: 'workflow-executor' });
+      console.log('Client attestation initialized for workflow-executor');
+    }
+  }
+
+  /**
+   * Get or create a per-workflow token budget tracker for cost monitoring.
+   */
+  private getOrCreateWorkflowBudget(runId: string): TokenBudgetTracker {
+    let tracker = this.workflowBudgets.get(runId);
+    if (!tracker) {
+      tracker = new TokenBudgetTracker({
+        maxTotalTokens: Number(process.env.WORKFLOW_TOKEN_BUDGET_MAX_TOKENS || 0),
+        maxCostUsd: Number(process.env.WORKFLOW_TOKEN_BUDGET_MAX_COST_USD || 0),
+        maxTurns: Number(process.env.WORKFLOW_TOKEN_BUDGET_MAX_STEPS || 100),
+        compactThreshold: 0.9,
+        inputCostPer1M: Number(process.env.TOKEN_BUDGET_INPUT_COST_PER_1M || 3.0),
+        outputCostPer1M: Number(process.env.TOKEN_BUDGET_OUTPUT_COST_PER_1M || 15.0),
+      });
+      this.workflowBudgets.set(runId, tracker);
+    }
+    return tracker;
+  }
+
+  /**
+   * Create a CoordinatorSession for a workflow run.
+   * Enables task fan-out tracking, shared scratchpad, and deadline management.
+   */
+  private createCoordinatorSession(context: WorkflowRunContext): CoordinatorSession {
+    return new CoordinatorSession({
+      maxConcurrentWorkers: normalizeWorkflowExecutorConcurrency(process.env.WORKFLOW_EXECUTOR_MAX_CONCURRENCY),
+      defaultDeadlineMs: 120_000,
+      failFast: false,
+      dispatchFn: async (task) => {
+        console.log(`[coordinator] Dispatching step ${task.taskId}: ${task.instruction}`);
+        return `dispatched:${task.taskId}`;
+      },
+    });
   }
 
   async start() {
@@ -191,11 +259,18 @@ class WorkflowExecutor {
     const { run_id, chat_id, triggered_by, steps, edges, variables, step_results } = context;
     let totalStepCount = 0;
 
+    // Initialize coordinator session for this workflow run
+    const coordinator = this.createCoordinatorSession(context);
+    console.log(`[workflow-executor] Coordinator session ${coordinator.sessionId} created for run ${run_id}`);
+
     try {
       // Execute steps in topological order
       const executedSteps = new Set<string>();
       const stepsByDependencies = this.buildDependencyGraph(steps, edges);
       totalStepCount = stepsByDependencies.length;
+      if (totalStepCount > 500) {
+        throw new Error(`Workflow exceeds maximum step limit: ${totalStepCount} > 500`);
+      }
       await this.syncRunTelemetry(run_id, totalStepCount, step_results, new Date().toISOString(), true);
 
       for (const step_id of stepsByDependencies) {
@@ -227,7 +302,7 @@ class WorkflowExecutor {
 
         while (attempt <= retryPolicy.maxRetries + 1) {
           const now = new Date().toISOString();
-          const step_run_id = `wfsr_${nanoid(16)}`;
+          const step_run_id = generateTaskId('workflow_run');
 
           // Create step run record
           await this.pool.query(
@@ -324,6 +399,7 @@ class WorkflowExecutor {
             });
 
             step_results[step_id] = { status: 'completed', output, attempts: attempt, max_retries: retryPolicy.maxRetries };
+            coordinator.writeScratchpad(step_id, `step_result:${step_id}`, JSON.stringify({ status: 'completed', attempts: attempt }));
             executedSteps.add(step_id);
             await this.syncRunTelemetry(run_id, totalStepCount, step_results, step_now);
             completed = true;
@@ -449,13 +525,20 @@ class WorkflowExecutor {
         ]
       );
 
-      console.log(`[workflow-executor] Run ${run_id} completed successfully`);
+      const coordStatus = coordinator.getStatus();
+      console.log(`[workflow-executor] Run ${run_id} completed successfully`, {
+        coordinator_session: coordStatus.sessionId,
+        coordinator_running_tasks: coordStatus.running,
+        coordinator_scratchpad_size: coordStatus.scratchpadSize,
+      });
+      coordinator.destroy();
     } catch (err) {
       if (err instanceof WorkflowRunControlError && err.code === 'RUN_CANCELLED') {
         await this.markRunCancelled(run_id);
         return;
       }
       console.error(`Run ${run_id} failed:`, err);
+      coordinator.destroy();
       await this.markRunFailed(
         run_id,
         err instanceof WorkflowRunControlError ? err.code : 'RUN_EXECUTION_FAILED',
@@ -719,18 +802,18 @@ class WorkflowExecutor {
 
     // Resolve variables in params
     const resolvedParams = this.resolveVariables(params, variables);
-    const userId = String(context.user_id || variables.user_id || 'workflow-system').trim();
+    const userId = String(context.user_id || variables.user_id || '').trim();
     if (!userId) {
       throw new Error('workflow tool_call step requires user identity');
     }
 
     // Dispatch real tool run into the skill-runner pipeline.
-    const toolRunId = `wftr_${nanoid(16)}`;
-    const correlationId = randomUUID();
+    const toolRunId = generateTaskId('tool_run');
+    const correlationId = generateTaskId('coordinator_task');
     const now = new Date().toISOString();
     const envelope = {
       schema_version: '1.0',
-      event_id: randomUUID(),
+      event_id: generateTaskId('event_envelope'),
       occurred_at: now,
       data: {
         run_id: toolRunId,
@@ -809,7 +892,7 @@ class WorkflowExecutor {
     const toolName = String(step?.config?.tool_name || 'workflow.approval').trim() || 'workflow.approval';
 
     // Create approval
-    const approval_id = `appr_${nanoid(16)}`;
+    const approval_id = generateTaskId('approval');
     const now = new Date().toISOString();
 
     await this.pool.query(
@@ -835,8 +918,8 @@ class WorkflowExecutor {
       ],
     );
 
-    // Wait for approval (default 20m, configurable per-step).
-    const timeoutSec = Number(step?.config?.timeout_seconds || 1200);
+    // Wait for approval (default 20m, configurable per-step, max 1 hour).
+    const timeoutSec = Math.min(3600, Number(step?.config?.timeout_seconds || 1200));
     const maxAttempts = Math.max(1, Math.floor(Number.isFinite(timeoutSec) ? timeoutSec : 1200));
     let attempts = 0;
     while (attempts < maxAttempts) {
@@ -986,7 +1069,7 @@ class WorkflowExecutor {
       'runtime.dispatch.dead_letter',
       JSONCodec().encode({
         schema_version: '1.0',
-        event_id: randomUUID(),
+        event_id: generateTaskId('event_envelope'),
         occurred_at: now,
         data: {
           reason,
@@ -1048,7 +1131,7 @@ class WorkflowExecutor {
     }
 
     const resolvedConfig = this.resolveVariables(step?.config ?? {}, variables) as Record<string, any>;
-    const requestId = `wfnotif_${nanoid(16)}`;
+    const requestId = generateTaskId('notification');
     const timeoutSecondsRaw = Number(resolvedConfig?.delivery_timeout_seconds ?? 60);
     const timeoutSeconds = Number.isFinite(timeoutSecondsRaw) ? Math.max(5, Math.floor(timeoutSecondsRaw)) : 60;
     const deadlineAt = Date.now() + timeoutSeconds * 1000;
@@ -1100,7 +1183,7 @@ class WorkflowExecutor {
 
     const envelope = {
       schema_version: '1.0',
-      event_id: randomUUID(),
+      event_id: generateTaskId('event_envelope'),
       occurred_at: new Date().toISOString(),
       data: {
         type: String(resolvedConfig?.type || 'workflow.notification'),
@@ -1283,8 +1366,8 @@ class WorkflowExecutor {
     occurred_at: string;
     error_message?: string;
   }): Promise<void> {
-    const messageId = randomUUID();
-    const canvasEventId = randomUUID();
+    const messageId = generateTaskId('message');
+    const canvasEventId = generateTaskId('event_envelope');
     const text = params.status === 'failed'
       ? `Workflow step failed: ${params.step_id} (${params.step_type}) — ${params.error_message || 'unknown error'}`
       : `Workflow step ${params.status}: ${params.step_id} (${params.step_type})`;
@@ -1338,7 +1421,7 @@ class WorkflowExecutor {
       `INSERT INTO workflow_audit_log (id, workflow_id, run_id, action, actor_id, details, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
-        `wfa_${nanoid(16)}`,
+        generateTaskId('audit_entry'),
         params.workflow_id,
         params.run_id,
         params.action,
@@ -1479,6 +1562,7 @@ class WorkflowExecutor {
 
       const resolved: Record<string, any> = {};
       for (const [key, value] of Object.entries(params)) {
+        if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
         resolved[key] = this.resolveVariables(value, variables);
       }
       return resolved;

@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package.json ./package.json
 COPY package-lock.json ./package-lock.json
 COPY tsconfig.base.json ./tsconfig.base.json
+COPY tsconfig.json ./tsconfig.json
 COPY packages/shared/package.json ./packages/shared/package.json
 COPY services/adapter-mattermost/package.json ./services/adapter-mattermost/package.json
 RUN npm install

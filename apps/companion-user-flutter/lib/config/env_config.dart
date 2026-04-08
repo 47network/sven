@@ -17,13 +17,13 @@
 //   staging:
 //     flutter build apk --flavor staging --target lib/main_staging.dart \
 //       --dart-define=SVEN_FLAVOR=staging \
-//       --dart-define=SVEN_API_BASE=https://staging.sven.example.com \
+//       --dart-define=SVEN_API_BASE=https://staging.sven.systems \
 //       --dart-define=SVEN_ENV=staging
 //
 //   prod:
 //     flutter build apk --flavor prod --target lib/main.dart \
 //       --dart-define=SVEN_FLAVOR=prod \
-//       --dart-define=SVEN_API_BASE=https://app.sven.example.com \
+//       --dart-define=SVEN_API_BASE=https://app.sven.systems \
 //       --dart-define=SENV_ENV=production \
 //       --dart-define=SENTRY_DSN=<dsn>
 //
@@ -64,7 +64,7 @@ abstract final class EnvConfig {
   static String get apiBase {
     if (_apiBaseOverride.isNotEmpty) return _apiBaseOverride;
     if (isDev) return 'http://192.168.10.172:3000';
-    return 'https://app.sven.example.com';
+    return 'https://app.sven.systems';
   }
 
   // ── Sentry ────────────────────────────────────────────────────────────────

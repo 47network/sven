@@ -42,7 +42,7 @@ export function hasCitationMarkers(text: string): boolean {
   if (!text) return false;
 
   const ragIdPattern = /\brag:[a-f0-9]{64}\b/i;
-  const bracketPattern = /\[(\d+|source:[^\]]+)\]/i;
+  const bracketPattern = /\[(\d+|source:[^\]]{1,500})\]/i;
   return ragIdPattern.test(text) || bracketPattern.test(text);
 }
 
@@ -73,7 +73,7 @@ export function verifyCitations(text: string, citations?: CitationRef[]) {
   const ragMatches = Array.from(String(text || '').matchAll(/\brag:[a-f0-9]{64}\b/gi)).map((m) =>
     String(m[0] || '').trim(),
   );
-  const bracketMarkers = Array.from(String(text || '').matchAll(/\[(\d+|source:[^\]]+)\]/gi)).map((m) =>
+  const bracketMarkers = Array.from(String(text || '').matchAll(/\[(\d+|source:[^\]]{1,500})\]/gi)).map((m) =>
     String(m[1] || '').trim(),
   );
   const hasMarkers = ragMatches.length > 0 || bracketMarkers.length > 0;

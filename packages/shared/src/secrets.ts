@@ -60,9 +60,19 @@ export async function resolveSecretRef(ref: string): Promise<string> {
       throw new Error('Invalid sops ref');
     }
 
+    const sopsRoot = process.env.SVEN_SOPS_ROOT || '/etc/sven/secrets';
+    const realSopsRoot = await toRealAbsPath(sopsRoot);
+    if (!realSopsRoot) {
+      throw new Error('SVEN_SOPS_ROOT does not exist');
+    }
+    const targetReal = await toRealAbsPath(filePath);
+    if (!targetReal || !isWithinRoot(targetReal, realSopsRoot)) {
+      throw new Error('sops ref path is outside allowed root');
+    }
+
     const sopsBin = process.env.SVEN_SOPS_BIN || 'sops';
     const { execFile } = await import('node:child_process');
-    const child = execFile(sopsBin, ['-d', filePath], { encoding: 'utf8' });
+    const child = execFile(sopsBin, ['-d', targetReal], { encoding: 'utf8' });
     return new Promise((resolve, reject) => {
       let result = '';
       child.on('error', reject);
@@ -81,7 +91,10 @@ export async function resolveSecretRef(ref: string): Promise<string> {
     }
 
     const parsed = new URL(ref);
-    const vaultPath = `${parsed.host}${parsed.pathname}`.replace(/^\//, '');
+    const vaultPath = `${parsed.host}${parsed.pathname}`.replace(/^\//, '').replace(/\.\./g, '');
+    if (!vaultPath || vaultPath.includes('..')) {
+      throw new Error('Invalid vault path');
+    }
     const field = parsed.hash ? parsed.hash.slice(1) : '';
     const response = await fetch(`${addr.replace(/\/$/, '')}/v1/${vaultPath}`, {
       headers: { 'X-Vault-Token': token },

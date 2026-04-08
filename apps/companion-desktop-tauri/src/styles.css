@@ -98,13 +98,12 @@ body {
   margin-bottom: 20px;
 }
 
-.sidebar-orb {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #00d9ff, #0560e8 70%);
-  box-shadow: 0 0 14px rgba(0, 217, 255, 0.45);
+.sidebar-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
   flex-shrink: 0;
+  filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.22));
 }
 
 .sidebar-name {

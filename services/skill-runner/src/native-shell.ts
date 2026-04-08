@@ -95,6 +95,7 @@ function detectCommandObfuscation(command: string): string | null {
     { id: 'base64_decode_pipeline', regex: /(?:\bbase64\b[^\n\r]*\b-d\b|\bfrombase64string\s*\(|\[\s*convert\s*\]::frombase64string\s*\()/i },
     { id: 'dynamic_eval', regex: /(?:\beval\b|\binvoke-expression\b|\biex\b)/i },
     { id: 'command_substitution', regex: /(?:\$\([^)]+\)|`[^`]+`)/ },
+    { id: 'process_substitution', regex: /[<>]\(/ },
     { id: 'shell_control_operator', regex: /(?:&&|\|\||;)/ },
     { id: 'pipeline_chaining', regex: /\|/ },
     { id: 'redirection_operator', regex: /(?:^|\s)(?:\d?>>?|<|>>)(?:\s|$)/ },

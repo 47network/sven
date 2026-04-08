@@ -14,6 +14,66 @@ const MAX_TOOLS_LIST_LIMIT = 500;
 const MCP_KID_REGEX = /^[a-f0-9]{16}$/i;
 type McpMethodScope = 'mcp.initialize' | 'mcp.tools.list' | 'mcp.tools.call' | 'mcp.resources.list';
 
+/**
+ * Safe arithmetic evaluator — recursive descent parser for +, -, *, /, %, ().
+ * Replaces Function() to avoid code-injection primitive.
+ */
+function safeEvalArithmetic(expr: string): number {
+  let pos = 0;
+  const chars = expr.replace(/\s+/g, '');
+
+  function parseExpr(): number {
+    let result = parseTerm();
+    while (pos < chars.length && (chars[pos] === '+' || chars[pos] === '-')) {
+      const op = chars[pos++];
+      const right = parseTerm();
+      result = op === '+' ? result + right : result - right;
+    }
+    return result;
+  }
+
+  function parseTerm(): number {
+    let result = parseFactor();
+    while (pos < chars.length && (chars[pos] === '*' || chars[pos] === '/' || chars[pos] === '%')) {
+      const op = chars[pos++];
+      const right = parseFactor();
+      if (op === '*') result *= right;
+      else if (op === '/') result /= right;
+      else result %= right;
+    }
+    return result;
+  }
+
+  function parseFactor(): number {
+    if (chars[pos] === '(') {
+      pos++;
+      const result = parseExpr();
+      if (chars[pos] !== ')') throw new Error('mismatched parentheses');
+      pos++;
+      return result;
+    }
+    // Handle unary minus/plus
+    if (chars[pos] === '-') {
+      pos++;
+      return -parseFactor();
+    }
+    if (chars[pos] === '+') {
+      pos++;
+      return parseFactor();
+    }
+    const start = pos;
+    while (pos < chars.length && (chars[pos] >= '0' && chars[pos] <= '9' || chars[pos] === '.')) {
+      pos++;
+    }
+    if (start === pos) throw new Error('unexpected token');
+    return Number(chars.slice(start, pos));
+  }
+
+  const result = parseExpr();
+  if (pos !== chars.length) throw new Error('unexpected trailing characters');
+  return result;
+}
+
 type McpAuthContext = {
   userId: string;
   orgId: string;
@@ -386,18 +446,18 @@ export async function registerMcpServerRoutes(app: FastifyInstance, pool: pg.Poo
       }
       if (toolName === 'sven.math.eval') {
         const expr = String(args.expression || '').trim();
-        if (!expr || /[^0-9+\-*/().%\s]/.test(expr)) {
+        if (!expr || expr.length > 256 || /[^0-9+\-*/().%\s]/.test(expr)) {
           reply.send(rpcErr(id, -32602, 'Invalid expression'));
           return;
         }
-        let value: unknown;
+        let value: number;
         try {
-          value = Function(`"use strict"; return (${expr})`)();
+          value = safeEvalArithmetic(expr);
         } catch {
           reply.send(rpcErr(id, -32602, 'Invalid expression'));
           return;
         }
-        if (typeof value !== 'number' || !Number.isFinite(value)) {
+        if (!Number.isFinite(value)) {
           reply.send(rpcErr(id, -32602, 'Invalid expression'));
           return;
         }

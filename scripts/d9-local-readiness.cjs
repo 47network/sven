@@ -248,6 +248,18 @@ function main() {
     const selfcheck = runNpmStep('d9_selfcheck_local', ['run', 'release:sso:keycloak:interop:selfcheck:local', '--', '--strict']);
     steps.push(selfcheck);
     if (selfcheck.status !== 0) {
+      const selfcheckPath = path.join(outDir, 'd9-keycloak-local-selfcheck-latest.json');
+      let selfcheckArtifact = null;
+      if (fs.existsSync(selfcheckPath)) {
+        try {
+          selfcheckArtifact = JSON.parse(fs.readFileSync(selfcheckPath, 'utf8').replace(/^\uFEFF/, ''));
+        } catch {}
+      }
+      const selfcheckStatus = String(selfcheckArtifact?.status || '').trim().toLowerCase();
+      if (selfcheckStatus === 'incomplete') {
+        writeReport('incomplete', steps, selfcheckExecuted, { runId, phase: 'selfcheck_incomplete' });
+        process.exit(1);
+      }
       writeReport('fail', steps, selfcheckExecuted, { runId, phase: 'selfcheck_failed' });
       process.exit(1);
     }

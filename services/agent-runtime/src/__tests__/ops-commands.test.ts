@@ -658,6 +658,108 @@ describe('ops commands', () => {
     expect(calls.some((sql) => sql.includes("VALUES ($1, 'display'"))).toBe(true);
   });
 
+  it('natural mirror display phrase routes to a display command', async () => {
+    const pool = {
+      query: jest.fn(async (sql: string, params?: unknown[]) => {
+        if (sql.includes("FROM settings_global WHERE key = 'chat.commands.prefix'")) return { rows: [] };
+        if (sql.includes('SELECT organization_id FROM chats')) return { rows: [{ organization_id: 'org-1' }] };
+        if (sql.includes('FROM devices') && sql.includes('LOWER(name) = LOWER($2)')) {
+          const ref = String((params || [])[1] || '');
+          if (ref.toLowerCase() === 'office') return { rows: [{ id: 'dev-tgt', name: 'Office' }] };
+          return { rows: [] };
+        }
+        if (sql.includes("VALUES ($1, 'display'")) {
+          const payload = String((params || [])[1] || '');
+          expect(payload).toContain('"type":"text"');
+          expect(payload).toContain('release status');
+          return { rows: [{ id: 'cmd-display-1', status: 'pending' }] };
+        }
+        return { rows: [] };
+      }),
+    } as any;
+
+    const emitted: string[] = [];
+    const canvasEmitter = {
+      emit: jest.fn(async (payload: any) => emitted.push(String(payload.text || ''))),
+    } as any;
+
+    const handled = await handleChatCommand({
+      pool,
+      canvasEmitter,
+      event: { chat_id: 'chat-1', channel: 'test', text: 'show release status on office screen', sender_identity_id: 'id-1' } as any,
+      userId: 'user-1',
+    });
+
+    expect(handled).toBe(true);
+    expect(emitted[0]).toContain('Display pushed to Office.');
+    expect(emitted[0]).toContain('display_command_id: cmd-display-1');
+  });
+
+  it('relay resolves semantic device names like Dell Kitchen Screen Live from kitchen', async () => {
+    const pool = {
+      query: jest.fn(async (sql: string, params?: unknown[]) => {
+        if (sql.includes("FROM settings_global WHERE key = 'chat.commands.prefix'")) return { rows: [] };
+        if (sql.includes('SELECT organization_id FROM chats')) return { rows: [{ organization_id: 'org-1' }] };
+        if (sql.includes('FROM devices') && sql.includes('LOWER(name) = LOWER($2)')) {
+          return { rows: [] };
+        }
+        if (sql.includes('FROM devices') && sql.includes('WHERE organization_id = $1')) {
+          return {
+            rows: [
+              {
+                id: 'dev-older',
+                name: 'Dell Kitchen Screen',
+                status: 'online',
+                last_seen_at: '2026-03-25T18:40:55.000Z',
+                updated_at: '2026-03-25T18:40:55.000Z',
+              },
+              {
+                id: 'dev-kitchen',
+                name: 'Dell Kitchen Screen Live',
+                status: 'online',
+                last_seen_at: '2026-03-25T19:17:55.000Z',
+                updated_at: '2026-03-25T19:17:55.000Z',
+              },
+            ],
+          };
+        }
+        if (sql.includes("VALUES ($1, 'camera_snapshot'")) {
+          return { rows: [{ id: 'cmd-snap-kitchen', status: 'pending' }] };
+        }
+        if (sql.includes('SELECT status, result_payload, error_message') && sql.includes('FROM device_commands')) {
+          return {
+            rows: [
+              {
+                status: 'acknowledged',
+                result_payload: { image_base64: 'ZmFrZS1pbWFnZS1iNjQ=' },
+                error_message: null,
+              },
+            ],
+          };
+        }
+        if (sql.includes("VALUES ($1, 'display'")) {
+          return { rows: [{ id: 'cmd-disp-kitchen', status: 'pending' }] };
+        }
+        return { rows: [] };
+      }),
+    } as any;
+
+    const emitted: string[] = [];
+    const canvasEmitter = {
+      emit: jest.fn(async (payload: any) => emitted.push(String(payload.text || ''))),
+    } as any;
+
+    const handled = await handleChatCommand({
+      pool,
+      canvasEmitter,
+      event: { chat_id: 'chat-1', channel: 'test', text: 'show kitchen cam on kitchen screen', sender_identity_id: 'id-1' } as any,
+      userId: 'user-1',
+    });
+
+    expect(handled).toBe(true);
+    expect(emitted[0]).toContain('Relay complete: Dell Kitchen Screen Live -> Dell Kitchen Screen Live');
+  });
+
   it('plain non-command text is still not handled as command', async () => {
     const pool = {
       query: jest.fn(async (sql: string) => {

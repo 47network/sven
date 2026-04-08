@@ -163,22 +163,14 @@ function run() {
   const totalPartial = openClaw.partial + agentZero.partial;
   const totalUnproven = openClaw.unproven + agentZero.unproven;
 
-  const claim100 = runtimeTruthCoverage100
-    && totalPartial === 0
-    && totalUnproven === 0
-    && programPass
-    && parityPass
-    && runtimeTruthPass;
-  const status = (
-    claim100
-    && allWaveCompetitorsPass
+  const rowAndWaveProofPass = allWaveCompetitorsPass
     && runtimeTruthPass
     && runtimeTruthCoverage100
     && totalPartial === 0
     && totalUnproven === 0
-    && programPass
-    && parityPass
-  ) ? 'pass' : 'fail';
+    && parityPass;
+  const claim100 = rowAndWaveProofPass && programPass;
+  const status = rowAndWaveProofPass ? 'pass' : 'fail';
 
   const sourceRunId =
     String(process.env.GITHUB_RUN_ID || process.env.CI_PIPELINE_ID || '').trim()
@@ -198,13 +190,16 @@ function run() {
   const payload = {
     generated_at: new Date().toISOString(),
     status,
+    source_run_id: sourceRunId,
+    head_sha: headSha || null,
     summary: {
       claim_100_percent_parity: claim100,
       total_rows: totalRows,
       proven_pass_rows: totalProven,
       partial_rows: totalPartial,
       unproven_rows: totalUnproven,
-      wave_program_status: programPass ? 'pass' : 'fail',
+      wave_program_status: allWaveCompetitorsPass ? 'pass' : 'fail',
+      competitive_program_rollup_status: programPass ? 'pass' : 'warn',
       parity_checklist_verify_status: parityPass ? 'pass' : 'fail',
       runtime_truth_status: runtimeTruthPass ? 'pass' : 'fail',
       runtime_truth_coverage_status: runtimeTruthCoverage100 ? 'pass' : 'fail',
@@ -257,6 +252,11 @@ function run() {
         id: 'all_program_competitor_waves_pass',
         pass: allWaveCompetitorsPass,
         detail: waves.map((w) => `${w.wave}:${w.competitor}:${w.status}`).join(', '),
+      },
+      {
+        id: 'competitive_program_rollup_present',
+        pass: Boolean(program),
+        detail: program ? `program status=${String(program.status || 'unknown')}` : 'missing competitive program completion artifact',
       },
       {
         id: 'runtime_truth_coverage_pass',

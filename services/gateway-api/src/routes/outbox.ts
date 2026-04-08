@@ -4,11 +4,18 @@ import { NatsConnection, JSONCodec } from 'nats';
 import { createLogger, NATS_SUBJECTS } from '@sven/shared';
 import type { EventEnvelope, OutboxEnqueueEvent } from '@sven/shared';
 import { v7 as uuidv7 } from 'uuid';
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
 const logger = createLogger('gateway-outbox');
 const jc = JSONCodec();
 const OUTBOX_LEASE_SECONDS = Number.parseInt(process.env.OUTBOX_LEASE_SECONDS || '120', 10) || 120;
+
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
 
 function normalizeOutboxBody<T extends object>(
   body: unknown,
@@ -69,7 +76,7 @@ export async function registerOutboxRoutes(
     }
 
     const expectedToken = String(process.env.SVEN_ADAPTER_TOKEN || '').trim();
-    if (!expectedToken || token !== expectedToken) {
+    if (!expectedToken || !safeEqual(token, expectedToken)) {
       reply.status(403).send({
         success: false,
         error: { code: 'INVALID_ADAPTER_TOKEN', message: 'Invalid adapter token' },

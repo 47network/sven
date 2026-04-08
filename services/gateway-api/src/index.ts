@@ -2,7 +2,8 @@ import Fastify from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import fastifyCors from '@fastify/cors';
 import fastifyHelmet from '@fastify/helmet';
-import { createLogger } from '@sven/shared';
+import { createLogger, FeatureFlagRegistry, detectProxy, createDefaultPermissionEngine, PermissionHookManager, ClientAttestor, generateTaskId, TokenBudgetTracker, QueryChain, PromptGuard, AntiDistillation, BackgroundSessionManager, HeartbeatManager } from '@sven/shared';
+import type { ProxyDetectConfig, PermissionContext } from '@sven/shared';
 import { API_CONTRACT_HEADER, API_CONTRACT_VERSION } from './contracts/api-contract.js';
 import { closePool, getPool } from './db/pool.js';
 import { getNatsConnection } from './nats/client.js';
@@ -334,6 +335,45 @@ async function main() {
 
   app.addHook('onRequest', async (request, _reply) => {
     request.correlationId = getRequestCorrelationId(request);
+    // Assign a Sven task ID if no upstream correlation exists
+    if (!request.correlationId) {
+      request.correlationId = generateTaskId('event_envelope');
+    }
+  });
+
+  // Proxy detection — extract real client IP from trusted proxy headers
+  const proxyDetectConfig: Partial<ProxyDetectConfig> = {
+    trustedProxies: (process.env.GATEWAY_TRUSTED_PROXIES || '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1,::1').split(',').map(s => s.trim()).filter(Boolean),
+  };
+  app.addHook('onRequest', async (request, _reply) => {
+    const info = detectProxy(request.headers as Record<string, string | string[] | undefined>, request.ip, proxyDetectConfig);
+    (request as any).realIp = info.clientIp || request.ip;
+    (request as any).proxyInfo = info;
+  });
+
+  // QueryChain — per-request depth tracking to prevent runaway nested operations
+  app.addHook('onRequest', async (request, _reply) => {
+    const chain = new QueryChain({
+      maxDepth: Number(process.env.GATEWAY_QUERY_CHAIN_MAX_DEPTH || 15),
+      maxBreadth: Number(process.env.GATEWAY_QUERY_CHAIN_MAX_BREADTH || 100),
+      maxDurationMs: Number(process.env.GATEWAY_QUERY_CHAIN_MAX_DURATION_MS || 300_000),
+    }, request.correlationId);
+    chain.push('gateway-request', { method: request.method, url: String(request.url || '').split('?')[0] });
+    (request as any).queryChain = chain;
+  });
+  app.addHook('onResponse', async (request, _reply) => {
+    const chain = (request as any).queryChain as QueryChain | undefined;
+    if (chain) {
+      const status = chain.getStatus();
+      if (status.isCircuitBroken) {
+        logger.warn('QueryChain circuit broken during request', {
+          correlationId: request.correlationId,
+          depth: status.currentDepth,
+          breadth: status.totalOperations,
+        });
+      }
+      chain.pop();
+    }
   });
 
   app.addHook('onSend', async (_request, reply, payload) => {
@@ -421,6 +461,167 @@ async function main() {
   // Verify Postgres is reachable
   await pool.query('SELECT 1');
   logger.info('Postgres connection verified');
+
+  // Initialize feature flag registry
+  const featureFlags = new FeatureFlagRegistry({ source: 'gateway-api', warnOnStaleFlags: true });
+  featureFlags.register({
+    name: 'prompt-guard.enabled',
+    type: 'boolean',
+    value: false,
+    description: 'Enable prompt injection detection on agent-runtime',
+    createdAt: '2026-04-06T00:00:00Z',
+    cleanupBy: '2027-04-06T00:00:00Z',
+    enabled: (process.env.FEATURE_PROMPT_GUARD_ENABLED || '').toLowerCase() === 'true',
+  });
+  featureFlags.register({
+    name: 'anti-distillation.enabled',
+    type: 'percentage',
+    value: 0,
+    description: 'Percentage of responses to watermark for anti-distillation',
+    createdAt: '2026-04-06T00:00:00Z',
+    cleanupBy: '2027-04-06T00:00:00Z',
+    enabled: (process.env.FEATURE_ANTI_DISTILLATION_ENABLED || '').toLowerCase() === 'true',
+    percentage: Number(process.env.FEATURE_ANTI_DISTILLATION_PERCENTAGE || 0),
+  });
+  featureFlags.register({
+    name: 'client-attestation.enabled',
+    type: 'boolean',
+    value: false,
+    description: 'Enable HMAC attestation on inter-service requests',
+    createdAt: '2026-04-06T00:00:00Z',
+    cleanupBy: '2027-04-06T00:00:00Z',
+    enabled: (process.env.FEATURE_CLIENT_ATTESTATION_ENABLED || '').toLowerCase() === 'true',
+  });
+  featureFlags.register({
+    name: 'memory-extractor.auto-dream',
+    type: 'boolean',
+    value: false,
+    description: 'Enable automatic memory extraction and consolidation',
+    createdAt: '2026-04-06T00:00:00Z',
+    cleanupBy: '2027-04-06T00:00:00Z',
+    enabled: (process.env.FEATURE_MEMORY_EXTRACTOR_AUTO_DREAM || '').toLowerCase() === 'true',
+  });
+  featureFlags.register({
+    name: 'buddy.enhanced-digest',
+    type: 'boolean',
+    value: false,
+    description: 'Enable memory-driven enhanced buddy digest',
+    createdAt: '2026-04-06T00:00:00Z',
+    cleanupBy: '2027-04-06T00:00:00Z',
+    enabled: (process.env.FEATURE_BUDDY_ENHANCED_DIGEST || '').toLowerCase() === 'true',
+  });
+  logger.info('Feature flag registry initialized', { flags: featureFlags.getAllFlags().map(f => f.name) });
+
+  // Initialize hierarchical permission engine with audit hooks
+  const permissionEngine = createDefaultPermissionEngine();
+  const permissionHooks = new PermissionHookManager({
+    maxAuditEntries: 10_000,
+    persistSync: false,
+    persistFn: async (entry) => {
+      try {
+        await pool.query(
+          `INSERT INTO config_change_audit (id, change_type, changed_by, old_value, new_value, metadata)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT DO NOTHING`,
+          [
+            entry.entryId,
+            `permission.${entry.action}`,
+            entry.subjectId,
+            JSON.stringify({ resource: entry.resource, decision: entry.decision }),
+            JSON.stringify({ decidedBy: entry.decidedBy }),
+            JSON.stringify({ correlationId: entry.correlationId, origin: entry.origin }),
+          ],
+        );
+      } catch (err) {
+        logger.warn('Failed to persist permission audit entry', { entryId: entry.entryId, err: String(err) });
+      }
+    },
+  });
+  permissionHooks.onDeny(async (entry) => {
+    logger.warn('Permission denied', {
+      subjectId: entry.subjectId,
+      resource: entry.resource,
+      action: entry.action,
+      decidedBy: entry.decidedBy,
+      correlationId: entry.correlationId,
+    });
+  });
+  // Load org-level permission rules from DB
+  try {
+    const rulesRes = await pool.query(
+      `SELECT id, scope, effect, target_type, target_id, conditions, organization_id
+       FROM permissions
+       WHERE effect IN ('allow', 'deny')
+       ORDER BY CASE effect WHEN 'deny' THEN 0 ELSE 1 END`,
+    );
+    for (const row of rulesRes.rows) {
+      permissionEngine.addRule({
+        ruleId: row.id,
+        tier: 'organization',
+        resource: row.scope || '**',
+        action: '*',
+        effect: row.effect === 'deny' ? 'deny' : 'allow',
+        priority: row.effect === 'deny' ? 100 : 50,
+        enabled: true,
+        condition: row.target_type === 'user'
+          ? { field: 'subjectId', operator: 'eq', value: row.target_id }
+          : undefined,
+        description: `DB permission ${row.id} (${row.effect})`,
+      });
+    }
+    logger.info('Permission engine initialized', { ruleCount: rulesRes.rows.length, tiers: permissionEngine.getRuleCounts() });
+  } catch (err) {
+    logger.warn('Failed to load permission rules from DB; using defaults only', { err: String(err) });
+  }
+
+  // Initialize client attestation (gated by feature flag)
+  let clientAttestor: ClientAttestor | null = null;
+  const attestationSecret = process.env.SVEN_ATTESTATION_SECRET || '';
+  if (featureFlags.isEnabled('client-attestation.enabled') && attestationSecret.length >= 32) {
+    clientAttestor = new ClientAttestor({ secret: attestationSecret, serviceId: 'gateway-api' });
+    logger.info('Client attestation initialized', { serviceId: 'gateway-api' });
+  } else if (featureFlags.isEnabled('client-attestation.enabled')) {
+    logger.warn('Client attestation enabled but SVEN_ATTESTATION_SECRET missing or too short (need ≥32 chars)');
+  }
+
+  // Initialize PromptGuard for inbound message scanning (gated by feature flag)
+  let promptGuard: PromptGuard | null = null;
+  if (featureFlags.isEnabled('prompt-guard.enabled')) {
+    promptGuard = new PromptGuard({ blockOnDetection: true, blockThreshold: 'medium' });
+    logger.info('PromptGuard initialized at gateway level');
+  }
+
+  // Initialize AntiDistillation for response watermarking (gated by feature flag)
+  let antiDistillation: AntiDistillation | null = null;
+  if (featureFlags.isEnabled('anti-distillation.enabled')) {
+    try {
+      antiDistillation = AntiDistillation.fromEnv('gateway-api');
+      logger.info('AntiDistillation initialized', {
+        serviceId: 'gateway-api',
+        percentage: Number(process.env.FEATURE_ANTI_DISTILLATION_PERCENTAGE || 0),
+      });
+    } catch (err) {
+      logger.warn('AntiDistillation initialization failed — SVEN_DISTILLATION_SECRET may be missing', { err: String(err) });
+    }
+  }
+
+  // Initialize BackgroundSessionManager for async operations
+  const backgroundSessions = new BackgroundSessionManager({
+    maxConcurrent: Number(process.env.GATEWAY_BG_MAX_CONCURRENT || 8),
+    maxQueueSize: Number(process.env.GATEWAY_BG_MAX_QUEUE || 200),
+    defaultTimeoutMs: Number(process.env.GATEWAY_BG_TIMEOUT_MS || 30 * 60 * 1000),
+    cleanupAfterMs: Number(process.env.GATEWAY_BG_CLEANUP_MS || 60 * 60 * 1000),
+  });
+  logger.info('BackgroundSessionManager initialized', { running: backgroundSessions.getStats().running, queued: backgroundSessions.getStats().queued });
+
+  // Initialize API-level TokenBudgetTracker for quota enforcement
+  const tokenBudgetTracker = new TokenBudgetTracker({
+    maxTotalTokens: Number(process.env.GATEWAY_TOKEN_BUDGET_MAX || 10_000_000),
+    maxCostUsd: Number(process.env.GATEWAY_TOKEN_BUDGET_MAX_COST || 100),
+    maxTurns: Number(process.env.GATEWAY_TOKEN_BUDGET_MAX_TURNS || 50_000),
+  });
+  logger.info('TokenBudgetTracker initialized for API-level quota tracking');
+
   try {
     await verifyWidgetIngressSchemaInvariant(pool);
     if (isWidgetIngressGuardEnabled(process.env)) {
@@ -449,6 +650,32 @@ async function main() {
   const nc = await getNatsConnection();
   const tailscale = new TailscaleService(pool, PORT);
   const integrationRuntimeReconciler = new IntegrationRuntimeReconciler(pool);
+
+  // HeartbeatManager for NATS connection monitoring
+  const natsHeartbeat = new HeartbeatManager(
+    'gateway-nats',
+    async () => {
+      try {
+        return !nc.isClosed();
+      } catch {
+        return false;
+      }
+    },
+    async () => {
+      logger.warn('NATS heartbeat reconnect triggered — connection may be degraded');
+    },
+    {
+      intervalMs: Number(process.env.GATEWAY_NATS_HEARTBEAT_INTERVAL_MS || 30_000),
+      maxFailures: 3,
+    },
+    (_prev, next, status) => {
+      if (next === 'degraded' || next === 'disconnected') {
+        logger.error('NATS connection state changed', { state: next, failures: status.consecutiveFailures });
+      }
+    },
+  );
+  natsHeartbeat.start();
+  logger.info('NATS HeartbeatManager started', { intervalMs: Number(process.env.GATEWAY_NATS_HEARTBEAT_INTERVAL_MS || 30_000) });
 
   // Ensure NATS JetStream streams and consumers exist
   await ensureStreams(nc);
@@ -544,6 +771,7 @@ async function main() {
   // Graceful shutdown
   const shutdown = async (signal: string) => {
     logger.info('Shutting down', { signal });
+    natsHeartbeat.stop();
     integrationRuntimeReconciler.stop();
     stopMemoryConsolidationWorker();
     await stopEntityLifecycleSubscriber();

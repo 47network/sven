@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import pg from 'pg';
+import { timingSafeEqual } from 'node:crypto';
 
 const startTime = Date.now();
 let requestCount = 0;
@@ -9,6 +10,13 @@ const latencyHistogram: number[] = new Array(latencyBuckets.length + 1).fill(0);
 let latencySum = 0;
 const METRICS_AUTH_TOKEN = String(process.env.SVEN_METRICS_AUTH_TOKEN || '').trim();
 const INCLUDE_INCIDENT_MODE_METRICS = String(process.env.SVEN_METRICS_INCLUDE_INCIDENT_MODE || '').trim().toLowerCase() === 'true';
+
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
 
 function isLoopbackIp(value: string): boolean {
   const normalized = value.trim().toLowerCase();
@@ -56,7 +64,7 @@ export async function registerMetricsRoutes(app: FastifyInstance, pool: pg.Pool)
     const isLoopback = isLoopbackIp(requestIp);
     const providedToken = String(request.headers['x-sven-metrics-token'] || '').trim();
     if (!isLoopback) {
-      if (!METRICS_AUTH_TOKEN || providedToken !== METRICS_AUTH_TOKEN) {
+      if (!METRICS_AUTH_TOKEN || !safeEqual(providedToken, METRICS_AUTH_TOKEN)) {
         return reply.status(403).send({
           success: false,
           error: { code: 'METRICS_FORBIDDEN', message: 'Metrics endpoint is restricted' },

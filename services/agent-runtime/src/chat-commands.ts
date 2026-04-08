@@ -15,7 +15,10 @@ const DEFAULT_RELAY_TIMEOUT_MS = 25000;
 const MIN_RELAY_TIMEOUT_MS = 5000;
 const MAX_RELAY_TIMEOUT_MS = 120000;
 const MAX_RELAY_IMAGE_BASE64_LENGTH = 5_000_000;
+const MAX_SESSION_IMPORT_PAYLOAD_LENGTH = 2_000_000;
+const MAX_SESSION_IMPORT_MESSAGE_TEXT_LENGTH = 100_000;
 const NEXT_THINK_LEVEL = new Map<string, string>();
+const MAX_THINK_LEVEL_ENTRIES = 10_000;
 const MODEL_ALIASES: Record<string, string[]> = {
   gpt: ['gpt-4.1', 'gpt-4o', 'gpt-4', 'gpt'],
   'gpt-mini': ['gpt-4o-mini', 'gpt-mini'],
@@ -219,6 +222,14 @@ export async function handleChatCommand(ctx: CommandContext): Promise<boolean> {
 
       if (sub === 'import-base64') {
         const encodedPayload = String(args[1] || '').trim();
+        if (encodedPayload.length > MAX_SESSION_IMPORT_PAYLOAD_LENGTH) {
+          await ctx.canvasEmitter.emit({
+            chat_id: ctx.event.chat_id,
+            channel: ctx.event.channel,
+            text: `Session import failed: payload exceeds maximum size (${MAX_SESSION_IMPORT_PAYLOAD_LENGTH} bytes).`,
+          });
+          return true;
+        }
         if (!encodedPayload) {
           await ctx.canvasEmitter.emit({
             chat_id: ctx.event.chat_id,
@@ -730,6 +741,10 @@ export async function handleChatCommand(ctx: CommandContext): Promise<boolean> {
         return true;
       }
       NEXT_THINK_LEVEL.set(ctx.event.chat_id, level);
+      if (NEXT_THINK_LEVEL.size > MAX_THINK_LEVEL_ENTRIES) {
+        const oldest = NEXT_THINK_LEVEL.keys().next().value;
+        if (oldest !== undefined) NEXT_THINK_LEVEL.delete(oldest);
+      }
       await ctx.canvasEmitter.emit({
         chat_id: ctx.event.chat_id,
         channel: ctx.event.channel,
@@ -792,6 +807,10 @@ export async function handleChatCommand(ctx: CommandContext): Promise<boolean> {
         });
       } else {
         NEXT_THINK_LEVEL.set(ctx.event.chat_id, level);
+        if (NEXT_THINK_LEVEL.size > MAX_THINK_LEVEL_ENTRIES) {
+          const oldest = NEXT_THINK_LEVEL.keys().next().value;
+          if (oldest !== undefined) NEXT_THINK_LEVEL.delete(oldest);
+        }
         await ctx.canvasEmitter.emit({
           chat_id: ctx.event.chat_id,
           channel: ctx.event.channel,
@@ -1745,7 +1764,17 @@ export async function handleChatCommand(ctx: CommandContext): Promise<boolean> {
         return true;
       }
 
-      const html = renderRelaySnapshotHtml(imageBase64);
+      let html: string;
+      try {
+        html = renderRelaySnapshotHtml(imageBase64);
+      } catch (err) {
+        await ctx.canvasEmitter.emit({
+          chat_id: ctx.event.chat_id,
+          channel: ctx.event.channel,
+          text: `Relay failed: ${(err as Error).message || 'invalid snapshot image data'}`,
+        });
+        return true;
+      }
       const displayInsert = await ctx.pool.query(
         `INSERT INTO device_commands (device_id, command, payload)
          VALUES ($1, 'display', $2)
@@ -1762,6 +1791,65 @@ export async function handleChatCommand(ctx: CommandContext): Promise<boolean> {
           `display_command_id: ${String(displayInsert.rows[0]?.id || 'n/a')}`,
           `resolution: ${relay.width}x${relay.height}`,
           `timeout_ms: ${relay.timeoutMs}`,
+        ].join('\n'),
+      });
+      return true;
+    }
+
+    case 'mirrordisplay': {
+      const display = parseMirrorDisplayCommandArgs(args);
+      if (!display.ok) {
+        await ctx.canvasEmitter.emit({
+          chat_id: ctx.event.chat_id,
+          channel: ctx.event.channel,
+          text: display.message,
+        });
+        return true;
+      }
+
+      const orgId = await getChatOrganizationId(ctx.pool, ctx.event.chat_id);
+      if (!orgId) {
+        await ctx.canvasEmitter.emit({
+          chat_id: ctx.event.chat_id,
+          channel: ctx.event.channel,
+          text: 'Mirror display unavailable: this chat is not bound to an organization.',
+        });
+        return true;
+      }
+
+      const targetDevice = await resolveRelayDevice(ctx.pool, orgId, display.targetRef);
+      if (!targetDevice) {
+        await ctx.canvasEmitter.emit({
+          chat_id: ctx.event.chat_id,
+          channel: ctx.event.channel,
+          text: `Target device not found in organization: ${display.targetRef}`,
+        });
+        return true;
+      }
+
+      const content = await resolveMirrorDisplayContent(
+        ctx.pool,
+        ctx.event.chat_id,
+        display.content,
+        String(ctx.event.text || ''),
+      );
+      const payload = content.startsWith('http://') || content.startsWith('https://')
+        ? { type: 'url', content }
+        : { type: 'text', title: 'Sven Mirror', content };
+      const displayInsert = await ctx.pool.query(
+        `INSERT INTO device_commands (device_id, command, payload)
+         VALUES ($1, 'display', $2)
+         RETURNING id, status, created_at`,
+        [targetDevice.id, JSON.stringify(payload)],
+      );
+
+      await ctx.canvasEmitter.emit({
+        chat_id: ctx.event.chat_id,
+        channel: ctx.event.channel,
+        text: [
+          `Display pushed to ${targetDevice.name}.`,
+          `display_command_id: ${String(displayInsert.rows[0]?.id || 'n/a')}`,
+          `content: ${truncateForHandoff(content, 140) || 'empty'}`,
         ].join('\n'),
       });
       return true;
@@ -2369,8 +2457,14 @@ async function runResearchPipeline(
   const queries: string[] = [topic];
   const collected: ResearchResult[] = [];
   const seenUrls = new Set<string>();
+  const researchStartMs = Date.now();
+  const MAX_RESEARCH_DURATION_MS = 300_000; // 5 minutes
 
   for (let step = 1; step <= totalSteps; step += 1) {
+    if (Date.now() - researchStartMs > MAX_RESEARCH_DURATION_MS) {
+      await emitProgress(`Research timeout: exceeded ${MAX_RESEARCH_DURATION_MS / 1000}s wall-clock limit.`);
+      break;
+    }
     const query = queries[step - 1] || buildFollowUpQuery(topic, collected, step);
     await emitProgress(`Step ${step}/${totalSteps}: searching for "${query}"...`);
 
@@ -2614,6 +2708,8 @@ async function parseCommand(pool: pg.Pool, rawText: string): Promise<CommandPars
     if (directive) return directive;
     const relayDirective = parseNaturalRelayDirective(text);
     if (relayDirective) return relayDirective;
+    const mirrorDisplayDirective = parseNaturalMirrorDisplayDirective(text);
+    if (mirrorDisplayDirective) return mirrorDisplayDirective;
     return { isCommand: false };
   }
 
@@ -2708,6 +2804,36 @@ function parseNaturalRelayDirective(text: string): CommandParseResult | null {
     isCommand: true,
     command: 'relay',
     args: [sourceRef, '->', targetRef, ...optionParts],
+    prefix: '/',
+    viaDirective: true,
+  };
+}
+
+function parseNaturalMirrorDisplayDirective(text: string): CommandParseResult | null {
+  const raw = String(text || '').trim();
+  if (!raw) return null;
+  if (/\b(cam|camera|snapshot|feed)\b/i.test(raw)) return null;
+
+  const politeStripped = raw
+    .replace(/^\s*(please\s+)?(can|could|would)\s+you\s+/i, '')
+    .replace(/^\s*sven[,:]?\s+/i, '')
+    .trim();
+
+  const match = politeStripped.match(/^(?:show|display|put|send|open)\s+(.+?)\s+(?:on|to)\s+(.+)$/i);
+  if (!match) return null;
+
+  const content = String(match[1] || '').trim().replace(/^"(.*)"$/, '$1');
+  const targetRef = String(match[2] || '')
+    .replace(/\b(screen|display|monitor|tv)\b/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^"(.*)"$/, '$1');
+  if (!content || !targetRef) return null;
+
+  return {
+    isCommand: true,
+    command: 'mirrordisplay',
+    args: [content, '->', targetRef],
     prefix: '/',
     viaDirective: true,
   };
@@ -3094,7 +3220,16 @@ function parseRelayCommandArgs(args: string[]): {
   }
 
   const parts = rest.split(/\s+/).filter(Boolean);
-  const targetRef = String(parts.shift() || '').trim().replace(/^"(.*)"$/, '$1');
+  const optionParts: string[] = [];
+  const targetParts: string[] = [];
+  for (const part of parts) {
+    if (/^\d{2,4}x\d{2,4}$/i.test(part) || /^timeout=\d{3,7}$/i.test(part)) {
+      optionParts.push(part);
+      continue;
+    }
+    targetParts.push(part);
+  }
+  const targetRef = targetParts.join(' ').trim().replace(/^"(.*)"$/, '$1');
   if (!targetRef) {
     return { ok: false, message: 'Usage: /relay <source> -> <target> [widthxheight] [timeout=ms]' };
   }
@@ -3102,7 +3237,7 @@ function parseRelayCommandArgs(args: string[]): {
   let width = 320;
   let height = 180;
   let timeoutMs = DEFAULT_RELAY_TIMEOUT_MS;
-  for (const part of parts) {
+  for (const part of optionParts) {
     const sizeMatch = /^(\d{2,4})x(\d{2,4})$/i.exec(part);
     if (sizeMatch) {
       width = Math.max(64, Math.min(1920, Number.parseInt(sizeMatch[1], 10)));
@@ -3125,6 +3260,33 @@ function parseRelayCommandArgs(args: string[]): {
   }
 
   return { ok: true, sourceRef, targetRef, width, height, timeoutMs };
+}
+
+function parseMirrorDisplayCommandArgs(args: string[]): {
+  ok: true;
+  content: string;
+  targetRef: string;
+} | {
+  ok: false;
+  message: string;
+} {
+  const raw = args.join(' ').trim();
+  if (!raw) {
+    return { ok: false, message: 'Usage: /mirrordisplay <content> -> <target>' };
+  }
+
+  const arrowIndex = raw.indexOf('->');
+  if (arrowIndex <= 0) {
+    return { ok: false, message: 'Usage: /mirrordisplay <content> -> <target>' };
+  }
+
+  const content = raw.slice(0, arrowIndex).trim().replace(/^"(.*)"$/, '$1');
+  const targetRef = raw.slice(arrowIndex + 2).trim().replace(/^"(.*)"$/, '$1');
+  if (!content || !targetRef) {
+    return { ok: false, message: 'Usage: /mirrordisplay <content> -> <target>' };
+  }
+
+  return { ok: true, content, targetRef };
 }
 
 function parseHandoffCommandArgs(args: string[]): {
@@ -3265,6 +3427,68 @@ function truncateForHandoff(value: string, max: number): string {
   return `${normalized.slice(0, Math.max(0, max - 1)).trimEnd()}...`;
 }
 
+function normalizeRelayDeviceLabel(value: string): string {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]+/gu, ' ')
+    .replace(/\b(the|a|an|screen|display|monitor|tv|device|mirror|tablet|kiosk|live)\b/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function pickBestRelayDeviceMatch(
+  ref: string,
+  candidates: Array<{
+    id: string;
+    name: string;
+    status?: string | null;
+    lastSeenAt?: string | null;
+    updatedAt?: string | null;
+  }>,
+): { id: string; name: string } | null {
+  const normalizedRef = normalizeRelayDeviceLabel(ref);
+  if (!normalizedRef) return null;
+  const refTokens = normalizedRef.split(/\s+/).filter(Boolean);
+  if (refTokens.length === 0) return null;
+
+  let best: {
+    id: string;
+    name: string;
+    score: number;
+    onlineBoost: number;
+    freshness: number;
+  } | null = null;
+  for (const candidate of candidates) {
+    const normalizedName = normalizeRelayDeviceLabel(candidate.name);
+    if (!normalizedName) continue;
+    const nameTokens = new Set(normalizedName.split(/\s+/).filter(Boolean));
+    let score = -1;
+
+    if (normalizedName === normalizedRef) {
+      score = 100;
+    } else if (normalizedName.includes(normalizedRef) || normalizedRef.includes(normalizedName)) {
+      score = 90;
+    } else if (refTokens.every((token) => nameTokens.has(token))) {
+      score = 80 - Math.max(0, nameTokens.size - refTokens.length);
+    }
+
+    if (score < 0) continue;
+    const onlineBoost = String(candidate.status || '').toLowerCase() === 'online' ? 1 : 0;
+    const freshnessRaw = candidate.lastSeenAt || candidate.updatedAt || '';
+    const freshness = Number.isFinite(Date.parse(freshnessRaw)) ? Date.parse(freshnessRaw) : 0;
+    if (
+      !best ||
+      score > best.score ||
+      (score === best.score && onlineBoost > best.onlineBoost) ||
+      (score === best.score && onlineBoost === best.onlineBoost && freshness > best.freshness)
+    ) {
+      best = { id: candidate.id, name: candidate.name, score, onlineBoost, freshness };
+    }
+  }
+
+  return best ? { id: best.id, name: best.name } : null;
+}
+
 async function resolveRelayDevice(
   pool: pg.Pool,
   organizationId: string,
@@ -3272,7 +3496,7 @@ async function resolveRelayDevice(
 ): Promise<{ id: string; name: string } | null> {
   const normalizedRef = String(ref || '').trim();
   if (!normalizedRef) return null;
-  const res = await pool.query(
+  const exact = await pool.query(
     `SELECT id, name
      FROM devices
      WHERE organization_id = $1
@@ -3280,11 +3504,74 @@ async function resolveRelayDevice(
      LIMIT 1`,
     [organizationId, normalizedRef],
   );
-  if (res.rows.length === 0) return null;
+  if (exact.rows.length > 0) {
+    return {
+      id: String(exact.rows[0].id || '').trim(),
+      name: String(exact.rows[0].name || normalizedRef).trim() || normalizedRef,
+    };
+  }
+
+  const candidates = await pool.query(
+    `SELECT id, name, status, last_seen_at, updated_at
+     FROM devices
+     WHERE organization_id = $1`,
+    [organizationId],
+  );
+  const resolved = pickBestRelayDeviceMatch(
+    normalizedRef,
+    candidates.rows.map((row) => ({
+      id: String(row.id || '').trim(),
+      name: String(row.name || '').trim(),
+      status: row.status ? String(row.status).trim() : null,
+      lastSeenAt: row.last_seen_at ? String(row.last_seen_at) : null,
+      updatedAt: row.updated_at ? String(row.updated_at) : null,
+    })),
+  );
+  if (!resolved) return null;
   return {
-    id: String(res.rows[0].id || '').trim(),
-    name: String(res.rows[0].name || normalizedRef).trim() || normalizedRef,
+    id: resolved.id,
+    name: resolved.name || normalizedRef,
   };
+}
+
+async function resolveMirrorDisplayContent(
+  pool: pg.Pool,
+  chatId: string,
+  rawContent: string,
+  currentMessageText: string,
+): Promise<string> {
+  const normalized = String(rawContent || '').trim();
+  if (!normalized) return '';
+  if (!['this', 'that', 'it', 'this message', 'that message', 'this reply', 'that reply'].includes(normalized.toLowerCase())) {
+    return normalized;
+  }
+
+  const assistantRes = await pool.query(
+    `SELECT text
+     FROM messages
+     WHERE chat_id = $1
+       AND role = 'assistant'
+       AND COALESCE(text, '') <> ''
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [chatId],
+  );
+  const assistantText = String(assistantRes.rows[0]?.text || '').trim();
+  if (assistantText) return assistantText;
+
+  const userRes = await pool.query(
+    `SELECT text
+     FROM messages
+     WHERE chat_id = $1
+       AND role = 'user'
+       AND COALESCE(text, '') <> ''
+       AND COALESCE(text, '') <> $2
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [chatId, currentMessageText],
+  );
+  const userText = String(userRes.rows[0]?.text || '').trim();
+  return userText || normalized;
 }
 
 async function waitForRelaySnapshotResult(
@@ -3325,6 +3612,9 @@ async function waitForRelaySnapshotResult(
 }
 
 function renderRelaySnapshotHtml(imageBase64: string): string {
+  if (!/^[A-Za-z0-9+/=]*$/.test(imageBase64)) {
+    throw new Error('imageBase64 contains invalid characters');
+  }
   return '<html><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;">'
     + `<img style="max-width:100vw;max-height:100vh;object-fit:contain;" src="data:image/jpeg;base64,${imageBase64}"/>`
     + '</body></html>';
@@ -3552,7 +3842,7 @@ function parseDurationMs(raw: string): number | null {
   const m = raw.match(/^(\d+)(m|h|d)?$/i);
   if (!m) return null;
   const amount = Number(m[1]);
-  if (!Number.isFinite(amount) || amount <= 0) return null;
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 525600) return null; // max 1 year in minutes
   const unit = (m[2] || 'm').toLowerCase();
   if (unit === 'm') return amount * 60 * 1000;
   if (unit === 'h') return amount * 60 * 60 * 1000;
@@ -3749,7 +4039,7 @@ function resolveModelSelection(
   });
   if (exactMatch) return { ok: true, modelName: exactMatch.modelId };
 
-  return { ok: true, modelName: arg };
+  return { ok: false, message: `Model "${arg.slice(0, 120)}" not found. Run /model list for available options.` };
 }
 
 async function getSessionMeta(pool: pg.Pool, chatId: string): Promise<{
@@ -3921,7 +4211,7 @@ async function importSessionPayload(
       contentType: String(row?.content_type || 'text').toLowerCase(),
       text: String(row?.text || ''),
     }))
-    .filter((row) => allowedRoles.has(row.role) && row.text.trim().length > 0)
+    .filter((row) => allowedRoles.has(row.role) && row.text.trim().length > 0 && row.text.length <= MAX_SESSION_IMPORT_MESSAGE_TEXT_LENGTH)
     .slice(0, 200);
 
   for (const row of toImport) {
@@ -4308,27 +4598,82 @@ async function loadProseProgram(
   }
   try {
     if (/^https?:\/\//i.test(normalized)) {
-      const response = await fetch(normalized);
+      // Validate URL host to block SSRF against internal services and cloud metadata.
+      let parsedUrl: URL;
+      try {
+        parsedUrl = new URL(normalized);
+      } catch {
+        return { ok: false, message: 'invalid URL' };
+      }
+      if (isBlockedProseHost(parsedUrl.hostname)) {
+        return { ok: false, message: 'fetch to private/internal addresses is blocked' };
+      }
+      const response = await fetch(normalized, { signal: AbortSignal.timeout(15000) });
       if (!response.ok) {
         return { ok: false, message: `remote fetch failed (${response.status})` };
       }
-      return { ok: true, source: await response.text(), sourceLabel: normalized };
+      const text = await response.text();
+      if (text.length > 512_000) {
+        return { ok: false, message: 'remote program exceeds 512 KB size limit' };
+      }
+      return { ok: true, source: text, sourceLabel: normalized };
     }
     if (/^[^/\s]+\/[^/\s]+$/.test(normalized) && !normalized.endsWith('.prose')) {
-      const remoteUrl = `https://p.prose.md/${normalized}`;
-      const response = await fetch(remoteUrl);
+      const remoteUrl = `https://p.prose.md/${encodeURIComponent(normalized.split('/')[0])}/${encodeURIComponent(normalized.split('/').slice(1).join('/'))}`;
+      const response = await fetch(remoteUrl, { signal: AbortSignal.timeout(15000) });
       if (!response.ok) {
         return { ok: false, message: `handle fetch failed (${response.status})` };
       }
-      return { ok: true, source: await response.text(), sourceLabel: remoteUrl };
+      const text = await response.text();
+      if (text.length > 512_000) {
+        return { ok: false, message: 'remote program exceeds 512 KB size limit' };
+      }
+      return { ok: true, source: text, sourceLabel: remoteUrl };
     }
-    const resolvedPath = path.isAbsolute(normalized)
-      ? normalized
-      : path.resolve(process.cwd(), normalized);
-    return { ok: true, source: await fs.readFile(resolvedPath, 'utf8'), sourceLabel: resolvedPath };
+    // File path: restrict to the prose storage directory to prevent path traversal.
+    if (path.isAbsolute(normalized) || normalized.includes('..')) {
+      return { ok: false, message: 'absolute paths and directory traversal are not allowed' };
+    }
+    const proseBaseDir = path.resolve(process.cwd(), 'storage', 'prose');
+    const resolvedPath = path.resolve(proseBaseDir, normalized);
+    if (!resolvedPath.startsWith(proseBaseDir + path.sep) && resolvedPath !== proseBaseDir) {
+      return { ok: false, message: 'path escapes allowed prose directory' };
+    }
+    // Verify the resolved path does not follow a symlink outside the base.
+    let realResolved: string;
+    try {
+      realResolved = await fs.realpath(resolvedPath);
+    } catch {
+      return { ok: false, message: 'prose file not found' };
+    }
+    const realBase = await fs.realpath(proseBaseDir).catch(() => proseBaseDir);
+    if (!realResolved.startsWith(realBase + path.sep) && realResolved !== realBase) {
+      return { ok: false, message: 'resolved path escapes allowed prose directory' };
+    }
+    return { ok: true, source: await fs.readFile(realResolved, 'utf8'), sourceLabel: resolvedPath };
   } catch (err) {
     return { ok: false, message: String((err as Error)?.message || err || 'failed to load program') };
   }
+}
+
+/**
+ * Block SSRF: reject private, loopback, link-local, and cloud metadata IPs/hostnames.
+ */
+function isBlockedProseHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  // Loopback
+  if (h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h === '::1') return true;
+  // Cloud metadata endpoints
+  if (h === '169.254.169.254' || h === 'metadata.google.internal') return true;
+  // Docker/Kubernetes internal hostnames (common internal service names)
+  if (/^(10|172\.(1[6-9]|2\d|3[01])|192\.168)\./.test(h)) return true;
+  // IPv6 link-local
+  if (h.startsWith('fe80:') || h.startsWith('[fe80:')) return true;
+  // Block hostnames without a dot (bare container names like "searxng", "redis", "postgres")
+  if (!h.includes('.') && !/^\d+\.\d+\.\d+\.\d+$/.test(h)) return true;
+  // Block .internal, .local, .svc TLDs (Kubernetes, mDNS)
+  if (/\.(internal|local|svc|cluster\.local)$/i.test(h)) return true;
+  return false;
 }
 
 function extractQuotedValue(raw: string): string {

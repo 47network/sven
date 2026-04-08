@@ -131,6 +131,12 @@ async function processJob(job: {
       throw new Error('No text content to extract from');
     }
 
+    // Cap text size to prevent resource exhaustion during entity extraction.
+    const MAX_EXTRACTION_TEXT_LENGTH = 1_000_000;
+    if (textContent.length > MAX_EXTRACTION_TEXT_LENGTH) {
+      textContent = textContent.slice(0, MAX_EXTRACTION_TEXT_LENGTH);
+    }
+
     let entityCount = 0;
     let relationCount = 0;
 

@@ -58,7 +58,14 @@ export class ApprovalManager {
       },
     };
 
-    this.nc.publish(NATS_SUBJECTS.APPROVAL_CREATED, jc.encode(envelope));
+    try {
+      this.nc.publish(NATS_SUBJECTS.APPROVAL_CREATED, jc.encode(envelope));
+    } catch (pubErr) {
+      logger.error('Failed to publish approval created event', {
+        approval_id: id,
+        err: String(pubErr),
+      });
+    }
 
     const notifyEnvelope: EventEnvelope<NotifyPushEvent> = {
       schema_version: '1.0',
@@ -89,7 +96,14 @@ export class ApprovalManager {
       },
     };
 
-    this.nc.publish(NATS_SUBJECTS.NOTIFY_PUSH, jc.encode(notifyEnvelope));
+    try {
+      this.nc.publish(NATS_SUBJECTS.NOTIFY_PUSH, jc.encode(notifyEnvelope));
+    } catch (pubErr) {
+      logger.error('Failed to publish approval notify event', {
+        approval_id: id,
+        err: String(pubErr),
+      });
+    }
     logger.info('Approval created', {
       approval_id: id,
       tool: params.tool_name,
@@ -105,100 +119,161 @@ export class ApprovalManager {
     vote: 'approve' | 'deny',
     context: ApprovalVoteContext = {},
   ): Promise<void> {
-    // Verify approval exists and is pending
-    const approvalRes = context.chatId
-      ? await this.pool.query(
-        `SELECT id, status, quorum_required, expires_at, requester_user_id
-           FROM approvals
-          WHERE id = $1
-            AND chat_id = $2`,
-        [approvalId, context.chatId],
-      )
-      : await this.pool.query(
-        `SELECT id, status, quorum_required, expires_at, requester_user_id
-           FROM approvals
-          WHERE id = $1`,
+    const client = await this.pool.connect();
+    let newStatus: string | null = null;
+    let resolvedApproves = 0;
+    let resolvedDenies = 0;
+    let expiredInline = false;
+
+    try {
+      await client.query('BEGIN');
+
+      // Lock the approval row to prevent concurrent vote-count races
+      const approvalRes = context.chatId
+        ? await client.query(
+          `SELECT id, status, quorum_required, expires_at, requester_user_id
+             FROM approvals
+            WHERE id = $1
+              AND chat_id = $2
+            FOR UPDATE`,
+          [approvalId, context.chatId],
+        )
+        : await client.query(
+          `SELECT id, status, quorum_required, expires_at, requester_user_id
+             FROM approvals
+            WHERE id = $1
+            FOR UPDATE`,
+          [approvalId],
+        );
+
+      if (approvalRes.rows.length === 0) {
+        throw new Error(`Approval ${approvalId} not found`);
+      }
+
+      const approval = approvalRes.rows[0];
+
+      if (approval.status !== 'pending') {
+        throw new Error(`Approval ${approvalId} is already ${approval.status}`);
+      }
+
+      // Check expiry — handle within the same transaction
+      if (new Date(approval.expires_at) < new Date()) {
+        await client.query(
+          `UPDATE approvals SET status = 'expired', resolved_at = NOW() WHERE id = $1`,
+          [approvalId],
+        );
+        await client.query('COMMIT');
+        expiredInline = true;
+
+        try {
+          this.nc.publish(
+            NATS_SUBJECTS.APPROVAL_UPDATED,
+            jc.encode({
+              schema_version: '1.0',
+              event_id: uuidv7(),
+              occurred_at: new Date().toISOString(),
+              data: {
+                approval_id: approvalId,
+                voter_user_id: 'system',
+                vote: 'deny',
+                status: 'expired',
+              },
+            }),
+          );
+        } catch (pubErr) {
+          logger.error('Failed to publish approval expiry event', {
+            approval_id: approvalId,
+            err: String(pubErr),
+          });
+        }
+        logger.info('Approval expired', { approval_id: approvalId });
+        throw new Error(`Approval ${approvalId} has expired`);
+      }
+
+      // Prevent self-approval
+      if (approval.requester_user_id === voterUserId) {
+        throw new Error('Requester cannot vote on their own approval');
+      }
+
+      const voteId = uuidv7();
+
+      // Record vote (upsert)
+      await client.query(
+        `INSERT INTO approval_votes (id, approval_id, voter_user_id, vote, voted_at)
+         VALUES ($1, $2, $3, $4, NOW())
+         ON CONFLICT (approval_id, voter_user_id) DO UPDATE SET vote = $4, voted_at = NOW()`,
+        [voteId, approvalId, voterUserId, vote],
+      );
+
+      // Count votes — atomic within the locked transaction
+      const countRes = await client.query(
+        `SELECT
+           COUNT(*) FILTER (WHERE vote = 'approve')::int as approves,
+           COUNT(*) FILTER (WHERE vote = 'deny')::int as denies
+         FROM approval_votes WHERE approval_id = $1`,
         [approvalId],
       );
-    if (approvalRes.rows.length === 0) {
-      throw new Error(`Approval ${approvalId} not found`);
+
+      resolvedApproves = countRes.rows[0].approves;
+      resolvedDenies = countRes.rows[0].denies;
+      const quorum = approval.quorum_required;
+
+      // Evaluate outcome
+      if (resolvedDenies > 0) {
+        newStatus = 'denied';
+      } else if (resolvedApproves >= quorum) {
+        newStatus = 'approved';
+      }
+
+      if (newStatus) {
+        await client.query(
+          `UPDATE approvals SET status = $1, votes_approve = $2, votes_deny = $3, resolved_at = NOW()
+           WHERE id = $4`,
+          [newStatus, resolvedApproves, resolvedDenies, approvalId],
+        );
+      } else {
+        await client.query(
+          `UPDATE approvals SET votes_approve = $1, votes_deny = $2 WHERE id = $3`,
+          [resolvedApproves, resolvedDenies, approvalId],
+        );
+      }
+
+      await client.query('COMMIT');
+    } catch (err) {
+      if (!expiredInline) {
+        await client.query('ROLLBACK').catch(() => {});
+      }
+      throw err;
+    } finally {
+      client.release();
     }
 
-    const approval = approvalRes.rows[0];
-    if (approval.status !== 'pending') {
-      throw new Error(`Approval ${approvalId} is already ${approval.status}`);
-    }
-
-    // Check expiry
-    if (new Date(approval.expires_at) < new Date()) {
-      await this.expireApproval(approvalId);
-      throw new Error(`Approval ${approvalId} has expired`);
-    }
-
-    // Prevent self-approval
-    if (approval.requester_user_id === voterUserId) {
-      throw new Error('Requester cannot vote on their own approval');
-    }
-
-    const voteId = uuidv7();
-
-    // Record vote (upsert)
-    await this.pool.query(
-      `INSERT INTO approval_votes (id, approval_id, voter_user_id, vote, voted_at)
-       VALUES ($1, $2, $3, $4, NOW())
-       ON CONFLICT (approval_id, voter_user_id) DO UPDATE SET vote = $4, voted_at = NOW()`,
-      [voteId, approvalId, voterUserId, vote],
-    );
-
-    // Count votes
-    const countRes = await this.pool.query(
-      `SELECT
-         COUNT(*) FILTER (WHERE vote = 'approve')::int as approves,
-         COUNT(*) FILTER (WHERE vote = 'deny')::int as denies
-       FROM approval_votes WHERE approval_id = $1`,
-      [approvalId],
-    );
-
-    const approves = countRes.rows[0].approves;
-    const denies = countRes.rows[0].denies;
-    const quorum = approval.quorum_required;
-
-    // Evaluate outcome
-    let newStatus: string | null = null;
-    if (denies > 0) {
-      newStatus = 'denied';
-    } else if (approves >= quorum) {
-      newStatus = 'approved';
-    }
-
+    // Publish NATS event after commit — not inside the transaction
     if (newStatus) {
-      await this.pool.query(
-        `UPDATE approvals SET status = $1, votes_approve = $2, votes_deny = $3, resolved_at = NOW()
-         WHERE id = $4`,
-        [newStatus, approves, denies, approvalId],
-      );
-
-      this.nc.publish(
-        NATS_SUBJECTS.APPROVAL_UPDATED,
-        jc.encode({
-          schema_version: '1.0',
-          event_id: uuidv7(),
-          occurred_at: new Date().toISOString(),
-          data: {
-            approval_id: approvalId,
-            voter_user_id: voterUserId,
-            vote,
-            status: newStatus,
-          },
-        }),
-      );
+      try {
+        this.nc.publish(
+          NATS_SUBJECTS.APPROVAL_UPDATED,
+          jc.encode({
+            schema_version: '1.0',
+            event_id: uuidv7(),
+            occurred_at: new Date().toISOString(),
+            data: {
+              approval_id: approvalId,
+              voter_user_id: voterUserId,
+              vote,
+              status: newStatus,
+            },
+          }),
+        );
+      } catch (pubErr) {
+        logger.error('Failed to publish approval resolution event', {
+          approval_id: approvalId,
+          status: newStatus,
+          err: String(pubErr),
+        });
+      }
 
       logger.info('Approval resolved', { approval_id: approvalId, status: newStatus });
-    } else {
-      await this.pool.query(
-        `UPDATE approvals SET votes_approve = $1, votes_deny = $2 WHERE id = $3`,
-        [approves, denies, approvalId],
-      );
     }
   }
 
@@ -210,20 +285,27 @@ export class ApprovalManager {
       `UPDATE approvals SET status = 'expired', resolved_at = NOW() WHERE id = $1 AND status = 'pending'`,
       [approvalId],
     );
-    this.nc.publish(
-      NATS_SUBJECTS.APPROVAL_UPDATED,
-      jc.encode({
-        schema_version: '1.0',
-        event_id: uuidv7(),
-        occurred_at: new Date().toISOString(),
-        data: {
-          approval_id: approvalId,
-          voter_user_id: 'system',
-          vote: 'deny',
-          status: 'expired',
-        },
-      }),
-    );
+    try {
+      this.nc.publish(
+        NATS_SUBJECTS.APPROVAL_UPDATED,
+        jc.encode({
+          schema_version: '1.0',
+          event_id: uuidv7(),
+          occurred_at: new Date().toISOString(),
+          data: {
+            approval_id: approvalId,
+            voter_user_id: 'system',
+            vote: 'deny',
+            status: 'expired',
+          },
+        }),
+      );
+    } catch (pubErr) {
+      logger.error('Failed to publish approval expiry event', {
+        approval_id: approvalId,
+        err: String(pubErr),
+      });
+    }
     logger.info('Approval expired', { approval_id: approvalId });
   }
 
@@ -247,7 +329,14 @@ export class ApprovalManager {
         if (res.rows.length > 0) {
           logger.info('Expiring approvals', { count: res.rows.length });
           for (const row of res.rows) {
-            await this.expireApproval(row.id);
+            try {
+              await this.expireApproval(row.id);
+            } catch (itemErr) {
+              logger.error('Failed to expire individual approval', {
+                approval_id: row.id,
+                err: String(itemErr),
+              });
+            }
           }
         }
       } catch (err) {

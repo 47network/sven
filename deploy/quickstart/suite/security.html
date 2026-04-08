@@ -24,7 +24,7 @@
         <a href="/suite/enterprise">Enterprise</a>
         <a href="/suite/roadmap">Roadmap</a>
       </nav>
-      <a class="cta" href="https://app.sven.example.com/community" data-runtime-path="/community">Community</a>
+      <a class="cta" href="https://app.sven.systems/community" data-runtime-path="/community">Community</a>
     </div>
   </header>
 
@@ -57,7 +57,7 @@
       <div class="grid cols-3" style="margin-top:14px">
         <article class="card"><span class="badge ok">Identity</span><h3>Verified access</h3><p>Community and privileged operations use gated identity and admin-reviewed enrollment paths.</p></article>
         <article class="card"><span class="badge ok">Policy</span><h3>Runtime controls</h3><p>Action lanes and automated tasks respect policy decisions, permission scope, and reviewability constraints.</p></article>
-        <article class="card"><span class="badge warn">Governance</span><h3>Release gates</h3><p>Strict parity/checklist/status gates prevent unsupported claims from being promoted as complete.</p></article>
+        <article class="card"><span class="badge warn">Governance</span><h3>Release gates</h3><p>Strict checklist and status gates prevent unsupported claims from being promoted as complete.</p></article>
       </div>
     </section>
 
@@ -70,7 +70,7 @@
             <tr><td>TLS edge ingress</td><td>Encrypted ingress and route segmentation</td><td>configured</td></tr>
             <tr><td>Public API boundary</td><td>Expose only approved public evidence endpoints</td><td>enforced by nginx paths</td></tr>
             <tr><td>Identity-gated community</td><td>Reduce abuse and improve trust quality</td><td id="ev-community">loading</td></tr>
-            <tr><td>Parity + release verifiers</td><td>Proof over claims</td><td>tracked in release docs</td></tr>
+            <tr><td>Verification + release verifiers</td><td>Proof over claims</td><td>tracked in release docs</td></tr>
           </tbody>
         </table>
       </div>
@@ -104,7 +104,7 @@
 
         <div class="segment-panel" id="sec-governance">
           <div class="threat-grid">
-            <article class="threat-card"><span class="k">Risk class</span><div class="v">Claim/evidence mismatch</div><p>Release closure is blocked when required lifecycle or parity gates lack passing proof.</p></article>
+            <article class="threat-card"><span class="k">Risk class</span><div class="v">Claim/evidence mismatch</div><p>Release closure is blocked when required lifecycle or verification gates lack passing proof.</p></article>
             <article class="threat-card"><span class="k">Control</span><div class="v">Strict checklist verifier</div><p>Operational lanes are validated with scriptable checks and freshness expectations.</p></article>
             <article class="threat-card"><span class="k">Operator response</span><div class="v">Status reconciliation</div><p>Update artifacts and rerun strict gates before promoting state as complete.</p></article>
           </div>
@@ -116,8 +116,8 @@
       <h2>Live security-related evidence</h2>
       <div class="grid cols-4" style="margin-top:14px">
         <div class="card"><div class="kv"><span class="k">Capability proof</span><span class="v" id="ev-capability">Loading...</span></div></div>
-        <div class="card"><div class="kv"><span class="k">Wave lanes</span><span class="v" id="ev-waves">Loading...</span></div></div>
-        <div class="card"><div class="kv"><span class="k">Doc-agent feed</span><span class="v" id="ev-feed">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Verification lanes</span><span class="v" id="ev-waves">Loading...</span></div></div>
+        <div class="card"><div class="kv"><span class="k">Proof feed</span><span class="v" id="ev-feed">Loading...</span></div></div>
         <div class="card"><div class="kv"><span class="k">Readiness</span><span class="v" id="ev-readiness">Loading...</span></div></div>
       </div>
     </section>
@@ -127,7 +127,3 @@
   <script src="/suite/assets/suite.js"></script>
 </body>
 </html>
-
-
-
-

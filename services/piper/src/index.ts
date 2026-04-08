@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import { join, basename, extname } from 'node:path';
+import { join, resolve, basename, extname } from 'node:path';
 import { promises as fs } from 'node:fs';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { createLogger, NATS_SUBJECTS } from '@sven/shared';
@@ -13,7 +13,9 @@ import type { CanvasBlock, EventEnvelope, OutboxEnqueueEvent } from '@sven/share
 const logger = createLogger('piper-tts');
 const jc = JSONCodec();
 
-const storageDir = join(process.cwd(), process.env.VOICE_TTS_STORAGE || 'storage');
+const storageDir = process.env.VOICE_TTS_STORAGE
+  ? resolve(process.env.VOICE_TTS_STORAGE)
+  : join(process.cwd(), 'storage');
 const serverPort = Number(process.env.VOICE_TTS_PORT || 4200);
 const baseUrl = process.env.VOICE_TTS_BASE_URL || `http://piper:${serverPort}`;
 const piperUrl = process.env.PIPER_URL || 'http://piper:59125/api/tts';

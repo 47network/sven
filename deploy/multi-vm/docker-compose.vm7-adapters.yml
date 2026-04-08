@@ -54,8 +54,39 @@ volumes:
   tunnel-data:
   zalo-personal-data:
   mirror-agent-data:
+  whatsapp-personal-session:
 
 services:
+  # ─── WhatsApp Personal Adapter (Baileys / WhatsApp Web) ───
+  adapter-whatsapp-personal:
+    <<: *adapter-base
+    profiles: ["adapters", "whatsapp-personal"]
+    image: ${REGISTRY:-sven}/adapter-whatsapp-personal:${ADAPTER_WHATSAPP_PERSONAL_TAG:-latest}
+    container_name: sven-adapter-whatsapp-personal
+    # Override cap_drop/read_only from adapter-base — Baileys needs /tmp writes
+    cap_add:
+      - NET_BIND_SERVICE
+    read_only: false
+    tmpfs: []
+    environment:
+      ADAPTER_CHANNEL: whatsapp_personal
+      GATEWAY_URL: http://${VM4_INTERNAL_IP:-10.74.47.8}:${GATEWAY_PORT:-3000}
+      SVEN_ADAPTER_TOKEN: ${SVEN_ADAPTER_TOKEN:?SVEN_ADAPTER_TOKEN is required}
+      WHATSAPP_SESSION_DIR: /data/whatsapp-session
+      WHATSAPP_QR_PORT: "8444"
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-2000}
+      NODE_ENV: production
+    ports:
+      - "${VM7_INTERNAL_IP:-10.47.47.11}:8444:8444"
+    volumes:
+      - whatsapp-personal-session:/data/whatsapp-session
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:8444/status', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
   # ─── Discord Adapter ───
   adapter-discord:
     <<: *adapter-base
@@ -270,6 +301,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${ZALO_PORT:-8484}:8484"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.ZALO_PORT || '8484') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── Feishu / Lark Adapter ───
   adapter-feishu:
@@ -290,6 +327,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${FEISHU_PORT:-8489}:8489"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.FEISHU_PORT || '8489') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── Mattermost Adapter ───
   adapter-mattermost:
@@ -309,6 +352,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${MATTERMOST_PORT:-8491}:8491"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.MATTERMOST_PORT || '8491') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── IRC Adapter ───
   adapter-irc:
@@ -331,6 +380,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${IRC_HEALTH_PORT:-8496}:8496"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.IRC_HEALTH_PORT || '8496') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── Nostr Adapter ───
   adapter-nostr:
@@ -348,6 +403,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${NOSTR_HEALTH_PORT:-8492}:8492"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.NOSTR_HEALTH_PORT || '8492') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── Twitch Adapter ───
   adapter-twitch:
@@ -368,6 +429,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${TWITCH_HEALTH_PORT:-8494}:8494"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.TWITCH_HEALTH_PORT || '8494') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── LINE Adapter ───
   adapter-line:
@@ -386,6 +453,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${LINE_PORT:-8488}:8488"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.LINE_PORT || '8488') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── Voice Call Adapter ───
   adapter-voice-call:
@@ -404,6 +477,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${VOICE_CALL_PORT:-8490}:8490"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.VOICE_CALL_PORT || '8490') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── Tlon / Urbit Adapter ───
   adapter-tlon:
@@ -422,6 +501,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${TLON_PORT:-8493}:8493"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.TLON_PORT || '8493') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── Nextcloud Talk Adapter ───
   adapter-nextcloud-talk:
@@ -441,6 +526,12 @@ services:
       NODE_ENV: production
     ports:
       - "${VM7_INTERNAL_IP:-10.74.47.11}:${NEXTCLOUD_TALK_PORT:-8495}:8495"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:' + (process.env.NEXTCLOUD_TALK_PORT || '8495') + '/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # ─── Cloudflare Tunnel (optional) ───
   cloudflared:

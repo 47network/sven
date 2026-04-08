@@ -21,7 +21,7 @@ const PII_VALUE_PATTERNS: Array<{ type: string; pattern: RegExp }> = [
   { type: 'email', pattern: /[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}/g },
   { type: 'phone', pattern: /\b(?:\+?\d{1,3}[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)\d{3}[-.\s]?\d{4}\b/g },
   { type: 'ssn', pattern: /\b\d{3}-\d{2}-\d{4}\b/g },
-  { type: 'credit_card', pattern: /\b(?:\d[ -]*?){13,16}\b/g },
+  { type: 'credit_card', pattern: /\b\d(?:[ -]?\d){12,15}\b/g },
 ];
 const ALLOWED_EXPORT_TYPES = ['all', 'messages', 'artifacts', 'metadata', 'tool_runs', 'voice', 'custom'] as const;
 const ALLOWED_DELETION_TYPES = ['soft_delete', 'hard_delete', 'anonymize', 'purge'] as const;
@@ -327,6 +327,10 @@ export async function registerPrivacyRoutes(app: FastifyInstance, pool: pg.Pool)
       }
 
       const textValue = String(text);
+      const MAX_PII_TEXT_LENGTH = 500_000;
+      if (textValue.length > MAX_PII_TEXT_LENGTH) {
+        return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: `text must be ≤${MAX_PII_TEXT_LENGTH} characters` } });
+      }
       const detected = await detectPII(textValue);
 
       return reply.send({
@@ -356,6 +360,10 @@ export async function registerPrivacyRoutes(app: FastifyInstance, pool: pg.Pool)
       }
 
       const textValue = String(text);
+      const MAX_REDACT_TEXT_LENGTH = 500_000;
+      if (textValue.length > MAX_REDACT_TEXT_LENGTH) {
+        return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: `text must be ≤${MAX_REDACT_TEXT_LENGTH} characters` } });
+      }
       const redacted = await applyRedactionRules(textValue);
 
       return reply.send({

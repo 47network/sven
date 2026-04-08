@@ -7,6 +7,7 @@ import {
     Terminal,
     Activity,
 } from 'lucide-react';
+import svenIconUrl from '../../src-tauri/icons/icon.png';
 
 export type NavTab = 'chat' | 'approvals' | 'settings' | 'log';
 
@@ -40,7 +41,7 @@ export function Sidebar({ active, onNavigate, pendingApprovals, status }: Sideba
         <aside className="sidebar">
             {/* Brand */}
             <div className="sidebar-brand">
-                <div className="sidebar-orb" />
+                <img className="sidebar-logo" src={svenIconUrl} alt="Sven" />
                 <span className="sidebar-name">Sven</span>
             </div>
 

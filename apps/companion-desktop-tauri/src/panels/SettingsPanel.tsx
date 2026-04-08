@@ -52,7 +52,7 @@ export function SettingsPanel({
                         className="field-input"
                         value={config.gateway_url}
                         onChange={(e) => onConfigChange({ ...config, gateway_url: e.target.value })}
-                        placeholder="http://127.0.0.1:3001"
+                        placeholder="https://app.sven.systems"
                     />
                 </div>
                 <div className="field">

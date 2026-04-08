@@ -375,6 +375,21 @@ class ChatService {
   /// Clear the in-memory response cache (call on logout or incognito start).
   void clearCache() => _cache.clear();
 
+  /// Create a new chat thread on the server and return its real ID.
+  Future<String> createChat({String name = 'New chat'}) async {
+    final uri = Uri.parse('$_apiBase/v1/chats');
+    final response = await _client.postJson(uri, {'title': name});
+    if (response.statusCode != 201) {
+      throw ChatServiceException(
+        'Failed to create chat (${response.statusCode})',
+      );
+    }
+    final respBody = jsonDecode(response.body) as Map<String, dynamic>;
+    final data = respBody['data'] as Map<String, dynamic>?;
+    if (data == null) throw ChatServiceException('Invalid response from server');
+    return data['id'] as String;
+  }
+
   /// Rename a chat thread.
   Future<void> renameChat(String chatId, String newName) async {
     final uri = Uri.parse('$_apiBase/v1/chats/$chatId');

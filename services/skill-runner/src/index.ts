@@ -1,7 +1,6 @@
 import { connect, NatsConnection, JSONCodec, JetStreamClient, AckPolicy, DeliverPolicy } from 'nats';
 import pg from 'pg';
-import { v7 as uuidv7 } from 'uuid';
-import { createLogger, NATS_SUBJECTS, computeRunHash, canonicalIoHash } from '@sven/shared';
+import { createLogger, NATS_SUBJECTS, computeRunHash, canonicalIoHash, generateTaskId, ClientAttestor, executeToolBatch, type ToolExecRequest, type ToolSafetyClass, loadAllSkills, findSkill, type SkillDefinition, FileHistoryManager, type FileSnapshot, StealthCommitter, PromptGuard, AntiDistillation, QueryChain, BackgroundSessionManager, FeatureFlagRegistry } from '@sven/shared';
 import { ensureStreams } from '@sven/shared/nats/streams.js';
 import type { EventEnvelope, ToolRunRequestEvent, ToolRunResultEvent } from '@sven/shared';
 import { createGitRepo, type GitProvider } from '@sven/shared/integrations/git.js';
@@ -101,6 +100,8 @@ const MAX_DEVICE_EVENTS_LIMIT = 100;
 const DEFAULT_NAS_SEARCH_MAX_RESULTS = 100;
 const MIN_NAS_SEARCH_MAX_RESULTS = 1;
 const MAX_NAS_SEARCH_MAX_RESULTS = 1000;
+const MAX_OBSIDIAN_WALK_DEPTH = 20;
+const MAX_DEVICE_COMMAND_PAYLOAD_BYTES = 65536;
 const DEFAULT_NAS_READ_MAX_BYTES = 10485760;
 const MIN_NAS_READ_MAX_BYTES = 1;
 const MAX_NAS_READ_MAX_BYTES = 268435456;
@@ -121,6 +122,16 @@ const ajv = new (AjvModule as any)({ allErrors: true, strict: false, allowUnionT
 const outputValidators = new Map<string, ValidateFunction>();
 const INTEGRATION_RUNTIME_AUTOSTART_DEFAULT = true;
 const INTEGRATION_RUNTIME_AUTOCONFIG_DEFAULT = true;
+
+// Module-level file history manager for tracking file modifications and undo support
+const fileHistory = new FileHistoryManager({
+  maxSnapshotsPerFile: 50,
+  maxTotalSnapshots: 500,
+  maxContentSize: 512 * 1024,
+});
+
+// Module-level stealth committer for clean autonomous git commits
+const stealthCommitter = StealthCommitter.fromEnv();
 
 const INTEGRATION_TOOL_PREFIXES: Array<{ prefix: string; runtimeType: string }> = [
   { prefix: 'obsidian.', runtimeType: 'obsidian' },
@@ -339,11 +350,15 @@ function normalizeTypeEnvKey(integrationType: string): string {
   return integrationType.toUpperCase().replace(/[^A-Z0-9]+/g, '_');
 }
 
+function shellEscape(value: string): string {
+  return "'" + value.replace(/'/g, "'\\''") + "'";
+}
+
 function renderTemplate(template: string, vars: Record<string, string>): string {
   let out = template;
   for (const [key, value] of Object.entries(vars)) {
     const token = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
-    out = out.replace(token, value);
+    out = out.replace(token, shellEscape(value));
   }
   return out;
 }
@@ -352,7 +367,12 @@ function deriveIntegrationStoragePath(orgId: string, integrationType: string): s
   const root = String(process.env.SVEN_INTEGRATION_STORAGE_ROOT || '/var/lib/sven/integrations')
     .replace(/[\\]+/g, '/')
     .replace(/\/+$/, '');
-  return `${root}/${orgId}/${integrationType}`;
+  const safeOrg = String(orgId).replace(/[^a-zA-Z0-9_-]/g, '');
+  const safeType = String(integrationType).replace(/[^a-zA-Z0-9_-]/g, '');
+  if (!safeOrg || !safeType) throw new Error('Invalid orgId or integrationType for storage path');
+  const result = path.resolve(`${root}/${safeOrg}/${safeType}`);
+  if (!result.startsWith(root + '/')) throw new Error('Storage path traversal blocked');
+  return result;
 }
 
 function deriveIntegrationNetworkScope(orgId: string): string {
@@ -549,7 +569,7 @@ async function emitIntegrationRuntimeStatusMessage(
     await pool.query(
       `INSERT INTO messages (id, chat_id, role, content_type, text, blocks, created_at)
        VALUES ($1, $2, 'assistant', $3, $4, $5::jsonb, NOW())`,
-      [uuidv7(), chatId, blocks.length > 0 ? 'blocks' : 'text', text, JSON.stringify(blocks)],
+      [generateTaskId('message'), chatId, blocks.length > 0 ? 'blocks' : 'text', text, JSON.stringify(blocks)],
     );
   } catch (err) {
     logger.warn('Failed to emit integration runtime status message', {
@@ -1304,6 +1324,27 @@ async function getObsidianVaultPath(pool: pg.Pool, scope?: string | SettingsScop
   return vaultPath;
 }
 
+async function resolveObsidianNotePath(vaultRoot: string, notePath: string): Promise<string> {
+  const resolved = path.resolve(vaultRoot, notePath);
+  const normalizedRoot = path.resolve(vaultRoot);
+  if (resolved !== normalizedRoot && !resolved.startsWith(normalizedRoot + path.sep)) {
+    throw new Error('Path traversal blocked: note path escapes vault');
+  }
+  try {
+    const realResolved = await fs.realpath(resolved);
+    const realRoot = await fs.realpath(normalizedRoot);
+    if (realResolved !== realRoot && !realResolved.startsWith(realRoot + path.sep)) {
+      throw new Error('Path traversal blocked: symlink escapes vault');
+    }
+    return realResolved;
+  } catch (err) {
+    if (err instanceof Error && err.message.includes('ENOENT')) {
+      return resolved;
+    }
+    throw err;
+  }
+}
+
 async function getTrelloConfig(pool: pg.Pool, scope?: string | SettingsScope): Promise<{ key: string; token: string }> {
   const settings = await getScopedSettingsMap(
     pool,
@@ -1364,7 +1405,13 @@ async function getGifApiConfig(pool: pg.Pool, scope?: string | SettingsScope): P
 }
 
 function escapeAppleScriptString(value: string): string {
-  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  return value
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')
+    .replace(/\0/g, '');
 }
 
 function runAppleScript(script: string, timeoutMs = 15000): { ok: boolean; stdout: string; error?: string } {
@@ -1554,7 +1601,7 @@ async function createHaApprovalRequest(
     if (existing.rows.length > 0) {
       return String(existing.rows[0].id || '');
     }
-    const approvalId = uuidv7();
+    const approvalId = generateTaskId('approval');
     await pool.query(
       `INSERT INTO approvals (
          id, chat_id, tool_name, scope, requester_user_id, status, quorum_required, expires_at, details, created_at
@@ -1737,6 +1784,9 @@ async function prepareSecretMounts(
         throw new Error(`Secret resolution budget exceeded after ${secretResolutionBudgetMs}ms`);
       }
       const secretValue = await resolveSecretRef(ref);
+      if (Buffer.byteLength(secretValue) > 1_048_576) {
+        throw new Error(`Secret '${key}' exceeds 1 MiB size limit`);
+      }
       const fileName = key.replace(/[^A-Za-z0-9_.-]/g, '_');
       const filePath = path.join(tmpDir, fileName);
       await fs.writeFile(filePath, secretValue, { mode: 0o600 });
@@ -1883,6 +1933,110 @@ async function main(): Promise<void> {
   });
   logger.info('Connected to Postgres');
 
+  // Initialize client attestation for inter-service message verification
+  let clientAttestor: ClientAttestor | null = null;
+  const attestationSecret = process.env.SVEN_ATTESTATION_SECRET || '';
+  if (attestationSecret.length >= 32) {
+    clientAttestor = new ClientAttestor({ secret: attestationSecret, serviceId: 'skill-runner' });
+    logger.info('Client attestation initialized', { serviceId: 'skill-runner' });
+  }
+
+  // Initialize feature flag registry for runtime gating
+  const featureFlags = new FeatureFlagRegistry({ source: 'skill-runner', warnOnStaleFlags: true });
+  featureFlags.register({
+    name: 'prompt-guard.output-scan',
+    type: 'boolean',
+    value: false,
+    description: 'Scan tool outputs for prompt leakage before returning to agent-runtime',
+    createdAt: '2026-04-07T00:00:00Z',
+    cleanupBy: '2027-04-07T00:00:00Z',
+    enabled: (process.env.FEATURE_PROMPT_GUARD_OUTPUT_SCAN || '').toLowerCase() === 'true',
+  });
+  featureFlags.register({
+    name: 'anti-distillation.tool-outputs',
+    type: 'boolean',
+    value: false,
+    description: 'Watermark tool outputs for anti-distillation tracking',
+    createdAt: '2026-04-07T00:00:00Z',
+    cleanupBy: '2027-04-07T00:00:00Z',
+    enabled: (process.env.FEATURE_ANTI_DISTILLATION_TOOL_OUTPUTS || '').toLowerCase() === 'true',
+  });
+  featureFlags.register({
+    name: 'query-chain.tool-depth',
+    type: 'boolean',
+    value: true,
+    description: 'Enable tool nesting depth tracking and circuit-breaking',
+    createdAt: '2026-04-07T00:00:00Z',
+    cleanupBy: '2027-04-07T00:00:00Z',
+    enabled: true,
+  });
+  logger.info('Feature flag registry initialized', { flags: featureFlags.getAllFlags().map(f => f.name) });
+
+  // Initialize prompt guard for tool output leakage detection
+  const promptGuard = new PromptGuard({
+    blockOnDetection: true,
+    blockThreshold: 'medium',
+  });
+
+  // Initialize anti-distillation for tool output watermarking
+  const antiDistillation = AntiDistillation.fromEnv('skill-runner');
+
+  // Initialize background session manager for async tool operations
+  const bgSessions = new BackgroundSessionManager({
+    maxConcurrent: Number(process.env.BG_SESSION_MAX_CONCURRENT || 4),
+    maxQueueSize: Number(process.env.BG_SESSION_MAX_QUEUE || 50),
+    defaultTimeoutMs: Number(process.env.BG_SESSION_TIMEOUT_MS || 10 * 60 * 1000),
+  });
+  logger.info('Background session manager initialized', {
+    maxConcurrent: Number(process.env.BG_SESSION_MAX_CONCURRENT || 4),
+  });
+
+  // Load skills from skills/ directory using the standard YAML+Markdown loader
+  const systemSkillsDir = process.env.SKILLS_DIR || path.resolve(process.cwd(), '../../skills');
+  const orgSkillsDir = process.env.ORG_SKILLS_DIR || '';
+  const workspaceSkillsDir = process.env.WORKSPACE_SKILLS_DIR || '';
+  let loadedSkills: SkillDefinition[] = [];
+  try {
+    loadedSkills = await loadAllSkills({
+      systemDir: systemSkillsDir,
+      organizationDir: orgSkillsDir || undefined,
+      workspaceDir: workspaceSkillsDir || undefined,
+    });
+    logger.info('Skill loader initialized', {
+      systemDir: systemSkillsDir,
+      totalSkills: loadedSkills.length,
+      skillNames: loadedSkills.map((s) => s.name),
+    });
+  } catch (err) {
+    logger.warn('Skill loader initialization failed, continuing without skills', { error: String(err) });
+  }
+
+  logger.info('File history manager initialized', {
+    maxSnapshotsPerFile: 50,
+    maxTotalSnapshots: 500,
+  });
+
+  // Tool safety classification for batch execution
+  // Exclusive tools: file writes, git, NAS, HA calls, shell, docker — anything with side effects
+  // Concurrent tools: web_fetch, search, read-only DB queries, media analysis — safe to parallelize
+  const EXCLUSIVE_TOOL_PREFIXES = ['git.', 'nas.write', 'nas.delete', 'ha.call_service', 'shell.', 'docker.', 'dynamic.'];
+  const EXCLUSIVE_TOOL_NAMES = new Set([
+    'write_file', 'delete_file', 'create_file', 'move_file',
+    'schedule.create', 'schedule.delete', 'schedule.update',
+    'browser.navigate', 'browser.click', 'browser.type',
+  ]);
+  function classifyToolSafety(toolName: string): ToolSafetyClass {
+    if (EXCLUSIVE_TOOL_NAMES.has(toolName)) return 'exclusive';
+    for (const prefix of EXCLUSIVE_TOOL_PREFIXES) {
+      if (toolName.startsWith(prefix)) return 'exclusive';
+    }
+    return 'concurrent';
+  }
+  logger.info('Tool executor batch engine initialized', {
+    exclusivePrefixes: EXCLUSIVE_TOOL_PREFIXES.length,
+    exclusiveNames: EXCLUSIVE_TOOL_NAMES.size,
+  });
+
   const js = nc.jetstream();
 
   // Subscribe to tool run requests
@@ -1895,6 +2049,44 @@ async function main(): Promise<void> {
   });
 
   logger.info('Subscribed to tool.run.request, processing...');
+
+  // Secured result publisher: applies prompt guard output scan + anti-distillation watermarking
+  const publishSecuredResult = async (
+    event: ToolRunRequestEvent,
+    status: string,
+    outputs: Record<string, unknown>,
+    error?: string,
+  ): Promise<void> => {
+    // Scan text outputs for prompt leakage
+    if (featureFlags.isEnabled('prompt-guard.output-scan') && status === 'success') {
+      for (const [key, value] of Object.entries(outputs)) {
+        if (typeof value === 'string' && value.length > 0) {
+          const scan = promptGuard.scanOutput(value);
+          if (scan.blocked) {
+            logger.warn('Prompt guard blocked tool output — potential system prompt leakage', {
+              run_id: event.run_id,
+              tool_name: event.tool_name,
+              output_key: key,
+              pattern: scan.patternName,
+              severity: scan.severity,
+            });
+            outputs[key] = '[output redacted by security scan]';
+          }
+        }
+      }
+    }
+
+    // Watermark text outputs for anti-distillation
+    if (featureFlags.isEnabled('anti-distillation.tool-outputs') && status === 'success') {
+      for (const [key, value] of Object.entries(outputs)) {
+        if (typeof value === 'string' && value.length > 20) {
+          outputs[key] = antiDistillation.watermark(value);
+        }
+      }
+    }
+
+    await publishResult(nc, event, status, outputs, error);
+  };
 
   for await (const msg of sub) {
     try {
@@ -1928,7 +2120,7 @@ async function main(): Promise<void> {
       );
 
       if (toolRes.rows.length === 0) {
-        await publishResult(nc, event, 'error', {}, `Tool "${event.tool_name}" not found in registry`);
+        await publishSecuredResult(event, 'error', {}, `Tool "${event.tool_name}" not found in registry`);
         msg.ack();
         continue;
       }
@@ -2199,14 +2391,15 @@ async function main(): Promise<void> {
         runHash,
       });
 
-      // Publish result
-      await publishResult(nc, event, status, redactedOutputs, redactedError);
+      // Publish result with security scanning (prompt guard + anti-distillation)
+      await publishSecuredResult(event, status, redactedOutputs, redactedError);
 
       logger.info('Tool run completed', {
         run_id: event.run_id,
         tool_name: event.tool_name,
         status,
         run_hash: runHash,
+        safety_class: classifyToolSafety(event.tool_name),
       });
 
       msg.ack();
@@ -3164,14 +3357,17 @@ async function executeInProcess(
 
     case 'git.commit': {
       const repoId = inputs.repo_id as string;
-      const message = inputs.message as string;
+      const rawMessage = inputs.message as string;
       const authorName = inputs.author_name as string | undefined;
       const authorEmail = inputs.author_email as string | undefined;
       const gitActor = resolveGitActorUserId(inputs.user_id, runContext?.userId);
 
-      if (!repoId || !message) {
+      if (!repoId || !rawMessage) {
         return { outputs: {}, error: 'repo_id and message are required' };
       }
+
+      // Sanitize commit message: strip AI markers, enforce clean formatting
+      const message = stealthCommitter.sanitizeMessage(rawMessage);
       if (!gitActor.ok) {
         return { outputs: {}, error: gitActor.error || 'Git authorization failed' };
       }
@@ -3481,7 +3677,31 @@ async function executeInProcess(
         }
         const buffer = decoded.buffer;
 
+        // Read existing content for file history snapshot (before write)
+        let beforeContent: string | null = null;
+        try {
+          const existing = await readFile(filePath, nasUserId);
+          beforeContent = existing.toString('utf-8');
+        } catch {
+          // File doesn't exist yet — beforeContent stays null (new file)
+        }
+
         const result = await writeFile(filePath, buffer, nasUserId, { append, createDirs });
+
+        // Record file history snapshot for undo support
+        try {
+          fileHistory.record({
+            filePath,
+            beforeContent,
+            afterContent: buffer.toString('utf-8'),
+            operation: beforeContent === null ? 'create' : 'modify',
+            actorId: nasUserId,
+            toolName: 'nas.write',
+            taskId: runContext?.chatId,
+          });
+        } catch (histErr) {
+          logger.warn('File history record failed', { filePath, error: String(histErr) });
+        }
 
         // Log operation
         try {
@@ -3519,7 +3739,33 @@ async function executeInProcess(
           return { outputs: {}, error: validation.error };
         }
 
+        // Read existing content for file history snapshot (before delete)
+        let beforeContent: string | null = null;
+        try {
+          const existing = await readFile(filePath, nasUserId);
+          beforeContent = existing.toString('utf-8');
+        } catch {
+          // File might be a directory or unreadable — skip snapshot content
+        }
+
         const result = await deleteFile(filePath, nasUserId, recursive);
+
+        // Record file history snapshot for undo support
+        if (beforeContent !== null) {
+          try {
+            fileHistory.record({
+              filePath,
+              beforeContent,
+              afterContent: null,
+              operation: 'delete',
+              actorId: nasUserId,
+              toolName: 'nas.delete',
+              taskId: runContext?.chatId,
+            });
+          } catch (histErr) {
+            logger.warn('File history record failed', { filePath, error: String(histErr) });
+          }
+        }
 
         // Log operation
         try {
@@ -3705,7 +3951,14 @@ async function executeInProcess(
         const legacyDefault =
           searxngUrlSetting === 'http://searxng:8080' || searxngUrlSetting === 'http://searxng:8080/';
         if (searxngUrlSetting && (!legacyDefault || !process.env.SEARXNG_URL)) {
-          searxngUrl = searxngUrlSetting;
+          try {
+            const parsed = new URL(searxngUrlSetting);
+            if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+              searxngUrl = searxngUrlSetting;
+            }
+          } catch {
+            // ignore invalid URL; keep env/default
+          }
         }
 
         const enginesValue = parseSettingValue<string[] | string>(settings.get('search.engines'));
@@ -4056,7 +4309,7 @@ async function executeInProcess(
       if (sourceRes.rows.length > 0) {
         sourceId = String(sourceRes.rows[0].id);
       } else {
-        sourceId = uuidv7();
+        sourceId = generateTaskId('catalog_entry');
         await pool.query(
           `INSERT INTO registry_sources (id, organization_id, name, type, path, enabled, created_at)
            VALUES ($1, $2, $3, 'local', $4, true, NOW())`,
@@ -4072,7 +4325,7 @@ async function executeInProcess(
       if (pubRes.rows.length > 0) {
         publisherId = String(pubRes.rows[0].id);
       } else {
-        publisherId = uuidv7();
+        publisherId = generateTaskId('catalog_entry');
         await pool.query(
           `INSERT INTO registry_publishers (id, organization_id, name, trusted, created_at)
            VALUES ($1, $2, 'agent-runtime', false, NOW())`,
@@ -4080,7 +4333,7 @@ async function executeInProcess(
         );
       }
 
-      const toolIdCandidate = uuidv7();
+      const toolIdCandidate = generateTaskId('tool_run');
       const toolName = `dynamic.${slug}`;
       await pool.query(
         `INSERT INTO tools (
@@ -4115,7 +4368,7 @@ async function executeInProcess(
       );
       const toolId = String(toolRes.rows[0]?.id || toolIdCandidate);
 
-      const catalogId = uuidv7();
+      const catalogId = generateTaskId('catalog_entry');
       await pool.query(
         `INSERT INTO skills_catalog (
           id, organization_id, source_id, publisher_id, name, description, version, format, manifest, created_at
@@ -4133,7 +4386,7 @@ async function executeInProcess(
         })],
       );
 
-      const installedId = uuidv7();
+      const installedId = generateTaskId('catalog_entry');
       await pool.query(
         `INSERT INTO skills_installed (
           id, organization_id, catalog_entry_id, tool_id, trust_level, installed_by, installed_at
@@ -4141,7 +4394,7 @@ async function executeInProcess(
         [installedId, orgId, catalogId, toolId, DYNAMIC_SKILL_INITIAL_TRUST_LEVEL, userId || null],
       );
 
-      const reportId = uuidv7();
+      const reportId = generateTaskId('audit_entry');
       await pool.query(
         `INSERT INTO skill_quarantine_reports (
           id, skill_id, organization_id, static_checks, sbom, vuln_scan, overall_risk, reviewed_by, reviewed_at, created_at
@@ -4167,7 +4420,7 @@ async function executeInProcess(
             $1, $2, $3, 'registry.skill.review', $4, 'pending', 1, NOW() + INTERVAL '7 days', $5::jsonb, NOW()
           )`,
           [
-            uuidv7(),
+            generateTaskId('approval'),
             chatId,
             'registry.skill.review',
             userId,
@@ -5039,11 +5292,11 @@ end tell
       const subpath = String(inputs.path || '').trim();
       try {
         const vaultRoot = await getObsidianVaultPath(pool, runContext);
-        const target = path.join(vaultRoot, subpath);
+        const target = await resolveObsidianNotePath(vaultRoot, subpath || '.');
         const entries = await fs.readdir(target, { withFileTypes: true });
         const notes = entries
-          .filter((e) => e.isFile() && e.name.toLowerCase().endsWith('.md'))
-          .map((e) => e.name)
+          .filter((e: import('node:fs').Dirent) => e.isFile() && e.name.toLowerCase().endsWith('.md'))
+          .map((e: import('node:fs').Dirent) => e.name)
           .sort((a, b) => a.localeCompare(b));
         return { outputs: { path: subpath || '.', notes, count: notes.length } };
       } catch (err) {
@@ -5056,7 +5309,7 @@ end tell
       if (!notePath) return { outputs: {}, error: 'inputs.path is required' };
       try {
         const vaultRoot = await getObsidianVaultPath(pool, runContext);
-        const fullPath = path.join(vaultRoot, notePath);
+        const fullPath = await resolveObsidianNotePath(vaultRoot, notePath);
         const content = await fs.readFile(fullPath, 'utf8');
         return { outputs: { path: notePath, content } };
       } catch (err) {
@@ -5071,7 +5324,7 @@ end tell
       if (!notePath) return { outputs: {}, error: 'inputs.path is required' };
       try {
         const vaultRoot = await getObsidianVaultPath(pool, runContext);
-        const fullPath = path.join(vaultRoot, notePath);
+        const fullPath = await resolveObsidianNotePath(vaultRoot, notePath);
         await fs.mkdir(path.dirname(fullPath), { recursive: true });
         if (append) {
           await fs.appendFile(fullPath, content, 'utf8');
@@ -5091,12 +5344,18 @@ end tell
       try {
         const vaultRoot = await getObsidianVaultPath(pool, runContext);
         const collected: Array<{ path: string; matches: number }> = [];
-        const walk = async (dir: string): Promise<void> => {
+        const visited = new Set<string>();
+        const walk = async (dir: string, depth: number): Promise<void> => {
+          if (depth > MAX_OBSIDIAN_WALK_DEPTH) return;
+          let realDir: string;
+          try { realDir = await fs.realpath(dir); } catch { return; }
+          if (visited.has(realDir)) return;
+          visited.add(realDir);
           const entries = await fs.readdir(dir, { withFileTypes: true });
           for (const entry of entries) {
             const p = path.join(dir, entry.name);
             if (entry.isDirectory()) {
-              await walk(p);
+              await walk(p, depth + 1);
               continue;
             }
             if (!entry.isFile() || !entry.name.toLowerCase().endsWith('.md')) continue;
@@ -5116,7 +5375,7 @@ end tell
             }
           }
         };
-        await walk(vaultRoot);
+        await walk(vaultRoot, 0);
         collected.sort((a, b) => b.matches - a.matches);
         return { outputs: { query, results: collected.slice(0, limit), count: Math.min(collected.length, limit) } };
       } catch (err) {
@@ -5602,8 +5861,6 @@ end tell
         return { outputs: {}, error: scheduleTargetAccess.error || 'Schedule target access denied' };
       }
 
-      const { v7: uuidv7 } = await import('uuid');
-
       let nextRun: Date | null = null;
 
       if (scheduleType === 'recurring') {
@@ -5631,7 +5888,7 @@ end tell
       }
 
       try {
-        const id = uuidv7();
+        const id = generateTaskId('outbox_item');
         const runAtDate = runAt ? new Date(runAt) : null;
 
         await pool.query(
@@ -5853,6 +6110,11 @@ end tell
         return { outputs: {}, error: 'payload must be a plain object when provided' };
       }
 
+      const payloadJson = JSON.stringify(payload);
+      if (payloadJson.length > MAX_DEVICE_COMMAND_PAYLOAD_BYTES) {
+        return { outputs: {}, error: `payload too large (max ${MAX_DEVICE_COMMAND_PAYLOAD_BYTES} bytes)` };
+      }
+
       // Resolve device by name if ID not provided
       let resolvedDeviceId = deviceId;
       if (!resolvedDeviceId && deviceName) {
@@ -5902,7 +6164,7 @@ end tell
         `INSERT INTO device_commands (device_id, command, payload)
          VALUES ($1, $2, $3)
          RETURNING id, command, status, created_at`,
-        [resolvedDeviceId, command, JSON.stringify(payload)],
+        [resolvedDeviceId, command, payloadJson],
       );
 
       return {
@@ -6559,7 +6821,7 @@ async function executeMcpProxyTool(
       `INSERT INTO mcp_tool_calls (id, server_id, tool_name, input, output, duration_ms, status, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, 'success', NOW())`,
       [
-        `mcp_${uuidv7()}`,
+        `mcp_${generateTaskId('tool_run')}`,
         target.server_id,
         target.tool_name,
         serializedInput.json,
@@ -6583,7 +6845,7 @@ async function executeMcpProxyTool(
         `INSERT INTO mcp_tool_calls (id, server_id, tool_name, input, output, duration_ms, status, error, created_at)
          VALUES ($1, $2, $3, $4, '{}'::jsonb, $5, 'error', $6, NOW())`,
         [
-          `mcp_${uuidv7()}`,
+          `mcp_${generateTaskId('tool_run')}`,
           target.server_id,
           target.tool_name,
           serializedInput.json,
@@ -6631,7 +6893,7 @@ function callMcpStdio(
   const child = spawnSync(spec.command, spec.args, {
     cwd: spec.cwd || process.cwd(),
     env: childEnv,
-    shell: spec.shell ?? false,
+    shell: false,
     input: `${payload}\n`,
     encoding: 'utf8',
     timeout: timeoutMs,
@@ -6876,7 +7138,7 @@ async function publishResult(
 ): Promise<void> {
   const envelope: EventEnvelope<ToolRunResultEvent> = {
     schema_version: '1.0',
-    event_id: uuidv7(),
+    event_id: generateTaskId('event_envelope'),
     occurred_at: new Date().toISOString(),
     data: {
       run_id: event.run_id,

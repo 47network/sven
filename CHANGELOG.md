@@ -10,6 +10,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- Personality Engine module (`packages/shared/src/personality-engine.ts`): configurable buddy personality modes (professional, friendly, casual, terse), mood derivation from operational signals, XP/leveling system, achievement tracking, streak tracking, context-aware greetings, and milestone celebrations.
+- Visual Companion types (`packages/shared/src/visual-companion.ts`): companion species, appearance, accessory slots, XP display, achievement display, streak display, companion events (WebSocket), and companion settings for frontend rendering across Tauri desktop, Flutter mobile, and admin-ui web surfaces.
+- Smart Digest enhancement: buddy daily/weekly digests now include success rate, top tools, error pattern detection with proactive suggestions, conversation activity, streak tracking, and milestone celebrations.
+- Feature flag environment variables for agent-runtime: `FEATURE_PROMPT_GUARD_ENABLED`, `FEATURE_MEMORY_EXTRACTOR_ENABLED`, `FEATURE_ANTI_DISTILLATION_ENABLED`, watermark config (`SVEN_WATERMARK_ENABLED`, `SVEN_WATERMARK_PAYLOAD`, `SVEN_WATERMARK_DENSITY`, `SVEN_FINGERPRINT_SECRET`), and buddy config (`BUDDY_PERSONALITY_MODE`, `BUDDY_STREAK_TRACKING`).
+- Feature flag environment variables for skill-runner: `SVEN_COMMIT_AUTHOR_NAME`, `SVEN_COMMIT_AUTHOR_EMAIL`.
 - Admin API surface for 47Dynamics bridge tenant mappings (`/v1/admin/integrations/47dynamics/tenant-mappings`) with resolve, upsert, update, and deactivate flows.
 - Bridge tenant mapping persistence table (`bridge_tenant_mappings`) with legacy wildcard seed for controlled migration from static bridge defaults.
 - Contract regression tests for bridge correlation matching, admin bridge mapping route registration/permissions, and rag-indexer query-result handling.
@@ -42,6 +47,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Bridge tenant resolution now validates mapping integrity at runtime (chat belongs mapped organization and mapped agent is active) before routing requests.
 
 ### Fixed
+- Piper TTS: `VOICE_TTS_STORAGE` absolute paths were incorrectly joined with `process.cwd()`, causing `EACCES: permission denied, mkdir '/app/var'` crash loop in container.
+- LiteLLM healthcheck: replaced broken `curl` command (not available in container) with `python3 urllib` check against `/health/liveliness` (no auth required).
+- Ollama compose device mappings: replaced fragile per-device (`/dev/dri/cardN`, `/dev/dri/renderDN`) mounts with `/dev/dri:/dev/dri` to survive device renumbering across reboots.
+- Faster-whisper: removed NVIDIA device request dependency from compose; set `FASTER_WHISPER_DEVICE=cpu` for AMD GPU hosts where CUDA is unavailable.
 - Tenant admin user creation can no longer create global `admin` users unless caller is platform admin.
 - Permissions schema is now organization-scoped via `permissions.organization_id` migration and backfill.
 - `RunbookSuggest` bridge flow no longer times out due to query/index contract mismatch; `rag-indexer` now handles query-shaped `rag.index.request` events and emits `rag.index.result`.

@@ -122,7 +122,9 @@ class WhatsAppAdapter extends BaseAdapter {
               .createHmac('sha256', this.appSecret)
               .update(body)
               .digest('hex');
-            if (signature !== expected) {
+            const sigBuf = Buffer.from(String(signature || ''));
+            const expBuf = Buffer.from(expected);
+            if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
               res.writeHead(401);
               res.end();
               return;

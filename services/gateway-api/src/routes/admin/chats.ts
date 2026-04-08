@@ -263,6 +263,13 @@ export async function registerChatRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
       return;
     }
+    if (String(body.name).length > 255) {
+      reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'name must be at most 255 characters' },
+      });
+      return;
+    }
 
     const type = body.type && VALID_CHAT_TYPES.includes(body.type) ? body.type : 'group';
 

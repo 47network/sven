@@ -44,6 +44,8 @@ const AUTH_BOOTSTRAP_ADVISORY_LOCK_KEY = 47010001;
 const MAX_FAILED_ATTEMPTS = Number(process.env.AUTH_MAX_FAILED || 5);
 const LOCKOUT_DURATION_MS = Number(process.env.AUTH_LOCKOUT_MS || 15 * 60 * 1000); // 15 min
 const LOCKOUT_DURATION_SEC = Math.max(1, Math.ceil(LOCKOUT_DURATION_MS / 1000));
+const MAX_TOTP_ATTEMPTS = 5;
+const DUMMY_BCRYPT_HASH = '$2b$10$K4GEbrHmBaK8Z0dIbJZx5.X1YHRkfP/TnU0s9LS2GxJhK0Nvn5JyC';
 
 const USER_RATE_LIMIT_ENABLED = process.env.API_USER_RATE_LIMIT_ENABLED !== 'false';
 const USER_RATE_LIMIT_MAX = Math.max(1, Number(process.env.API_USER_RATE_LIMIT_MAX || 300));
@@ -1540,11 +1542,13 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
     }
     const clientId = String(config.oidc.client_id || '').trim();
-    const redirectUri = String(body.redirect_uri || config.oidc.callback_url || '').trim();
+    // Always use the configured callback_url — never accept redirect_uri from the request body.
+    // Accepting user-supplied redirect_uri enables open-redirect and authorization code interception.
+    const redirectUri = String(config.oidc.callback_url || '').trim();
     if (!clientId || !redirectUri) {
       return reply.status(400).send({
         success: false,
-        error: { code: 'VALIDATION', message: 'OIDC client_id and callback_url/redirect_uri are required' },
+        error: { code: 'VALIDATION', message: 'OIDC client_id and callback_url must be configured in SSO settings' },
       });
     }
 
@@ -1643,13 +1647,15 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
     }
 
-    const redirectUri = String(body.redirect_uri || pending.redirectUri || config.oidc.callback_url || '').trim();
+    // Always use the redirect_uri stored during /start — never accept body override on callback.
+    // The redirect_uri at token exchange must match what was sent to the authorization endpoint.
+    const redirectUri = String(pending.redirectUri || config.oidc.callback_url || '').trim();
     const clientId = String(config.oidc.client_id || '').trim();
     const clientSecret = String(config.oidc.client_secret || '').trim();
     if (!redirectUri || !clientId) {
       return reply.status(400).send({
         success: false,
-        error: { code: 'VALIDATION', message: 'OIDC callback_url/redirect_uri and client_id are required' },
+        error: { code: 'VALIDATION', message: 'OIDC callback_url and client_id must be configured in SSO settings' },
       });
     }
 
@@ -2038,36 +2044,34 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       [request.userId, nextHash],
     );
 
-    const bearer = getBearerToken(request.headers?.authorization);
-    const cookieSessionId = String(request.cookies?.[SESSION_COOKIE] || '').trim();
-    const keepSession = cookieSessionId || bearer;
-    if (keepSession) {
-      const revokeRes = await pool.query(
-        `UPDATE sessions
-         SET status = 'revoked'
-         WHERE user_id = $1
-           AND id <> $2
-           AND status IN ('active', 'refresh', 'pending_totp')
-         RETURNING id`,
-        [request.userId, keepSession],
-      );
-      const revokedSessionIds = (revokeRes.rows || []).map((row) => String(row.id || '').trim()).filter(Boolean);
-      await revokeSsoSessionLinksBySessionIds(pool, revokedSessionIds);
-      await touchSsoSessionLinks(pool, [keepSession]);
-    } else {
-      const revokeRes = await pool.query(
-        `UPDATE sessions
-         SET status = 'revoked'
-         WHERE user_id = $1
-           AND status IN ('active', 'refresh', 'pending_totp')
-         RETURNING id`,
-        [request.userId],
-      );
-      const revokedSessionIds = (revokeRes.rows || []).map((row) => String(row.id || '').trim()).filter(Boolean);
-      await revokeSsoSessionLinksBySessionIds(pool, revokedSessionIds);
-    }
+    // Revoke ALL sessions (including the current one) to prevent session fixation.
+    // A compromised session must not survive a credential change.
+    const revokeRes = await pool.query(
+      `UPDATE sessions
+       SET status = 'revoked'
+       WHERE user_id = $1
+         AND status IN ('active', 'refresh', 'pending_totp')
+       RETURNING id`,
+      [request.userId],
+    );
+    const revokedSessionIds = (revokeRes.rows || []).map((row) => String(row.id || '').trim()).filter(Boolean);
+    await revokeSsoSessionLinksBySessionIds(pool, revokedSessionIds);
 
-    reply.send({ success: true, data: { password_updated: true } });
+    // Issue a fresh session pair so the caller remains authenticated.
+    const newSessionId = await createAccessSession(pool, request.userId);
+    const newRefreshToken = await createRefreshSession(pool, request.userId);
+    reply.setCookie(SESSION_COOKIE, newSessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
+    reply.setCookie(REFRESH_TOKEN_COOKIE, newRefreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE));
+
+    reply.send({
+      success: true,
+      data: {
+        password_updated: true,
+        session_id: newSessionId,
+        refresh_token: newRefreshToken,
+        expires_in: ACCESS_TOKEN_MAX_AGE,
+      },
+    });
   });
 
   app.delete('/v1/users/me', { preHandler: requireAuth }, async (request: any, reply) => {
@@ -2352,29 +2356,9 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       [username],
     );
 
-    if (result.rows.length === 0) {
-      await recordFailedLogin(pool, authAttemptKey);
-      if (await isLockedOut(pool, authAttemptKey)) {
-        await setAuthRateLimitHeaders(reply, pool, authAttemptKey);
-        return reply.status(429).send({
-          success: false,
-          error: {
-            code: 'LOCKED_OUT',
-            message: 'Too many failed login attempts. Please try again later.',
-          },
-        });
-      }
-      await setAuthRateLimitHeaders(reply, pool, authAttemptKey);
-      reply.status(401).send({
-        success: false,
-        error: { code: 'AUTH_FAILED', message: 'Invalid credentials' },
-      });
-      return;
-    }
-
-    const user = result.rows[0];
-    const valid = await bcrypt.compare(password, user.password_hash);
-    if (!valid) {
+    const user = result.rows.length > 0 ? result.rows[0] : null;
+    const valid = await bcrypt.compare(password, user?.password_hash || DUMMY_BCRYPT_HASH);
+    if (!user || !valid) {
       await recordFailedLogin(pool, authAttemptKey);
       if (await isLockedOut(pool, authAttemptKey)) {
         await setAuthRateLimitHeaders(reply, pool, authAttemptKey);
@@ -2473,6 +2457,16 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       code: string;
     };
 
+    const totpAttemptKey = `totp:${String(pre_session_id || '').slice(0, 128)}`;
+    if (await isLockedOut(pool, totpAttemptKey)) {
+      await setAuthRateLimitHeaders(reply, pool, totpAttemptKey);
+      reply.status(429).send({
+        success: false,
+        error: { code: 'TOTP_RATE_LIMITED', message: 'Too many TOTP attempts. Try again later.' },
+      });
+      return;
+    }
+
     const sessionRes = await pool.query(
       `SELECT s.id, s.user_id, u.totp_secret_enc, u.username, u.role
        FROM sessions s JOIN users u ON s.user_id = u.id
@@ -2493,12 +2487,23 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     // Verify TOTP
     const isValid = authenticator.check(code, session.totp_secret_enc);
     if (!isValid) {
+      const failState = await recordFailedLogin(pool, totpAttemptKey);
+      if (failState.count >= MAX_TOTP_ATTEMPTS) {
+        await pool.query(
+          `UPDATE sessions SET status = 'revoked' WHERE id = $1 AND status = 'pending_totp'`,
+          [pre_session_id],
+        );
+        logger.warn('TOTP session revoked after max attempts', { user_id: session.user_id });
+      }
+      await setAuthRateLimitHeaders(reply, pool, totpAttemptKey);
       reply.status(401).send({
         success: false,
         error: { code: 'INVALID_TOTP', message: 'Invalid TOTP code' },
       });
       return;
     }
+
+    await resetFailedLogin(pool, totpAttemptKey);
 
     // Upgrade pre-session to access token + mint refresh token
     await pool.query(

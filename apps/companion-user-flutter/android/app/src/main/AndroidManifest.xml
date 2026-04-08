@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Microphone for speech-to-text -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
     <!-- Network access for STT, TTS, and streaming -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Bluetooth audio devices -->
@@ -45,6 +47,11 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/sven_widget_info" />
         </receiver>
+        <service
+            android:name=".WakeWordForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="microphone"
+            android:stopWithTask="false" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

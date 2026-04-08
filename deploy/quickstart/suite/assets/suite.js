@@ -1,6 +1,26 @@
 (() => {
+  let siteConfig = null;
+
   function byId(id) {
     return document.getElementById(id);
+  }
+
+  async function loadSiteConfig() {
+    const injected = typeof window.SVEN_SITE_CONFIG === 'object' && window.SVEN_SITE_CONFIG ? window.SVEN_SITE_CONFIG : null;
+    if (injected) {
+      siteConfig = injected;
+      return siteConfig;
+    }
+
+    try {
+      const response = await fetch('/assets/quickstart-config.json', { credentials: 'omit', cache: 'no-store' });
+      if (!response.ok) return null;
+      siteConfig = await response.json();
+      window.__SVEN_SITE_CONFIG = siteConfig;
+      return siteConfig;
+    } catch {
+      return null;
+    }
   }
 
   function uniqueOrigins(origins) {
@@ -13,10 +33,17 @@
   }
 
   function configuredRuntimeOrigin() {
+    const configured = typeof siteConfig?.runtime_origin === 'string' ? siteConfig.runtime_origin.trim() : '';
+    if (configured) return configured.replace(/\/$/, '');
     const meta = document.querySelector('meta[name="sven-runtime-origin"]')?.getAttribute('content')?.trim();
     if (meta) return meta.replace(/\/$/, '');
     const globalOrigin = typeof window.SVEN_RUNTIME_ORIGIN === 'string' ? window.SVEN_RUNTIME_ORIGIN.trim() : '';
     return globalOrigin ? globalOrigin.replace(/\/$/, '') : '';
+  }
+
+  function configuredProofOrigin() {
+    const configured = typeof siteConfig?.proof_origin === 'string' ? siteConfig.proof_origin.trim() : '';
+    return configured ? configured.replace(/\/$/, '') : '';
   }
 
   function runtimeOriginCandidates() {
@@ -145,6 +172,12 @@
 
       const sameOrigin = await attempt(path);
       if (sameOrigin) return sameOrigin;
+
+      const proofBase = configuredProofOrigin();
+      if (proofBase && proofBase !== window.location.origin) {
+        const proofResult = await attempt(`${proofBase}${path}`);
+        if (proofResult) return proofResult;
+      }
 
       const base = await runtimeOrigin();
       if (!base || base === window.location.origin) return null;
@@ -337,18 +370,25 @@
       set('ev-capability', `${cap.summary.proven_pass_rows}/${cap.summary.total_rows} proven (${cap.summary.coverage_percent || 0}%)`);
       const waves = Array.isArray(cap.waves) ? cap.waves : [];
       const passWaves = waves.filter((w) => statusText(w.status) === 'pass').length;
-      animateCounter('ev-waves', 0, passWaves, (v) => `${v}/${waves.length} wave lanes pass`);
+      animateCounter('ev-waves', 0, passWaves, (v) => `${v}/${waves.length} verification lanes pass`);
+      set('trust-capability', `${cap.summary.coverage_percent || 0}% coverage`);
+      set('trust-release', `${passWaves}/${waves.length || 0} lanes passing`);
     } else {
       set('ev-capability', 'Unavailable');
       set('ev-waves', 'Unavailable');
+      set('trust-capability', 'Unavailable');
+      set('trust-release', 'Unavailable');
     }
 
     if (feed && feed.telemetry) {
-      set('ev-feed', `doc_agents=${statusText(feed.telemetry.doc_agents_status)} | ecosystem=${statusText(feed.telemetry.ecosystem_status)}`);
+      set('ev-feed', `proof=${statusText(feed.telemetry.doc_agents_status)} | community=${statusText(feed.telemetry.ecosystem_status)}`);
       animateCounter('ev-readiness', 0, feed.telemetry.readiness_percent || 0, (v) => `${v}% readiness`);
+      const requiredFailures = Number.isFinite(feed.telemetry.required_failures) ? feed.telemetry.required_failures : 0;
+      set('trust-community', `${statusText(feed.status)} | required_failures=${requiredFailures}`);
     } else {
       set('ev-feed', 'Unavailable');
       set('ev-readiness', 'Unavailable');
+      set('trust-community', 'Unavailable');
     }
 
     if (st) {
@@ -359,6 +399,7 @@
   }
 
   async function init() {
+    await loadSiteConfig();
     const year = new Date().getFullYear();
     set('suite-year', String(year));
     setActiveNav();

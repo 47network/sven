@@ -332,6 +332,8 @@ function run() {
   const report = {
     generated_at: new Date().toISOString(),
     status: gates.every((g) => g.pass) ? 'pass' : 'fail',
+    source_run_id: sourceRunId,
+    head_sha: headSha || null,
     summary: {
       total_rows: totalRows,
       runtime_proven_rows: runtimeProven,

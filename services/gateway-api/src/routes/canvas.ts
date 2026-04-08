@@ -6,8 +6,8 @@ import { EventEmitter } from 'node:events';
 import vm from 'node:vm';
 import { createHash, randomBytes } from 'node:crypto';
 import { lookup as dnsLookup } from 'node:dns/promises';
-import { createReadStream } from 'node:fs';
-import { access } from 'node:fs/promises';
+import { createReadStream, realpathSync } from 'node:fs';
+import { access, realpath as fsRealpath } from 'node:fs/promises';
 import { isIP } from 'node:net';
 import { basename, isAbsolute, join, resolve, sep } from 'node:path';
 import { Readable } from 'node:stream';
@@ -1081,20 +1081,31 @@ async function findReadablePath(storagePath: string): Promise<string | null> {
     .filter((v): v is string => !!v)
     .map((v) => resolve(v));
 
+  if (baseRoots.length === 0) return null;
+
   const candidates = isAbsolute(raw)
     ? [resolve(raw)]
     : [resolve(raw), ...baseRoots.map((root) => resolve(root, raw))];
 
   for (const candidate of candidates) {
-    const allowed = baseRoots.length === 0
-      ? true
-      : baseRoots.some((root) => candidate === root || candidate.startsWith(`${root}${sep}`));
+    let realCandidate: string;
+    try {
+      realCandidate = await fsRealpath(candidate);
+    } catch {
+      continue;
+    }
+    const allowed = baseRoots.some((root) => {
+      try {
+        const realRoot = realpathSync(root);
+        return realCandidate === realRoot || realCandidate.startsWith(`${realRoot}${sep}`);
+      } catch { return false; }
+    });
     if (!allowed) continue;
     try {
-      await access(candidate);
-      return candidate;
+      await access(realCandidate);
+      return realCandidate;
     } catch {
-      // Continue candidate search
+      continue;
     }
   }
   return null;
@@ -4385,12 +4396,25 @@ export async function registerCanvasRoutes(
       return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Not a member' } });
     }
 
+    const htmlInput = String(body.html || '');
+    if (htmlInput.length > 512_000) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'html exceeds 512KB limit' } });
+    }
+    const componentInput = String(body.component || '');
+    if (componentInput.length > 512_000) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'component exceeds 512KB limit' } });
+    }
+    const stateInput = body.state && typeof body.state === 'object' ? body.state : null;
+    if (stateInput && JSON.stringify(stateInput).length > 512_000) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'state exceeds 512KB limit' } });
+    }
+
     const current = await getA2uiState(pool, chatId);
     const next = {
       version: current.version + 1,
-      html: String(body.html || current.html || ''),
-      component: String(body.component || current.component || ''),
-      state: body.state && typeof body.state === 'object' ? body.state : current.state || {},
+      html: htmlInput || current.html || '',
+      component: componentInput || current.component || '',
+      state: stateInput || current.state || {},
     };
     await upsertA2uiState(pool, chatId, next, request.userId);
 
@@ -4603,7 +4627,10 @@ export async function registerCanvasRoutes(
     const artifactRow = result.rows[0] as Record<string, unknown>;
 
     // If private and user is not the owner, deny
-    if (artifactRow.is_private && artifactRow.message_id) {
+    if (artifactRow.is_private) {
+      if (!artifactRow.message_id) {
+        return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Private artifact' } });
+      }
       const msg = await pool.query(`SELECT sender_user_id FROM messages WHERE id = $1`, [artifactRow.message_id]);
       if (msg.rows.length === 0 || msg.rows[0].sender_user_id !== request.userId) {
         return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Private artifact' } });
@@ -4632,7 +4659,10 @@ export async function registerCanvasRoutes(
 
     const artifact = result.rows[0];
 
-    if (artifact.is_private && artifact.message_id) {
+    if (artifact.is_private) {
+      if (!artifact.message_id) {
+        return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Private artifact' } });
+      }
       const msg = await pool.query(`SELECT sender_user_id FROM messages WHERE id = $1`, [artifact.message_id]);
       if (msg.rows.length === 0 || msg.rows[0].sender_user_id !== request.userId) {
         return reply.status(403).send({ success: false, error: { code: 'FORBIDDEN', message: 'Private artifact' } });

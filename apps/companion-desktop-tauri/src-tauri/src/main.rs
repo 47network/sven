@@ -19,7 +19,7 @@ struct DesktopConfig {
 impl Default for DesktopConfig {
   fn default() -> Self {
     Self {
-      gateway_url: "http://127.0.0.1:3001".into(),
+      gateway_url: "https://app.sven.systems".into(),
       chat_id: String::new(),
       polling_enabled: true,
     }
@@ -30,6 +30,47 @@ fn config_path(app: &AppHandle) -> Result<PathBuf, String> {
   let base = app.path().app_config_dir().map_err(|e| format!("path error: {e}"))?;
   fs::create_dir_all(&base).map_err(|e| format!("create dir error: {e}"))?;
   Ok(base.join("desktop-config.json"))
+}
+
+fn secrets_path(app: &AppHandle) -> Result<PathBuf, String> {
+  let base = app.path().app_config_dir().map_err(|e| format!("path error: {e}"))?;
+  fs::create_dir_all(&base).map_err(|e| format!("create dir error: {e}"))?;
+  Ok(base.join("desktop-secrets.json"))
+}
+
+fn read_secret_fallback(app: &AppHandle, key: &str) -> Result<Option<String>, String> {
+  let path = secrets_path(app)?;
+  if !path.exists() {
+    return Ok(None);
+  }
+  let raw = fs::read_to_string(path).map_err(|e| format!("read secrets error: {e}"))?;
+  let map = serde_json::from_str::<serde_json::Map<String, Value>>(&raw)
+    .map_err(|e| format!("parse secrets error: {e}"))?;
+  Ok(map.get(key).and_then(|v| v.as_str()).map(|v| v.to_string()))
+}
+
+fn write_secret_fallback(app: &AppHandle, key: &str, value: Option<&str>) -> Result<(), String> {
+  let path = secrets_path(app)?;
+  let mut map = if path.exists() {
+    let raw = fs::read_to_string(&path).map_err(|e| format!("read secrets error: {e}"))?;
+    serde_json::from_str::<serde_json::Map<String, Value>>(&raw)
+      .map_err(|e| format!("parse secrets error: {e}"))?
+  } else {
+    serde_json::Map::new()
+  };
+
+  match value {
+    Some(v) => {
+      map.insert(key.to_string(), Value::String(v.to_string()));
+    }
+    None => {
+      map.remove(key);
+    }
+  }
+
+  let raw = serde_json::to_string_pretty(&map).map_err(|e| format!("serialize secrets error: {e}"))?;
+  fs::write(path, raw).map_err(|e| format!("write secrets error: {e}"))?;
+  Ok(())
 }
 
 fn ensure_gateway_allowed(gateway_url: &str) -> Result<(), String> {
@@ -85,24 +126,32 @@ fn save_config(app: AppHandle, config: DesktopConfig) -> Result<DesktopConfig, S
 }
 
 #[tauri::command]
-fn set_secret(key: String, value: String) -> Result<(), String> {
+fn set_secret(app: AppHandle, key: String, value: String) -> Result<(), String> {
   let entry = keyring_entry(&key)?;
-  entry.set_password(&value).map_err(|e| format!("keyring write error: {e}"))
+  entry
+    .set_password(&value)
+    .map_err(|e| format!("keyring write error: {e}"))?;
+  write_secret_fallback(&app, &key, Some(&value))?;
+  Ok(())
 }
 
 #[tauri::command]
-fn get_secret(key: String) -> Result<Option<String>, String> {
+fn get_secret(app: AppHandle, key: String) -> Result<Option<String>, String> {
   let entry = keyring_entry(&key)?;
   match entry.get_password() {
-    Ok(v) => Ok(Some(v)),
-    Err(_) => Ok(None),
+    Ok(v) => {
+      let _ = write_secret_fallback(&app, &key, Some(&v));
+      Ok(Some(v))
+    }
+    Err(_) => read_secret_fallback(&app, &key),
   }
 }
 
 #[tauri::command]
-fn clear_secret(key: String) -> Result<(), String> {
+fn clear_secret(app: AppHandle, key: String) -> Result<(), String> {
   let entry = keyring_entry(&key)?;
   let _ = entry.delete_credential();
+  write_secret_fallback(&app, &key, None)?;
   Ok(())
 }
 

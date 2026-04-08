@@ -198,7 +198,13 @@ function normalizeStoragePath(storagePath?: string | null): string {
   }
   if (storagePath.startsWith('/nas')) {
     const base = process.env.SVEN_NAS_ROOT || path.join(DEFAULT_RUNTIME_TMP, 'nas');
-    return path.join(base, storagePath.replace(/^\/nas[\\/]?/, ''));
+    const relative = storagePath.replace(/^\/nas[\\/]?/, '');
+    const resolved = path.resolve(base, relative);
+    const normalizedBase = path.resolve(base);
+    if (resolved !== normalizedBase && !resolved.startsWith(normalizedBase + path.sep)) {
+      throw new Error('Storage path escapes NAS root');
+    }
+    return resolved;
   }
   if (path.isAbsolute(storagePath)) return storagePath;
   return path.join(process.cwd(), storagePath);
