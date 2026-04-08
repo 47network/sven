@@ -1,5 +1,6 @@
 export { BlockRenderer, type CanvasBlock } from './BlockRenderer';
 export { ActionsBlock } from './ActionsBlock';
+export { BrainBlock } from './BrainBlock';
 export { MarkdownBlock } from './MarkdownBlock';
 export { TableBlock } from './TableBlock';
 export { ChartBlock } from './ChartBlock';
