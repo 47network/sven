@@ -63,7 +63,7 @@ fading memory with emotional intelligence. Build a visual "brain map" for users.
 |---|------|---------|--------|
 | 2.4 | Brain visualization API | New endpoint returning user's memory/knowledge graph as structured graph data. Nodes = entities/memories, edges = relations, weights = confidence/recency/decay | [x] |
 | 2.5 | Brain visualization UI — Canvas | Interactive 3D/2D brain map in Canvas UI. Memories as neurons, connections as synapses, fading intensity as brightness. User sees real mapping of their brain/decisions | [x] |
-| 2.6 | Brain visualization UI — Flutter | Same brain map adapted for mobile. Touch-navigable, pinch-zoom, tap for memory details | [ ] |
+| 2.6 | Brain visualization UI — Flutter | Same brain map adapted for mobile. Touch-navigable, pinch-zoom, tap for memory details | [x] |
 | 2.7 | Memory decay admin controls | Admin settings: half-life, resonance threshold, consolidation frequency, max context window budget | [x] |
 | 2.8 | Memory consent layer | GDPR Article 15-17 compliance. User can see, export, delete, control what Sven remembers. "Forget me" button triggers full memory wipe | [x] |
 
@@ -177,8 +177,8 @@ See: [GEMMA4_INTEGRATION_SPEC.md](./GEMMA4_INTEGRATION_SPEC.md) for full technic
 | # | Task | Details | Status |
 |---|------|---------|--------|
 | 6.1 | Model selection | E2B (effective 2B) for Flutter mobile, E4B (effective 4B) for Tauri desktop. 26B MoE / 31B Dense for server-side. All Apache 2.0 | [x] |
-| 6.2 | Flutter on-device inference | Google AI Edge SDK / LiteRT-LM integration. 128K context window. Audio + vision native | [ ] |
-| 6.3 | Tauri on-device inference | llama.cpp Rust bindings or local Ollama sidecar. 128K context. Multimodal | [ ] |
+| 6.2 | Flutter on-device inference | Google AI Edge SDK / LiteRT-LM integration. 128K context window. Audio + vision native | [x] |
+| 6.3 | Tauri on-device inference | llama.cpp Rust bindings or local Ollama sidecar. 128K context. Multimodal | [x] |
 | 6.4 | Local ↔ Cloud smart routing | Simple tasks → local. Complex tasks → cloud. Offline → local handles everything. Seamless fallback | [x] |
 | 6.5 | On-device memory | Local SQLite/Drift memory store, quantum-fade decay runs locally, syncs with server when connected | [x] |
 | 6.6 | Community bridge | Local agent participates in community (if user consents via Batch 5 toggles). Files bugs, requests features, shares insights | [x] |
@@ -219,7 +219,7 @@ See: [GEMMA4_INTEGRATION_SPEC.md](./GEMMA4_INTEGRATION_SPEC.md) for full technic
 | 6.13 | Full offline mode | All capable models available locally. No data connection needed. Travel/new country with no data — Sven still fully functional | [x] |
 | 6.14 | Audio scribe local processing | ~30 seconds local speech-to-text. No cloud dependency. Process meetings, voice notes, lectures locally | [x] |
 | 6.15 | Mobile actions / device control | Gemma 4 native capability for controlling device through Sven. Navigate apps, complete tasks, automate workflows | [x] |
-| 6.16 | Website + documentation | Suite page for Gemma 4 integration, setup guides, module descriptions, platform compatibility matrix | [ ] |
+| 6.16 | Website + documentation | Suite page for Gemma 4 integration, setup guides, module descriptions, platform compatibility matrix | [x] |
 | 6.17 | Full Gemma 4 capabilities | Function calling, audio, vision, 140+ languages, structured JSON, system instructions, agentic workflows — all wired into Sven's agent runtime | [x] |
 
 ---

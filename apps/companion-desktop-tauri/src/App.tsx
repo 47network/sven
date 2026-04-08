@@ -2,6 +2,7 @@ import { useDesktopApp } from './lib/useDesktopApp';
 import { Sidebar, type NavTab } from './components/Sidebar';
 import { ChatPanel } from './panels/ChatPanel';
 import { ApprovalsPanel } from './panels/ApprovalsPanel';
+import { InferencePanel } from './panels/InferencePanel';
 import { SettingsPanel } from './panels/SettingsPanel';
 import { LogPanel } from './panels/LogPanel';
 
@@ -29,6 +30,22 @@ function App() {
             actioning={app.approvalActioning}
             token={app.token}
             onVote={app.onVoteApproval}
+          />
+        );
+      case 'inference':
+        return (
+          <InferencePanel
+            ollamaOnline={app.ollamaOnline}
+            models={app.localModels}
+            activeModelId={app.activeLocalModelId}
+            lastResponse={app.lastInferenceResponse}
+            pulling={app.pullingModel}
+            generating={app.generating}
+            onPullModel={app.onPullModel}
+            onDeleteModel={app.onDeleteModel}
+            onGenerate={app.onLocalGenerate}
+            onSetActiveModel={app.setActiveLocalModelId}
+            onRefreshModels={app.onRefreshLocalModels}
           />
         );
       case 'settings':

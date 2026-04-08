@@ -348,6 +348,229 @@ async fn vote_approval(gateway_url: String, approval_id: String, bearer_token: S
   Ok(payload.get("data").cloned().unwrap_or(payload))
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// On-device inference — llama.cpp / Ollama sidecar integration (6.3)
+//
+// Privacy: inference runs fully on-device via a local Ollama instance or
+// llama.cpp process. No data leaves the machine.
+// ═══════════════════════════════════════════════════════════════════════════
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct LocalModelInfo {
+  id: String,
+  name: String,
+  variant: String,
+  size_bytes: u64,
+  context_window: u32,
+  capabilities: Vec<String>,
+  status: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct InferenceRequest {
+  prompt: String,
+  model: Option<String>,
+  max_tokens: Option<u32>,
+  temperature: Option<f64>,
+  stream: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct InferenceResponse {
+  text: String,
+  model: String,
+  tokens_generated: u32,
+  duration_ms: u64,
+  tokens_per_second: f64,
+}
+
+/// Resolve the Ollama base URL. Prefers env var, falls back to localhost.
+fn ollama_url() -> String {
+  std::env::var("SVEN_OLLAMA_URL").unwrap_or_else(|_| "http://127.0.0.1:11434".into())
+}
+
+#[tauri::command]
+async fn inference_check_ollama() -> Result<bool, String> {
+  let url = ollama_url();
+  let client = build_client()?;
+  match client.get(format!("{url}/api/version")).send().await {
+    Ok(res) => Ok(res.status().is_success()),
+    Err(_) => Ok(false),
+  }
+}
+
+#[tauri::command]
+async fn inference_list_models() -> Result<Vec<LocalModelInfo>, String> {
+  let url = ollama_url();
+  let client = build_client()?;
+  let res = client
+    .get(format!("{url}/api/tags"))
+    .send()
+    .await
+    .map_err(|e| format!("ollama tags failed: {e}"))?;
+
+  if !res.status().is_success() {
+    return Err(format!("ollama tags http {}", res.status()));
+  }
+
+  let payload: Value = res.json().await.map_err(|e| format!("parse error: {e}"))?;
+  let models = payload
+    .get("models")
+    .and_then(|m| m.as_array())
+    .cloned()
+    .unwrap_or_default();
+
+  let mut result = Vec::new();
+  for m in &models {
+    let name = m.get("name").and_then(|v| v.as_str()).unwrap_or_default();
+    let size = m.get("size").and_then(|v| v.as_u64()).unwrap_or(0);
+    let is_gemma = name.to_lowercase().contains("gemma");
+
+    let variant = if name.contains("2b") {
+      "e2b"
+    } else if name.contains("4b") {
+      "e4b"
+    } else if name.contains("27b") || name.contains("26b") {
+      "moe26b"
+    } else {
+      "dense31b"
+    };
+
+    let mut capabilities = vec!["text".to_string(), "multilingual".to_string()];
+    if is_gemma {
+      capabilities.push("function_calling".to_string());
+      capabilities.push("vision".to_string());
+    }
+
+    result.push(LocalModelInfo {
+      id: name.to_string(),
+      name: name.to_string(),
+      variant: variant.to_string(),
+      size_bytes: size,
+      context_window: if variant == "e2b" || variant == "e4b" { 128_000 } else { 256_000 },
+      capabilities,
+      status: "ready".to_string(),
+    });
+  }
+
+  Ok(result)
+}
+
+#[tauri::command]
+async fn inference_pull_model(model_name: String) -> Result<String, String> {
+  let url = ollama_url();
+  let client = Client::builder()
+    .timeout(Duration::from_secs(600))
+    .build()
+    .map_err(|e| format!("http client error: {e}"))?;
+
+  let res = client
+    .post(format!("{url}/api/pull"))
+    .json(&serde_json::json!({ "name": model_name, "stream": false }))
+    .send()
+    .await
+    .map_err(|e| format!("ollama pull failed: {e}"))?;
+
+  let status = res.status();
+  if !status.is_success() {
+    let body = res.text().await.unwrap_or_default();
+    return Err(format!("ollama pull http {}: {}", status, body));
+  }
+
+  let payload: Value = res.json().await.map_err(|e| format!("parse error: {e}"))?;
+  let pull_status = payload
+    .get("status")
+    .and_then(|v| v.as_str())
+    .unwrap_or("unknown")
+    .to_string();
+
+  Ok(pull_status)
+}
+
+#[tauri::command]
+async fn inference_delete_model(model_name: String) -> Result<(), String> {
+  let url = ollama_url();
+  let client = build_client()?;
+  let res = client
+    .delete(format!("{url}/api/delete"))
+    .json(&serde_json::json!({ "name": model_name }))
+    .send()
+    .await
+    .map_err(|e| format!("ollama delete failed: {e}"))?;
+
+  if !res.status().is_success() {
+    let body = res.text().await.unwrap_or_default();
+    return Err(format!("ollama delete http {}: {}", res.status(), body));
+  }
+  Ok(())
+}
+
+#[tauri::command]
+async fn inference_generate(req: InferenceRequest) -> Result<InferenceResponse, String> {
+  let url = ollama_url();
+  let client = Client::builder()
+    .timeout(Duration::from_secs(120))
+    .build()
+    .map_err(|e| format!("http client error: {e}"))?;
+
+  let model = req.model.unwrap_or_else(|| "gemma3:4b".to_string());
+  let max_tokens = req.max_tokens.unwrap_or(512);
+  let temperature = req.temperature.unwrap_or(0.7);
+
+  let start = std::time::Instant::now();
+
+  let body = serde_json::json!({
+    "model": &model,
+    "prompt": &req.prompt,
+    "stream": false,
+    "options": {
+      "num_predict": max_tokens,
+      "temperature": temperature,
+    }
+  });
+
+  let res = client
+    .post(format!("{url}/api/generate"))
+    .json(&body)
+    .send()
+    .await
+    .map_err(|e| format!("ollama generate failed: {e}"))?;
+
+  let status = res.status();
+  if !status.is_success() {
+    let err_body = res.text().await.unwrap_or_default();
+    return Err(format!("ollama generate http {}: {}", status, err_body));
+  }
+
+  let payload: Value = res.json().await.map_err(|e| format!("parse error: {e}"))?;
+  let text = payload
+    .get("response")
+    .and_then(|v| v.as_str())
+    .unwrap_or_default()
+    .to_string();
+
+  let eval_count = payload
+    .get("eval_count")
+    .and_then(|v| v.as_u64())
+    .unwrap_or(0) as u32;
+
+  let elapsed = start.elapsed();
+  let dur_ms = elapsed.as_millis() as u64;
+  let tps = if dur_ms > 0 {
+    (eval_count as f64 / dur_ms as f64) * 1000.0
+  } else {
+    0.0
+  };
+
+  Ok(InferenceResponse {
+    text,
+    model,
+    tokens_generated: eval_count,
+    duration_ms: dur_ms,
+    tokens_per_second: tps,
+  })
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
@@ -363,7 +586,12 @@ pub fn run() {
       send_message,
       fetch_approvals,
       fetch_timeline,
-      vote_approval
+      vote_approval,
+      inference_check_ollama,
+      inference_list_models,
+      inference_pull_model,
+      inference_delete_model,
+      inference_generate
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

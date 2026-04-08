@@ -16,8 +16,15 @@ import {
     sendMessage,
     setSecret,
     voteApproval,
+    inferenceCheckOllama,
+    inferenceListModels,
+    inferencePullModel,
+    inferenceDeleteModel,
+    inferenceGenerate,
     type ApprovalItem,
     type DesktopConfig,
+    type InferenceResponse,
+    type LocalModelInfo,
     type TimelineItem,
 } from './api';
 import type { NavTab } from '../components/Sidebar';
@@ -52,6 +59,14 @@ export interface DesktopAppState {
     // Debug log
     logs: string[];
 
+    // On-device inference
+    ollamaOnline: boolean;
+    localModels: LocalModelInfo[];
+    activeLocalModelId: string;
+    lastInferenceResponse: InferenceResponse | null;
+    pullingModel: boolean;
+    generating: boolean;
+
     // Handlers
     onSaveConfig: () => Promise<void>;
     onDeviceLogin: () => Promise<void>;
@@ -61,6 +76,11 @@ export interface DesktopAppState {
     onRefreshTimeline: () => Promise<void>;
     onVoteApproval: (id: string, decision: 'approve' | 'deny') => Promise<void>;
     onClearLogs: () => void;
+    onRefreshLocalModels: () => Promise<void>;
+    onPullModel: (name: string) => Promise<void>;
+    onDeleteModel: (name: string) => Promise<void>;
+    onLocalGenerate: (prompt: string, model: string) => Promise<void>;
+    setActiveLocalModelId: (id: string) => void;
 }
 
 export function useDesktopApp(): DesktopAppState {
@@ -303,6 +323,79 @@ export function useDesktopApp(): DesktopAppState {
 
     const onClearLogs = useCallback(() => setLogs([]), []);
 
+    // ── On-device inference state ─────────────────────────
+    const [ollamaOnline, setOllamaOnline] = useState(false);
+    const [localModels, setLocalModels] = useState<LocalModelInfo[]>([]);
+    const [activeLocalModelId, setActiveLocalModelId] = useState('');
+    const [lastInferenceResponse, setLastInferenceResponse] = useState<InferenceResponse | null>(null);
+    const [pullingModel, setPullingModel] = useState(false);
+    const [generating, setGenerating] = useState(false);
+
+    const onRefreshLocalModels = useCallback(async () => {
+        try {
+            const online = await inferenceCheckOllama();
+            setOllamaOnline(online);
+            if (online) {
+                const models = await inferenceListModels();
+                setLocalModels(models);
+                if (models.length > 0 && !activeLocalModelId) {
+                    setActiveLocalModelId(models[0].id);
+                }
+                pushLog(`Ollama online, ${models.length} model(s) available.`);
+            } else {
+                setLocalModels([]);
+                pushLog('Ollama offline.');
+            }
+        } catch (err) {
+            setOllamaOnline(false);
+            pushLog(`Ollama check failed: ${String(err)}`);
+        }
+    }, [pushLog, activeLocalModelId]);
+
+    const onPullModel = useCallback(async (name: string) => {
+        setPullingModel(true);
+        try {
+            pushLog(`Pulling model ${name}…`);
+            const result = await inferencePullModel(name);
+            pushLog(`Pull ${name}: ${result}`);
+            await onRefreshLocalModels();
+        } catch (err) {
+            pushLog(`Pull ${name} failed: ${String(err)}`);
+        } finally {
+            setPullingModel(false);
+        }
+    }, [pushLog, onRefreshLocalModels]);
+
+    const onDeleteModel = useCallback(async (name: string) => {
+        try {
+            await inferenceDeleteModel(name);
+            pushLog(`Deleted model ${name}.`);
+            if (activeLocalModelId === name) setActiveLocalModelId('');
+            await onRefreshLocalModels();
+        } catch (err) {
+            pushLog(`Delete ${name} failed: ${String(err)}`);
+        }
+    }, [pushLog, onRefreshLocalModels, activeLocalModelId]);
+
+    const onLocalGenerate = useCallback(async (prompt: string, model: string) => {
+        setGenerating(true);
+        setLastInferenceResponse(null);
+        try {
+            const resp = await inferenceGenerate({ prompt, model });
+            setLastInferenceResponse(resp);
+            pushLog(`Inference: ${resp.tokens_generated} tokens in ${resp.duration_ms}ms (${resp.tokens_per_second.toFixed(1)} tok/s)`);
+        } catch (err) {
+            pushLog(`Inference failed: ${String(err)}`);
+        } finally {
+            setGenerating(false);
+        }
+    }, [pushLog]);
+
+    // Check Ollama on mount.
+    useEffect(() => {
+        onRefreshLocalModels();
+    }, [onRefreshLocalModels]);
+
     return {
         activeTab, setActiveTab,
         config, setConfig,
@@ -311,8 +404,12 @@ export function useDesktopApp(): DesktopAppState {
         deviceCode, verifyUrl, deviceBusy,
         sending, syncingTimeline, approvalActioning,
         logs,
+        ollamaOnline, localModels, activeLocalModelId,
+        lastInferenceResponse, pullingModel, generating,
         onSaveConfig, onDeviceLogin, onRefreshSession,
         onSend, onSignOut, onRefreshTimeline, onVoteApproval,
         onClearLogs,
+        onRefreshLocalModels, onPullModel, onDeleteModel,
+        onLocalGenerate, setActiveLocalModelId,
     };
 }

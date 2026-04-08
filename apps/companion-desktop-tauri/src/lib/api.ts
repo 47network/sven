@@ -88,3 +88,51 @@ export async function voteApproval(
     decision,
   });
 }
+
+// ── On-device inference (Ollama sidecar) ──────────────────────────────────
+
+export type LocalModelInfo = {
+  id: string;
+  name: string;
+  variant: string;
+  size_bytes: number;
+  context_window: number;
+  capabilities: string[];
+  status: string;
+};
+
+export type InferenceRequest = {
+  prompt: string;
+  model?: string;
+  max_tokens?: number;
+  temperature?: number;
+  stream?: boolean;
+};
+
+export type InferenceResponse = {
+  text: string;
+  model: string;
+  tokens_generated: number;
+  duration_ms: number;
+  tokens_per_second: number;
+};
+
+export async function inferenceCheckOllama(): Promise<boolean> {
+  return invoke('inference_check_ollama');
+}
+
+export async function inferenceListModels(): Promise<LocalModelInfo[]> {
+  return invoke('inference_list_models');
+}
+
+export async function inferencePullModel(modelName: string): Promise<string> {
+  return invoke('inference_pull_model', { model_name: modelName });
+}
+
+export async function inferenceDeleteModel(modelName: string): Promise<void> {
+  await invoke('inference_delete_model', { model_name: modelName });
+}
+
+export async function inferenceGenerate(req: InferenceRequest): Promise<InferenceResponse> {
+  return invoke('inference_generate', { req });
+}

@@ -6,10 +6,11 @@ import {
     Settings,
     Terminal,
     Activity,
+    Cpu,
 } from 'lucide-react';
 import svenIconUrl from '../../src-tauri/icons/icon.png';
 
-export type NavTab = 'chat' | 'approvals' | 'settings' | 'log';
+export type NavTab = 'chat' | 'approvals' | 'inference' | 'settings' | 'log';
 
 interface SidebarProps {
     active: NavTab;
@@ -29,6 +30,7 @@ export function Sidebar({ active, onNavigate, pendingApprovals, status }: Sideba
     const items: NavItem[] = [
         { id: 'chat', label: 'Chat', icon: <MessageSquare size={18} /> },
         { id: 'approvals', label: 'Approvals', icon: <ShieldCheck size={18} />, badge: pendingApprovals },
+        { id: 'inference', label: 'Local AI', icon: <Cpu size={18} /> },
         { id: 'settings', label: 'Settings', icon: <Settings size={18} /> },
         { id: 'log', label: 'Log', icon: <Terminal size={18} /> },
     ];
