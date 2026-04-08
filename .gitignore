@@ -1,1 +1,82 @@
-node_modules
+# ─── Dependencies ───────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build outputs ──────────────────────────────────────────────
+dist/
+build/
+*.tsbuildinfo
+.next/
+.nuxt/
+.turbo/
+
+# ─── Environment / Secrets ──────────────────────────────────────
+.env
+.env.local
+.env.*.local
+# Keep: .env.example, .env.*.example (committed as templates)
+
+# ─── Database dumps ─────────────────────────────────────────────
+*.sql
+# Keep: migration SQL files (nested in services/gateway-api)
+!services/gateway-api/src/db/migrations/*.sql
+!services/gateway-api/migrations/*.sql
+
+# ─── Temporary / scratch ────────────────────────────────────────
+tmp/
+.cache/
+
+# ─── IDE / Editor ───────────────────────────────────────────────
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── OS files ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── Flutter / Dart ─────────────────────────────────────────────
+.flutter-plugins
+.flutter-plugins-dependencies
+.dart_tool/
+.packages
+**/*.iml
+**/android/.gradle/
+**/ios/Pods/
+**/ios/.symlinks/
+apps/companion-user-flutter/screen_*.png
+
+# ─── Tauri / Rust ───────────────────────────────────────────────
+**/src-tauri/target/
+
+# ─── Generated test evidence ────────────────────────────────────
+docs/release/status/*
+!docs/release/status/README.md
+
+# ─── Large test fixtures ────────────────────────────────────────
+docs/performance/oversize-body-*
+
+# ─── AI / agent session files ───────────────────────────────────
+.claude/
+CODEX_RESUME_PROMPT.txt
+
+# ─── Python ─────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ─── Test / coverage ───────────────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+
+# ─── Package manager ───────────────────────────────────────────
+.npmrc

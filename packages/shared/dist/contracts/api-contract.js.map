@@ -1,1 +1,0 @@
-{"version":3,"file":"api-contract.js","sourceRoot":"","sources":["../../src/contracts/api-contract.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,MAAM,oBAAoB,GAAG,eAAe,CAAC;AAEpD,MAAM,CAAC,MAAM,qBAAqB,GAAG;IACnC,MAAM;IACN,MAAM;IACN,WAAW;IACX,OAAO;IACP,OAAO;CACC,CAAC;AAEX,MAAM,CAAC,MAAM,mBAAmB,GAAG,yBAAyB,CAAC"}
