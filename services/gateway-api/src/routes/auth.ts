@@ -18,8 +18,8 @@ const logger = createLogger('gateway-auth');
 
 const SESSION_COOKIE = 'sven_session';
 const REFRESH_TOKEN_COOKIE = 'sven_refresh';
-const ACCESS_TOKEN_MAX_AGE = 60 * 60; // 1 hour (seconds)
-const REFRESH_TOKEN_MAX_AGE = 30 * 24 * 60 * 60; // 30 days (seconds)
+const ACCESS_TOKEN_MAX_AGE = 7 * 24 * 60 * 60; // 7 days (seconds)
+const REFRESH_TOKEN_MAX_AGE = 90 * 24 * 60 * 60; // 90 days (seconds)
 
 function authCookieOptions(maxAge: number) {
   return {

@@ -15,6 +15,9 @@ import 'package:flutter/services.dart';
 
 import 'auth_errors.dart';
 
+/// Platform channel to explicitly open the soft keyboard.
+const _textInputChannel = SystemChannels.textInput;
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Page widget
 // ─────────────────────────────────────────────────────────────────────────────
@@ -86,8 +89,16 @@ class _MfaPageState extends State<MfaPage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && mounted) {
       // Re-open keyboard after returning from authenticator app.
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) _focusNode.requestFocus();
+      // Use a longer delay to let the OS finish the app-switch animation,
+      // then request focus AND explicitly invoke TextInput.show to force
+      // the soft keyboard open (requestFocus alone is unreliable after
+      // an app-switch on some Android versions).
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (!mounted) return;
+        _focusNode.requestFocus();
+        // Force the platform keyboard open even if the focus node thinks
+        // it already has focus.
+        _textInputChannel.invokeMethod('TextInput.show');
       });
     }
   }
@@ -240,8 +251,9 @@ class _MfaPageState extends State<MfaPage>
                         children: [
                           // Hidden real input captures keyboard
                           SizedBox(
-                            height: 0,
+                            height: 1,
                             child: TextField(
+                              autofocus: true,
                               controller: _controller,
                               focusNode: _focusNode,
                               keyboardType: TextInputType.number,

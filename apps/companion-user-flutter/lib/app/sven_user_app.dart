@@ -713,11 +713,11 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   }
 
   /// Schedules a periodic silent token refresh so the access token never
-  /// reaches its server-side expiry (currently 1 hour).  Fires every 50 min.
+  /// reaches its server-side expiry (currently 7 days).  Fires every 6 hours.
   void _startTokenRefreshTimer() {
     _tokenRefreshTimer?.cancel();
     _tokenRefreshTimer = Timer.periodic(
-      const Duration(minutes: 50),
+      const Duration(hours: 6),
       (_) => _silentTokenRefresh(),
     );
   }

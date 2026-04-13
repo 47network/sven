@@ -303,9 +303,26 @@ class AuthService {
         throw AuthException(AuthFailure.server);
       }
 
-      await _store.writeAccessToken(token);
+      // Write refresh token BEFORE access token to prevent a race where the
+      // OS kills the process between the two writes, leaving the old (revoked)
+      // refresh token in storage while the access token was already rotated.
       if (nextRefresh != null && nextRefresh.isNotEmpty) {
         await _store.writeRefreshToken(nextRefresh);
+      }
+      await _store.writeAccessToken(token);
+
+      // Keep saved-account tokens in sync so biometric quick-login always
+      // uses the latest (non-revoked) refresh token.
+      final activeUserId = await _store.readActiveAccountId();
+      final currentUserId = await _store.readUserId();
+      final accountId = activeUserId ?? currentUserId;
+      if (accountId != null && accountId.isNotEmpty) {
+        await _store.saveAccountTokens(
+          userId: accountId,
+          accessToken: token,
+          refreshToken: nextRefresh ?? await readRefreshToken(),
+          username: await readUsername(),
+        );
       }
       _emitEvent(
         'auth.refresh',
