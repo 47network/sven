@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart'
     show TargetPlatform, debugPrint, defaultTargetPlatform, kIsWeb;
@@ -94,6 +95,8 @@ class PushNotificationManager {
   String? _currentToken;
   String? _currentPlatform;
   bool _initialized = false;
+  bool _permissionRequested = false;
+  Completer<void>? _initCompleter;
 
   /// Reference to AppState for DND schedule checks. Set by the app shell.
   AppState? appState;
@@ -171,6 +174,13 @@ class PushNotificationManager {
   Future<void> initialize() async {
     if (_initialized) return;
 
+    // Guard against concurrent callers (main + session-restore paths).
+    if (_initCompleter != null) {
+      await _initCompleter!.future;
+      return;
+    }
+    _initCompleter = Completer<void>();
+
     try {
       if (!kIsWeb) {
         await _createAndroidChannels();
@@ -179,7 +189,10 @@ class PushNotificationManager {
       // Set up foreground message listener eagerly so messages arriving
       // after permission is granted are handled immediately.
       if (!kIsWeb) {
-        FirebaseMessaging.onMessage.listen(_handleMessage);
+        // Wait for Firebase before subscribing to the messaging stream.
+        if (await _waitForFirebase()) {
+          FirebaseMessaging.onMessage.listen(_handleMessage);
+        }
       }
 
       _initialized = true;
@@ -187,6 +200,8 @@ class PushNotificationManager {
     } catch (e) {
       debugPrint('⚠️  PushNotificationManager: initialization failed: $e');
       _initialized = true;
+    } finally {
+      _initCompleter!.complete();
     }
   }
 
@@ -195,8 +210,29 @@ class PushNotificationManager {
   /// Call this after login when the widget tree is stable. Safe to call
   /// multiple times — permission is only requested once, subsequent calls
   /// just ensure the token is registered.
+  ///
+  /// The actual permission request is deferred to the next frame with a
+  /// short delay to guarantee the Android Activity is fully in the RESUMED
+  /// state. Calling `ActivityCompat.requestPermissions()` before the
+  /// Activity is resumed crashes with `IllegalStateException`.
   Future<void> requestPermissionAndRegister() async {
     if (!_initialized) await initialize();
+    if (_permissionRequested) return;
+    _permissionRequested = true;
+
+    // Ensure Firebase is ready — _initializeFirebaseAndPush() in main.dart
+    // runs concurrently and may not have completed yet.
+    if (!await _waitForFirebase()) {
+      debugPrint('⚠️  Firebase not ready — skipping push permission request');
+      _permissionRequested = false;
+      return;
+    }
+
+    // Wait for the next frame + a short settling delay so the Android
+    // Activity is guaranteed to be in RESUMED state before we pop a
+    // system permission dialog.
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+
     try {
       if (kIsWeb) {
         await _initializeWebPush();
@@ -205,7 +241,18 @@ class PushNotificationManager {
       }
     } catch (e) {
       debugPrint('⚠️  PushNotificationManager: permission/register failed: $e');
+      _permissionRequested = false; // Allow retry on next login
     }
+  }
+
+  /// Poll until Firebase has been initialised (up to ~3 s).
+  Future<bool> _waitForFirebase() async {
+    const maxAttempts = 12;
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      if (Firebase.apps.isNotEmpty) return true;
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+    return Firebase.apps.isNotEmpty;
   }
 
   /// Create the three Android notification channels.
