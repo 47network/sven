@@ -594,7 +594,9 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     return newly;
   }
 
-  // ── News Ingestion Pipeline (CryptoPanic) ───────────────────
+  // ── Multi-Source News Aggregation Pipeline ───────────────────
+  // Sven gathers crypto & macro news from multiple sources worldwide,
+  // thinks about their implications, and feeds them to Trend Scout.
   interface NewsArticle {
     id: string;
     headline: string;
@@ -606,74 +608,76 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
     sentiment: string | null;
   }
   const newsCache: NewsArticle[] = [];
-  const NEWS_MAX_CACHE = 200;
+  const NEWS_MAX_CACHE = 500;
   const NEWS_FETCH_INTERVAL_MS = 5 * 60_000; // 5 minutes
+  const NEWS_SOURCE_TIMEOUT = 10_000;
 
-  async function fetchCryptoPanicNews(): Promise<void> {
+  /** Track per-source health for observability */
+  const newsSourceHealth: Record<string, { ok: number; fail: number; lastOk: Date | null; lastFail: Date | null }> = {};
+  function recordSourceResult(source: string, success: boolean): void {
+    if (!newsSourceHealth[source]) newsSourceHealth[source] = { ok: 0, fail: 0, lastOk: null, lastFail: null };
+    if (success) { newsSourceHealth[source]!.ok++; newsSourceHealth[source]!.lastOk = new Date(); }
+    else { newsSourceHealth[source]!.fail++; newsSourceHealth[source]!.lastFail = new Date(); }
+  }
+
+  /** Deduplicate by ID and push into newsCache. Returns count of new articles. */
+  function ingestArticles(articles: NewsArticle[]): number {
+    let count = 0;
+    for (const a of articles) {
+      if (newsCache.some(n => n.id === a.id)) continue;
+      newsCache.push(a);
+      count++;
+    }
+    while (newsCache.length > NEWS_MAX_CACHE) newsCache.shift();
+    return count;
+  }
+
+  /** Persist + broadcast high-impact articles */
+  async function analyzeAndPersistArticle(article: NewsArticle): Promise<void> {
     try {
-      // CryptoPanic free public API — no auth token needed for basic access
-      const url = 'https://cryptopanic.com/api/free/v1/posts/?auth_token=free&public=true&filter=important&currencies=BTC,ETH,SOL,BNB,XRP';
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10_000);
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeout);
-      if (!res.ok) {
-        // Fallback: fetch Binance top gainers to detect trending assets
-        logger.warn('CryptoPanic unavailable, using fallback news source', { status: res.status });
-        try {
-          const bRes = await fetch('https://api.binance.com/api/v3/ticker/24hr', { signal: AbortSignal.timeout(10_000) });
-          if (bRes.ok) {
-            const tickers = (await bRes.json()) as Array<{ symbol: string; priceChangePercent: string; volume: string }>;
-            // Find top 5 USDT pairs by absolute price change that aren't already tracked
-            const usdtPairs = tickers
-              .filter(t => t.symbol.endsWith('USDT'))
-              .map(t => ({ symbol: t.symbol, change: Math.abs(parseFloat(t.priceChangePercent)), volume: parseFloat(t.volume) }))
-              .sort((a, b) => b.change - a.change)
-              .slice(0, 10);
-
-            let fallbackCount = 0;
-            for (const t of usdtPairs) {
-              const id = `binance-mover-${t.symbol}-${Date.now()}`;
-              if (newsCache.some(n => n.id.startsWith(`binance-mover-${t.symbol}`))) continue;
-              const base = t.symbol.replace('USDT', '');
-              const direction = parseFloat(t.change.toString()) > 0 ? 'surging' : 'dropping';
-              newsCache.push({
-                id,
-                headline: `${base} ${direction} ${t.change.toFixed(1)}% in 24h — high volume activity on Binance`,
-                source: 'binance-24hr',
-                publishedAt: new Date(),
-                url: `https://www.binance.com/en/trade/${base}_USDT`,
-                currencies: [`${base}/USDT`],
-                kind: 'market_data',
-                sentiment: t.change > 5 ? 'positive' : t.change > 3 ? 'neutral' : null,
-              });
-              fallbackCount++;
-            }
-            if (fallbackCount > 0) {
-              logger.info('Fallback news from Binance movers', { newArticles: fallbackCount, totalCached: newsCache.length });
-            }
-          }
-        } catch (fallbackErr) {
-          logger.warn('Binance fallback also failed', { err: (fallbackErr as Error).message });
-        }
-        return;
+      const impact = classifyImpact(article.headline, '');
+      const sentimentScore = scoreSentiment(article.headline);
+      const entities = extractNewsEntities(article.headline, '');
+      const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
+      if (defaultOrg) {
+        await pool.query(
+          `INSERT INTO trading_news_events (id, org_id, headline, source, impact_level, sentiment_score, symbols, tags, published_at, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+           ON CONFLICT DO NOTHING`,
+          [uuidv7(), defaultOrg, article.headline.substring(0, 500), article.source, impact.level, sentimentScore, JSON.stringify(article.currencies), JSON.stringify(entities.sectors ?? []), article.publishedAt],
+        );
       }
+      if (impact.level >= 3) {
+        broadcastEvent(createTradingEvent('news_impact', {
+          headline: article.headline,
+          impactLevel: impact.level,
+          sentiment: sentimentScore,
+          source: article.source,
+          currencies: article.currencies,
+        }));
+      }
+    } catch (dbErr) {
+      if (!isSchemaCompatError(dbErr)) logger.error('news persist error', { err: (dbErr as Error).message });
+    }
+  }
+
+  // ── Source 1: CryptoPanic (may be intermittent) ──────────────
+  async function fetchCryptoPanicNews(): Promise<NewsArticle[]> {
+    const src = 'cryptopanic';
+    try {
+      const url = 'https://cryptopanic.com/api/free/v1/posts/?auth_token=free&public=true&filter=important&currencies=BTC,ETH,SOL,BNB,XRP';
+      const res = await fetch(url, { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
+      if (!res.ok) { recordSourceResult(src, false); return []; }
       const data = (await res.json()) as { results?: Array<{ id: number; title: string; source: { domain: string }; published_at: string; url: string; currencies?: Array<{ code: string }>; kind: string; votes?: { positive: number; negative: number } }> };
-      const articles = data.results ?? [];
-
-      let newCount = 0;
-      for (const a of articles) {
-        const id = `cpanic-${a.id}`;
-        if (newsCache.some(n => n.id === id)) continue;
-
+      const articles: NewsArticle[] = [];
+      for (const a of data.results ?? []) {
         const currencies = (a.currencies ?? []).map(c => `${c.code}/USDT`);
         const positive = a.votes?.positive ?? 0;
         const negative = a.votes?.negative ?? 0;
         const voteTotal = positive + negative;
         const sentimentStr = voteTotal > 0 ? (positive > negative ? 'positive' : negative > positive ? 'negative' : 'neutral') : null;
-
-        const article: NewsArticle = {
-          id,
+        articles.push({
+          id: `cpanic-${a.id}`,
           headline: a.title,
           source: a.source?.domain ?? 'cryptopanic',
           publishedAt: new Date(a.published_at),
@@ -681,56 +685,483 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
           currencies,
           kind: a.kind,
           sentiment: sentimentStr,
-        };
-        newsCache.push(article);
-        newCount++;
-
-        // Analyze and persist to DB
-        try {
-          const impact = classifyImpact(a.title, '');
-          const sentimentScore = scoreSentiment(a.title);
-          const entities = extractNewsEntities(a.title, '');
-          const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
-          if (defaultOrg) {
-            await pool.query(
-              `INSERT INTO trading_news_events (id, org_id, headline, source, impact_level, sentiment_score, symbols, tags, published_at, created_at)
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
-               ON CONFLICT DO NOTHING`,
-              [uuidv7(), defaultOrg, a.title.substring(0, 500), a.source?.domain ?? 'unknown', impact.level, sentimentScore, JSON.stringify(currencies), JSON.stringify(entities.sectors ?? []), new Date(a.published_at)],
-            );
-          }
-
-          // Broadcast high-impact news
-          if (impact.level >= 3) {
-            broadcastEvent(createTradingEvent('news_impact', {
-              headline: a.title,
-              impactLevel: impact.level,
-              sentiment: sentimentScore,
-              source: a.source?.domain,
-              currencies,
-            }));
-          }
-        } catch (dbErr) {
-          if (!isSchemaCompatError(dbErr)) logger.error('news persist error', { err: (dbErr as Error).message });
-        }
+        });
       }
-
-      // Trim cache
-      while (newsCache.length > NEWS_MAX_CACHE) newsCache.shift();
-
-      if (newCount > 0) {
-        logger.info('News ingested from CryptoPanic', { newArticles: newCount, totalCached: newsCache.length });
-      }
+      recordSourceResult(src, true);
+      return articles;
     } catch (err) {
-      logger.warn('News fetch failed (non-critical)', { err: (err as Error).message });
+      recordSourceResult(src, false);
+      logger.debug('CryptoPanic fetch failed', { err: (err as Error).message });
+      return [];
     }
   }
 
-  // Start news ingestion
-  const newsTimer = setInterval(() => { fetchCryptoPanicNews().catch(() => {}); }, NEWS_FETCH_INTERVAL_MS);
+  // ── Source 2: CoinGecko Trending + Global Market ─────────────
+  async function fetchCoinGeckoTrending(): Promise<NewsArticle[]> {
+    const src = 'coingecko';
+    try {
+      const res = await fetch('https://api.coingecko.com/api/v3/search/trending', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
+      if (!res.ok) { recordSourceResult(src, false); return []; }
+      const data = (await res.json()) as { coins?: Array<{ item: { id: string; symbol: string; name: string; market_cap_rank: number; price_btc: number; score: number } }> };
+      const articles: NewsArticle[] = [];
+      for (const c of data.coins ?? []) {
+        const sym = c.item.symbol.toUpperCase();
+        articles.push({
+          id: `cgecko-trending-${c.item.id}-${new Date().toISOString().slice(0, 13)}`,
+          headline: `${c.item.name} (${sym}) is trending on CoinGecko — rank #${c.item.market_cap_rank ?? 'N/A'}, search interest surging`,
+          source: 'coingecko-trending',
+          publishedAt: new Date(),
+          url: `https://www.coingecko.com/en/coins/${c.item.id}`,
+          currencies: [`${sym}/USDT`],
+          kind: 'trending',
+          sentiment: 'positive',
+        });
+      }
+      recordSourceResult(src, true);
+      return articles;
+    } catch (err) {
+      recordSourceResult(src, false);
+      logger.debug('CoinGecko trending failed', { err: (err as Error).message });
+      return [];
+    }
+  }
+
+  // ── Source 3: Binance Top Movers (24h) ──────────────────────
+  async function fetchBinanceMovers(): Promise<NewsArticle[]> {
+    const src = 'binance-movers';
+    try {
+      const res = await fetch('https://api.binance.com/api/v3/ticker/24hr', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
+      if (!res.ok) { recordSourceResult(src, false); return []; }
+      const tickers = (await res.json()) as Array<{ symbol: string; priceChangePercent: string; volume: string; quoteVolume: string }>;
+      const usdtPairs = tickers
+        .filter(t => t.symbol.endsWith('USDT'))
+        .map(t => ({ symbol: t.symbol, change: parseFloat(t.priceChangePercent), absChange: Math.abs(parseFloat(t.priceChangePercent)), volume: parseFloat(t.quoteVolume) }))
+        .filter(t => t.volume > 10_000_000) // min $10M daily volume for relevance
+        .sort((a, b) => b.absChange - a.absChange)
+        .slice(0, 15);
+
+      const articles: NewsArticle[] = [];
+      for (const t of usdtPairs) {
+        const base = t.symbol.replace('USDT', '');
+        const direction = t.change > 0 ? 'surging' : 'dropping';
+        articles.push({
+          id: `binance-mover-${t.symbol}-${new Date().toISOString().slice(0, 13)}`,
+          headline: `${base} ${direction} ${Math.abs(t.change).toFixed(1)}% in 24h — $${(t.volume / 1_000_000).toFixed(0)}M volume on Binance`,
+          source: 'binance-24hr',
+          publishedAt: new Date(),
+          url: `https://www.binance.com/en/trade/${base}_USDT`,
+          currencies: [`${base}/USDT`],
+          kind: 'market_data',
+          sentiment: t.change > 5 ? 'positive' : t.change < -5 ? 'negative' : 'neutral',
+        });
+      }
+      recordSourceResult(src, true);
+      return articles;
+    } catch (err) {
+      recordSourceResult(src, false);
+      logger.debug('Binance movers failed', { err: (err as Error).message });
+      return [];
+    }
+  }
+
+  // ── Source 4: Binance Announcements (new listings, delistings) ──
+  async function fetchBinanceAnnouncements(): Promise<NewsArticle[]> {
+    const src = 'binance-announce';
+    try {
+      // Binance announcement API — new listings are critical market-moving events
+      const res = await fetch('https://www.binance.com/bapi/composite/v1/public/cms/article/list/query?type=1&catalogId=48&pageNo=1&pageSize=10', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
+      if (!res.ok) { recordSourceResult(src, false); return []; }
+      const data = (await res.json()) as { data?: { catalogs?: Array<{ articles?: Array<{ id: number; title: string; releaseDate: number }> }> } };
+      const articles: NewsArticle[] = [];
+      const rawArticles = data.data?.catalogs?.[0]?.articles ?? [];
+      for (const a of rawArticles) {
+        // Extract tickers from announcement title (e.g., "Binance Will List XYZ (XYZ)")
+        const tickerMatches = a.title.match(/\(([A-Z]{2,10})\)/g) ?? [];
+        const currencies = tickerMatches.map(m => `${m.replace(/[()]/g, '')}/USDT`);
+        articles.push({
+          id: `binance-ann-${a.id}`,
+          headline: a.title,
+          source: 'binance-announcements',
+          publishedAt: new Date(a.releaseDate),
+          url: `https://www.binance.com/en/support/announcement/${a.id}`,
+          currencies,
+          kind: 'announcement',
+          sentiment: a.title.toLowerCase().includes('delist') ? 'negative' : a.title.toLowerCase().includes('list') ? 'positive' : 'neutral',
+        });
+      }
+      recordSourceResult(src, true);
+      return articles;
+    } catch (err) {
+      recordSourceResult(src, false);
+      logger.debug('Binance announcements failed', { err: (err as Error).message });
+      return [];
+    }
+  }
+
+  // ── Source 5: RSS Feeds (CoinDesk, The Block, Decrypt, CoinTelegraph) ──
+  async function fetchRssNewsSource(feedUrl: string, sourceName: string): Promise<NewsArticle[]> {
+    const src = `rss-${sourceName}`;
+    try {
+      const res = await fetch(feedUrl, {
+        signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT),
+        headers: { 'User-Agent': 'SvenTradingBot/1.0 (news aggregator)' },
+      });
+      if (!res.ok) { recordSourceResult(src, false); return []; }
+      const xml = await res.text();
+
+      // Simple XML parser for RSS items — no external dependency needed
+      const items: Array<{ title: string; link: string; pubDate: string; description: string }> = [];
+      const itemMatches = xml.match(/<item>[\s\S]*?<\/item>/gi) ?? [];
+      for (const itemXml of itemMatches.slice(0, 20)) {
+        const title = itemXml.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i)?.[1]?.trim() ?? '';
+        const link = itemXml.match(/<link>([\s\S]*?)<\/link>/i)?.[1]?.trim() ?? '';
+        const pubDate = itemXml.match(/<pubDate>([\s\S]*?)<\/pubDate>/i)?.[1]?.trim() ?? '';
+        const description = itemXml.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i)?.[1]?.trim() ?? '';
+        if (title) items.push({ title, link, pubDate, description });
+      }
+
+      const articles: NewsArticle[] = [];
+      for (const item of items) {
+        // Extract crypto tickers from title + description
+        const combinedText = `${item.title} ${item.description}`.toUpperCase();
+        const currencies: string[] = [];
+
+        // Match known crypto names/tickers in headlines
+        const cryptoKeywords: Record<string, string> = {
+          'BITCOIN': 'BTC/USDT', 'BTC': 'BTC/USDT',
+          'ETHEREUM': 'ETH/USDT', 'ETH': 'ETH/USDT', 'ETHER': 'ETH/USDT',
+          'SOLANA': 'SOL/USDT', 'SOL': 'SOL/USDT',
+          'XRP': 'XRP/USDT', 'RIPPLE': 'XRP/USDT',
+          'BNB': 'BNB/USDT', 'BINANCE COIN': 'BNB/USDT',
+          'CARDANO': 'ADA/USDT', 'ADA': 'ADA/USDT',
+          'DOGECOIN': 'DOGE/USDT', 'DOGE': 'DOGE/USDT',
+          'POLKADOT': 'DOT/USDT', 'DOT': 'DOT/USDT',
+          'AVALANCHE': 'AVAX/USDT', 'AVAX': 'AVAX/USDT',
+          'CHAINLINK': 'LINK/USDT', 'LINK': 'LINK/USDT',
+          'POLYGON': 'MATIC/USDT', 'MATIC': 'MATIC/USDT',
+          'UNISWAP': 'UNI/USDT', 'UNI': 'UNI/USDT',
+          'LITECOIN': 'LTC/USDT', 'LTC': 'LTC/USDT',
+          'NEAR PROTOCOL': 'NEAR/USDT', 'NEAR': 'NEAR/USDT',
+          'APTOS': 'APT/USDT', 'APT': 'APT/USDT',
+          'ARBITRUM': 'ARB/USDT', 'ARB': 'ARB/USDT',
+          'OPTIMISM': 'OP/USDT', 'SUI': 'SUI/USDT',
+          'INJECTIVE': 'INJ/USDT', 'INJ': 'INJ/USDT',
+          'PEPE': 'PEPE/USDT', 'SHIBA': 'SHIB/USDT', 'SHIB': 'SHIB/USDT',
+          'TONCOIN': 'TON/USDT', 'TON': 'TON/USDT',
+          'RENDER': 'RENDER/USDT', 'FETCH.AI': 'FET/USDT', 'FET': 'FET/USDT',
+          'CELESTIA': 'TIA/USDT', 'TIA': 'TIA/USDT',
+          'AAVE': 'AAVE/USDT', 'MAKER': 'MKR/USDT', 'MKR': 'MKR/USDT',
+        };
+        const seen = new Set<string>();
+        for (const [kw, pair] of Object.entries(cryptoKeywords)) {
+          // Use word boundary-like matching to avoid false positives
+          const regex = new RegExp(`\\b${kw}\\b`, 'i');
+          if (regex.test(combinedText) && !seen.has(pair)) {
+            currencies.push(pair);
+            seen.add(pair);
+          }
+        }
+
+        // Simple sentiment from title keywords
+        const lower = item.title.toLowerCase();
+        let sentiment: string | null = null;
+        if (/surge|soar|rally|bull|gain|record high|breakout|pump|approved|adoption/i.test(lower)) sentiment = 'positive';
+        else if (/crash|plunge|dump|bear|hack|exploit|sec |lawsuit|ban|fraud|collapse/i.test(lower)) sentiment = 'negative';
+
+        // Determine kind from title
+        let kind = 'news';
+        if (/regulation|sec |cftc|law|bill|ban|sanction/i.test(lower)) kind = 'regulation';
+        else if (/hack|exploit|breach|vulnerability|rug.?pull/i.test(lower)) kind = 'security';
+        else if (/etf|institutional|blackrock|fidelity|grayscale/i.test(lower)) kind = 'institutional';
+        else if (/defi|dex|lending|yield|staking/i.test(lower)) kind = 'defi';
+        else if (/nft|metaverse|gaming/i.test(lower)) kind = 'nft';
+
+        const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
+        // Skip articles with invalid dates
+        if (isNaN(pubDate.getTime())) continue;
+
+        articles.push({
+          id: `rss-${sourceName}-${Buffer.from(item.title).toString('base64').slice(0, 32)}`,
+          headline: item.title,
+          source: sourceName,
+          publishedAt: pubDate,
+          url: item.link,
+          currencies,
+          kind,
+          sentiment,
+        });
+      }
+
+      recordSourceResult(src, true);
+      return articles;
+    } catch (err) {
+      recordSourceResult(src, false);
+      logger.debug(`RSS feed ${sourceName} failed`, { err: (err as Error).message });
+      return [];
+    }
+  }
+
+  // ── Source 6: Crypto Fear & Greed Index ─────────────────────
+  async function fetchFearGreedIndex(): Promise<NewsArticle[]> {
+    const src = 'fear-greed';
+    try {
+      const res = await fetch('https://api.alternative.me/fng/?limit=1', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
+      if (!res.ok) { recordSourceResult(src, false); return []; }
+      const data = (await res.json()) as { data?: Array<{ value: string; value_classification: string; timestamp: string }> };
+      const entry = data.data?.[0];
+      if (!entry) return [];
+
+      const value = parseInt(entry.value, 10);
+      const classification = entry.value_classification;
+      let sentiment: string | null = 'neutral';
+      if (value <= 25) sentiment = 'negative';
+      else if (value >= 75) sentiment = 'positive';
+
+      recordSourceResult(src, true);
+      return [{
+        id: `fng-${entry.timestamp}`,
+        headline: `Crypto Fear & Greed Index: ${value}/100 (${classification}) — market sentiment ${value <= 25 ? 'extremely fearful, potential buying opportunity' : value >= 75 ? 'extremely greedy, potential correction ahead' : 'neutral'}`,
+        source: 'alternative.me',
+        publishedAt: new Date(parseInt(entry.timestamp, 10) * 1000),
+        url: 'https://alternative.me/crypto/fear-and-greed-index/',
+        currencies: ['BTC/USDT', 'ETH/USDT'],
+        kind: 'sentiment_index',
+        sentiment,
+      }];
+    } catch (err) {
+      recordSourceResult(src, false);
+      logger.debug('Fear & Greed fetch failed', { err: (err as Error).message });
+      return [];
+    }
+  }
+
+  // ── Source 7: CoinGecko Global Market Data ──────────────────
+  async function fetchCoinGeckoGlobal(): Promise<NewsArticle[]> {
+    const src = 'coingecko-global';
+    try {
+      const res = await fetch('https://api.coingecko.com/api/v3/global', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
+      if (!res.ok) { recordSourceResult(src, false); return []; }
+      const data = (await res.json()) as { data?: { total_market_cap?: Record<string, number>; market_cap_change_percentage_24h_usd?: number; active_cryptocurrencies?: number; markets?: number } };
+      const g = data.data;
+      if (!g) return [];
+
+      const capChangeStr = (g.market_cap_change_percentage_24h_usd ?? 0).toFixed(2);
+      const totalCapB = ((g.total_market_cap?.['usd'] ?? 0) / 1e9).toFixed(0);
+      const direction = (g.market_cap_change_percentage_24h_usd ?? 0) > 0 ? 'up' : 'down';
+
+      recordSourceResult(src, true);
+      return [{
+        id: `cgecko-global-${new Date().toISOString().slice(0, 13)}`,
+        headline: `Global crypto market cap $${totalCapB}B (${direction} ${Math.abs(parseFloat(capChangeStr))}% in 24h) — ${g.active_cryptocurrencies?.toLocaleString() ?? '?'} active currencies across ${g.markets ?? '?'} markets`,
+        source: 'coingecko-global',
+        publishedAt: new Date(),
+        url: 'https://www.coingecko.com/',
+        currencies: [],
+        kind: 'market_overview',
+        sentiment: parseFloat(capChangeStr) > 2 ? 'positive' : parseFloat(capChangeStr) < -2 ? 'negative' : 'neutral',
+      }];
+    } catch (err) {
+      recordSourceResult(src, false);
+      logger.debug('CoinGecko global failed', { err: (err as Error).message });
+      return [];
+    }
+  }
+
+  // ── Source 8: DeFi Llama TVL Changes (DeFi market pulse) ───
+  async function fetchDefiLlamaTvl(): Promise<NewsArticle[]> {
+    const src = 'defillama';
+    try {
+      const res = await fetch('https://api.llama.fi/protocols', { signal: AbortSignal.timeout(NEWS_SOURCE_TIMEOUT) });
+      if (!res.ok) { recordSourceResult(src, false); return []; }
+      const protocols = (await res.json()) as Array<{ name: string; symbol: string; tvl: number; change_1d: number; category: string; chains: string[] }>;
+      // Top 10 by absolute 1-day TVL change
+      const movers = protocols
+        .filter(p => p.tvl > 100_000_000 && typeof p.change_1d === 'number' && Math.abs(p.change_1d) > 3)
+        .sort((a, b) => Math.abs(b.change_1d) - Math.abs(a.change_1d))
+        .slice(0, 10);
+
+      const articles: NewsArticle[] = [];
+      for (const p of movers) {
+        const sym = p.symbol?.toUpperCase() ?? '';
+        const direction = p.change_1d > 0 ? 'surging' : 'dropping';
+        articles.push({
+          id: `defillama-${p.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 13)}`,
+          headline: `${p.name}${sym ? ` (${sym})` : ''} TVL ${direction} ${Math.abs(p.change_1d).toFixed(1)}% — $${(p.tvl / 1e9).toFixed(2)}B locked in ${p.category}`,
+          source: 'defillama',
+          publishedAt: new Date(),
+          url: `https://defillama.com/protocol/${p.name.toLowerCase().replace(/\s+/g, '-')}`,
+          currencies: sym ? [`${sym}/USDT`] : [],
+          kind: 'defi_tvl',
+          sentiment: p.change_1d > 5 ? 'positive' : p.change_1d < -5 ? 'negative' : 'neutral',
+        });
+      }
+      recordSourceResult(src, true);
+      return articles;
+    } catch (err) {
+      recordSourceResult(src, false);
+      logger.debug('DefiLlama TVL failed', { err: (err as Error).message });
+      return [];
+    }
+  }
+
+  // ── RSS feed URLs for major crypto news outlets ─────────────
+  const RSS_FEEDS: Array<{ url: string; name: string }> = [
+    { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', name: 'coindesk' },
+    { url: 'https://www.theblock.co/rss.xml', name: 'theblock' },
+    { url: 'https://decrypt.co/feed', name: 'decrypt' },
+    { url: 'https://cointelegraph.com/rss', name: 'cointelegraph' },
+    { url: 'https://bitcoinmagazine.com/feed', name: 'bitcoinmagazine' },
+    { url: 'https://www.newsbtc.com/feed/', name: 'newsbtc' },
+    { url: 'https://cryptoslate.com/feed/', name: 'cryptoslate' },
+    { url: 'https://cryptonews.com/news/feed/', name: 'cryptonews' },
+    // General financial news (macro events move crypto)
+    { url: 'https://feeds.reuters.com/reuters/businessNews', name: 'reuters-biz' },
+    { url: 'https://feeds.bbci.co.uk/news/business/rss.xml', name: 'bbc-biz' },
+  ];
+
+  /** Master news aggregation: fetch all sources in parallel, ingest results */
+  async function fetchAllNewsSources(): Promise<void> {
+    const startMs = Date.now();
+    const allFetches: Array<Promise<NewsArticle[]>> = [
+      fetchCryptoPanicNews(),
+      fetchCoinGeckoTrending(),
+      fetchBinanceMovers(),
+      fetchBinanceAnnouncements(),
+      fetchFearGreedIndex(),
+      fetchCoinGeckoGlobal(),
+      fetchDefiLlamaTvl(),
+      ...RSS_FEEDS.map(f => fetchRssNewsSource(f.url, f.name)),
+    ];
+
+    const results = await Promise.allSettled(allFetches);
+    let totalNew = 0;
+    const sourceCounts: Record<string, number> = {};
+
+    for (const r of results) {
+      if (r.status === 'fulfilled' && r.value.length > 0) {
+        const ingested = ingestArticles(r.value);
+        totalNew += ingested;
+        // Persist high-impact articles in background
+        for (const article of r.value) {
+          analyzeAndPersistArticle(article).catch(() => {});
+        }
+        if (ingested > 0) {
+          const s = r.value[0]?.source ?? 'unknown';
+          sourceCounts[s] = (sourceCounts[s] ?? 0) + ingested;
+        }
+      }
+    }
+
+    const elapsedMs = Date.now() - startMs;
+    const fulfilled = results.filter(r => r.status === 'fulfilled').length;
+    const rejected = results.filter(r => r.status === 'rejected').length;
+
+    if (totalNew > 0 || rejected > 0) {
+      logger.info('News aggregation cycle complete', {
+        totalNew,
+        totalCached: newsCache.length,
+        sourcesOk: fulfilled,
+        sourcesFailed: rejected,
+        elapsedMs,
+        breakdown: sourceCounts,
+      });
+    }
+
+    // Ask Sven's LLM brain to synthesize a macro-view from recent news
+    // This runs every cycle so Sven builds a continuous understanding of global markets
+    if (newsCache.length >= 5) {
+      synthesizeNewsDigest().catch(() => {});
+    }
+  }
+
+  /** Sven reads recent news and thinks about macro implications */
+  let lastNewsDigest: { summary: string; timestamp: Date; keyThemes: string[] } | null = null;
+  async function synthesizeNewsDigest(): Promise<void> {
+    const node = acquireGpu('trading', 'fast');
+    if (!node) return;
+
+    const recentNews = newsCache
+      .filter(n => n.publishedAt.getTime() > Date.now() - 2 * 60 * 60_000)
+      .slice(-30);
+    if (recentNews.length < 3) return;
+
+    try {
+      trackGpuStart(node.name, 'trading');
+      const digest = recentNews.map((n, i) =>
+        `${i + 1}. [${n.source}] [${n.sentiment ?? '?'}] ${n.headline}${n.currencies.length > 0 ? ` (${n.currencies.join(', ')})` : ''}`
+      ).join('\n');
+
+      const prompt = `You are Sven, an autonomous AI crypto trading agent operating 24/7. You just ingested the latest batch of news from around the world. Analyze these headlines and think deeply about their trading implications.
+
+RECENT NEWS (last 2 hours):
+${digest}
+
+Provide a concise analysis structured as:
+1. MACRO OUTLOOK (2-3 sentences): Overall market direction based on this news
+2. KEY THEMES (2-4 bullet points): Major narratives driving the market right now
+3. HIGH CONVICTION PLAYS (1-3 bullet points): Specific actionable trading ideas based on news catalysts
+4. RISK ALERTS (1-2 bullet points): Potential risks or negative catalysts to watch
+
+Be specific about tickers and price direction. Think like a hedge fund analyst, not a journalist.
+Respond in plain text, no markdown.`;
+
+      const res = await fetch(`${node.endpoint}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(SVEN_LLM_TIMEOUT),
+        body: JSON.stringify({
+          model: node.model,
+          messages: [
+            { role: 'system', content: 'You are Sven, an autonomous AI trading agent. Provide sharp, concise market analysis. No fluff. Think like a quant.' },
+            { role: 'user', content: prompt },
+          ],
+          stream: false,
+          options: { temperature: 0.3, num_predict: 512 },
+        }),
+      });
+      trackGpuEnd(node.name, Date.now());
+
+      if (res.ok) {
+        const llmData = (await res.json()) as { message?: { content?: string } };
+        const summary = llmData.message?.content?.trim() ?? '';
+        if (summary.length > 50) {
+          // Extract key themes for quick reference
+          const themes: string[] = [];
+          const themeLines = summary.split('\n').filter(l => l.trim().startsWith('-') || l.trim().startsWith('•'));
+          for (const line of themeLines.slice(0, 6)) {
+            themes.push(line.replace(/^[\s\-•]+/, '').trim());
+          }
+
+          lastNewsDigest = { summary, timestamp: new Date(), keyThemes: themes };
+
+          broadcastEvent(createTradingEvent('activity', {
+            action: 'news_digest',
+            summary: summary.substring(0, 500),
+            themes,
+            newsCount: recentNews.length,
+            sources: [...new Set(recentNews.map(n => n.source))],
+          }));
+
+          svenSendMessage({
+            type: 'market_insight',
+            title: 'Global News Digest',
+            body: summary.substring(0, 800),
+            severity: 'info',
+          });
+
+          logger.info('Sven news digest synthesized', { themes: themes.length, newsAnalyzed: recentNews.length });
+        }
+      }
+    } catch (err) {
+      logger.debug('News digest synthesis failed', { err: (err as Error).message });
+    }
+  }
+
+  // Start multi-source news ingestion
+  const newsTimer = setInterval(() => { fetchAllNewsSources().catch(() => {}); }, NEWS_FETCH_INTERVAL_MS);
   if (newsTimer.unref) newsTimer.unref();
   // First fetch after 10s boot delay
-  setTimeout(() => { fetchCryptoPanicNews().catch(() => {}); }, 10_000);
+  setTimeout(() => { fetchAllNewsSources().catch(() => {}); }, 10_000);
 
   // ── News-Driven Symbol Discovery (Trend Scout) ─────────────
   // Sven reads the news, identifies trending assets not on his core
@@ -1842,6 +2273,13 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         newsIngestion: {
           cachedArticles: newsCache.length,
           lastFetch: newsCache.length > 0 ? newsCache[newsCache.length - 1]?.publishedAt : null,
+          sourceHealth: newsSourceHealth,
+          lastDigest: lastNewsDigest ? {
+            timestamp: lastNewsDigest.timestamp.toISOString(),
+            keyThemes: lastNewsDigest.keyThemes,
+            summaryPreview: lastNewsDigest.summary.substring(0, 300),
+          } : null,
+          rssFeedCount: RSS_FEEDS.length,
         },
         trendScout: {
           dynamicWatchlist: dynamicWatchlist.map(d => ({

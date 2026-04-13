@@ -127,12 +127,14 @@ Future<void> setupServiceLocator() async {
   // ── 4. Authenticated HTTP client ──────────────────────────────────────────
   //
   // Wraps DioHttpClient with automatic Bearer-token injection and
-  // 401 → SESSION_EXPIRED detection.  (onSessionExpired wired at app level.)
+  // 401 → SESSION_EXPIRED detection.  Token refresh is wired to AuthService
+  // so all services can transparently recover from expired sessions.
   if (!sl.isRegistered<AuthenticatedClient>()) {
     sl.registerLazySingleton<AuthenticatedClient>(
       () => AuthenticatedClient(
         client: sl<DioHttpClient>(),
         tokenStore: sl<TokenStore>(),
+        onTokenRefresh: () => sl<AuthService>().refresh(),
         // onSessionExpired is intentionally left null here; callers that need
         // session-expiry handling should create their own AuthenticatedClient
         // with the callback wired (as SvenUserApp currently does).

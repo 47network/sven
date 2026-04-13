@@ -98,9 +98,14 @@ class _SvenControlPageState extends State<SvenControlPage> {
     );
     setState(() => _saving = false);
     if (mounted) {
+      final errorDetail = widget.tradingService.error;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(ok ? 'Auto-trade updated' : 'Failed to update'),
-        duration: const Duration(seconds: 2),
+        content: Text(ok
+            ? 'Auto-trade updated'
+            : errorDetail != null && errorDetail.isNotEmpty
+                ? errorDetail
+                : 'Failed to update — check connection'),
+        duration: const Duration(seconds: 3),
       ));
     }
   }

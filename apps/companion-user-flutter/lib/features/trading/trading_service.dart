@@ -230,14 +230,19 @@ class TradingService extends ChangeNotifier {
       }
       if (maxPositionPct != null) body['maxPositionPct'] = maxPositionPct;
 
+      debugPrint('[TradingService] configureAutoTrade → POST $_tradingBase/v1/trading/sven/auto-trade/config body=$body');
       final resp = await _postJson('/v1/trading/sven/auto-trade/config', body);
+      debugPrint('[TradingService] configureAutoTrade ← status=${resp?.statusCode} body=${resp?.body?.substring(0, (resp?.body?.length ?? 0).clamp(0, 200))}');
       if (resp != null && resp.statusCode == 200) {
         await fetchStatus();
         return true;
       }
+      _error = 'Auto-trade config failed: HTTP ${resp?.statusCode ?? 'null'}';
+      notifyListeners();
       return false;
     } catch (e) {
       _error = 'Failed to configure auto-trade: $e';
+      debugPrint('[TradingService] configureAutoTrade exception: $e');
       notifyListeners();
       return false;
     }
