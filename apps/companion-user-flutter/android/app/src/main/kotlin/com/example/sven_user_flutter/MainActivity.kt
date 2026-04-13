@@ -1,6 +1,8 @@
 package com.fortyseven.thesven
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
@@ -40,6 +42,14 @@ class MainActivity : FlutterFragmentActivity() {
                         val phrase = call.argument<String>("wakePhrase")?.trim().orEmpty()
                         if (phrase.isBlank()) {
                             result.error("validation", "wakePhrase is required", null)
+                            return@setMethodCallHandler
+                        }
+                        // On targetSdk 36+, starting a foreground service with type
+                        // microphone requires RECORD_AUDIO to be granted first.
+                        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                            != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            result.success(false)
                             return@setMethodCallHandler
                         }
                         val intent = WakeWordForegroundService.startIntent(this, phrase)

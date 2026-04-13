@@ -1,5 +1,6 @@
 package com.fortyseven.thesven
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,6 +8,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -15,6 +17,7 @@ import android.os.IBinder
 import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -63,6 +66,16 @@ class WakeWordForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        // targetSdk 36 requires RECORD_AUDIO to be granted before starting a
+        // foreground service with type "microphone". Stop immediately if the
+        // permission is missing to avoid a SecurityException crash.
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.w(logTag, "RECORD_AUDIO not granted — cannot start microphone foreground service")
+            stopSelf()
+            return
+        }
         startForeground(NOTIFICATION_ID, buildNotification())
     }
 
