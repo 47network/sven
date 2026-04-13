@@ -110,8 +110,19 @@ class VoiceService extends ChangeNotifier {
   // ── Init ──
 
   Future<void> _init() async {
-    await _initStt();
+    // TTS is safe to init eagerly — it never triggers a permission dialog.
     await _initTts();
+    // STT is NOT initialized here. It requests RECORD_AUDIO permission which
+    // races with the POST_NOTIFICATIONS dialog from Firebase and crashes
+    // Android (concurrent requestPermissions calls). STT is lazily initialized
+    // on first use via ensureSttReady().
+  }
+
+  /// Lazily initialize STT. Call before any STT operation. Safe to call
+  /// multiple times — only the first invocation triggers permission request.
+  Future<void> ensureSttReady() async {
+    if (_sttInitialized) return;
+    await _initStt();
   }
 
   Future<void> _initStt() async {
@@ -224,6 +235,7 @@ class VoiceService extends ChangeNotifier {
   }) async {
     await stopBargeInMonitor();
     await stopWakeWordMonitor();
+    await ensureSttReady();
     if (!_sttInitialized || _sttState == SttState.unavailable) return;
     if (_sttState == SttState.listening) return;
 
@@ -353,6 +365,7 @@ class VoiceService extends ChangeNotifier {
     String localeId = 'en_US',
   }) async {
     await stopWakeWordMonitor();
+    await ensureSttReady();
     if (_bargeInMode || !_sttInitialized || _sttState == SttState.unavailable) {
       return;
     }
@@ -417,6 +430,7 @@ class VoiceService extends ChangeNotifier {
     String localeId = 'en_US',
   }) async {
     await stopBargeInMonitor();
+    await ensureSttReady();
     if (!_sttInitialized || _sttState == SttState.unavailable) return;
 
     final normalizedPhrase = normalizeWakePhrase(wakePhrase);
