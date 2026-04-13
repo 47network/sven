@@ -5,9 +5,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
     <!-- Network access for STT, TTS, and streaming -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Bluetooth audio devices -->
+    <!-- Bluetooth audio devices (SCAN + CONNECT required on API 31+) -->
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
+    <!-- Nearby Wi-Fi devices (Android 13+) -->
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"/>
     <!-- Push notifications (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- Biometric authentication -->

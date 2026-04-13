@@ -48,5 +48,16 @@
 -keepattributes *Annotation*
 -keep class * implements java.io.Serializable { *; }
 
+# ── AndroidX Activity / Fragment (permission request callbacks) ──
+-keep class androidx.activity.** { *; }
+-keep class androidx.fragment.** { *; }
+-keep class androidx.core.app.ActivityCompat** { *; }
+-keep class androidx.core.content.ContextCompat** { *; }
+-dontwarn androidx.activity.**
+-dontwarn androidx.fragment.**
+
+# ── Proximity Sensor ─────────────────────────────────────────────
+-keep class dev.jeremyko.proximity_sensor.** { *; }
+
 # ── Suppress missing class warnings from third-party libs ────────
 -dontwarn java.lang.invoke.StringConcatFactory
