@@ -179,7 +179,6 @@ export default function TradingPage() {
   useEffect(() => {
     if (candles.length < 20) return;
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
     const payload = {
       symbol: activeSymbol,
       candles: candles.map((c: any) => ({
@@ -189,20 +188,18 @@ export default function TradingPage() {
       current_price: ticker?.price ?? candles[candles.length - 1]?.close ?? 0,
     };
 
-    fetch(`${API_BASE}/v1/trading/kronos/predict`, {
+    fetch('/api/trading/kronos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(payload),
     })
       .then((r) => r.json())
       .then((j) => { if (j.success) setKronosPrediction(j.data); })
       .catch(() => {});
 
-    fetch(`${API_BASE}/v1/trading/mirofish/simulate`, {
+    fetch('/api/trading/mirofish', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify(payload),
     })
       .then((r) => r.json())

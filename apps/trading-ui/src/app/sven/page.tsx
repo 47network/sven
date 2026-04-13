@@ -127,10 +127,9 @@ export default function SvenControlPage() {
         open: c.open, high: c.high, low: c.low, close: c.close,
         volume: c.volume, timestamp: c.time ?? c.timestamp,
       }));
-      const res = await fetch(`${API_BASE}/v1/trading/kronos/predict`, {
+      const res = await fetch('/api/trading/kronos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           symbol: activeSymbol,
           candles: candlePayload,
@@ -159,10 +158,9 @@ export default function SvenControlPage() {
         open: c.open, high: c.high, low: c.low, close: c.close,
         volume: c.volume, timestamp: c.time ?? c.timestamp,
       }));
-      const res = await fetch(`${API_BASE}/v1/trading/mirofish/simulate`, {
+      const res = await fetch('/api/trading/mirofish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           symbol: activeSymbol,
           candles: candlePayload,
