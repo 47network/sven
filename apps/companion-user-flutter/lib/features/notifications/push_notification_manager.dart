@@ -191,8 +191,14 @@ class PushNotificationManager {
   /// Safe to call on iOS/macOS — `flutter_local_notifications` is a no-op on
   /// those platforms for channel creation.
   Future<void> _createAndroidChannels() async {
+    // Disable the automatic POST_NOTIFICATIONS permission request.
+    // Firebase Messaging's requestPermission() handles it instead — having
+    // both request the same permission concurrently crashes Android
+    // (IllegalStateException from ActivityCompat.requestPermissions).
     const initSettings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      ),
     );
     await _localNotifications.initialize(
       initSettings,
