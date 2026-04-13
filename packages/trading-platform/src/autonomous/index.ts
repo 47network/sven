@@ -179,6 +179,7 @@ export type TradingEventType =
   | 'loop_skipped'       // autonomous loop iteration skipped (CB open)
   | 'loop_error'         // autonomous loop iteration error
   | 'trade_executed'     // Sven auto-executed a trade
+  | 'trend_scout'       // news-driven symbol discovery event
   | 'sven_message';      // proactive message from Sven
 
 export interface TradingEvent {

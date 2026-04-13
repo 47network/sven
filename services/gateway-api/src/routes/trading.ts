@@ -618,8 +618,44 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timeout);
       if (!res.ok) {
-        // Fallback: scrape Binance news feed
+        // Fallback: fetch Binance top gainers to detect trending assets
         logger.warn('CryptoPanic unavailable, using fallback news source', { status: res.status });
+        try {
+          const bRes = await fetch('https://api.binance.com/api/v3/ticker/24hr', { signal: AbortSignal.timeout(10_000) });
+          if (bRes.ok) {
+            const tickers = (await bRes.json()) as Array<{ symbol: string; priceChangePercent: string; volume: string }>;
+            // Find top 5 USDT pairs by absolute price change that aren't already tracked
+            const usdtPairs = tickers
+              .filter(t => t.symbol.endsWith('USDT'))
+              .map(t => ({ symbol: t.symbol, change: Math.abs(parseFloat(t.priceChangePercent)), volume: parseFloat(t.volume) }))
+              .sort((a, b) => b.change - a.change)
+              .slice(0, 10);
+
+            let fallbackCount = 0;
+            for (const t of usdtPairs) {
+              const id = `binance-mover-${t.symbol}-${Date.now()}`;
+              if (newsCache.some(n => n.id.startsWith(`binance-mover-${t.symbol}`))) continue;
+              const base = t.symbol.replace('USDT', '');
+              const direction = parseFloat(t.change.toString()) > 0 ? 'surging' : 'dropping';
+              newsCache.push({
+                id,
+                headline: `${base} ${direction} ${t.change.toFixed(1)}% in 24h — high volume activity on Binance`,
+                source: 'binance-24hr',
+                publishedAt: new Date(),
+                url: `https://www.binance.com/en/trade/${base}_USDT`,
+                currencies: [`${base}/USDT`],
+                kind: 'market_data',
+                sentiment: t.change > 5 ? 'positive' : t.change > 3 ? 'neutral' : null,
+              });
+              fallbackCount++;
+            }
+            if (fallbackCount > 0) {
+              logger.info('Fallback news from Binance movers', { newArticles: fallbackCount, totalCached: newsCache.length });
+            }
+          }
+        } catch (fallbackErr) {
+          logger.warn('Binance fallback also failed', { err: (fallbackErr as Error).message });
+        }
         return;
       }
       const data = (await res.json()) as { results?: Array<{ id: number; title: string; source: { domain: string }; published_at: string; url: string; currencies?: Array<{ code: string }>; kind: string; votes?: { positive: number; negative: number } }> };
@@ -695,6 +731,261 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   if (newsTimer.unref) newsTimer.unref();
   // First fetch after 10s boot delay
   setTimeout(() => { fetchCryptoPanicNews().catch(() => {}); }, 10_000);
+
+  // ── News-Driven Symbol Discovery (Trend Scout) ─────────────
+  // Sven reads the news, identifies trending assets not on his core
+  // watchlist, validates they're tradable on Binance, then adds them
+  // to a dynamic watchlist so the autonomous loop analyzes them
+  // with Kronos + MiroFish on the very next tick.
+  interface DynamicSymbol {
+    symbol: string;           // e.g. 'DOGE/USDT'
+    binanceSymbol: string;    // e.g. 'DOGEUSDT'
+    discoveredFrom: string;   // news headline that triggered the discovery
+    addedAt: Date;
+    expiresAt: Date;          // auto-remove after TTL (4 hours)
+    newsScore: number;        // 0-1 relevance score from LLM
+    trades: number;           // how many trades Sven made on this symbol
+  }
+  const dynamicWatchlist: DynamicSymbol[] = [];
+  const DYNAMIC_SYMBOL_TTL_MS = 4 * 60 * 60_000; // 4 hours
+  const MAX_DYNAMIC_SYMBOLS = 10;
+  const TREND_SCOUT_INTERVAL_MS = 10 * 60_000; // every 10 minutes
+
+  // Well-known crypto ticker → Binance pair map (common ones outside core 5)
+  const KNOWN_ALTS: Record<string, string> = {
+    'DOGE': 'DOGE/USDT', 'ADA': 'ADA/USDT', 'AVAX': 'AVAX/USDT',
+    'DOT': 'DOT/USDT', 'LINK': 'LINK/USDT', 'MATIC': 'MATIC/USDT',
+    'SHIB': 'SHIB/USDT', 'UNI': 'UNI/USDT', 'LTC': 'LTC/USDT',
+    'ATOM': 'ATOM/USDT', 'NEAR': 'NEAR/USDT', 'FTM': 'FTM/USDT',
+    'APT': 'APT/USDT', 'ARB': 'ARB/USDT', 'OP': 'OP/USDT',
+    'SUI': 'SUI/USDT', 'SEI': 'SEI/USDT', 'TIA': 'TIA/USDT',
+    'INJ': 'INJ/USDT', 'PEPE': 'PEPE/USDT', 'WIF': 'WIF/USDT',
+    'JUP': 'JUP/USDT', 'RENDER': 'RENDER/USDT', 'FET': 'FET/USDT',
+    'ONDO': 'ONDO/USDT', 'TAO': 'TAO/USDT', 'TRX': 'TRX/USDT',
+    'TON': 'TON/USDT', 'XLM': 'XLM/USDT', 'ALGO': 'ALGO/USDT',
+    'FIL': 'FIL/USDT', 'AAVE': 'AAVE/USDT', 'GRT': 'GRT/USDT',
+    'IMX': 'IMX/USDT', 'MANA': 'MANA/USDT', 'SAND': 'SAND/USDT',
+    'CRV': 'CRV/USDT', 'MKR': 'MKR/USDT', 'SNX': 'SNX/USDT',
+    'RUNE': 'RUNE/USDT', 'COMP': 'COMP/USDT', 'LDO': 'LDO/USDT',
+    'STX': 'STX/USDT', 'KAS': 'KAS/USDT', 'BONK': 'BONK/USDT',
+    'WLD': 'WLD/USDT', 'PYTH': 'PYTH/USDT', 'JTO': 'JTO/USDT',
+    'ENA': 'ENA/USDT', 'PENDLE': 'PENDLE/USDT', 'STRK': 'STRK/USDT',
+    'HBAR': 'HBAR/USDT', 'XMR': 'XMR/USDT', 'ETC': 'ETC/USDT',
+  };
+
+  /** Validate a symbol exists on Binance by fetching its price */
+  async function validateBinanceSymbol(binanceSymbol: string): Promise<boolean> {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5_000);
+      const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${encodeURIComponent(binanceSymbol)}`, { signal: controller.signal });
+      clearTimeout(timeout);
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Use Sven's LLM brain to analyze recent news and extract trending symbols */
+  async function runTrendScout(): Promise<void> {
+    // Skip if no news yet
+    if (newsCache.length === 0) {
+      logger.info('Trend Scout: no news data yet, skipping');
+      return;
+    }
+    logger.info('Trend Scout scanning', { newsCacheSize: newsCache.length, currentDynamic: dynamicWatchlist.length });
+
+    // Expire stale dynamic symbols
+    const now = Date.now();
+    for (let i = dynamicWatchlist.length - 1; i >= 0; i--) {
+      if (now > dynamicWatchlist[i]!.expiresAt.getTime()) {
+        const expired = dynamicWatchlist.splice(i, 1)[0]!;
+        logger.info('Dynamic symbol expired from watchlist', { symbol: expired.symbol, trades: expired.trades });
+        broadcastEvent(createTradingEvent('trend_scout', {
+          action: 'expired',
+          symbol: expired.symbol,
+          trades: expired.trades,
+        }));
+      }
+    }
+
+    // Gather recent news headlines (last 2 hours)
+    const twoHoursAgo = Date.now() - 2 * 60 * 60_000;
+    const recentNews = newsCache.filter(n => n.publishedAt.getTime() > twoHoursAgo);
+    if (recentNews.length === 0) return;
+
+    const coreSymbols = DEFAULT_LOOP_CONFIG.trackedSymbols;
+    const alreadyTracked = new Set([
+      ...coreSymbols,
+      ...dynamicWatchlist.map(d => d.symbol),
+    ]);
+
+    // First pass: extract tickers directly mentioned in news
+    const mentionedTickers = new Set<string>();
+    for (const article of recentNews) {
+      // News articles from CryptoPanic may have currencies attached
+      for (const curr of article.currencies) {
+        if (!alreadyTracked.has(curr)) mentionedTickers.add(curr);
+      }
+      // Also scan headline for known alt tickers
+      const upper = article.headline.toUpperCase();
+      for (const [ticker, pair] of Object.entries(KNOWN_ALTS)) {
+        if (upper.includes(ticker) && !alreadyTracked.has(pair)) {
+          mentionedTickers.add(pair);
+        }
+      }
+    }
+
+    // Second pass: ask LLM to identify any additional trending opportunities
+    // Only if we have GPU capacity and recent high-impact news
+    const highImpactNews = recentNews.filter(n => {
+      // All "important" articles from CryptoPanic qualify
+      return true;
+    });
+
+    if (highImpactNews.length >= 2) {
+      try {
+        const node = acquireGpu('trading', 'fast');
+        if (node) {
+          trackGpuStart(node.name, 'trading');
+          const newsDigest = highImpactNews.slice(0, 15).map((n, i) => `${i + 1}. [${n.sentiment ?? 'neutral'}] ${n.headline} (currencies: ${n.currencies.join(', ') || 'none'})`).join('\n');
+
+          const scoutPrompt = `You are Sven, an autonomous AI trading agent. Analyze these recent crypto news articles and identify which assets are TRENDING or could have significant price movement soon.
+
+NEWS FEED:
+${newsDigest}
+
+ALREADY TRACKING: ${[...alreadyTracked].join(', ')}
+
+Instructions:
+- Identify 0-5 additional cryptocurrency tickers that are mentioned or implied in the news and NOT already tracked
+- Only suggest assets that trade on Binance as TICKER/USDT pairs
+- For each, rate the news relevance (0.0-1.0)
+- Consider: Is this coin being talked about heavily? Is there a catalyst (partnership, hack, regulation, listing, whale movement)?
+- If no strong opportunities exist, return an empty list
+
+Respond ONLY with a JSON array, no other text:
+[{"ticker": "DOGE", "score": 0.8, "reason": "Elon tweet drove 15% spike"}]
+Return [] if nothing notable.`;
+
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
+          const res = await fetch(`${node.endpoint}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            body: JSON.stringify({
+              model: node.model,
+              messages: [
+                { role: 'system', content: 'You are a crypto market intelligence agent. Respond ONLY with valid JSON arrays. No markdown, no explanation.' },
+                { role: 'user', content: scoutPrompt },
+              ],
+              stream: false,
+              options: { temperature: 0.2, num_predict: 256 },
+            }),
+          });
+          clearTimeout(timeout);
+          const latencyMs = Date.now();
+          trackGpuEnd(node.name, latencyMs);
+
+          if (res.ok) {
+            const llmData = (await res.json()) as { message?: { content?: string } };
+            const raw = llmData.message?.content?.trim() ?? '[]';
+            // Extract JSON array from response (LLM might wrap it in markdown)
+            const jsonMatch = raw.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+              try {
+                const suggestions = JSON.parse(jsonMatch[0]) as Array<{ ticker: string; score: number; reason: string }>;
+                for (const s of suggestions) {
+                  if (!s.ticker || typeof s.score !== 'number') continue;
+                  const ticker = s.ticker.toUpperCase().replace('/USDT', '');
+                  const pair = KNOWN_ALTS[ticker] ?? `${ticker}/USDT`;
+                  if (!alreadyTracked.has(pair)) {
+                    mentionedTickers.add(pair);
+                    // Store score for later use
+                    (mentionedTickers as any)[`__score_${pair}`] = s.score;
+                    (mentionedTickers as any)[`__reason_${pair}`] = s.reason;
+                  }
+                }
+              } catch {
+                logger.warn('Trend scout LLM returned unparseable JSON', { raw: raw.substring(0, 200) });
+              }
+            }
+          }
+        }
+      } catch (err) {
+        logger.warn('Trend scout LLM call failed (non-critical)', { err: (err as Error).message });
+      }
+    }
+
+    // Validate discovered symbols on Binance and add to dynamic watchlist
+    const candidates = [...mentionedTickers];
+    for (const pair of candidates) {
+      if (dynamicWatchlist.length >= MAX_DYNAMIC_SYMBOLS) break;
+      if (alreadyTracked.has(pair)) continue;
+
+      const binanceSymbol = pair.replace('/', '');
+      const valid = await validateBinanceSymbol(binanceSymbol);
+      if (!valid) {
+        logger.debug('Trend scout: symbol not on Binance', { pair, binanceSymbol });
+        continue;
+      }
+
+      const score = (mentionedTickers as any)[`__score_${pair}`] ?? 0.5;
+      const reason = (mentionedTickers as any)[`__reason_${pair}`] ?? 'Mentioned in recent news';
+
+      // Find the headline that triggered this discovery
+      const triggerArticle = recentNews.find(n =>
+        n.currencies.includes(pair) ||
+        n.headline.toUpperCase().includes(pair.split('/')[0]!)
+      );
+
+      const dynSymbol: DynamicSymbol = {
+        symbol: pair,
+        binanceSymbol,
+        discoveredFrom: triggerArticle?.headline ?? 'Trend scout analysis',
+        addedAt: new Date(),
+        expiresAt: new Date(Date.now() + DYNAMIC_SYMBOL_TTL_MS),
+        newsScore: score,
+        trades: 0,
+      };
+      dynamicWatchlist.push(dynSymbol);
+      alreadyTracked.add(pair);
+
+      // Also add to BINANCE_SYMBOL_MAP for the loop
+      BINANCE_SYMBOL_MAP[pair] = binanceSymbol;
+
+      broadcastEvent(createTradingEvent('trend_scout', {
+        action: 'discovered',
+        symbol: pair,
+        newsScore: score,
+        reason,
+        headline: triggerArticle?.headline ?? 'LLM trend analysis',
+        expiresAt: dynSymbol.expiresAt.toISOString(),
+        dynamicWatchlistSize: dynamicWatchlist.length,
+      }));
+
+      svenSendMessage({
+        type: 'market_insight',
+        title: `Trend Scout: ${pair}`,
+        body: `Sven detected ${pair} trending in the news (score: ${(score * 100).toFixed(0)}%). "${triggerArticle?.headline ?? reason}". Adding to watchlist for Kronos + MiroFish analysis. Auto-expires in 4h.`,
+        symbol: pair,
+        severity: 'info',
+      });
+
+      logger.info('Trend scout added dynamic symbol', {
+        symbol: pair, binanceSymbol, newsScore: score,
+        headline: triggerArticle?.headline?.substring(0, 100),
+        watchlistSize: dynamicWatchlist.length,
+      });
+    }
+  }
+
+  // Start trend scout — runs every 10 minutes
+  const trendScoutTimer = setInterval(() => { runTrendScout().catch(() => {}); }, TREND_SCOUT_INTERVAL_MS);
+  if (trendScoutTimer.unref) trendScoutTimer.unref();
+  // First scout after 30s boot
+  setTimeout(() => { runTrendScout().catch(() => {}); }, 30_000);
 
   // ── Resource-Aware GPU Allocation ───────────────────────────
   // Track GPU utilization so Sven can prioritize tasks properly:
@@ -1033,8 +1324,14 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     try {
       // ═══ MULTI-SYMBOL PARALLEL SCAN ═══════════════════════════════
       // Sven now analyzes ALL tracked symbols every tick, not just one.
-      // This gives him a complete market picture each iteration.
-      const symbols = DEFAULT_LOOP_CONFIG.trackedSymbols;
+      // Core symbols are always scanned. Dynamic symbols discovered by
+      // the Trend Scout (news-driven) are merged in and analyzed with
+      // the same Kronos + MiroFish pipeline.
+      const coreSymbols = DEFAULT_LOOP_CONFIG.trackedSymbols;
+      const dynamicSymbols = dynamicWatchlist
+        .filter(d => d.expiresAt.getTime() > Date.now())
+        .map(d => d.symbol);
+      const symbols = [...new Set([...coreSymbols, ...dynamicSymbols])];
 
       broadcastEvent(createTradingEvent('state_change', { state: 'scanning', symbols, iteration: loopIterations }));
 
@@ -1220,6 +1517,10 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             positionsThisTick++;
             svenDailyTradeCount++;
 
+            // Track trades on dynamic symbols
+            const dynEntry = dynamicWatchlist.find(d => d.symbol === candidate.symbol);
+            if (dynEntry) dynEntry.trades++;
+
             broadcastEvent(createTradingEvent('trade_executed', {
               orderId,
               symbol: candidate.symbol,
@@ -1367,6 +1668,15 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       broadcastEvent(createTradingEvent('loop_tick', {
         iteration: loopIterations,
         symbolsScanned: validData.length,
+        coreSymbols: coreSymbols.length,
+        dynamicSymbols: dynamicSymbols.length,
+        dynamicWatchlist: dynamicWatchlist.map(d => ({
+          symbol: d.symbol,
+          newsScore: d.newsScore,
+          discoveredFrom: d.discoveredFrom.substring(0, 80),
+          expiresIn: Math.round((d.expiresAt.getTime() - Date.now()) / 60_000) + 'min',
+          trades: d.trades,
+        })),
         symbolsFailed: marketData.filter(d => d.error).length,
         tradesExecuted: positionsThisTick,
         analyses: analyses.map(a => ({
@@ -1377,6 +1687,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           confidence: a.decision.confidence,
           signalStrength: a.signalStrength,
           riskPassed: a.riskPassed,
+          isDynamic: dynamicSymbols.includes(a.symbol),
         })),
         llmReasonings: llmReasonings.slice(0, 5),
         autoTradeEnabled: AUTO_TRADE_ENABLED,
@@ -1395,6 +1706,8 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       logger.info('autonomous loop tick (multi-symbol)', {
         iteration: loopIterations,
         symbolsScanned: validData.length,
+        coreSymbols: coreSymbols.length,
+        dynamicSymbols: dynamicSymbols.length,
         tradesExecuted: positionsThisTick,
         balance: svenAccount.balance,
         totalPnl: svenTotalPnl,
@@ -1529,6 +1842,20 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         newsIngestion: {
           cachedArticles: newsCache.length,
           lastFetch: newsCache.length > 0 ? newsCache[newsCache.length - 1]?.publishedAt : null,
+        },
+        trendScout: {
+          dynamicWatchlist: dynamicWatchlist.map(d => ({
+            symbol: d.symbol,
+            discoveredFrom: d.discoveredFrom.substring(0, 120),
+            newsScore: d.newsScore,
+            addedAt: d.addedAt.toISOString(),
+            expiresAt: d.expiresAt.toISOString(),
+            expiresInMin: Math.round((d.expiresAt.getTime() - Date.now()) / 60_000),
+            trades: d.trades,
+          })),
+          maxDynamic: MAX_DYNAMIC_SYMBOLS,
+          scoutIntervalMs: TREND_SCOUT_INTERVAL_MS,
+          knownAlts: Object.keys(KNOWN_ALTS).length,
         },
       },
     };
