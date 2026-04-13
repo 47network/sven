@@ -161,10 +161,13 @@ class PushNotificationManager {
   Stream<InAppNotification> get foregroundNotifications =>
       _inAppController.stream;
 
-  /// Initialize push notifications.
+  /// Initialize push notification infrastructure.
   ///
-  /// Requests permissions, creates Android notification channels, and registers
-  /// the push token with the backend.
+  /// Creates Android notification channels and sets up message listeners.
+  /// Does NOT request the POST_NOTIFICATIONS permission — that is deferred
+  /// to [requestPermissionAndRegister] which should be called after the user
+  /// logs in, to avoid native Android crashes from showing a permission
+  /// dialog while the widget tree is still bootstrapping.
   Future<void> initialize() async {
     if (_initialized) return;
 
@@ -173,16 +176,35 @@ class PushNotificationManager {
         await _createAndroidChannels();
       }
 
+      // Set up foreground message listener eagerly so messages arriving
+      // after permission is granted are handled immediately.
+      if (!kIsWeb) {
+        FirebaseMessaging.onMessage.listen(_handleMessage);
+      }
+
+      _initialized = true;
+      debugPrint('✅ PushNotificationManager: initialized (permission deferred)');
+    } catch (e) {
+      debugPrint('⚠️  PushNotificationManager: initialization failed: $e');
+      _initialized = true;
+    }
+  }
+
+  /// Request notification permission and register the FCM token.
+  ///
+  /// Call this after login when the widget tree is stable. Safe to call
+  /// multiple times — permission is only requested once, subsequent calls
+  /// just ensure the token is registered.
+  Future<void> requestPermissionAndRegister() async {
+    if (!_initialized) await initialize();
+    try {
       if (kIsWeb) {
         await _initializeWebPush();
       } else {
         await _initializeMobilePush();
       }
-      _initialized = true;
-      debugPrint('✅ PushNotificationManager: initialized');
     } catch (e) {
-      debugPrint('⚠️  PushNotificationManager: initialization failed: $e');
-      _initialized = true; // Mark as initialized even on failure
+      debugPrint('⚠️  PushNotificationManager: permission/register failed: $e');
     }
   }
 
@@ -191,10 +213,6 @@ class PushNotificationManager {
   /// Safe to call on iOS/macOS — `flutter_local_notifications` is a no-op on
   /// those platforms for channel creation.
   Future<void> _createAndroidChannels() async {
-    // Disable the automatic POST_NOTIFICATIONS permission request.
-    // Firebase Messaging's requestPermission() handles it instead — having
-    // both request the same permission concurrently crashes Android
-    // (IllegalStateException from ActivityCompat.requestPermissions).
     const initSettings = InitializationSettings(
       android: AndroidInitializationSettings(
         '@mipmap/ic_launcher',
@@ -305,10 +323,8 @@ class PushNotificationManager {
         _registerToken(newToken, _mobilePlatformTag());
       });
 
-      FirebaseMessaging.onMessage.listen(_handleMessage);
-
-      // Note: onMessageOpenedApp and getInitialMessage are handled
-      // by the app shell (_initFcmTapHandlers) for navigation routing.
+      // Note: onMessage listener is set up in initialize(), not here,
+      // to avoid duplicate listeners.
     }
   }
 
@@ -324,10 +340,18 @@ class PushNotificationManager {
   }
 
   /// Retry token registration (useful after login when initial registration failed).
+  ///
+  /// If permission has not been requested yet (first login), this will
+  /// trigger [requestPermissionAndRegister] to show the POST_NOTIFICATIONS
+  /// dialog and obtain the FCM token.
   Future<void> retryRegistration() async {
     if (_currentToken == null) {
-      debugPrint('⚠️  No FCM token available to retry registration');
-      return;
+      // Permission not yet requested — do it now (post-login, widget tree stable).
+      await requestPermissionAndRegister();
+      if (_currentToken == null) {
+        debugPrint('⚠️  No FCM token available after permission request');
+        return;
+      }
     }
     final platform = _currentPlatform ?? (kIsWeb ? 'web' : _mobilePlatformTag());
     debugPrint('🔄 Retrying FCM token registration after login...');
