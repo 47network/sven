@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
   const api = new SvenApiClient(() => {
     const config = vscode.workspace.getConfiguration('sven');
     return {
-      gatewayUrl: config.get<string>('gatewayUrl') || 'http://localhost:3000',
+      gatewayUrl: config.get<string>('gatewayUrl') || 'http://127.0.0.1:3000',
       apiKey: config.get<string>('extensionApiKey') || 'sven-ext-47-dev',
     };
   });

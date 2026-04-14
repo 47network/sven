@@ -50,7 +50,7 @@
       "properties": {
         "sven.gatewayUrl": {
           "type": "string",
-          "default": "http://localhost:3000",
+          "default": "http://127.0.0.1:3000",
           "description": "The Sven gateway API base URL."
         },
         "sven.extensionApiKey": {
