@@ -106,14 +106,17 @@ class PushNotificationManager {
   static const _groupKeyMessages = 'com.sven.messages';
   static const _groupKeyApprovals = 'com.sven.approvals';
   static const _groupKeyReminders = 'com.sven.reminders';
+  static const _groupKeyTrading = 'com.sven.trading';
 
   /// Fixed notification IDs used for the group summary notifications (one per channel).
   static const _summaryIdMessages = 90001;
   static const _summaryIdApprovals = 90002;
   static const _summaryIdReminders = 90003;
+  static const _summaryIdTrading = 90004;
   final List<String> _recentMessageLines = [];
   final List<String> _recentApprovalLines = [];
   final List<String> _recentReminderLines = [];
+  final List<String> _recentTradingLines = [];
 
   /// Callback to navigate to a specific chat. Set by the app shell.
   void Function(String chatId)? onNavigateToChat;
@@ -560,6 +563,10 @@ class PushNotificationManager {
       groupKey = _groupKeyReminders;
       lines = _recentReminderLines;
       summaryId = _summaryIdReminders;
+    } else if (channel == SvenNotificationChannels.trading) {
+      groupKey = _groupKeyTrading;
+      lines = _recentTradingLines;
+      summaryId = _summaryIdTrading;
     } else {
       groupKey = _groupKeyMessages;
       lines = _recentMessageLines;
@@ -597,7 +604,9 @@ class PushNotificationManager {
           ? 'Approvals'
           : channel == SvenNotificationChannels.reminders
               ? 'Reminders'
-              : 'Messages',
+              : channel == SvenNotificationChannels.trading
+                  ? 'Trading'
+                  : 'Messages',
       htmlFormatSummaryText: false,
     );
 
@@ -613,7 +622,9 @@ class PushNotificationManager {
               ? SvenNotificationChannels.approvalsName
               : channel == SvenNotificationChannels.reminders
                   ? SvenNotificationChannels.remindersName
-                  : SvenNotificationChannels.messagesName,
+                  : channel == SvenNotificationChannels.trading
+                      ? SvenNotificationChannels.tradingName
+                      : SvenNotificationChannels.messagesName,
           importance: _effectiveSoundProfile == 'subtle'
               ? Importance.defaultImportance
               : Importance.high,

@@ -649,6 +649,37 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   // Batch 7: Track per-position signal directions for accurate source attribution.
   const positionSignalMap = new Map<string, PositionSignals>(); // symbol → signals at entry
 
+  // Batch 10A: Per-position ATR at entry time for volatility-adjusted exits.
+  // Key = position symbol, value = ATR as % of price at entry.
+  const positionAtrMap = new Map<string, number>(); // symbol → atrPct at entry
+
+  // Batch 10D: Push trade notifications to companion app via push_pending.
+  // Sends a privacy-first notification: inserts payload into push_pending
+  // for all users with registered push tokens. The companion app fetches
+  // payloads from the server — FCM only receives a content-free wake-up.
+  async function pushTradeNotification(title: string, body: string, data: Record<string, unknown> = {}): Promise<void> {
+    try {
+      const { rows: users } = await pool.query(
+        `SELECT DISTINCT user_id FROM mobile_push_tokens`,
+      );
+      if (users.length === 0) return;
+      const values: unknown[] = [];
+      const placeholders: string[] = [];
+      let idx = 1;
+      for (const row of users) {
+        placeholders.push(`(gen_random_uuid()::text, $${idx}, $${idx + 1}, $${idx + 2}, 'sven_trading', $${idx + 3}, 'high', NOW() + INTERVAL '7 days')`);
+        values.push(row.user_id, title, body, JSON.stringify(data));
+        idx += 4;
+      }
+      await pool.query(
+        `INSERT INTO push_pending (id, user_id, title, body, channel, data, priority, expires_at) VALUES ${placeholders.join(', ')}`,
+        values,
+      );
+    } catch (err) {
+      logger.warn('Failed to push trade notification', { err: (err as Error).message });
+    }
+  }
+
   // ── Batch 9F: Execution quality tracking ──
   // Records every trade entry/exit and computes quality metrics:
   // slippage, hold time, win rate, avg gain/loss, max drawdown per trade.
@@ -1813,13 +1844,45 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         .sort((a, b) => b.signalStrength - a.signalStrength);
 
       let llmReasonings: string[] = [];
-      const effectiveConfidence = PAPER_TRADE_MODE ? PAPER_TRADE_CONFIDENCE : AUTO_TRADE_CONFIDENCE_THRESHOLD;
+      const baseConfidence = PAPER_TRADE_MODE ? PAPER_TRADE_CONFIDENCE : AUTO_TRADE_CONFIDENCE_THRESHOLD;
+
+      // Batch 10B: Adaptive threshold calibration — adjust entry confidence
+      // based on execution quality history, multi-TF alignment, and streak.
+      // When conditions are favorable (aligned TFs, positive recent track
+      // record), lower the bar to take more trades. When conditions are
+      // unfavorable (losing streak, conflicting signals), raise the bar.
+      const eqData = computeExecutionQuality();
+      const recentWinRate = typeof eqData.winRate === 'number' ? eqData.winRate : 0.5;
+      const recentTrades = typeof eqData.trades === 'number' ? eqData.trades : 0;
+      // Losing streak penalty: raise threshold by 5% per consecutive loss (max 15%)
+      const streakPenalty = Math.min(0.15, svenCircuitBreaker.consecutiveLosses * 0.05);
+      // Win rate bonus: if >60% win rate over ≥5 trades, lower threshold by up to 10%
+      const winRateBonus = (recentTrades >= 5 && recentWinRate > 0.6)
+        ? Math.min(0.10, (recentWinRate - 0.5) * 0.2)
+        : 0;
 
       for (const candidate of tradeCandidates) {
         if (currentOpenPositions + positionsThisTick >= MAX_CONCURRENT_POSITIONS) break;
         if (totalExposurePct >= MAX_TOTAL_EXPOSURE_PCT) break;
-        if (candidate.decision.confidence < effectiveConfidence) continue;
         if (!AUTO_TRADE_ENABLED) continue;
+
+        // Batch 10B: Per-candidate adaptive threshold
+        // Multi-TF aligned + LLM bullish = lower threshold (more aggressive)
+        // Conflicting TFs = raise threshold (more conservative)
+        let adaptiveConfidence = baseConfidence + streakPenalty - winRateBonus;
+        const candidateSentiment = symbolSentiments.get(candidate.symbol);
+        const isMultiTfAligned = candidate.multiTf?.alignment === 'aligned';
+        // Map LLM sentiment (bullish/bearish) to signal direction (long/short) for comparison
+        const sentimentDir = candidateSentiment?.direction === 'bullish' ? 'long' : candidateSentiment?.direction === 'bearish' ? 'short' : 'neutral';
+        const signalDir = candidate.output.aggregatedSignal?.direction ?? 'close';
+        const isLlmAgreeing = sentimentDir !== 'neutral' && sentimentDir === signalDir;
+        if (isMultiTfAligned) adaptiveConfidence -= 0.05;
+        if (isLlmAgreeing) adaptiveConfidence -= 0.03;
+        if (candidate.multiTf?.alignment === 'conflicting') adaptiveConfidence += 0.05;
+        // Floor at 0.15, cap at 0.85 — never completely block or accept everything
+        adaptiveConfidence = Math.max(0.15, Math.min(0.85, adaptiveConfidence));
+
+        if (candidate.decision.confidence < adaptiveConfidence) continue;
 
         // ── No duplicate positions per symbol ──
         // Sven was opening 4 ETH shorts simultaneously = concentrated risk.
@@ -1858,7 +1921,26 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             candidate.output.technicalAnalysis?.atr ?? null,
             svenCircuitBreaker.cooldownMultiplier,
           );
-          const maxCapital = svenAccount.balance * dynamicPct;
+
+          // Batch 10C: Kelly criterion overlay — scale position size based on
+          // recent win rate and avg win/loss ratio. Kelly = W - (1-W)/R where
+          // W = win probability, R = avg_gain/avg_loss. We use half-Kelly
+          // (conservative) and only apply when we have ≥10 closed trades.
+          let kellyMultiplier = 1.0;
+          if (recentTrades >= 10 && recentWinRate > 0) {
+            const avgGain = typeof eqData.avgGainPct === 'number' && eqData.avgGainPct > 0 ? eqData.avgGainPct : 1;
+            const avgLoss = typeof eqData.avgLossPct === 'number' && eqData.avgLossPct > 0 ? eqData.avgLossPct : 1;
+            const payoffRatio = avgGain / avgLoss;
+            const kellyFraction = recentWinRate - (1 - recentWinRate) / payoffRatio;
+            // Half-Kelly for safety, clamped between 0.3x and 1.5x
+            kellyMultiplier = Math.max(0.3, Math.min(1.5, 0.5 + kellyFraction * 0.5));
+          }
+          // Multi-TF alignment boost: scale up 15% for fully aligned signals
+          const alignmentMultiplier = candidate.multiTf?.alignment === 'aligned' ? 1.15
+            : candidate.multiTf?.alignment === 'conflicting' ? 0.75 : 1.0;
+
+          const finalPct = Math.max(0.01, Math.min(0.10, dynamicPct * kellyMultiplier * alignmentMultiplier));
+          const maxCapital = svenAccount.balance * finalPct;
           const rawQty = maxCapital / candidate.currentPrice;
           const quantity = Math.max(0.001, parseFloat(rawQty.toFixed(6)));
           const positionPct = (quantity * candidate.currentPrice) / svenAccount.balance;
@@ -1950,6 +2032,18 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               news: newsDir as 'long' | 'short' | 'neutral',
               tradeSide: entryTradeSide as 'long' | 'short',
             });
+
+            // Batch 10A: Store ATR at entry for volatility-adjusted exits
+            const entryAtrPct = candidate.output.technicalAnalysis?.atr?.atrPct ?? null;
+            if (entryAtrPct !== null) positionAtrMap.set(candidate.symbol, entryAtrPct);
+
+            // Batch 10D: Push notification to companion app
+            pushTradeNotification(
+              `${PAPER_TRADE_MODE ? '📝 Paper' : '🔴 Live'}: ${orderSide.toUpperCase()} ${candidate.symbol}`,
+              `${quantity} ${candidate.symbol} @ $${candidate.currentPrice.toLocaleString()} | Confidence ${(candidate.decision.confidence * 100).toFixed(0)}% | Signal ${(candidate.signalStrength * 100).toFixed(0)}%`,
+              { type: 'trade_entry', symbol: candidate.symbol, side: orderSide, price: candidate.currentPrice, quantity },
+            ).catch(() => {}); // fire-and-forget
+
             positionsThisTick++;
             svenDailyTradeCount++;
             openSymbolSet.add(candidate.symbol); // prevent duplicate in this tick
@@ -2038,30 +2132,57 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             }
 
             // ── Smart Exit Logic with Trailing Stop + Profit-Taking Ladder ───
-            // Instead of fixed TP/SL, use a trailing stop that locks in
-            // profits as the position moves in Sven's favor:
-            //   1. Initial stop loss: -1% (paper) / -2% (live) — hard floor
-            //   2. Trailing stop: once position is >0.5% profitable, trail
-            //      at 40% of peak gain (so if peak was +2%, stop at +1.2%)
-            //   3. Take profit: 3% (paper) / 5% (live) — hard ceiling
+            // Batch 10A: ATR-based dynamic exits instead of fixed percentages.
+            // Uses ATR (Average True Range) captured at trade entry to set
+            // volatility-adjusted stop-loss and take-profit levels.
+            // Volatile assets → wider stops, calm assets → tighter stops.
+            //
+            //   1. Stop loss: 2× ATR (paper 1.5×) — adapts to asset volatility
+            //   2. Trailing stop: activates at 0.5× ATR profit
+            //   3. Take profit: 3× ATR (paper) / 4× ATR (live)
             //   4. Time-based: 2h profit lock, 4h expiry (paper only)
-            //   5. Batch 8: Profit-taking ladder — scale out at milestones
-            const HARD_SL = PAPER_TRADE_MODE ? -0.01 : -0.02;
-            const HARD_TP = PAPER_TRADE_MODE ? 0.03 : 0.05;
-            const TRAIL_ACTIVATION = 0.005; // activate trailing stop at 0.5% profit
-            // Batch 7: Adaptive trail tightening — once past 1% profit, tighten
-            // from 40% giveback to 25% giveback to lock in more profit
-            const TRAIL_DISTANCE_NORMAL = 0.40;    // give back 40% of peak below 1%
-            const TRAIL_DISTANCE_TIGHT = 0.25;     // give back 25% of peak above 1%
-            const TRAIL_TIGHTEN_THRESHOLD = 0.01;  // tighten at 1% profit
+            //   5. Profit-taking ladder at 1× and 2× ATR
+            //
+            // Falls back to fixed % if ATR is unavailable.
+            const entryAtr = positionAtrMap.get(pos.symbol);
+            // Also check current ATR from this tick's analysis for positions
+            // opened before ATR tracking was added.
+            const currentSymbolAnalysis = analyses.find(a => a.symbol === pos.symbol);
+            const currentAtr = currentSymbolAnalysis?.output.technicalAnalysis?.atr?.atrPct ?? null;
+            const effectiveAtr = entryAtr ?? currentAtr;
 
-            // Batch 8: Profit-taking ladder thresholds
-            // Scale out partial positions at profit milestones to lock in gains
-            // while letting remaining position ride the trend.
-            const LADDER_LEVELS = [
-              { threshold: 0.01, exitPct: 0.25 },  // +1%: sell 25%
-              { threshold: 0.02, exitPct: 0.25 },  // +2%: sell another 25% (50% total)
-            ];
+            let HARD_SL: number;
+            let HARD_TP: number;
+            let TRAIL_ACTIVATION: number;
+            let TRAIL_TIGHTEN_THRESHOLD: number;
+            let LADDER_LEVELS: { threshold: number; exitPct: number }[];
+
+            if (effectiveAtr && effectiveAtr > 0.001) {
+              // ATR-based: scale exits to the asset's actual volatility
+              HARD_SL = -(PAPER_TRADE_MODE ? 1.5 : 2.0) * effectiveAtr;
+              HARD_TP = (PAPER_TRADE_MODE ? 3.0 : 4.0) * effectiveAtr;
+              TRAIL_ACTIVATION = 0.5 * effectiveAtr;
+              TRAIL_TIGHTEN_THRESHOLD = 1.5 * effectiveAtr;
+              LADDER_LEVELS = [
+                { threshold: 1.0 * effectiveAtr, exitPct: 0.25 },
+                { threshold: 2.0 * effectiveAtr, exitPct: 0.25 },
+              ];
+            } else {
+              // Fallback: fixed % exits when ATR is unavailable
+              HARD_SL = PAPER_TRADE_MODE ? -0.01 : -0.02;
+              HARD_TP = PAPER_TRADE_MODE ? 0.03 : 0.05;
+              TRAIL_ACTIVATION = 0.005;
+              TRAIL_TIGHTEN_THRESHOLD = 0.01;
+              LADDER_LEVELS = [
+                { threshold: 0.01, exitPct: 0.25 },
+                { threshold: 0.02, exitPct: 0.25 },
+              ];
+            }
+
+            // Batch 7: Adaptive trail tightening — once past tighten threshold,
+            // reduce giveback from 40% to 25% to lock in more profit
+            const TRAIL_DISTANCE_NORMAL = 0.40;
+            const TRAIL_DISTANCE_TIGHT = 0.25;
             // Track which ladder levels have been triggered for this position
             if (!profitLadderState.has(pos.id)) profitLadderState.set(pos.id, new Set<number>());
             const triggeredLevels = profitLadderState.get(pos.id)!;
@@ -2175,6 +2296,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               // Clean up trailing stop tracking for this position
               trailingStopPeaks.delete(pos.id);
               profitLadderState.delete(pos.id); // Batch 8: clean up ladder state
+              positionAtrMap.delete(pos.symbol); // Batch 10A: clean up ATR entry
 
               // Update Sven's account balance
               svenAccount.balance += pnl;
@@ -2224,6 +2346,13 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
                 symbol: pos.symbol,
                 severity: pnl >= 0 ? 'info' : 'warning',
               });
+
+              // Batch 10D: Push close notification to companion app
+              pushTradeNotification(
+                `${pnl >= 0 ? '✅' : '❌'} Closed: ${pos.symbol} ${(priceDelta * 100).toFixed(2)}%`,
+                `${pos.side.toUpperCase()} ${pos.symbol}: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)} 47T (${closeReason}). Balance: ${svenAccount.balance.toFixed(2)} 47T`,
+                { type: 'trade_close', symbol: pos.symbol, side: pos.side, pnl, pnlPct: priceDelta * 100, closeReason },
+              ).catch(() => {});
 
               logger.info('Sven position closed', {
                 positionId: pos.id, symbol: pos.symbol, side: pos.side, closeReason,
@@ -2308,7 +2437,16 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       checkGoalMilestones();
 
       // ═══ LEARNING — check circuit breaker ═════════════════════════
+      const wasTripped = svenCircuitBreaker.tripped;
       svenCircuitBreaker = checkCircuitBreaker(svenCircuitBreaker);
+      // Batch 10D: Push notification on circuit breaker trip
+      if (svenCircuitBreaker.tripped && !wasTripped) {
+        pushTradeNotification(
+          '⚠️ Circuit Breaker Tripped',
+          `Trading paused. Losses: ${svenCircuitBreaker.consecutiveLosses} consecutive, daily ${(svenCircuitBreaker.dailyLossPct * 100).toFixed(1)}%, drawdown ${(svenCircuitBreaker.currentDrawdownPct * 100).toFixed(1)}%`,
+          { type: 'circuit_breaker', consecutiveLosses: svenCircuitBreaker.consecutiveLosses },
+        ).catch(() => {});
+      }
       for (const a of analyses) {
         svenLearning = a.output.updatedLearningMetrics;
       }
@@ -2409,6 +2547,9 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         multiTfConflicting: analyses.filter(a => a.multiTf?.alignment === 'conflicting').length,
         wsFeedHealthy: binanceWs.isHealthy(),
         wsPricesCached: binanceWs.getAllPrices().size,
+        adaptiveThreshold: { base: baseConfidence.toFixed(2), streakPenalty: streakPenalty.toFixed(2), winRateBonus: winRateBonus.toFixed(2) },
+        kellyData: { trades: recentTrades, winRate: recentWinRate.toFixed(2) },
+        atrExitPositions: positionAtrMap.size,
         balance: svenAccount.balance,
         totalPnl: svenTotalPnl,
         dailyPnl: svenDailyPnl,
@@ -2554,6 +2695,20 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         autoTrade: {
           enabled: AUTO_TRADE_ENABLED,
           confidenceThreshold: AUTO_TRADE_CONFIDENCE_THRESHOLD,
+          effectiveThreshold: PAPER_TRADE_MODE ? PAPER_TRADE_CONFIDENCE : AUTO_TRADE_CONFIDENCE_THRESHOLD,
+          adaptiveCalibration: {
+            streakPenalty: Math.min(0.15, svenCircuitBreaker.consecutiveLosses * 0.05),
+            consecutiveLosses: svenCircuitBreaker.consecutiveLosses,
+            note: 'Per-candidate threshold further adjusted by multi-TF alignment and LLM agreement',
+          },
+          kellySizing: {
+            active: executionLog.filter(e => e.exitPrice !== null).length >= 10,
+            closedTrades: executionLog.filter(e => e.exitPrice !== null).length,
+          },
+          atrExits: {
+            positionsWithAtr: positionAtrMap.size,
+            entryAtrs: Object.fromEntries(positionAtrMap),
+          },
           maxPositionPct: AUTO_TRADE_MAX_POSITION_PCT,
           totalExecuted: svenTradeLog.length,
           lastTrade: svenTradeLog.length > 0 ? svenTradeLog[svenTradeLog.length - 1] : null,
