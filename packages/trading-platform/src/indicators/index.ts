@@ -379,6 +379,107 @@ export function computeMultiTimeframeTrend(candles: Candle[]): MultiTimeframeTre
 
 /* ── Aggregate Technical Signal ────────────────────────────────────────── */
 
+/* ── Correlation Matrix ─────────────────────────────────────────────────── */
+
+export interface CorrelationResult {
+  symbolA: string;
+  symbolB: string;
+  correlation: number;     // -1.0 to +1.0 (Pearson)
+  isHighlyCorrelated: boolean;  // |correlation| >= 0.80
+}
+
+/**
+ * Compute Pearson correlation between two price series.
+ * Batch 8: Prevents concentrated risk by detecting when two assets move
+ * together. If BTC and ETH are 0.92 correlated and Sven is long BTC,
+ * going long ETH is effectively doubling the same bet.
+ */
+export function computeCorrelation(
+  candlesA: Candle[],
+  candlesB: Candle[],
+  period = 50,
+): number | null {
+  const len = Math.min(candlesA.length, candlesB.length, period);
+  if (len < 20) return null;
+
+  const returnsA: number[] = [];
+  const returnsB: number[] = [];
+  for (let i = 1; i < len; i++) {
+    returnsA.push((candlesA[candlesA.length - len + i]!.close - candlesA[candlesA.length - len + i - 1]!.close) / candlesA[candlesA.length - len + i - 1]!.close);
+    returnsB.push((candlesB[candlesB.length - len + i]!.close - candlesB[candlesB.length - len + i - 1]!.close) / candlesB[candlesB.length - len + i - 1]!.close);
+  }
+
+  const n = returnsA.length;
+  if (n < 10) return null;
+
+  const meanA = returnsA.reduce((s, v) => s + v, 0) / n;
+  const meanB = returnsB.reduce((s, v) => s + v, 0) / n;
+
+  let covariance = 0;
+  let varA = 0;
+  let varB = 0;
+  for (let i = 0; i < n; i++) {
+    const dA = returnsA[i]! - meanA;
+    const dB = returnsB[i]! - meanB;
+    covariance += dA * dB;
+    varA += dA * dA;
+    varB += dB * dB;
+  }
+
+  const denominator = Math.sqrt(varA * varB);
+  if (denominator === 0) return null;
+
+  return covariance / denominator;
+}
+
+/* ── ATR (Average True Range) — Volatility for Position Sizing ─────────── */
+
+export interface ATRResult {
+  atr: number;              // raw ATR value
+  atrPct: number;           // ATR as % of current price
+  isHighVolatility: boolean; // atrPct > 3%
+  isLowVolatility: boolean;  // atrPct < 1%
+}
+
+/**
+ * Compute ATR using Wilder's smoothing (14-period default).
+ * Batch 8: Used for dynamic position sizing — volatile assets get smaller
+ * positions. Also detects regime: high vol = smaller size, low vol = can size up.
+ */
+export function computeATR(candles: Candle[], period = 14): ATRResult | null {
+  if (candles.length < period + 1) return null;
+
+  let atr = 0;
+  // Initial ATR: average of first `period` true ranges
+  for (let i = 1; i <= period; i++) {
+    const c = candles[i]!;
+    const p = candles[i - 1]!;
+    const tr = Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close));
+    atr += tr;
+  }
+  atr /= period;
+
+  // Wilder's smoothing for remaining bars
+  for (let i = period + 1; i < candles.length; i++) {
+    const c = candles[i]!;
+    const p = candles[i - 1]!;
+    const tr = Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close));
+    atr = (atr * (period - 1) + tr) / period;
+  }
+
+  const currentPrice = candles[candles.length - 1]!.close;
+  const atrPct = currentPrice > 0 ? atr / currentPrice : 0;
+
+  return {
+    atr,
+    atrPct,
+    isHighVolatility: atrPct > 0.03,
+    isLowVolatility: atrPct < 0.01,
+  };
+}
+
+/* ── Aggregate Technical Signal ────────────────────────────────────────── */
+
 export interface TechnicalAnalysis {
   rsi: RSIResult | null;
   macd: MACDResult | null;
@@ -386,6 +487,7 @@ export interface TechnicalAnalysis {
   trend: TrendResult | null;
   volume: VolumeResult | null;
   multiTrend: MultiTimeframeTrend | null;
+  atr: ATRResult | null;
   direction: 'long' | 'short' | 'neutral';
   strength: number;
   confluence: number;    // 0–3: how many indicators agree
@@ -402,6 +504,7 @@ export function computeTechnicalAnalysis(candles: Candle[]): TechnicalAnalysis {
   const trend = computeTrendFilter(candles);
   const volume = computeVolumeAnalysis(candles);
   const multiTrend = computeMultiTimeframeTrend(candles);
+  const atr = computeATR(candles);
 
   let longVotes = 0;
   let shortVotes = 0;
@@ -418,7 +521,7 @@ export function computeTechnicalAnalysis(candles: Candle[]): TechnicalAnalysis {
   }
 
   if (indicatorCount === 0) {
-    return { rsi, macd, bollinger, trend, volume, multiTrend, direction: 'neutral', strength: 0, confluence: 0 };
+    return { rsi, macd, bollinger, trend, volume, multiTrend, atr, direction: 'neutral', strength: 0, confluence: 0 };
   }
 
   const avgStrength = totalStrength / indicatorCount;
@@ -432,5 +535,5 @@ export function computeTechnicalAnalysis(candles: Candle[]): TechnicalAnalysis {
   const confluenceMultiplier = confluence >= 3 ? 1.5 : confluence >= 2 ? 1.2 : 0.8;
   const strength = Math.min(1, avgStrength * confluenceMultiplier);
 
-  return { rsi, macd, bollinger, trend, volume, multiTrend, direction, strength, confluence };
+  return { rsi, macd, bollinger, trend, volume, multiTrend, atr, direction, strength, confluence };
 }

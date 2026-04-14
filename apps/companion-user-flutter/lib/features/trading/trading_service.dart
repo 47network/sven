@@ -32,12 +32,9 @@ class TradingService extends ChangeNotifier {
   final TradingCache cache = TradingCache();
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
 
-  /// Trading API base URL — separate subdomain from the main gateway.
-  static String get _tradingBase {
-    if (EnvConfig.isDev) return 'http://192.168.10.172:3004';
-    if (EnvConfig.isStaging) return 'https://trading-staging.sven.systems';
-    return 'https://trading.sven.systems';
-  }
+  /// Trading API base URL — same as the main gateway (trading routes
+  /// are served by gateway-api, not a separate service).
+  static String get _tradingBase => EnvConfig.apiBase;
 
   // ── Cached state ────────────────────────────────────────────────────────
 
@@ -99,12 +96,15 @@ class TradingService extends ChangeNotifier {
 
   // ── Public API: fetchers ────────────────────────────────────────────────
 
-  /// Fetch Sven's current trading status (public — no auth).
+  /// Fetch Sven's current trading status.
+  /// Tries the admin endpoint first (authenticated). If that returns 401/403,
+  /// falls back to the public-status endpoint (no auth) so guests still see
+  /// live balance, P&L, positions, etc.
   Future<void> fetchStatus() async {
     _setLoading(true);
     try {
       final resp = await _get('/v1/trading/sven/status');
-      if (resp != null) {
+      if (resp != null && resp.statusCode == 200) {
         final body = jsonDecode(resp.body) as Map<String, dynamic>;
         if (body['success'] == true && body['data'] != null) {
           final data = body['data'] as Map<String, dynamic>;
@@ -113,13 +113,38 @@ class TradingService extends ChangeNotifier {
           _fromCache = false;
           notifyListeners();
           unawaited(cache.cacheStatus(data));
+          return;
         }
       }
+      // Admin endpoint failed (401/403/null) — try public fallback
+      await _fetchPublicStatus();
     } catch (e) {
-      _error = 'Failed to fetch status: $e';
-      notifyListeners();
+      // Network error — try public fallback before giving up
+      try {
+        await _fetchPublicStatus();
+      } catch (_) {
+        _error = 'Failed to fetch status: $e';
+        notifyListeners();
+      }
     } finally {
       _setLoading(false);
+    }
+  }
+
+  /// Fetch from the public-status endpoint (no auth required).
+  /// Returns a subset of trading data safe for guest visitors.
+  Future<void> _fetchPublicStatus() async {
+    final resp = await _get('/v1/trading/sven/public-status');
+    if (resp != null && resp.statusCode == 200) {
+      final body = jsonDecode(resp.body) as Map<String, dynamic>;
+      if (body['success'] == true && body['data'] != null) {
+        final data = body['data'] as Map<String, dynamic>;
+        _status = TradingStatus.fromPublicJson(data);
+        _error = null;
+        _fromCache = false;
+        notifyListeners();
+        unawaited(cache.cacheStatus(data));
+      }
     }
   }
 

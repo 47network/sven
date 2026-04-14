@@ -19,11 +19,8 @@ import 'trading_models.dart';
 class TradingSseService {
   TradingSseService({required AuthenticatedClient client}) : _client = client;
 
-  static String get _tradingBase {
-    if (EnvConfig.isDev) return 'http://192.168.10.172:3004';
-    if (EnvConfig.isStaging) return 'https://trading-staging.sven.systems';
-    return 'https://trading.sven.systems';
-  }
+  /// Use the main gateway — trading routes live on gateway-api.
+  static String get _tradingBase => EnvConfig.apiBase;
 
   final AuthenticatedClient _client;
   final _controller = StreamController<TradingEvent>.broadcast();
@@ -54,7 +51,7 @@ class TradingSseService {
   }
 
   Future<void> _openSse() async {
-    final uri = Uri.parse('$_tradingBase/api/sven/events');
+    final uri = Uri.parse('$_tradingBase/v1/trading/events');
     if (_disposed) return;
 
     final request = http.Request('GET', uri)

@@ -80,7 +80,11 @@ import {
 
 import {
   computeTechnicalAnalysis,
+  computeCorrelation,
+  computeATR,
   type TechnicalAnalysis,
+  type ATRResult,
+  type CorrelationResult,
 } from '../indicators/index.js';
 
 /* ── Sven State Machine ────────────────────────────────────────────────── */
@@ -123,6 +127,10 @@ export interface CircuitBreakerState {
   maxConsecutiveLosses: number;
   maxDrawdownPct: number;
   currentDrawdownPct: number;
+  /** Batch 8: Gradual cooldown — reduce position size instead of full stop */
+  cooldownActive: boolean;
+  cooldownMultiplier: number;    // 0.0–1.0, applied to position sizing
+  cooldownUntil: Date | null;    // auto-reset after cooldown period
 }
 
 export const DEFAULT_CIRCUIT_BREAKER: CircuitBreakerState = {
@@ -135,25 +143,146 @@ export const DEFAULT_CIRCUIT_BREAKER: CircuitBreakerState = {
   maxConsecutiveLosses: 5,
   maxDrawdownPct: 0.15,          // 15% max drawdown
   currentDrawdownPct: 0,
+  cooldownActive: false,
+  cooldownMultiplier: 1.0,
+  cooldownUntil: null,
 };
 
+/**
+ * Batch 8: Gradual circuit breaker with cooldown.
+ * Instead of hard stop at 5 consecutive losses, introduces:
+ * - Cooldown tier 1 (3 losses): reduce position size to 50% for 30 min
+ * - Cooldown tier 2 (4 losses): reduce position size to 25% for 60 min
+ * - Hard trip (5 losses): full stop (existing behavior)
+ * - Drawdown: gradual at 10% (50% sizing) before hard stop at 15%
+ * Auto-resets when cooldown expires.
+ */
 export function checkCircuitBreaker(cb: CircuitBreakerState): CircuitBreakerState {
+  // Check for cooldown expiry first
+  if (cb.cooldownActive && cb.cooldownUntil && new Date() >= cb.cooldownUntil) {
+    cb = { ...cb, cooldownActive: false, cooldownMultiplier: 1.0, cooldownUntil: null };
+  }
+
   if (cb.tripped) return cb;
 
   if (cb.dailyLossPct >= cb.dailyLossLimit) {
-    return { ...cb, tripped: true, reason: `Daily loss limit hit: ${(cb.dailyLossPct * 100).toFixed(1)}%`, trippedAt: new Date() };
+    return { ...cb, tripped: true, reason: `Daily loss limit hit: ${(cb.dailyLossPct * 100).toFixed(1)}%`, trippedAt: new Date(), cooldownActive: false };
   }
   if (cb.consecutiveLosses >= cb.maxConsecutiveLosses) {
-    return { ...cb, tripped: true, reason: `${cb.consecutiveLosses} consecutive losses`, trippedAt: new Date() };
+    return { ...cb, tripped: true, reason: `${cb.consecutiveLosses} consecutive losses`, trippedAt: new Date(), cooldownActive: false };
   }
   if (cb.currentDrawdownPct >= cb.maxDrawdownPct) {
-    return { ...cb, tripped: true, reason: `Max drawdown hit: ${(cb.currentDrawdownPct * 100).toFixed(1)}%`, trippedAt: new Date() };
+    return { ...cb, tripped: true, reason: `Max drawdown hit: ${(cb.currentDrawdownPct * 100).toFixed(1)}%`, trippedAt: new Date(), cooldownActive: false };
   }
+
+  // Batch 8: Gradual cooldown tiers before hard trip
+  if (cb.consecutiveLosses >= 4 && !cb.cooldownActive) {
+    return {
+      ...cb,
+      cooldownActive: true,
+      cooldownMultiplier: 0.25,
+      cooldownUntil: new Date(Date.now() + 60 * 60 * 1000), // 60 min cooldown
+    };
+  }
+  if (cb.consecutiveLosses >= 3 && !cb.cooldownActive) {
+    return {
+      ...cb,
+      cooldownActive: true,
+      cooldownMultiplier: 0.50,
+      cooldownUntil: new Date(Date.now() + 30 * 60 * 1000), // 30 min cooldown
+    };
+  }
+
+  // Gradual drawdown cooldown: 10% drawdown = 50% position size
+  if (cb.currentDrawdownPct >= 0.10 && !cb.cooldownActive) {
+    return {
+      ...cb,
+      cooldownActive: true,
+      cooldownMultiplier: 0.50,
+      cooldownUntil: new Date(Date.now() + 45 * 60 * 1000),
+    };
+  }
+
   return cb;
 }
 
 export function resetCircuitBreaker(): CircuitBreakerState {
   return { ...DEFAULT_CIRCUIT_BREAKER };
+}
+
+/* ── Win/Loss Streak Tracker ──────────────────────────────────────────── */
+
+/**
+ * Batch 8: Win streak momentum — adjust confidence threshold based on
+ * recent streak performance. After consecutive wins, Sven is "hot" and
+ * can be slightly more aggressive. After consecutive losses, require
+ * higher conviction before entering.
+ */
+export function computeStreakAdjustment(consecutiveWins: number, consecutiveLosses: number): number {
+  // Positive = more permissive (lower confidence required)
+  // Negative = more restrictive (higher confidence required)
+  if (consecutiveWins >= 3) return -0.03;   // 3+ wins: relax threshold by 3%
+  if (consecutiveWins >= 2) return -0.02;   // 2 wins: relax by 2%
+  if (consecutiveLosses >= 3) return 0.05;  // 3+ losses: tighten by 5%
+  if (consecutiveLosses >= 2) return 0.03;  // 2 losses: tighten by 3%
+  return 0;
+}
+
+/* ── Time-of-Day Filter ───────────────────────────────────────────────── */
+
+/**
+ * Batch 8: Crypto markets run 24/7 but liquidity and volatility vary.
+ * Avoid trading during historically low-liquidity periods:
+ * - Saturday 00:00–06:00 UTC (weekend gap)
+ * - Sunday 00:00–12:00 UTC (pre-week buildup)
+ * Returns true if it's a safe time to trade.
+ */
+export function isGoodTradingTime(now: Date = new Date()): boolean {
+  const utcDay = now.getUTCDay();      // 0=Sun, 6=Sat
+  const utcHour = now.getUTCHours();
+
+  // Saturday 00:00–06:00 UTC — thin liquidity
+  if (utcDay === 6 && utcHour < 6) return false;
+
+  // Sunday 00:00–12:00 UTC — pre-market, spreads widen
+  if (utcDay === 0 && utcHour < 12) return false;
+
+  return true;
+}
+
+/* ── Dynamic Position Sizing ──────────────────────────────────────────── */
+
+/**
+ * Batch 8: Scale position size based on signal strength, ATR volatility,
+ * and circuit breaker cooldown. Strong signals on low-vol assets get larger
+ * positions. Weak signals on high-vol assets get smaller positions.
+ *
+ * Base size: maxPositionPct (typically 5%)
+ * Multipliers:
+ *   Signal strength: 0.5 (weak) to 1.5 (strong)
+ *   ATR volatility:  0.5 (high vol) to 1.3 (low vol)
+ *   Cooldown:        from circuit breaker (0.25–1.0)
+ */
+export function dynamicPositionSize(
+  baseMaxPct: number,
+  signalStrength: number,
+  atr: ATRResult | null,
+  cooldownMultiplier: number,
+): number {
+  // Signal strength multiplier: linear from 0.5 at strength=0.3 to 1.5 at strength=1.0
+  const strengthMultiplier = Math.max(0.5, Math.min(1.5, 0.5 + (signalStrength - 0.3) * (1.0 / 0.7)));
+
+  // ATR volatility multiplier: high vol (>3%) → 0.5x, low vol (<1%) → 1.3x
+  let volMultiplier = 1.0;
+  if (atr) {
+    if (atr.isHighVolatility) volMultiplier = 0.5;
+    else if (atr.isLowVolatility) volMultiplier = 1.3;
+    else volMultiplier = Math.max(0.5, Math.min(1.3, 1.5 - (atr.atrPct / 0.03)));
+  }
+
+  const rawSize = baseMaxPct * strengthMultiplier * volMultiplier * cooldownMultiplier;
+  // Floor at 1% of balance, cap at 10% for safety
+  return Math.max(0.01, Math.min(0.10, rawSize));
 }
 
 /* ── SSE Event Types ───────────────────────────────────────────────────── */
@@ -635,6 +764,10 @@ export interface AutonomousDecisionInput {
   newsEvents: NewsEvent[];
   circuitBreaker: CircuitBreakerState;
   paperTradeMode?: boolean;
+  /** Batch 8: Candle data for other open positions — for correlation checking */
+  openPositionCandles?: Map<string, Candle[]>;
+  /** Batch 8: Consecutive win count for streak momentum adjustment */
+  consecutiveWins?: number;
 }
 
 export interface AutonomousDecisionOutput {
@@ -672,6 +805,32 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
 
     return {
       decision: buildDecision('skip', input.symbol, [], {}, `Circuit breaker tripped: ${cb.reason}`),
+      kronosPrediction: null,
+      mirofishResult: null,
+      newsSignals: [],
+      technicalAnalysis: null,
+      aggregatedSignal: null,
+      riskChecks: [],
+      order: null,
+      events,
+      updatedLearningMetrics: metrics,
+      updatedCircuitBreaker: cb,
+    };
+  }
+
+  // ── Batch 8: Time-of-Day Filter ──────────────────────────────────
+  if (!isGoodTradingTime()) {
+    const decision = buildDecision('hold', input.symbol, [], {}, 'Time filter: low-liquidity period (weekend gap)');
+    events.push(createTradingEvent('decision_made', {
+      type: 'hold',
+      symbol: input.symbol,
+      reason: 'time_filter_weekend',
+      utcDay: new Date().getUTCDay(),
+      utcHour: new Date().getUTCHours(),
+    }));
+
+    return {
+      decision,
       kronosPrediction: null,
       mirofishResult: null,
       newsSignals: [],
@@ -1081,6 +1240,74 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
     }
   }
 
+  // ── 4g. Batch 8: Correlation Filter ──────────────────────────────
+  // Prevent concentrated risk by checking if the new trade direction
+  // aligns with an already-open position on a highly correlated asset.
+  if (input.openPositionCandles && input.openPositionCandles.size > 0) {
+    for (const [openSymbol, openCandles] of input.openPositionCandles) {
+      if (openSymbol === input.symbol) continue;
+      const corr = computeCorrelation(input.candles, openCandles);
+      if (corr !== null && Math.abs(corr) >= 0.80) {
+        const corrVeto = `Correlation filter: ${input.symbol} has ${(corr * 100).toFixed(0)}% correlation with open position ${openSymbol} — concentrated risk`;
+        const decision = buildDecision('hold', input.symbol, allSignals, {}, corrVeto);
+        events.push(createTradingEvent('decision_made', {
+          type: 'hold',
+          symbol: input.symbol,
+          reason: corrVeto,
+          correlatedWith: openSymbol,
+          correlation: corr,
+        }));
+
+        return {
+          decision,
+          kronosPrediction,
+          mirofishResult,
+          newsSignals,
+          technicalAnalysis: ta,
+          aggregatedSignal: aggregated,
+          riskChecks: [],
+          order: null,
+          events,
+          updatedLearningMetrics: metrics,
+          updatedCircuitBreaker: cb,
+        };
+      }
+    }
+  }
+
+  // ── 4h. Batch 8: Win/Loss Streak Adjustment ─────────────────────
+  // Adjust minimum confidence threshold based on recent streak
+  const streakAdj = computeStreakAdjustment(
+    input.consecutiveWins ?? 0,
+    cb.consecutiveLosses,
+  );
+  const adjustedMinStrength = Math.max(0.10, (input.paperTradeMode ? 0.15 : 0.3) + streakAdj);
+  if (aggregated.strength < adjustedMinStrength && streakAdj > 0) {
+    const streakVeto = `Streak filter: ${cb.consecutiveLosses} consecutive losses raised minimum signal to ${(adjustedMinStrength * 100).toFixed(0)}%, current: ${(aggregated.strength * 100).toFixed(0)}%`;
+    const decision = buildDecision('hold', input.symbol, allSignals, {}, streakVeto);
+    events.push(createTradingEvent('decision_made', {
+      type: 'hold',
+      symbol: input.symbol,
+      reason: streakVeto,
+      consecutiveLosses: cb.consecutiveLosses,
+      adjustedMinStrength,
+    }));
+
+    return {
+      decision,
+      kronosPrediction,
+      mirofishResult,
+      newsSignals,
+      technicalAnalysis: ta,
+      aggregatedSignal: aggregated,
+      riskChecks: [],
+      order: null,
+      events,
+      updatedLearningMetrics: metrics,
+      updatedCircuitBreaker: cb,
+    };
+  }
+
   // ── 5. Risk Checks ───────────────────────────────────────────────
   const strategyDef = new StrategyRegistry().list()[0];
   const baseRiskConfig = strategyDef?.riskParameters ?? {
@@ -1156,11 +1383,19 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
     };
   }
 
-  // ── 6. Position Sizing ────────────────────────────────────────────
+  // ── 6. Position Sizing — Batch 8: Dynamic ──────────────────────
+  // Use ATR-based volatility, signal strength, and cooldown multiplier
+  // to scale position size intelligently.
+  const dynamicPct = dynamicPositionSize(
+    riskConfig.maxPositionPct,
+    aggregated.strength,
+    ta.atr,
+    cb.cooldownMultiplier,
+  );
   const stopLossPrice = signalWithSl.stopLoss ?? input.currentPrice * (aggregated.direction === 'long' ? 0.97 : 1.03);
   const positionSize = fixedFractionalSize(
     input.portfolio.availableCapital,
-    riskConfig.maxPositionPct,
+    dynamicPct,
     input.currentPrice,
     stopLossPrice,
   );

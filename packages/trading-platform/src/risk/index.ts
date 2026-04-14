@@ -306,3 +306,51 @@ export function checkCorrelatedExposure(
 
   return results;
 }
+
+/* ── Risk / Reward Ratio ───────────────────────────────────────────────── */
+
+export interface RiskRewardResult {
+  readonly risk: number;       // absolute distance from entry to stop loss
+  readonly reward: number;     // absolute distance from entry to take profit
+  readonly ratio: number;      // reward / risk (higher = better)
+  readonly favorable: boolean; // ratio >= 2.0 — reward is 2x+ the risk
+}
+
+/**
+ * Compute risk-to-reward ratio for a trade setup.
+ * Batch 8: Used in the autonomous decision pipeline to filter out
+ * trades with poor risk/reward before execution.
+ *
+ * Validates that stop loss and take profit are on the correct side
+ * of entry price for the given trade direction:
+ *   LONG:  SL < entry < TP (profit from price going up)
+ *   SHORT: TP < entry < SL (profit from price going down)
+ *
+ * Returns null if inputs are invalid.
+ */
+export function computeRiskRewardRatio(
+  entryPrice: number,
+  stopLoss: number,
+  takeProfit: number,
+  side: 'long' | 'short',
+): RiskRewardResult | null {
+  if (entryPrice <= 0 || stopLoss <= 0 || takeProfit <= 0) return null;
+  if (entryPrice === stopLoss) return null; // zero risk = invalid setup
+
+  let risk: number;
+  let reward: number;
+
+  if (side === 'long') {
+    risk = entryPrice - stopLoss;      // SL must be below entry
+    reward = takeProfit - entryPrice;  // TP must be above entry
+  } else {
+    risk = stopLoss - entryPrice;      // SL must be above entry
+    reward = entryPrice - takeProfit;  // TP must be below entry
+  }
+
+  // If either is negative, inputs are on the wrong side
+  if (risk <= 0 || reward <= 0) return null;
+
+  const ratio = reward / risk;
+  return { risk, reward, ratio, favorable: ratio >= 2.0 };
+}

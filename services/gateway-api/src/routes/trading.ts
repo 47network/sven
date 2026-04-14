@@ -42,6 +42,8 @@ import {
   checkCircuitBreaker,
   resetCircuitBreaker,
   createTradingEvent,
+  dynamicPositionSize,
+  isGoodTradingTime,
   DEFAULT_LEARNING_METRICS,
   DEFAULT_CIRCUIT_BREAKER,
   type SvenTradingStatus,
@@ -621,6 +623,12 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   // pulls back from the peak by the trail distance, the position closes,
   // locking in most of the profit.
   const trailingStopPeaks = new Map<string, number>(); // positionId → peak priceDelta %
+
+  // Batch 8: Profit-taking ladder state — tracks which ladder levels have triggered per position
+  const profitLadderState = new Map<string, Set<number>>(); // positionId → Set of triggered thresholds
+
+  // Batch 8: Consecutive wins counter for streak momentum
+  let svenConsecutiveWins = 0;
 
   // Batch 7: Track per-position signal directions for accurate source attribution.
   // Instead of crediting all sources equally, store which source predicted which
@@ -1232,25 +1240,14 @@ Provide a concise analysis structured as:
 Be specific about tickers and price direction. Think like a hedge fund analyst, not a journalist.
 Respond in plain text, no markdown.`;
 
-      const res = await fetch(`${node.endpoint}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: AbortSignal.timeout(SVEN_LLM_TIMEOUT),
-        body: JSON.stringify({
-          model: node.model,
-          messages: [
+      const llmResult = await callLlm(node, [
             { role: 'system', content: 'You are Sven, an autonomous AI trading agent. Provide sharp, concise market analysis. No fluff. Think like a quant.' },
             { role: 'user', content: prompt },
-          ],
-          stream: false,
-          options: { temperature: 0.3, num_predict: 512 },
-        }),
-      });
+          ], { temperature: 0.3, num_predict: 512, signal: AbortSignal.timeout(SVEN_LLM_TIMEOUT) });
       trackGpuEnd(node.name, Date.now());
 
-      if (res.ok) {
-        const llmData = (await res.json()) as { message?: { content?: string } };
-        const summary = llmData.message?.content?.trim() ?? '';
+      if (llmResult.ok) {
+        const summary = llmResult.content;
         if (summary.length > 50) {
           // Extract key themes for quick reference
           const themes: string[] = [];
@@ -1428,27 +1425,16 @@ Return [] if nothing notable.`;
 
           const controller = new AbortController();
           const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
-          const res = await fetch(`${node.endpoint}/api/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: controller.signal,
-            body: JSON.stringify({
-              model: node.model,
-              messages: [
+          const llmResult = await callLlm(node, [
                 { role: 'system', content: 'You are a crypto market intelligence agent. Respond ONLY with valid JSON arrays. No markdown, no explanation.' },
                 { role: 'user', content: scoutPrompt },
-              ],
-              stream: false,
-              options: { temperature: 0.2, num_predict: 256 },
-            }),
-          });
+              ], { temperature: 0.2, num_predict: 256, signal: controller.signal });
           clearTimeout(timeout);
           const latencyMs = Date.now();
           trackGpuEnd(node.name, latencyMs);
 
-          if (res.ok) {
-            const llmData = (await res.json()) as { message?: { content?: string } };
-            const raw = llmData.message?.content?.trim() ?? '[]';
+          if (llmResult.ok) {
+            const raw = llmResult.content || '[]';
             // Extract JSON array from response (LLM might wrap it in markdown)
             const jsonMatch = raw.match(/\[[\s\S]*\]/);
             if (jsonMatch) {
@@ -1617,6 +1603,7 @@ Return [] if nothing notable.`;
     endpoint: string;
     model: string;
     role: 'fast' | 'power';
+    apiFormat: 'ollama' | 'openai';
     healthy: boolean;
     lastCheck: number;
     lastLatencyMs: number;
@@ -1629,6 +1616,7 @@ Return [] if nothing notable.`;
       endpoint: process.env.SVEN_LLM_ENDPOINT || 'http://10.47.47.13:11434',
       model: process.env.SVEN_LLM_MODEL || 'qwen2.5:7b',
       role: 'fast',
+      apiFormat: 'ollama',
       healthy: true,
       lastCheck: 0,
       lastLatencyMs: 0,
@@ -1636,9 +1624,10 @@ Return [] if nothing notable.`;
     },
     {
       name: 'vm9-power',
-      endpoint: process.env.SVEN_LLM_POWER_ENDPOINT || 'http://10.47.47.9:11434',
-      model: process.env.SVEN_LLM_POWER_MODEL || 'qwen2.5:32b',
+      endpoint: process.env.SVEN_LLM_POWER_ENDPOINT || 'http://10.47.47.9:8080',
+      model: process.env.SVEN_LLM_POWER_MODEL || 'qwen2.5-coder:32b',
       role: 'power',
+      apiFormat: 'openai',
       healthy: true,
       lastCheck: 0,
       lastLatencyMs: 0,
@@ -1663,13 +1652,16 @@ Return [] if nothing notable.`;
     });
   }
 
-  /** Probe a GPU node's health via Ollama /api/tags endpoint */
+  /** Probe a GPU node's health */
   async function probeGpuNode(node: GpuNode): Promise<void> {
     const start = Date.now();
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 5_000);
-      const res = await fetch(`${node.endpoint}/api/tags`, { signal: controller.signal });
+      const healthUrl = node.apiFormat === 'openai'
+        ? `${node.endpoint}/health`
+        : `${node.endpoint}/api/tags`;
+      const res = await fetch(healthUrl, { signal: controller.signal });
       clearTimeout(timeout);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       node.lastLatencyMs = Date.now() - start;
@@ -1683,6 +1675,52 @@ Return [] if nothing notable.`;
       }
     }
     node.lastCheck = Date.now();
+  }
+
+  /**
+   * Unified LLM call supporting both Ollama (/api/chat) and OpenAI (/v1/chat/completions) formats.
+   * Returns the assistant message content string.
+   */
+  async function callLlm(
+    node: GpuNode,
+    messages: Array<{ role: string; content: string }>,
+    opts: { temperature?: number; num_predict?: number; signal?: AbortSignal },
+  ): Promise<{ ok: boolean; content: string; status: number }> {
+    if (node.apiFormat === 'openai') {
+      // Cap max_tokens to stay within the per-slot ctx window (8192 with --parallel 2)
+      const maxTokens = Math.min(opts.num_predict ?? 512, 4096);
+      const res = await fetch(`${node.endpoint}/v1/chat/completions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: opts.signal,
+        body: JSON.stringify({
+          model: node.model,
+          messages,
+          max_tokens: maxTokens,
+          temperature: opts.temperature ?? 0.3,
+        }),
+      });
+      if (!res.ok) return { ok: false, content: '', status: res.status };
+      const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+      const content = data.choices?.[0]?.message?.content?.trim() ?? '';
+      return { ok: true, content, status: res.status };
+    }
+    // Ollama format
+    const res = await fetch(`${node.endpoint}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: opts.signal,
+      body: JSON.stringify({
+        model: node.model,
+        messages,
+        stream: false,
+        options: { temperature: opts.temperature ?? 0.3, num_predict: opts.num_predict ?? 512 },
+      }),
+    });
+    if (!res.ok) return { ok: false, content: '', status: res.status };
+    const data = (await res.json()) as { message?: { content?: string } };
+    const content = data.message?.content?.trim() ?? '';
+    return { ok: true, content, status: res.status };
   }
 
   /** Background fleet health checker */
@@ -1832,27 +1870,16 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       const start = Date.now();
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), timeoutMs);
-      const res = await fetch(`${node.endpoint}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          model: node.model,
-          messages: [
+      const llmResult = await callLlm(node, [
             { role: 'system', content: 'You are Sven, an expert AI trading agent. Be concise, data-driven, and risk-aware. Answer in 2-4 sentences max.' },
             { role: 'user', content: prompt },
-          ],
-          stream: false,
-          options: { temperature: 0.3, num_predict: node.role === 'power' ? 512 : 256 },
-        }),
-      });
+          ], { temperature: 0.3, num_predict: node.role === 'power' ? 512 : 256, signal: controller.signal });
       clearTimeout(timeout);
-      if (!res.ok) throw new Error(`LLM ${res.status}`);
-      const data = (await res.json()) as { message?: { content?: string } };
+      if (!llmResult.ok) throw new Error(`LLM ${llmResult.status}`);
       const latencyMs = Date.now() - start;
       node.lastLatencyMs = latencyMs;
       trackGpuEnd(node.name, latencyMs);
-      const reasoning = data.message?.content?.trim() ?? 'LLM returned empty response';
+      const reasoning = llmResult.content || 'LLM returned empty response';
       return { reasoning, node: node.name, model: node.model, latencyMs };
     } catch (err) {
       // Track GPU end even on failure
@@ -1951,6 +1978,22 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       }
       const analyses: SymbolAnalysis[] = [];
 
+      // Batch 8: Build candle map for open positions (for correlation filter)
+      const openPositionCandles = new Map<string, typeof validData[0]['candles']>();
+      try {
+        const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
+        if (defaultOrg) {
+          const { rows: openPos } = await pool.query(
+            `SELECT symbol FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
+            [defaultOrg],
+          );
+          for (const op of openPos) {
+            const cd = validData.find(d => d.symbol === op.symbol);
+            if (cd) openPositionCandles.set(op.symbol, cd.candles);
+          }
+        }
+      } catch { /* schema compat */ }
+
       for (const data of validData) {
         const input: AutonomousDecisionInput = {
           symbol: data.symbol,
@@ -1962,6 +2005,8 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           newsEvents,
           circuitBreaker: svenCircuitBreaker,
           paperTradeMode: PAPER_TRADE_MODE,
+          openPositionCandles,
+          consecutiveWins: svenConsecutiveWins,
         };
         const output = makeAutonomousDecision(input);
         const signalStrength = output.aggregatedSignal?.strength ?? 0;
@@ -2046,7 +2091,14 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         // Execute the trade
         try {
           const orderSide = candidate.output.order!.side;
-          const maxCapital = svenAccount.balance * AUTO_TRADE_MAX_POSITION_PCT;
+          // Batch 8: Dynamic position sizing based on signal strength, ATR volatility, and cooldown
+          const dynamicPct = dynamicPositionSize(
+            AUTO_TRADE_MAX_POSITION_PCT,
+            candidate.signalStrength,
+            candidate.output.technicalAnalysis?.atr ?? null,
+            svenCircuitBreaker.cooldownMultiplier,
+          );
+          const maxCapital = svenAccount.balance * dynamicPct;
           const rawQty = maxCapital / candidate.currentPrice;
           const quantity = Math.max(0.001, parseFloat(rawQty.toFixed(6)));
           const positionPct = (quantity * candidate.currentPrice) / svenAccount.balance;
@@ -2196,7 +2248,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               );
             } catch { /* schema compat */ }
 
-            // ── Smart Exit Logic with Trailing Stop ───────────────────
+            // ── Smart Exit Logic with Trailing Stop + Profit-Taking Ladder ───
             // Instead of fixed TP/SL, use a trailing stop that locks in
             // profits as the position moves in Sven's favor:
             //   1. Initial stop loss: -1% (paper) / -2% (live) — hard floor
@@ -2204,6 +2256,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             //      at 40% of peak gain (so if peak was +2%, stop at +1.2%)
             //   3. Take profit: 3% (paper) / 5% (live) — hard ceiling
             //   4. Time-based: 2h profit lock, 4h expiry (paper only)
+            //   5. Batch 8: Profit-taking ladder — scale out at milestones
             const HARD_SL = PAPER_TRADE_MODE ? -0.01 : -0.02;
             const HARD_TP = PAPER_TRADE_MODE ? 0.03 : 0.05;
             const TRAIL_ACTIVATION = 0.005; // activate trailing stop at 0.5% profit
@@ -2212,6 +2265,17 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             const TRAIL_DISTANCE_NORMAL = 0.40;    // give back 40% of peak below 1%
             const TRAIL_DISTANCE_TIGHT = 0.25;     // give back 25% of peak above 1%
             const TRAIL_TIGHTEN_THRESHOLD = 0.01;  // tighten at 1% profit
+
+            // Batch 8: Profit-taking ladder thresholds
+            // Scale out partial positions at profit milestones to lock in gains
+            // while letting remaining position ride the trend.
+            const LADDER_LEVELS = [
+              { threshold: 0.01, exitPct: 0.25 },  // +1%: sell 25%
+              { threshold: 0.02, exitPct: 0.25 },  // +2%: sell another 25% (50% total)
+            ];
+            // Track which ladder levels have been triggered for this position
+            if (!profitLadderState.has(pos.id)) profitLadderState.set(pos.id, new Set<number>());
+            const triggeredLevels = profitLadderState.get(pos.id)!;
 
             // Track peak P&L for this position
             const prevPeak = trailingStopPeaks.get(pos.id) ?? 0;
@@ -2254,6 +2318,64 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               }
             }
 
+            // ── Batch 8: Profit-Taking Ladder — partial exits ────────
+            // Scale out at milestone profits to lock in gains while
+            // letting the remaining position ride the trend.
+            if (!shouldClose && priceDelta > 0) {
+              for (const level of LADDER_LEVELS) {
+                if (priceDelta >= level.threshold && !triggeredLevels.has(level.threshold)) {
+                  triggeredLevels.add(level.threshold);
+                  const exitQty = parseFloat(pos.quantity) * level.exitPct;
+                  const partialPnl = priceDelta * exitQty * entryPrice;
+
+                  // Update position quantity in DB (reduce by exitPct)
+                  const newQty = parseFloat(pos.quantity) - exitQty;
+                  try {
+                    await pool.query(
+                      `UPDATE trading_positions SET quantity = $1, current_price = $2, unrealized_pnl = $3 WHERE id = $4 AND org_id = $5 AND status = 'open'`,
+                      [newQty, currentData.currentPrice, priceDelta * newQty * entryPrice, pos.id, defaultOrg],
+                    );
+                  } catch { /* schema compat */ }
+
+                  // Book the partial P&L
+                  svenAccount.balance += partialPnl;
+                  svenTotalPnl += partialPnl;
+                  svenDailyPnl += partialPnl;
+                  if (svenAccount.balance > svenPeakBalance) svenPeakBalance = svenAccount.balance;
+
+                  broadcastEvent(createTradingEvent('position_closed', {
+                    positionId: pos.id,
+                    symbol: pos.symbol,
+                    side: pos.side,
+                    pnl: partialPnl,
+                    pnlPct: (priceDelta * 100).toFixed(2),
+                    balance: svenAccount.balance,
+                    closeReason: `profit_ladder_${(level.threshold * 100).toFixed(0)}pct`,
+                    partial: true,
+                    exitPct: level.exitPct,
+                    remainingQty: newQty,
+                  }));
+
+                  svenSendMessage({
+                    type: 'trade_alert',
+                    title: `Partial Exit: ${pos.symbol} +${(priceDelta * 100).toFixed(2)}% (${(level.exitPct * 100).toFixed(0)}% sold)`,
+                    body: `Profit ladder ${(level.threshold * 100).toFixed(0)}% hit. Sold ${exitQty.toFixed(6)} of ${pos.symbol}, locked in +${partialPnl.toFixed(2)} 47T. Remaining: ${newQty.toFixed(6)}`,
+                    symbol: pos.symbol,
+                    severity: 'info',
+                  });
+
+                  logger.info('Batch 8: Profit ladder partial exit', {
+                    positionId: pos.id, symbol: pos.symbol, ladderLevel: level.threshold,
+                    exitPct: level.exitPct, exitQty, partialPnl, remainingQty: newQty,
+                    balance: svenAccount.balance,
+                  });
+
+                  // Update pos.quantity for the rest of this loop iteration
+                  (pos as any).quantity = String(newQty);
+                }
+              }
+            }
+
             if (shouldClose) {
               const pnl = priceDelta * parseFloat(pos.quantity) * entryPrice;
               await pool.query(
@@ -2263,6 +2385,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
 
               // Clean up trailing stop tracking for this position
               trailingStopPeaks.delete(pos.id);
+              profitLadderState.delete(pos.id); // Batch 8: clean up ladder state
 
               // Update Sven's account balance
               svenAccount.balance += pnl;
@@ -2270,8 +2393,13 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               svenDailyPnl += pnl;
               if (svenAccount.balance > svenPeakBalance) svenPeakBalance = svenAccount.balance;
               svenCircuitBreaker.currentDrawdownPct = (svenPeakBalance - svenAccount.balance) / svenPeakBalance;
-              if (pnl < 0) svenCircuitBreaker.consecutiveLosses++;
-              else svenCircuitBreaker.consecutiveLosses = 0;
+              if (pnl < 0) {
+                svenCircuitBreaker.consecutiveLosses++;
+                svenConsecutiveWins = 0; // Batch 8: reset win streak
+              } else {
+                svenCircuitBreaker.consecutiveLosses = 0;
+                svenConsecutiveWins++; // Batch 8: increment win streak
+              }
               svenCircuitBreaker.dailyLossPct = Math.max(0, -svenDailyPnl / svenPeakBalance);
 
               // Update performance record
@@ -3515,26 +3643,15 @@ Reference your actual live data when answering. Be data-driven, direct, and self
       trackGpuStart(node.name, 'user');
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
-      const res = await fetch(`${node.endpoint}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          model: node.model,
-          messages: [
+      const llmResult = await callLlm(node, [
             { role: 'system', content: svenContext },
             { role: 'user', content: prompt },
-          ],
-          stream: false,
-          options: { temperature: 0.4, num_predict: 300 },
-        }),
-      });
+          ], { temperature: 0.4, num_predict: 300, signal: controller.signal });
       clearTimeout(timeout);
       const latencyMs = Date.now();
       trackGpuEnd(node.name, latencyMs);
-      if (!res.ok) throw new Error(`LLM ${res.status}`);
-      const data = (await res.json()) as { message?: { content?: string } };
-      const reply_text = data.message?.content?.trim() ?? 'I could not generate a response right now.';
+      if (!llmResult.ok) throw new Error(`LLM ${llmResult.status}`);
+      const reply_text = llmResult.content || 'I could not generate a response right now.';
 
       const msg = svenSendMessage({
         type: 'system',
@@ -3632,14 +3749,15 @@ Reference your actual live data when answering. Be data-driven, direct, and self
       return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid extension API key' } });
     }
 
-    const { prompt, history } = request.body as { prompt: string; history?: Array<{ role: string; content: string }> };
+    const { prompt, history, escalate } = request.body as { prompt: string; history?: Array<{ role: string; content: string }>; escalate?: boolean };
     if (!prompt || typeof prompt !== 'string') {
       return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'prompt string required' } });
     }
 
     try {
       const svenContext = await buildSvenSelfAwareness();
-      const node = acquireGpu('user', 'fast');
+      const preferRole = escalate ? 'power' as const : 'fast' as const;
+      const node = acquireGpu('user', preferRole);
       if (!node) {
         return reply.status(503).send({ success: false, error: { code: 'GPU_UNAVAILABLE', message: 'No GPU node available right now' } });
       }
@@ -3658,24 +3776,14 @@ Reference your actual live data when answering. Be data-driven, direct, and self
 
       trackGpuStart(node.name, 'user');
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
-      const res = await fetch(`${node.endpoint}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          model: node.model,
-          messages,
-          stream: false,
-          options: { temperature: 0.5, num_predict: 1024 },
-        }),
-      });
+      const timeoutMs = node.role === 'power' ? SVEN_LLM_POWER_TIMEOUT : SVEN_LLM_TIMEOUT;
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+      const llmResult = await callLlm(node, messages, { temperature: 0.5, num_predict: node.role === 'power' ? 2048 : 1024, signal: controller.signal });
       clearTimeout(timeout);
       trackGpuEnd(node.name, Date.now());
 
-      if (!res.ok) throw new Error(`LLM ${res.status}`);
-      const data = (await res.json()) as { message?: { content?: string } };
-      const replyText = data.message?.content?.trim() ?? 'I could not generate a response right now.';
+      if (!llmResult.ok) throw new Error(`LLM ${llmResult.status}`);
+      const replyText = llmResult.content || 'I could not generate a response right now.';
 
       return { success: true, data: { response: replyText, model: node.model, node: node.name } };
     } catch (err) {
@@ -4011,26 +4119,15 @@ Do NOT suggest cosmetic changes. Only propose changes that move the P&L needle.`
       trackGpuStart(node.name, 'user');
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
-      const res = await fetch(`${node.endpoint}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          model: node.model,
-          messages: [
+      const llmResult = await callLlm(node, [
             { role: 'system', content: svenContext },
             { role: 'user', content: improvementPrompt },
-          ],
-          stream: false,
-          options: { temperature: 0.3, num_predict: 2048 },
-        }),
-      });
+          ], { temperature: 0.3, num_predict: 2048, signal: controller.signal });
       clearTimeout(timeout);
       trackGpuEnd(node.name, Date.now());
 
-      if (!res.ok) throw new Error(`LLM ${res.status}`);
-      const data = (await res.json()) as { message?: { content?: string } };
-      const analysis = data.message?.content?.trim() ?? 'Could not generate improvement analysis.';
+      if (!llmResult.ok) throw new Error(`LLM ${llmResult.status}`);
+      const analysis = llmResult.content || 'Could not generate improvement analysis.';
 
       return {
         success: true,

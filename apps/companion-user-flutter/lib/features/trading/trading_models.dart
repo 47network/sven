@@ -89,6 +89,54 @@ class TradingStatus {
                 j['riskManagement'] as Map<String, dynamic>)
             : null,
       );
+
+  /// Build a TradingStatus from the public-status endpoint response.
+  /// The public endpoint returns a flat object with balance, P&L, counts
+  /// instead of the nested admin structure. Missing fields use safe defaults.
+  factory TradingStatus.fromPublicJson(Map<String, dynamic> j) =>
+      TradingStatus(
+        state: j['state'] as String? ?? 'monitoring',
+        activeSymbol: null,
+        openPositions: (j['openPositions'] as num?)?.toInt() ?? 0,
+        pendingOrders: 0,
+        todayPnl: (j['dailyPnl'] as num?)?.toDouble() ?? 0,
+        todayTrades: (j['dailyTrades'] as num?)?.toInt() ?? 0,
+        uptime: 0,
+        lastLoopAt: null,
+        lastDecision: null,
+        circuitBreaker: const CircuitBreakerState(
+            tripped: false, dailyLossPct: 0, dailyLossLimit: 0.05),
+        mode: j['mode'] as String? ?? 'paper',
+        loop: LoopInfo(
+          running: j['loopRunning'] as bool? ?? false,
+          intervalMs: 0,
+          iterations: (j['loopIterations'] as num?)?.toInt() ?? 0,
+          trackedSymbols: const [],
+        ),
+        brain: const BrainInfo(fleet: [], escalationThreshold: 0.55),
+        autoTrade: AutoTradeInfo(
+          enabled: j['loopRunning'] as bool? ?? false,
+          confidenceThreshold:
+              (j['confidenceThreshold'] as num?)?.toDouble() ?? 0.35,
+          maxPositionPct: 0.05,
+          totalExecuted: (j['totalTrades'] as num?)?.toInt() ?? 0,
+        ),
+        messaging: const MessagingInfo(
+            unreadCount: 0, totalMessages: 0, scheduledPending: 0),
+        goal: j['balance'] != null
+            ? GoalInfo(
+                currentBalance:
+                    (j['balance'] as num?)?.toDouble() ?? 100000,
+                startingBalance: 100000,
+                totalPnl: (j['totalPnl'] as num?)?.toDouble() ?? 0,
+                peakBalance:
+                    (j['peakBalance'] as num?)?.toDouble() ?? 100000,
+                dailyPnl: (j['dailyPnl'] as num?)?.toDouble() ?? 0,
+                dailyTrades: (j['dailyTrades'] as num?)?.toInt() ?? 0,
+                milestones: const [],
+              )
+            : null,
+      );
 }
 
 class CircuitBreakerState {
