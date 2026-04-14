@@ -24,6 +24,7 @@ import 'trade_history_page.dart';
 import 'news_feed_page.dart';
 import 'trend_scout_page.dart';
 import 'pnl_summary_page.dart';
+import 'sven_intelligence_page.dart';
 
 class TradingDashboardPage extends StatefulWidget {
   const TradingDashboardPage({
@@ -229,6 +230,7 @@ class _TradingDashboardPageState extends State<TradingDashboardPage> {
                 onNewsFeed: _openNewsFeed,
                 onTrendScout: _openTrendScout,
                 onPnl: _openPnl,
+                onIntelligence: _openIntelligence,
               ),
               const SizedBox(height: 12),
               _LiveEventsCard(
@@ -397,6 +399,16 @@ class _TradingDashboardPageState extends State<TradingDashboardPage> {
     HapticFeedback.lightImpact();
     Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (_) => PnlSummaryPage(
+        tradingService: widget.tradingService,
+        visualMode: widget.visualMode,
+      ),
+    ));
+  }
+
+  void _openIntelligence() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => SvenIntelligencePage(
         tradingService: widget.tradingService,
         visualMode: widget.visualMode,
       ),
@@ -680,6 +692,7 @@ class _QuickActionsRow extends StatelessWidget {
     required this.onNewsFeed,
     required this.onTrendScout,
     required this.onPnl,
+    required this.onIntelligence,
   });
 
   final SvenModeTokens tokens;
@@ -695,6 +708,7 @@ class _QuickActionsRow extends StatelessWidget {
   final VoidCallback onNewsFeed;
   final VoidCallback onTrendScout;
   final VoidCallback onPnl;
+  final VoidCallback onIntelligence;
 
   @override
   Widget build(BuildContext context) {
@@ -803,7 +817,14 @@ class _QuickActionsRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(child: SizedBox()),
+            Expanded(
+              child: _ActionButton(
+                tokens: tokens,
+                icon: Icons.psychology_rounded,
+                label: 'Intelligence',
+                onTap: onIntelligence,
+              ),
+            ),
           ],
         ),
       ],

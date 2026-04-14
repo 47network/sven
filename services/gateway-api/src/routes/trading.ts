@@ -2451,13 +2451,26 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       ? symbols[loopIterations % symbols.length]
       : null;
 
+    // Count open positions from DB
+    let openPosCount = 0;
+    try {
+      const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
+      if (defaultOrg) {
+        const { rows } = await pool.query(
+          `SELECT COUNT(*) as cnt FROM trading_positions WHERE org_id = $1 AND status = 'open'`,
+          [defaultOrg],
+        );
+        openPosCount = parseInt(rows[0]?.cnt ?? '0', 10);
+      }
+    } catch { /* non-critical */ }
+
     const status: SvenTradingStatus = {
       state: svenCircuitBreaker.tripped ? 'paused' : loopRunning ? 'trading' : 'monitoring',
       activeSymbol: currentSymbol ?? null,
-      openPositions: 0,
+      openPositions: openPosCount,
       pendingOrders: 0,
-      todayPnl: 0,
-      todayTrades: 0,
+      todayPnl: svenDailyPnl,
+      todayTrades: svenDailyTradeCount,
       uptime: process.uptime(),
       lastLoopAt: lastLoopAt?.toISOString() ?? null,
       lastDecision: null,
@@ -2469,6 +2482,30 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       success: true,
       data: {
         ...status,
+        learning: {
+          sourceWeights: svenLearning.sourceWeights,
+          modelAccuracy: svenLearning.modelAccuracy,
+          learningIterations: svenLearning.learningIterations,
+          learnedPatterns: svenLearning.learnedPatterns.length,
+        },
+        riskManagement: {
+          trailingStop: {
+            activationPct: PAPER_TRADE_MODE ? 0.5 : 0.5,
+            trailDistancePct: 40,
+            hardTpPct: PAPER_TRADE_MODE ? 3 : 5,
+            hardSlPct: PAPER_TRADE_MODE ? 1 : 2,
+            activeTrails: trailingStopPeaks.size,
+          },
+          trendFilter: {
+            enabled: true,
+            smaPeriod: 50,
+            strengthThreshold: 0.15,
+          },
+          dedupGuard: {
+            enabled: true,
+            maxPerSymbol: 1,
+          },
+        },
         loop: {
           running: loopRunning,
           intervalMs: loopIntervalMs,

@@ -25,6 +25,8 @@ class TradingStatus {
   final GoalInfo? goal;
   final NewsIngestionInfo? newsIngestion;
   final TrendScoutInfo? trendScout;
+  final LearningInfo? learning;
+  final RiskManagementInfo? riskManagement;
 
   const TradingStatus({
     required this.state,
@@ -45,6 +47,8 @@ class TradingStatus {
     this.goal,
     this.newsIngestion,
     this.trendScout,
+    this.learning,
+    this.riskManagement,
   });
 
   factory TradingStatus.fromJson(Map<String, dynamic> j) => TradingStatus(
@@ -76,6 +80,13 @@ class TradingStatus {
         trendScout: j['trendScout'] != null
             ? TrendScoutInfo.fromJson(
                 j['trendScout'] as Map<String, dynamic>)
+            : null,
+        learning: j['learning'] != null
+            ? LearningInfo.fromJson(j['learning'] as Map<String, dynamic>)
+            : null,
+        riskManagement: j['riskManagement'] != null
+            ? RiskManagementInfo.fromJson(
+                j['riskManagement'] as Map<String, dynamic>)
             : null,
       );
 }
@@ -571,5 +582,134 @@ class TrendScoutInfo {
         maxDynamic: (j['maxDynamic'] as num?)?.toInt() ?? 10,
         scoutIntervalMs: (j['scoutIntervalMs'] as num?)?.toInt() ?? 600000,
         knownAlts: (j['knownAlts'] as num?)?.toInt() ?? 0,
+      );
+}
+
+/// Sven's source weight learning and model accuracy info.
+class LearningInfo {
+  final Map<String, double> sourceWeights;
+  final Map<String, ModelAccuracyEntry> modelAccuracy;
+  final int learningIterations;
+  final int learnedPatterns;
+
+  const LearningInfo({
+    required this.sourceWeights,
+    required this.modelAccuracy,
+    required this.learningIterations,
+    required this.learnedPatterns,
+  });
+
+  factory LearningInfo.fromJson(Map<String, dynamic> j) => LearningInfo(
+        sourceWeights: (j['sourceWeights'] as Map<String, dynamic>?)
+                ?.map((k, v) => MapEntry(k, (v as num).toDouble())) ??
+            {},
+        modelAccuracy: (j['modelAccuracy'] as Map<String, dynamic>?)?.map(
+                (k, v) => MapEntry(
+                    k,
+                    ModelAccuracyEntry.fromJson(
+                        v as Map<String, dynamic>))) ??
+            {},
+        learningIterations:
+            (j['learningIterations'] as num?)?.toInt() ?? 0,
+        learnedPatterns: (j['learnedPatterns'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class ModelAccuracyEntry {
+  final int correct;
+  final int total;
+
+  const ModelAccuracyEntry({required this.correct, required this.total});
+
+  double get accuracy => total > 0 ? correct / total : 0;
+
+  factory ModelAccuracyEntry.fromJson(Map<String, dynamic> j) =>
+      ModelAccuracyEntry(
+        correct: (j['correct'] as num?)?.toInt() ?? 0,
+        total: (j['total'] as num?)?.toInt() ?? 0,
+      );
+}
+
+/// Risk management configuration (trailing stop, trend filter, dedup).
+class RiskManagementInfo {
+  final TrailingStopInfo trailingStop;
+  final TrendFilterInfo trendFilter;
+  final DedupGuardInfo dedupGuard;
+
+  const RiskManagementInfo({
+    required this.trailingStop,
+    required this.trendFilter,
+    required this.dedupGuard,
+  });
+
+  factory RiskManagementInfo.fromJson(Map<String, dynamic> j) =>
+      RiskManagementInfo(
+        trailingStop: TrailingStopInfo.fromJson(
+            j['trailingStop'] as Map<String, dynamic>? ?? {}),
+        trendFilter: TrendFilterInfo.fromJson(
+            j['trendFilter'] as Map<String, dynamic>? ?? {}),
+        dedupGuard: DedupGuardInfo.fromJson(
+            j['dedupGuard'] as Map<String, dynamic>? ?? {}),
+      );
+}
+
+class TrailingStopInfo {
+  final double activationPct;
+  final double trailDistancePct;
+  final double hardTpPct;
+  final double hardSlPct;
+  final int activeTrails;
+
+  const TrailingStopInfo({
+    required this.activationPct,
+    required this.trailDistancePct,
+    required this.hardTpPct,
+    required this.hardSlPct,
+    required this.activeTrails,
+  });
+
+  factory TrailingStopInfo.fromJson(Map<String, dynamic> j) =>
+      TrailingStopInfo(
+        activationPct: (j['activationPct'] as num?)?.toDouble() ?? 0.5,
+        trailDistancePct:
+            (j['trailDistancePct'] as num?)?.toDouble() ?? 40,
+        hardTpPct: (j['hardTpPct'] as num?)?.toDouble() ?? 3,
+        hardSlPct: (j['hardSlPct'] as num?)?.toDouble() ?? 1,
+        activeTrails: (j['activeTrails'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class TrendFilterInfo {
+  final bool enabled;
+  final int smaPeriod;
+  final double strengthThreshold;
+
+  const TrendFilterInfo({
+    required this.enabled,
+    required this.smaPeriod,
+    required this.strengthThreshold,
+  });
+
+  factory TrendFilterInfo.fromJson(Map<String, dynamic> j) =>
+      TrendFilterInfo(
+        enabled: j['enabled'] as bool? ?? true,
+        smaPeriod: (j['smaPeriod'] as num?)?.toInt() ?? 50,
+        strengthThreshold:
+            (j['strengthThreshold'] as num?)?.toDouble() ?? 0.15,
+      );
+}
+
+class DedupGuardInfo {
+  final bool enabled;
+  final int maxPerSymbol;
+
+  const DedupGuardInfo({
+    required this.enabled,
+    required this.maxPerSymbol,
+  });
+
+  factory DedupGuardInfo.fromJson(Map<String, dynamic> j) => DedupGuardInfo(
+        enabled: j['enabled'] as bool? ?? true,
+        maxPerSymbol: (j['maxPerSymbol'] as num?)?.toInt() ?? 1,
       );
 }
