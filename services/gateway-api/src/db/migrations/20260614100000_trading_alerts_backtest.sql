@@ -4,8 +4,8 @@
 
 CREATE TABLE IF NOT EXISTS trading_alerts (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id          TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id         TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type            TEXT NOT NULL CHECK (type IN ('price','signal','portfolio','drawdown','volatility','news','custom')),
   name            TEXT NOT NULL,
   symbol          TEXT,
@@ -26,8 +26,8 @@ CREATE INDEX IF NOT EXISTS idx_trading_alerts_org ON trading_alerts(org_id, stat
 
 CREATE TABLE IF NOT EXISTS trading_backtest_results (
   id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  org_id             UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id            UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id             TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id            TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   strategy           TEXT NOT NULL,
   symbol             TEXT NOT NULL DEFAULT '',
   timeframe          TEXT NOT NULL DEFAULT '1h',

@@ -20,6 +20,10 @@ import 'sven_control_page.dart';
 import 'portfolio_positions_page.dart';
 import 'price_alerts_page.dart';
 import 'sven_goals_page.dart';
+import 'trade_history_page.dart';
+import 'news_feed_page.dart';
+import 'trend_scout_page.dart';
+import 'pnl_summary_page.dart';
 
 class TradingDashboardPage extends StatefulWidget {
   const TradingDashboardPage({
@@ -221,6 +225,10 @@ class _TradingDashboardPageState extends State<TradingDashboardPage> {
                 milestonesAchieved: status?.goal?.achieved ?? 0,
                 milestonesTotal: status?.goal?.total ?? 0,
                 onGoals: _openGoals,
+                onTradeHistory: _openTradeHistory,
+                onNewsFeed: _openNewsFeed,
+                onTrendScout: _openTrendScout,
+                onPnl: _openPnl,
               ),
               const SizedBox(height: 12),
               _LiveEventsCard(
@@ -349,6 +357,46 @@ class _TradingDashboardPageState extends State<TradingDashboardPage> {
     HapticFeedback.lightImpact();
     Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (_) => SvenGoalsPage(
+        tradingService: widget.tradingService,
+        visualMode: widget.visualMode,
+      ),
+    ));
+  }
+
+  void _openTradeHistory() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => TradeHistoryPage(
+        tradingService: widget.tradingService,
+        visualMode: widget.visualMode,
+      ),
+    ));
+  }
+
+  void _openNewsFeed() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => NewsFeedPage(
+        tradingService: widget.tradingService,
+        visualMode: widget.visualMode,
+      ),
+    ));
+  }
+
+  void _openTrendScout() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => TrendScoutPage(
+        tradingService: widget.tradingService,
+        visualMode: widget.visualMode,
+      ),
+    ));
+  }
+
+  void _openPnl() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => PnlSummaryPage(
         tradingService: widget.tradingService,
         visualMode: widget.visualMode,
       ),
@@ -628,6 +676,10 @@ class _QuickActionsRow extends StatelessWidget {
     required this.milestonesAchieved,
     required this.milestonesTotal,
     required this.onGoals,
+    required this.onTradeHistory,
+    required this.onNewsFeed,
+    required this.onTrendScout,
+    required this.onPnl,
   });
 
   final SvenModeTokens tokens;
@@ -639,6 +691,10 @@ class _QuickActionsRow extends StatelessWidget {
   final int milestonesAchieved;
   final int milestonesTotal;
   final VoidCallback onGoals;
+  final VoidCallback onTradeHistory;
+  final VoidCallback onNewsFeed;
+  final VoidCallback onTrendScout;
+  final VoidCallback onPnl;
 
   @override
   Widget build(BuildContext context) {
@@ -700,6 +756,50 @@ class _QuickActionsRow extends StatelessWidget {
                     ? '$milestonesAchieved/$milestonesTotal'
                     : null,
                 onTap: onGoals,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ActionButton(
+                tokens: tokens,
+                icon: Icons.show_chart_rounded,
+                label: 'P&L',
+                onTap: onPnl,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionButton(
+                tokens: tokens,
+                icon: Icons.history_rounded,
+                label: 'Trade History',
+                onTap: onTradeHistory,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ActionButton(
+                tokens: tokens,
+                icon: Icons.newspaper_rounded,
+                label: 'News Feed',
+                onTap: onNewsFeed,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionButton(
+                tokens: tokens,
+                icon: Icons.explore_rounded,
+                label: 'Trend Scout',
+                onTap: onTrendScout,
               ),
             ),
             const SizedBox(width: 12),

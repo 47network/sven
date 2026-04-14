@@ -532,6 +532,53 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   }, 30_000);
   if (scheduledTimer.unref) scheduledTimer.unref();
 
+  // ── Sven Proactive Check-in (every 2h) ──────────────────────
+  // Sven sends a status update to the companion app periodically
+  let lastProactiveAt = Date.now();
+  const PROACTIVE_INTERVAL_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+  const proactiveTimer = setInterval(() => {
+    const now = Date.now();
+    if (now - lastProactiveAt < PROACTIVE_INTERVAL_MS) return;
+    lastProactiveAt = now;
+
+    if (!loopRunning) return; // Only send when actively trading
+
+    const achievedGoals = goalMilestones.filter(g => g.achieved).length;
+    const dynamicCount = dynamicWatchlist.length;
+
+    // Query open positions from DB asynchronously
+    void (async () => {
+      let openCount = 0;
+      let openList = '';
+      try {
+        const { rows } = await pool.query(
+          `SELECT symbol, side FROM sven_positions WHERE status = 'open' AND user_id = $1`,
+          [SVEN_AUTONOMOUS_USER_ID],
+        );
+        openCount = rows.length;
+        openList = rows.map((r: any) => `${r.symbol} ${r.side}`).join(', ');
+      } catch { /* positions table may not exist yet */ }
+
+      const parts: string[] = [];
+      parts.push(`Loop iteration #${loopIterations}. Balance: ${svenAccount.balance.toFixed(2)} 47T.`);
+      if (svenDailyPnl !== 0) parts.push(`Today's P&L: ${svenDailyPnl >= 0 ? '+' : ''}${svenDailyPnl.toFixed(2)} 47T (${svenDailyTradeCount} trades).`);
+      if (openCount > 0) parts.push(`Holding ${openCount} positions: ${openList}.`);
+      if (dynamicCount > 0) parts.push(`Trend Scout tracking ${dynamicCount} dynamic symbols.`);
+      if (lastNewsDigest?.keyThemes?.length) parts.push(`Market themes: ${lastNewsDigest.keyThemes.slice(0, 3).join(', ')}.`);
+      parts.push(`Goals: ${achievedGoals}/${goalMilestones.length} achieved.`);
+
+      svenSendMessage({
+        type: 'system',
+        title: 'Sven Status Update',
+        body: parts.join(' '),
+        severity: 'info',
+      });
+      logger.info('Sven proactive check-in sent', { iteration: loopIterations, balance: svenAccount.balance });
+    })();
+  }, 60_000); // Check every minute, but only send every 2h
+  if (proactiveTimer.unref) proactiveTimer.unref();
+
   /* ── Autonomous Loop Runner state ──────────────────────────── */
   let loopTimer: ReturnType<typeof setInterval> | null = null;
   let loopIntervalMs = 60_000; // default 60s
@@ -3021,6 +3068,73 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     return { success: true, data: { id, scheduledFor: scheduledFor.toISOString() } };
   });
 
+  // ── Sven Self-Awareness Context ──────────────────────────────
+  // Loads the active soul from DB + overlays live trading state
+  async function buildSvenSelfAwareness(): Promise<string> {
+    // Load active soul content from the database
+    let soulContent = '';
+    try {
+      const soulRes = await pool.query(
+        `SELECT content FROM souls_installed WHERE status = 'active' ORDER BY activated_at DESC LIMIT 1`,
+      );
+      soulContent = (soulRes.rows[0] as any)?.content || '';
+    } catch {
+      // Fallback — DB may not have souls table yet
+    }
+    if (!soulContent) {
+      try {
+        const identityRes = await pool.query(
+          `SELECT content FROM sven_identity_docs WHERE scope = 'global' ORDER BY updated_at DESC LIMIT 1`,
+        );
+        soulContent = (identityRes.rows[0] as any)?.content || '';
+      } catch { /* fallback below */ }
+    }
+
+    // Build dynamic trading state overlay
+    let openCount = 0;
+    let openList = 'none';
+    try {
+      const { rows } = await pool.query(
+        `SELECT symbol, side FROM sven_positions WHERE status = 'open' AND user_id = $1`,
+        [SVEN_AUTONOMOUS_USER_ID],
+      );
+      openCount = rows.length;
+      if (rows.length > 0) openList = rows.map((r: any) => `${r.symbol} ${r.side}`).join(', ');
+    } catch { /* positions table may not exist yet */ }
+
+    const dynamicSyms = dynamicWatchlist.map(d => d.symbol).join(', ') || 'none';
+    const coreSymbols = DEFAULT_LOOP_CONFIG.trackedSymbols;
+    const goalStatus = goalMilestones 
+      .map(g => `${g.name}: ${g.achieved ? 'ACHIEVED' : `${g.targetBalance.toLocaleString()} 47T needed`}`)
+      .join('; ');
+
+    const dynamicState = `
+## YOUR LIVE TRADING STATE (Real-Time)
+
+- UUID: ${SVEN_AUTONOMOUS_USER_ID}
+- Balance: ${svenAccount.balance.toFixed(2)} 47T (peak: ${svenPeakBalance.toFixed(2)} 47T)
+- Total P&L: ${svenTotalPnl >= 0 ? '+' : ''}${svenTotalPnl.toFixed(2)} 47T
+- Daily P&L: ${svenDailyPnl >= 0 ? '+' : ''}${svenDailyPnl.toFixed(2)} 47T (${svenDailyTradeCount} trades today)
+- Open positions: ${openCount} (${openList})
+- Loop: ${loopRunning ? 'ACTIVE' : 'STOPPED'}, iteration #${loopIterations}, interval ${loopIntervalMs / 1000}s
+- Core symbols: ${coreSymbols.join(', ')}
+- Dynamic watchlist: ${dynamicWatchlist.length} symbols (${dynamicSyms})
+- Total trades executed: ${svenTradeLog.length}
+- Goals: ${goalMilestones.filter(g => g.achieved).length}/${goalMilestones.length} milestones achieved (${goalStatus})
+- GPU fleet: ${GPU_FLEET.map(n => `${n.name}:${n.model} [${n.healthy ? 'healthy' : 'down'}]`).join(', ')}
+- News articles cached: ${newsCache.length} from ${Object.keys(newsSourceHealth).length} sources
+- Last digest themes: ${lastNewsDigest?.keyThemes?.slice(0, 3).join(', ') || 'none yet'}
+
+Reference your actual live data when answering. Be data-driven, direct, and self-aware.`;
+
+    if (soulContent) {
+      return soulContent + '\n\n' + dynamicState;
+    }
+
+    // Final fallback if no soul found at all
+    return `You are Sven, the autonomous AI trading agent for 47Network. Created by Hantz. You run 24/7 on production infrastructure.\n\n${dynamicState}`;
+  }
+
   // POST — auth-gated: ask Sven to send a message now
   app.post('/v1/trading/sven/messages/send', { preHandler: [requireAuth], config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);
@@ -3032,6 +3146,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
 
     // Have Sven's brain generate a response — user priority (highest)
     try {
+      const svenContext = await buildSvenSelfAwareness();
       const node = acquireGpu('user', 'fast');
       if (!node) throw new Error('No GPU node available');
       trackGpuStart(node.name, 'user');
@@ -3044,7 +3159,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         body: JSON.stringify({
           model: node.model,
           messages: [
-            { role: 'system', content: 'You are Sven, the AI trading agent for 47Network. Be helpful, concise, and data-driven. Answer directly.' },
+            { role: 'system', content: svenContext },
             { role: 'user', content: prompt },
           ],
           stream: false,

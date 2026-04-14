@@ -23,6 +23,8 @@ class TradingStatus {
   final AutoTradeInfo autoTrade;
   final MessagingInfo messaging;
   final GoalInfo? goal;
+  final NewsIngestionInfo? newsIngestion;
+  final TrendScoutInfo? trendScout;
 
   const TradingStatus({
     required this.state,
@@ -41,6 +43,8 @@ class TradingStatus {
     required this.autoTrade,
     required this.messaging,
     this.goal,
+    this.newsIngestion,
+    this.trendScout,
   });
 
   factory TradingStatus.fromJson(Map<String, dynamic> j) => TradingStatus(
@@ -64,6 +68,14 @@ class TradingStatus {
             j['messaging'] as Map<String, dynamic>? ?? {}),
         goal: j['goal'] != null
             ? GoalInfo.fromJson(j['goal'] as Map<String, dynamic>)
+            : null,
+        newsIngestion: j['newsIngestion'] != null
+            ? NewsIngestionInfo.fromJson(
+                j['newsIngestion'] as Map<String, dynamic>)
+            : null,
+        trendScout: j['trendScout'] != null
+            ? TrendScoutInfo.fromJson(
+                j['trendScout'] as Map<String, dynamic>)
             : null,
       );
 }
@@ -426,5 +438,138 @@ class PriceAlert {
         direction: j['direction'] as String? ?? 'above',
         status: j['status'] as String? ?? 'active',
         createdAt: j['createdAt'] as String? ?? '',
+      );
+}
+
+/// A news article from the trading news endpoint.
+class NewsArticle {
+  final String id;
+  final String event;
+  final String source;
+  final int impactLevel;
+  final double sentimentScore;
+  final String createdAt;
+
+  const NewsArticle({
+    required this.id,
+    required this.event,
+    required this.source,
+    required this.impactLevel,
+    required this.sentimentScore,
+    required this.createdAt,
+  });
+
+  factory NewsArticle.fromJson(Map<String, dynamic> j) => NewsArticle(
+        id: j['id'] as String? ?? '',
+        event: j['event'] as String? ?? '',
+        source: j['source'] as String? ?? '',
+        impactLevel: (j['impactLevel'] as num?)?.toInt() ?? 1,
+        sentimentScore: (j['sentimentScore'] as num?)?.toDouble() ?? 0,
+        createdAt: j['createdAt'] as String? ?? '',
+      );
+}
+
+/// News ingestion status from /sven/status.
+class NewsIngestionInfo {
+  final int cachedArticles;
+  final int rssFeedCount;
+  final Map<String, dynamic> sourceHealth;
+  final NewsDigestInfo? lastDigest;
+
+  const NewsIngestionInfo({
+    required this.cachedArticles,
+    required this.rssFeedCount,
+    required this.sourceHealth,
+    this.lastDigest,
+  });
+
+  factory NewsIngestionInfo.fromJson(Map<String, dynamic> j) =>
+      NewsIngestionInfo(
+        cachedArticles: (j['cachedArticles'] as num?)?.toInt() ?? 0,
+        rssFeedCount: (j['rssFeedCount'] as num?)?.toInt() ?? 0,
+        sourceHealth: j['sourceHealth'] as Map<String, dynamic>? ?? {},
+        lastDigest: j['lastDigest'] != null
+            ? NewsDigestInfo.fromJson(j['lastDigest'] as Map<String, dynamic>)
+            : null,
+      );
+}
+
+/// A synthesized news digest from Sven's LLM.
+class NewsDigestInfo {
+  final String timestamp;
+  final List<String> keyThemes;
+  final String summaryPreview;
+
+  const NewsDigestInfo({
+    required this.timestamp,
+    required this.keyThemes,
+    required this.summaryPreview,
+  });
+
+  factory NewsDigestInfo.fromJson(Map<String, dynamic> j) => NewsDigestInfo(
+        timestamp: j['timestamp'] as String? ?? '',
+        keyThemes: (j['keyThemes'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            [],
+        summaryPreview: j['summaryPreview'] as String? ?? '',
+      );
+}
+
+/// A dynamically discovered symbol from Trend Scout.
+class DynamicWatchlistEntry {
+  final String symbol;
+  final String discoveredFrom;
+  final double newsScore;
+  final String addedAt;
+  final String expiresAt;
+  final int expiresInMin;
+  final int trades;
+
+  const DynamicWatchlistEntry({
+    required this.symbol,
+    required this.discoveredFrom,
+    required this.newsScore,
+    required this.addedAt,
+    required this.expiresAt,
+    required this.expiresInMin,
+    required this.trades,
+  });
+
+  factory DynamicWatchlistEntry.fromJson(Map<String, dynamic> j) =>
+      DynamicWatchlistEntry(
+        symbol: j['symbol'] as String? ?? '',
+        discoveredFrom: j['discoveredFrom'] as String? ?? '',
+        newsScore: (j['newsScore'] as num?)?.toDouble() ?? 0,
+        addedAt: j['addedAt'] as String? ?? '',
+        expiresAt: j['expiresAt'] as String? ?? '',
+        expiresInMin: (j['expiresInMin'] as num?)?.toInt() ?? 0,
+        trades: (j['trades'] as num?)?.toInt() ?? 0,
+      );
+}
+
+/// Trend scout info from /sven/status.
+class TrendScoutInfo {
+  final List<DynamicWatchlistEntry> dynamicWatchlist;
+  final int maxDynamic;
+  final int scoutIntervalMs;
+  final int knownAlts;
+
+  const TrendScoutInfo({
+    required this.dynamicWatchlist,
+    required this.maxDynamic,
+    required this.scoutIntervalMs,
+    required this.knownAlts,
+  });
+
+  factory TrendScoutInfo.fromJson(Map<String, dynamic> j) => TrendScoutInfo(
+        dynamicWatchlist: (j['dynamicWatchlist'] as List<dynamic>?)
+                ?.map((e) =>
+                    DynamicWatchlistEntry.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [],
+        maxDynamic: (j['maxDynamic'] as num?)?.toInt() ?? 10,
+        scoutIntervalMs: (j['scoutIntervalMs'] as num?)?.toInt() ?? 600000,
+        knownAlts: (j['knownAlts'] as num?)?.toInt() ?? 0,
       );
 }

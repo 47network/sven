@@ -204,6 +204,29 @@ class TradingService extends ChangeNotifier {
     }
   }
 
+  List<NewsArticle> _news = [];
+  List<NewsArticle> get news => _news;
+
+  /// Fetch news articles from the aggregator (public — no auth).
+  Future<void> fetchNews() async {
+    try {
+      final resp = await _get('/v1/trading/news');
+      if (resp != null) {
+        final body = jsonDecode(resp.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['data'] != null) {
+          final list = body['data'] as List<dynamic>;
+          _news = list
+              .map((e) =>
+                  NewsArticle.fromJson(e as Map<String, dynamic>))
+              .toList();
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('[TradingService] fetchNews failed: $e');
+    }
+  }
+
   /// Refresh all trading data in parallel.
   Future<void> refreshAll() async {
     await Future.wait([
@@ -211,6 +234,7 @@ class TradingService extends ChangeNotifier {
       fetchMessages(),
       fetchTrades(),
       fetchPositions(),
+      fetchNews(),
     ]);
   }
 

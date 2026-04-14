@@ -29,7 +29,7 @@ CREATE INDEX idx_users_username ON users (username);
 
 CREATE TABLE identities (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id         TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     channel         TEXT NOT NULL,     -- discord, slack, telegram, …
     channel_user_id TEXT NOT NULL,     -- stable platform-side id
     display_name    TEXT,
@@ -52,7 +52,7 @@ CREATE TABLE chats (
 CREATE TABLE chat_members (
     id        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     chat_id   UUID NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
-    user_id   UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id   TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     role      TEXT NOT NULL DEFAULT 'member'
                   CHECK (role IN ('admin', 'member')),
     joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -77,7 +77,7 @@ CREATE INDEX idx_messages_sender    ON messages (sender_user_id);
 -- Sessions (admin + user auth)
 CREATE TABLE sessions (
     id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     status      TEXT NOT NULL DEFAULT 'active'
                     CHECK (status IN ('active', 'pending_totp', 'revoked')),
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -127,7 +127,7 @@ CREATE TABLE permissions (
     target_type  TEXT NOT NULL CHECK (target_type IN ('user', 'chat', 'global')),
     target_id    UUID,                           -- NULL when target_type = 'global'
     conditions   JSONB,
-    created_by   UUID NOT NULL REFERENCES users(id),
+    created_by   TEXT NOT NULL REFERENCES users(id),
     created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX idx_permissions_scope  ON permissions (scope);
@@ -138,7 +138,7 @@ CREATE TABLE approvals (
     chat_id             UUID NOT NULL REFERENCES chats(id),
     tool_name           TEXT NOT NULL,
     scope               TEXT NOT NULL,
-    requester_user_id   UUID NOT NULL REFERENCES users(id),
+    requester_user_id   TEXT NOT NULL REFERENCES users(id),
     status              TEXT NOT NULL DEFAULT 'pending'
                             CHECK (status IN ('pending', 'approved', 'denied', 'expired')),
     quorum_required     INT NOT NULL DEFAULT 1,
@@ -155,7 +155,7 @@ CREATE INDEX idx_approvals_status ON approvals (status, expires_at);
 CREATE TABLE approval_votes (
     id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     approval_id  UUID NOT NULL REFERENCES approvals(id) ON DELETE CASCADE,
-    voter_user_id UUID NOT NULL REFERENCES users(id),
+    voter_user_id TEXT NOT NULL REFERENCES users(id),
     vote         TEXT NOT NULL CHECK (vote IN ('approve', 'deny')),
     voted_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (approval_id, voter_user_id)
@@ -165,7 +165,7 @@ CREATE TABLE tool_runs (
     id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     tool_name           TEXT NOT NULL,
     chat_id             UUID NOT NULL REFERENCES chats(id),
-    user_id             UUID NOT NULL REFERENCES users(id),
+    user_id             TEXT NOT NULL REFERENCES users(id),
     approval_id         UUID REFERENCES approvals(id),
     status              TEXT NOT NULL DEFAULT 'running'
                             CHECK (status IN ('running', 'success', 'error', 'timeout', 'denied')),
@@ -193,7 +193,7 @@ CREATE TABLE sven_identity_docs (
     chat_id     UUID REFERENCES chats(id) ON DELETE CASCADE,
     content     TEXT NOT NULL DEFAULT '',
     version     INT NOT NULL DEFAULT 1,
-    updated_by  UUID NOT NULL REFERENCES users(id),
+    updated_by  TEXT NOT NULL REFERENCES users(id),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE UNIQUE INDEX idx_identity_docs_global ON sven_identity_docs (scope) WHERE scope = 'global';
@@ -205,7 +205,7 @@ CREATE TABLE chat_persona (
     persona     TEXT NOT NULL DEFAULT '',
     tone        TEXT,
     constraints TEXT,
-    updated_by  UUID NOT NULL REFERENCES users(id),
+    updated_by  TEXT NOT NULL REFERENCES users(id),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -295,7 +295,7 @@ CREATE TABLE skills_installed (
     tool_id           UUID NOT NULL REFERENCES tools(id) ON DELETE CASCADE,
     trust_level       TEXT NOT NULL DEFAULT 'quarantined'
                           CHECK (trust_level IN ('trusted', 'quarantined', 'blocked')),
-    installed_by      UUID NOT NULL REFERENCES users(id),
+    installed_by      TEXT NOT NULL REFERENCES users(id),
     installed_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -340,7 +340,7 @@ CREATE TABLE settings_global (
 
 CREATE TABLE user_keys (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+    user_id         TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE UNIQUE,
     wrapped_dek     BYTEA NOT NULL,           -- DEK encrypted by master KEK
     kek_id          TEXT NOT NULL,             -- references the master key id in SOPS/age/Vault
     algorithm       TEXT NOT NULL DEFAULT 'aes-256-gcm',
