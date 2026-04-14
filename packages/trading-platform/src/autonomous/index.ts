@@ -235,11 +235,11 @@ export interface LearnedPattern {
 
 export const DEFAULT_LEARNING_METRICS: LearningMetrics = {
   sourceWeights: {
-    kronos: 0.30,
+    kronos: 0.25,
     mirofish: 0.25,
     'news-intelligence': 0.15,
-    technical: 0.20,
-    ensemble: 0.10,
+    technical: 0.30,
+    ensemble: 0.05,
   },
   modelAccuracy: {
     kronos_v1: { correct: 0, total: 0, accuracy: 0 },
@@ -999,6 +999,85 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
         updatedLearningMetrics: metrics,
         updatedCircuitBreaker: cb,
       };
+    }
+  }
+
+  // ── 4e. Volume Filter — block trades on thin volume ───────────────
+  // Batch 7: Low volume = high slippage + manipulation risk.
+  // Require at least 50% of average volume to enter a position.
+  if (ta.volume && !ta.volume.isLiquid) {
+    const volumeVeto = `Volume veto: current volume is ${(ta.volume.volumeRatio * 100).toFixed(0)}% of average — too thin for safe entry`;
+    const decision = buildDecision('hold', input.symbol, allSignals, {}, volumeVeto);
+    events.push(createTradingEvent('decision_made', {
+      type: 'hold',
+      symbol: input.symbol,
+      reason: volumeVeto,
+      volumeRatio: ta.volume.volumeRatio,
+      avgVolume: ta.volume.avgVolume,
+      currentVolume: ta.volume.currentVolume,
+    }));
+
+    return {
+      decision,
+      kronosPrediction,
+      mirofishResult,
+      newsSignals,
+      technicalAnalysis: ta,
+      aggregatedSignal: aggregated,
+      riskChecks: [],
+      order: null,
+      events,
+      updatedLearningMetrics: metrics,
+      updatedCircuitBreaker: cb,
+    };
+  }
+
+  // ── 4f. Multi-Timeframe Trend — block trades against macro trend ──
+  // Batch 7: 200-SMA defines the bull/bear regime. When micro (20-SMA)
+  // and macro (200-SMA) disagree, the market is choppy. When all 3 align,
+  // confidence is boosted. Counter-macro trades are blocked.
+  if (ta.multiTrend) {
+    const dir = aggregated.direction;
+    let mtfVeto = '';
+    if (dir === 'long' && ta.multiTrend.macroTrend === 'down' && ta.multiTrend.mediumTrend === 'down') {
+      mtfVeto = `Multi-timeframe veto: macro (200-SMA) + medium (50-SMA) both bearish — buying against regime`;
+    } else if (dir === 'short' && ta.multiTrend.macroTrend === 'up' && ta.multiTrend.mediumTrend === 'up') {
+      mtfVeto = `Multi-timeframe veto: macro (200-SMA) + medium (50-SMA) both bullish — shorting against regime`;
+    }
+
+    if (mtfVeto) {
+      const decision = buildDecision('hold', input.symbol, allSignals, {}, mtfVeto);
+      events.push(createTradingEvent('decision_made', {
+        type: 'hold',
+        symbol: input.symbol,
+        reason: mtfVeto,
+        microTrend: ta.multiTrend.microTrend,
+        mediumTrend: ta.multiTrend.mediumTrend,
+        macroTrend: ta.multiTrend.macroTrend,
+        alignment: ta.multiTrend.alignment,
+        trendScore: ta.multiTrend.trendScore,
+      }));
+
+      return {
+        decision,
+        kronosPrediction,
+        mirofishResult,
+        newsSignals,
+        technicalAnalysis: ta,
+        aggregatedSignal: aggregated,
+        riskChecks: [],
+        order: null,
+        events,
+        updatedLearningMetrics: metrics,
+        updatedCircuitBreaker: cb,
+      };
+    }
+
+    // Boost signal strength when all timeframes align
+    if (ta.multiTrend.alignment === 'bullish' && aggregated.direction === 'long') {
+      aggregated.strength = Math.min(1, aggregated.strength * 1.15);
+    } else if (ta.multiTrend.alignment === 'bearish' && aggregated.direction === 'short') {
+      aggregated.strength = Math.min(1, aggregated.strength * 1.15);
     }
   }
 

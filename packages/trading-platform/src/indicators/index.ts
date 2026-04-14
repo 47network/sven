@@ -265,6 +265,118 @@ export function computeTrendFilter(candles: Candle[], period = 50): TrendResult 
   return { sma50, currentPrice, aboveSMA, trendDirection, trendStrength };
 }
 
+/* ── Volume Analysis ────────────────────────────────────────────────────── */
+
+export interface VolumeResult {
+  currentVolume: number;
+  avgVolume: number;         // 20-period average volume
+  volumeRatio: number;       // current / avg (>1.5 = surge, <0.5 = drought)
+  volumeTrend: 'rising' | 'falling' | 'stable';
+  isLiquid: boolean;         // volume ratio >= 0.5 — safe to trade
+  isSurge: boolean;          // volume ratio >= 2.0 — breakout candidate
+}
+
+/**
+ * Analyze volume to confirm trade signals and avoid low-liquidity traps.
+ * Batch 7: Volume confirmation prevents entering positions on thin volume
+ * where slippage and manipulation risk are highest.
+ */
+export function computeVolumeAnalysis(candles: Candle[], period = 20): VolumeResult | null {
+  if (candles.length < period + 1) return null;
+
+  const volumes = candles.map(c => c.volume);
+  const currentVolume = volumes[volumes.length - 1]!;
+  const recentVolumes = volumes.slice(-(period + 1), -1); // exclude current
+  const avgVolume = recentVolumes.reduce((s, v) => s + v, 0) / recentVolumes.length;
+
+  if (avgVolume === 0) return null;
+
+  const volumeRatio = currentVolume / avgVolume;
+
+  // Volume trend: compare last 5 bars avg vs previous 5 bars avg
+  let volumeTrend: 'rising' | 'falling' | 'stable' = 'stable';
+  if (candles.length >= 10) {
+    const recent5 = volumes.slice(-5).reduce((s, v) => s + v, 0) / 5;
+    const prev5 = volumes.slice(-10, -5).reduce((s, v) => s + v, 0) / 5;
+    if (prev5 > 0) {
+      const change = (recent5 - prev5) / prev5;
+      if (change > 0.2) volumeTrend = 'rising';
+      else if (change < -0.2) volumeTrend = 'falling';
+    }
+  }
+
+  return {
+    currentVolume,
+    avgVolume,
+    volumeRatio,
+    volumeTrend,
+    isLiquid: volumeRatio >= 0.5,
+    isSurge: volumeRatio >= 2.0,
+  };
+}
+
+/* ── Multi-Timeframe Trend ─────────────────────────────────────────────── */
+
+export interface MultiTimeframeTrend {
+  sma20: number;             // micro trend (entry timing)
+  sma50: number;             // medium trend (existing)
+  sma200: number;            // macro trend (regime)
+  microTrend: 'up' | 'down' | 'flat';   // price vs 20-SMA
+  mediumTrend: 'up' | 'down' | 'flat';  // price vs 50-SMA
+  macroTrend: 'up' | 'down' | 'flat';   // price vs 200-SMA
+  alignment: 'bullish' | 'bearish' | 'mixed';  // all 3 agree or not
+  trendScore: number;        // -1.0 (strong bearish) to +1.0 (strong bullish)
+}
+
+/**
+ * Multi-timeframe trend analysis using 20/50/200-period SMAs.
+ * Batch 7: When all three SMAs agree on direction (alignment), the trend
+ * is extremely strong. Mixed alignment = choppy market = stay out.
+ * 20-SMA: micro timing (entry refinement)
+ * 50-SMA: medium trend (existing filter)
+ * 200-SMA: macro regime (bull/bear market)
+ */
+export function computeMultiTimeframeTrend(candles: Candle[]): MultiTimeframeTrend | null {
+  if (candles.length < 200) return null;
+
+  const closes = candles.map(c => c.close);
+  const currentPrice = closes[closes.length - 1]!;
+
+  const sma20 = closes.slice(-20).reduce((s, v) => s + v, 0) / 20;
+  const sma50 = closes.slice(-50).reduce((s, v) => s + v, 0) / 50;
+  const sma200 = closes.slice(-200).reduce((s, v) => s + v, 0) / 200;
+
+  const classify = (price: number, sma: number): 'up' | 'down' | 'flat' => {
+    const pct = (price - sma) / sma;
+    if (pct > 0.003) return 'up';
+    if (pct < -0.003) return 'down';
+    return 'flat';
+  };
+
+  const microTrend = classify(currentPrice, sma20);
+  const mediumTrend = classify(currentPrice, sma50);
+  const macroTrend = classify(currentPrice, sma200);
+
+  // Alignment: all three agree = strong trend signal
+  let alignment: 'bullish' | 'bearish' | 'mixed' = 'mixed';
+  if (microTrend === 'up' && mediumTrend === 'up' && macroTrend === 'up') alignment = 'bullish';
+  else if (microTrend === 'down' && mediumTrend === 'down' && macroTrend === 'down') alignment = 'bearish';
+
+  // Trend score: weighted sum of distances from each SMA
+  const microDist = (currentPrice - sma20) / sma20;
+  const mediumDist = (currentPrice - sma50) / sma50;
+  const macroDist = (currentPrice - sma200) / sma200;
+  // Weights: macro matters most (50%), medium (30%), micro (20%)
+  const rawScore = macroDist * 0.50 + mediumDist * 0.30 + microDist * 0.20;
+  const trendScore = Math.max(-1, Math.min(1, rawScore / 0.05)); // normalize to [-1, 1]
+
+  return {
+    sma20, sma50, sma200,
+    microTrend, mediumTrend, macroTrend,
+    alignment, trendScore,
+  };
+}
+
 /* ── Aggregate Technical Signal ────────────────────────────────────────── */
 
 export interface TechnicalAnalysis {
@@ -272,6 +384,8 @@ export interface TechnicalAnalysis {
   macd: MACDResult | null;
   bollinger: BollingerResult | null;
   trend: TrendResult | null;
+  volume: VolumeResult | null;
+  multiTrend: MultiTimeframeTrend | null;
   direction: 'long' | 'short' | 'neutral';
   strength: number;
   confluence: number;    // 0–3: how many indicators agree
@@ -286,6 +400,8 @@ export function computeTechnicalAnalysis(candles: Candle[]): TechnicalAnalysis {
   const macd = computeMACD(candles);
   const bollinger = computeBollinger(candles);
   const trend = computeTrendFilter(candles);
+  const volume = computeVolumeAnalysis(candles);
+  const multiTrend = computeMultiTimeframeTrend(candles);
 
   let longVotes = 0;
   let shortVotes = 0;
@@ -302,7 +418,7 @@ export function computeTechnicalAnalysis(candles: Candle[]): TechnicalAnalysis {
   }
 
   if (indicatorCount === 0) {
-    return { rsi, macd, bollinger, trend, direction: 'neutral', strength: 0, confluence: 0 };
+    return { rsi, macd, bollinger, trend, volume, multiTrend, direction: 'neutral', strength: 0, confluence: 0 };
   }
 
   const avgStrength = totalStrength / indicatorCount;
@@ -316,5 +432,5 @@ export function computeTechnicalAnalysis(candles: Candle[]): TechnicalAnalysis {
   const confluenceMultiplier = confluence >= 3 ? 1.5 : confluence >= 2 ? 1.2 : 0.8;
   const strength = Math.min(1, avgStrength * confluenceMultiplier);
 
-  return { rsi, macd, bollinger, trend, direction, strength, confluence };
+  return { rsi, macd, bollinger, trend, volume, multiTrend, direction, strength, confluence };
 }

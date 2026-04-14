@@ -479,7 +479,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   let AUTO_TRADE_CONFIDENCE_THRESHOLD = Number(process.env.SVEN_AUTO_TRADE_MIN_CONFIDENCE || '0.60');
   let AUTO_TRADE_MAX_POSITION_PCT = Number(process.env.SVEN_AUTO_TRADE_MAX_POSITION_PCT || '0.05'); // 5% of balance
   const PAPER_TRADE_MODE = String(process.env.SVEN_PAPER_TRADE_MODE || 'true').trim().toLowerCase() !== 'false';
-  const PAPER_TRADE_CONFIDENCE = 0.25; // lower threshold in paper mode so Sven learns
+  const PAPER_TRADE_CONFIDENCE = 0.35; // Batch 7: raised from 0.25 → 0.35 for selectivity
   const svenTradeLog: Array<{
     id: string; symbol: string; side: string; quantity: number; price: number;
     confidence: number; reasoning: string; llmNode: string; executedAt: string;
@@ -621,6 +621,18 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   // pulls back from the peak by the trail distance, the position closes,
   // locking in most of the profit.
   const trailingStopPeaks = new Map<string, number>(); // positionId → peak priceDelta %
+
+  // Batch 7: Track per-position signal directions for accurate source attribution.
+  // Instead of crediting all sources equally, store which source predicted which
+  // direction, then check each against the actual outcome individually.
+  interface PositionSignals {
+    kronos: 'long' | 'short' | 'neutral';
+    mirofish: 'long' | 'short' | 'neutral';
+    technical: 'long' | 'short' | 'neutral';
+    news: 'long' | 'short' | 'neutral';
+    tradeSide: 'long' | 'short';
+  }
+  const positionSignalMap = new Map<string, PositionSignals>(); // symbol → signals at entry
 
   // ── Persist state to DB after every change ──
   async function persistSvenState(): Promise<void> {
@@ -1901,7 +1913,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         const binanceSymbol = BINANCE_SYMBOL_MAP[symbol] ?? symbol.replace('/', '');
         try {
           const [candles, currentPrice] = await Promise.all([
-            fetchBinanceCandles(binanceSymbol, '1h', 100),
+            fetchBinanceCandles(binanceSymbol, '1h', 200), // Batch 7: 200 bars for multi-timeframe SMA
             fetchBinancePrice(binanceSymbol),
           ]);
           return { symbol, binanceSymbol, candles, currentPrice, error: null as string | null };
@@ -2087,6 +2099,24 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             };
             svenTradeLog.push(tradeRecord);
             if (svenTradeLog.length > 100) svenTradeLog.shift();
+
+            // Batch 7: Store per-source signal directions at trade entry
+            // for accurate attribution when the position closes.
+            const kronosDir = candidate.output.kronosPrediction?.horizons?.[0]?.predictedDirection ?? 'neutral';
+            const mirofishDir = candidate.output.mirofishResult?.consensusDirection ?? 'neutral';
+            const taDir = candidate.output.technicalAnalysis?.direction ?? 'neutral';
+            // News signals are an array — take majority direction
+            const newsLongs = (candidate.output.newsSignals ?? []).filter((s: { direction: string }) => s.direction === 'long').length;
+            const newsShorts = (candidate.output.newsSignals ?? []).filter((s: { direction: string }) => s.direction === 'short').length;
+            const newsDir = newsLongs > newsShorts ? 'long' : newsShorts > newsLongs ? 'short' : 'neutral';
+            const entryTradeSide = orderSide === 'buy' ? 'long' : 'short';
+            positionSignalMap.set(candidate.symbol, {
+              kronos: kronosDir as 'long' | 'short' | 'neutral',
+              mirofish: mirofishDir as 'long' | 'short' | 'neutral',
+              technical: taDir as 'long' | 'short' | 'neutral',
+              news: newsDir as 'long' | 'short' | 'neutral',
+              tradeSide: entryTradeSide as 'long' | 'short',
+            });
             positionsThisTick++;
             svenDailyTradeCount++;
             openSymbolSet.add(candidate.symbol); // prevent duplicate in this tick
@@ -2177,7 +2207,11 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             const HARD_SL = PAPER_TRADE_MODE ? -0.01 : -0.02;
             const HARD_TP = PAPER_TRADE_MODE ? 0.03 : 0.05;
             const TRAIL_ACTIVATION = 0.005; // activate trailing stop at 0.5% profit
-            const TRAIL_DISTANCE = 0.40;    // give back 40% of peak gain before stopping
+            // Batch 7: Adaptive trail tightening — once past 1% profit, tighten
+            // from 40% giveback to 25% giveback to lock in more profit
+            const TRAIL_DISTANCE_NORMAL = 0.40;    // give back 40% of peak below 1%
+            const TRAIL_DISTANCE_TIGHT = 0.25;     // give back 25% of peak above 1%
+            const TRAIL_TIGHTEN_THRESHOLD = 0.01;  // tighten at 1% profit
 
             // Track peak P&L for this position
             const prevPeak = trailingStopPeaks.get(pos.id) ?? 0;
@@ -2199,10 +2233,11 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             }
             // Trailing stop — only fires after position was profitable
             else if (currentPeak >= TRAIL_ACTIVATION) {
-              const trailLevel = currentPeak * (1 - TRAIL_DISTANCE);
+              const trailDistance = currentPeak >= TRAIL_TIGHTEN_THRESHOLD ? TRAIL_DISTANCE_TIGHT : TRAIL_DISTANCE_NORMAL;
+              const trailLevel = currentPeak * (1 - trailDistance);
               if (priceDelta <= trailLevel) {
                 shouldClose = true;
-                closeReason = `trailing_stop (peak=${(currentPeak * 100).toFixed(2)}%, trail=${(trailLevel * 100).toFixed(2)}%)`;
+                closeReason = `trailing_stop (peak=${(currentPeak * 100).toFixed(2)}%, trail=${(trailLevel * 100).toFixed(2)}%, tight=${currentPeak >= TRAIL_TIGHTEN_THRESHOLD})`;
               }
             }
 
@@ -2279,14 +2314,45 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               });
 
               // ── Learn from this trade outcome ──
-              // Record whether each signal source predicted the correct direction.
-              // If the trade was profitable, the signal that drove it was correct.
-              // If it lost, it was wrong. This feeds into source weight adjustment.
-              const wasCorrect = pnl > 0;
-              svenLearning = recordPredictionOutcome(svenLearning, 'kronos_v1', wasCorrect);
-              svenLearning = recordPredictionOutcome(svenLearning, 'mirofish', wasCorrect);
-              svenLearning = recordPredictionOutcome(svenLearning, 'technical', wasCorrect);
-              svenLearning = recordPredictionOutcome(svenLearning, 'news', wasCorrect);
+              // Batch 7: Per-source attribution. Instead of crediting/debiting
+              // all sources equally, check which source predicted the correct
+              // direction at the time the position was opened. A source that
+              // predicted "long" gets credit for a profitable long, but a source
+              // that predicted "neutral" or "short" when the trade went long
+              // does not — it should not benefit from a trade it didn't support.
+              const entrySignals = positionSignalMap.get(pos.symbol);
+              if (entrySignals) {
+                const profitableSide = pnl > 0 ? entrySignals.tradeSide : (entrySignals.tradeSide === 'long' ? 'short' : 'long');
+                // Each source is correct if it predicted the direction that would have been profitable
+                const kronosCorrect = entrySignals.kronos === profitableSide;
+                const mirofishCorrect = entrySignals.mirofish === profitableSide;
+                const taCorrect = entrySignals.technical === profitableSide;
+                const newsCorrect = entrySignals.news === profitableSide;
+
+                svenLearning = recordPredictionOutcome(svenLearning, 'kronos_v1', kronosCorrect);
+                svenLearning = recordPredictionOutcome(svenLearning, 'mirofish', mirofishCorrect);
+                svenLearning = recordPredictionOutcome(svenLearning, 'technical', taCorrect);
+                svenLearning = recordPredictionOutcome(svenLearning, 'news', newsCorrect);
+
+                logger.info('Per-source attribution recorded', {
+                  symbol: pos.symbol,
+                  pnl,
+                  tradeSide: entrySignals.tradeSide,
+                  kronosDir: entrySignals.kronos, kronosCorrect,
+                  mirofishDir: entrySignals.mirofish, mirofishCorrect,
+                  taDir: entrySignals.technical, taCorrect,
+                  newsDir: entrySignals.news, newsCorrect,
+                });
+
+                positionSignalMap.delete(pos.symbol);
+              } else {
+                // Fallback for legacy positions opened before Batch 7
+                const wasCorrect = pnl > 0;
+                svenLearning = recordPredictionOutcome(svenLearning, 'kronos_v1', wasCorrect);
+                svenLearning = recordPredictionOutcome(svenLearning, 'mirofish', wasCorrect);
+                svenLearning = recordPredictionOutcome(svenLearning, 'technical', wasCorrect);
+                svenLearning = recordPredictionOutcome(svenLearning, 'news', wasCorrect);
+              }
 
               // After every 5 closed trades, adjust source weights based on accuracy
               const totalClosed = Object.values(svenLearning.modelAccuracy)
