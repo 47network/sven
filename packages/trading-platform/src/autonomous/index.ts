@@ -927,12 +927,23 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
   // Root cause: shorting assets during bullish TA (RSI 66 + MACD bullish
   // crossover on ENJ while shorting it). The TA indicators see what
   // Kronos/MiroFish miss — actual price momentum and overbought/oversold.
-  if (ta.rsi || ta.macd || ta.bollinger) {
+  if (ta.rsi || ta.macd || ta.bollinger || ta.trend) {
     let vetoReason = '';
     const dir = aggregated.direction;
 
+    // ── Trend filter: the most important rule in crypto trading ──
+    // Price above 50-SMA = uptrend → don't short. Below = downtrend → don't long.
+    // This alone would have prevented most of Sven's losing trades.
+    if (ta.trend && ta.trend.trendStrength >= 0.15) {
+      if (dir === 'short' && ta.trend.trendDirection === 'up') {
+        vetoReason = `TA veto: price ${((ta.trend.currentPrice / ta.trend.sma50 - 1) * 100).toFixed(1)}% above 50-SMA — shorting an uptrend`;
+      } else if (dir === 'long' && ta.trend.trendDirection === 'down') {
+        vetoReason = `TA veto: price ${((1 - ta.trend.currentPrice / ta.trend.sma50) * 100).toFixed(1)}% below 50-SMA — buying a downtrend`;
+      }
+    }
+
     // Block shorting when TA says momentum is strongly bullish
-    if (dir === 'short') {
+    if (!vetoReason && dir === 'short') {
       if (ta.macd?.crossover === 'bullish') {
         vetoReason = `TA veto: MACD bullish crossover contradicts short entry`;
       } else if (ta.rsi && ta.rsi.value < 35) {
@@ -945,7 +956,7 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
     }
 
     // Block going long when TA says momentum is strongly bearish
-    if (dir === 'long') {
+    if (!vetoReason && dir === 'long') {
       if (ta.macd?.crossover === 'bearish') {
         vetoReason = `TA veto: MACD bearish crossover contradicts long entry`;
       } else if (ta.rsi && ta.rsi.value > 75) {
@@ -970,72 +981,9 @@ export function makeAutonomousDecision(input: AutonomousDecisionInput): Autonomo
         rsi: ta.rsi?.value ?? null,
         macdCrossover: ta.macd?.crossover ?? null,
         bollingerPercentB: ta.bollinger?.percentB ?? null,
-      }));
-
-      return {
-        decision,
-        kronosPrediction,
-        mirofishResult,
-        newsSignals,
-        technicalAnalysis: ta,
-        aggregatedSignal: aggregated,
-        riskChecks: [],
-        order: null,
-        events,
-        updatedLearningMetrics: metrics,
-        updatedCircuitBreaker: cb,
-      };
-    }
-  }
-
-  // ── 4d. TA Veto — block trades contradicted by technical indicators ──
-  // Sven learned this the hard way: 7 trades, 0 wins, -$683 P&L.
-  // Root cause: shorting assets during bullish TA (RSI 66 + MACD bullish
-  // crossover on ENJ while shorting it). The TA indicators see what
-  // Kronos/MiroFish miss — actual price momentum and overbought/oversold.
-  if (ta.rsi || ta.macd || ta.bollinger) {
-    let vetoReason = '';
-    const dir = aggregated.direction;
-
-    // Block shorting when TA says momentum is strongly bullish
-    if (dir === 'short') {
-      if (ta.macd?.crossover === 'bullish') {
-        vetoReason = `TA veto: MACD bullish crossover contradicts short entry`;
-      } else if (ta.rsi && ta.rsi.value < 35) {
-        vetoReason = `TA veto: RSI ${ta.rsi.value.toFixed(0)} oversold — shorting oversold assets leads to reversal losses`;
-      } else if (ta.bollinger && ta.bollinger.percentB < 0.1) {
-        vetoReason = `TA veto: price at lower Bollinger Band (%B=${ta.bollinger.percentB.toFixed(2)}) — shorting bottom is high-risk`;
-      } else if (ta.direction === 'long' && ta.confluence >= 2) {
-        vetoReason = `TA veto: ${ta.confluence}/3 indicators say LONG with strength ${(ta.strength * 100).toFixed(0)}% — contradicts short`;
-      }
-    }
-
-    // Block going long when TA says momentum is strongly bearish
-    if (dir === 'long') {
-      if (ta.macd?.crossover === 'bearish') {
-        vetoReason = `TA veto: MACD bearish crossover contradicts long entry`;
-      } else if (ta.rsi && ta.rsi.value > 75) {
-        vetoReason = `TA veto: RSI ${ta.rsi.value.toFixed(0)} overbought — buying overbought assets leads to reversal losses`;
-      } else if (ta.bollinger && ta.bollinger.percentB > 0.95) {
-        vetoReason = `TA veto: price at upper Bollinger Band (%B=${ta.bollinger.percentB.toFixed(2)}) — buying top is high-risk`;
-      } else if (ta.direction === 'short' && ta.confluence >= 2) {
-        vetoReason = `TA veto: ${ta.confluence}/3 indicators say SHORT with strength ${(ta.strength * 100).toFixed(0)}% — contradicts long`;
-      }
-    }
-
-    if (vetoReason) {
-      const decision = buildDecision('hold', input.symbol, allSignals, {}, vetoReason);
-      events.push(createTradingEvent('decision_made', {
-        type: 'hold',
-        symbol: input.symbol,
-        reason: vetoReason,
-        aggregatedDirection: dir,
-        taDirection: ta.direction,
-        taStrength: ta.strength,
-        taConfluence: ta.confluence,
-        rsi: ta.rsi?.value ?? null,
-        macdCrossover: ta.macd?.crossover ?? null,
-        bollingerPercentB: ta.bollinger?.percentB ?? null,
+        trendDirection: ta.trend?.trendDirection ?? null,
+        trendStrength: ta.trend?.trendStrength ?? null,
+        sma50: ta.trend?.sma50 ?? null,
       }));
 
       return {

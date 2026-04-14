@@ -228,12 +228,50 @@ export function computeBollinger(candles: Candle[], period = 20, stdDevMultiplie
   return { upper, middle: sma, lower, bandwidth, percentB, direction, strength, squeeze };
 }
 
+/* ── SMA Trend Filter ──────────────────────────────────────────────────── */
+
+export interface TrendResult {
+  sma50: number;
+  currentPrice: number;
+  aboveSMA: boolean;       // price above 50-SMA = uptrend
+  trendDirection: 'up' | 'down' | 'flat';
+  trendStrength: number;   // 0.0–1.0, distance from SMA as % of price
+}
+
+/**
+ * Compute 50-period SMA and determine market trend.
+ * Trading WITH the trend is the single most effective filter in crypto.
+ * Price > SMA50 = uptrend (prefer longs), Price < SMA50 = downtrend (prefer shorts).
+ */
+export function computeTrendFilter(candles: Candle[], period = 50): TrendResult | null {
+  if (candles.length < period) return null;
+
+  const closes = candles.map(c => c.close);
+  const recentCloses = closes.slice(-period);
+  const sma50 = recentCloses.reduce((s, v) => s + v, 0) / period;
+  const currentPrice = closes[closes.length - 1]!;
+
+  const distancePct = (currentPrice - sma50) / sma50;
+  const aboveSMA = currentPrice > sma50;
+
+  // Flat if within 0.5% of SMA
+  let trendDirection: 'up' | 'down' | 'flat' = 'flat';
+  if (distancePct > 0.005) trendDirection = 'up';
+  else if (distancePct < -0.005) trendDirection = 'down';
+
+  // Strength: how far from SMA (capped at 5% = full strength)
+  const trendStrength = Math.min(1, Math.abs(distancePct) / 0.05);
+
+  return { sma50, currentPrice, aboveSMA, trendDirection, trendStrength };
+}
+
 /* ── Aggregate Technical Signal ────────────────────────────────────────── */
 
 export interface TechnicalAnalysis {
   rsi: RSIResult | null;
   macd: MACDResult | null;
   bollinger: BollingerResult | null;
+  trend: TrendResult | null;
   direction: 'long' | 'short' | 'neutral';
   strength: number;
   confluence: number;    // 0–3: how many indicators agree
@@ -247,6 +285,7 @@ export function computeTechnicalAnalysis(candles: Candle[]): TechnicalAnalysis {
   const rsi = computeRSI(candles);
   const macd = computeMACD(candles);
   const bollinger = computeBollinger(candles);
+  const trend = computeTrendFilter(candles);
 
   let longVotes = 0;
   let shortVotes = 0;
@@ -263,7 +302,7 @@ export function computeTechnicalAnalysis(candles: Candle[]): TechnicalAnalysis {
   }
 
   if (indicatorCount === 0) {
-    return { rsi, macd, bollinger, direction: 'neutral', strength: 0, confluence: 0 };
+    return { rsi, macd, bollinger, trend, direction: 'neutral', strength: 0, confluence: 0 };
   }
 
   const avgStrength = totalStrength / indicatorCount;
@@ -277,5 +316,5 @@ export function computeTechnicalAnalysis(candles: Candle[]): TechnicalAnalysis {
   const confluenceMultiplier = confluence >= 3 ? 1.5 : confluence >= 2 ? 1.2 : 0.8;
   const strength = Math.min(1, avgStrength * confluenceMultiplier);
 
-  return { rsi, macd, bollinger, direction, strength, confluence };
+  return { rsi, macd, bollinger, trend, direction, strength, confluence };
 }

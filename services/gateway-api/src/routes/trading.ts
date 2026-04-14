@@ -466,8 +466,7 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   logger.info('Trading Platform routes registered (/v1/trading/*)');
 
   // ── Sven Autonomous Trading State ─────────────────────────────────
-  // In-memory state for the autonomous trading engine.
-  // In production, this would be persisted to Postgres + NATS.
+  // State is now persisted to Postgres and restored on startup.
   let svenAccount = createTokenAccount('sven', TOKEN_CONFIG.svenStartingAllowance);
   let svenLearning: LearningMetrics = { ...DEFAULT_LEARNING_METRICS };
   let svenCircuitBreaker: CircuitBreakerState = { ...DEFAULT_CIRCUIT_BREAKER };
@@ -616,6 +615,73 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   let svenDailyPnl = 0;
   let svenDailyTradeCount = 0;
   let lastDailyResetDate = new Date().toISOString().slice(0, 10);
+
+  // ── Trailing Stop State ──
+  // Tracks the peak unrealized P&L % for each position. When the price
+  // pulls back from the peak by the trail distance, the position closes,
+  // locking in most of the profit.
+  const trailingStopPeaks = new Map<string, number>(); // positionId → peak priceDelta %
+
+  // ── Persist state to DB after every change ──
+  async function persistSvenState(): Promise<void> {
+    try {
+      await pool.query(
+        `INSERT INTO sven_trading_state (id, balance, peak_balance, total_pnl, daily_pnl, daily_trade_count, daily_reset_date, source_weights, model_accuracy, learning_iterations, circuit_breaker, updated_at)
+         VALUES ('singleton', $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
+         ON CONFLICT (id) DO UPDATE SET
+           balance = $1, peak_balance = $2, total_pnl = $3, daily_pnl = $4,
+           daily_trade_count = $5, daily_reset_date = $6,
+           source_weights = $7, model_accuracy = $8,
+           learning_iterations = $9, circuit_breaker = $10, updated_at = NOW()`,
+        [
+          svenAccount.balance, svenPeakBalance, svenTotalPnl, svenDailyPnl,
+          svenDailyTradeCount, lastDailyResetDate,
+          JSON.stringify(svenLearning.sourceWeights),
+          JSON.stringify(svenLearning.modelAccuracy),
+          svenLearning.learningIterations,
+          JSON.stringify(svenCircuitBreaker),
+        ],
+      );
+    } catch (err) {
+      logger.warn('Failed to persist Sven trading state', { error: (err as Error).message });
+    }
+  }
+
+  // ── Restore persisted state from DB on startup ──
+  void (async () => {
+    try {
+      const { rows } = await pool.query(`SELECT * FROM sven_trading_state WHERE id = 'singleton' LIMIT 1`);
+      if (rows.length > 0) {
+        const s = rows[0];
+        if (s.balance && s.balance !== 100000) {
+          svenAccount.balance = s.balance;
+          svenPeakBalance = s.peak_balance ?? s.balance;
+          svenTotalPnl = s.total_pnl ?? 0;
+          svenDailyPnl = s.daily_pnl ?? 0;
+          svenDailyTradeCount = s.daily_trade_count ?? 0;
+          if (s.daily_reset_date) lastDailyResetDate = s.daily_reset_date;
+          if (s.source_weights && typeof s.source_weights === 'object') {
+            svenLearning.sourceWeights = s.source_weights;
+          }
+          if (s.model_accuracy && typeof s.model_accuracy === 'object' && Object.keys(s.model_accuracy).length > 0) {
+            svenLearning.modelAccuracy = s.model_accuracy;
+          }
+          if (s.learning_iterations) svenLearning.learningIterations = s.learning_iterations;
+          if (s.circuit_breaker && typeof s.circuit_breaker === 'object' && Object.keys(s.circuit_breaker).length > 0) {
+            Object.assign(svenCircuitBreaker, s.circuit_breaker);
+          }
+          logger.info('Sven trading state restored from DB', {
+            balance: svenAccount.balance,
+            totalPnl: svenTotalPnl,
+            learningIterations: svenLearning.learningIterations,
+            sourceWeights: svenLearning.sourceWeights,
+          });
+        }
+      }
+    } catch (err) {
+      logger.warn('Could not restore Sven trading state (table may not exist yet)', { error: (err as Error).message });
+    }
+  })();
 
   function checkGoalMilestones(): GoalMilestone[] {
     const newly: GoalMilestone[] = [];
@@ -1910,16 +1976,18 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       let totalExposurePct = 0;
       let positionsThisTick = 0;
 
-      // Get current open position count from DB
+      // Get current open position count and symbols from DB
       let currentOpenPositions = 0;
+      let openSymbolSet = new Set<string>();
       try {
         const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
         if (defaultOrg) {
           const { rows } = await pool.query(
-            `SELECT COUNT(*) as cnt FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
+            `SELECT symbol FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
             [defaultOrg],
           );
-          currentOpenPositions = parseInt(rows[0]?.cnt ?? '0', 10);
+          currentOpenPositions = rows.length;
+          openSymbolSet = new Set(rows.map((r: any) => r.symbol as string));
         }
       } catch { /* schema compat */ }
 
@@ -1935,6 +2003,14 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         if (totalExposurePct >= MAX_TOTAL_EXPOSURE_PCT) break;
         if (candidate.decision.confidence < effectiveConfidence) continue;
         if (!AUTO_TRADE_ENABLED) continue;
+
+        // ── No duplicate positions per symbol ──
+        // Sven was opening 4 ETH shorts simultaneously = concentrated risk.
+        // One position per symbol at a time. Diversify across assets instead.
+        if (openSymbolSet.has(candidate.symbol)) {
+          logger.info('Skipping duplicate position', { symbol: candidate.symbol, reason: 'already_holding' });
+          continue;
+        }
 
         // Ask LLM brain — escalate to power model for candidates that may execute
         const shouldEscalate = candidate.signalStrength >= ESCALATION_CONFIDENCE_THRESHOLD;
@@ -2013,6 +2089,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
             if (svenTradeLog.length > 100) svenTradeLog.shift();
             positionsThisTick++;
             svenDailyTradeCount++;
+            openSymbolSet.add(candidate.symbol); // prevent duplicate in this tick
 
             // Track trades on dynamic symbols
             const dynEntry = dynamicWatchlist.find(d => d.symbol === candidate.symbol);
@@ -2052,6 +2129,8 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               taConfluence: candidate.output.technicalAnalysis?.confluence ?? 0,
               rsi: candidate.output.technicalAnalysis?.rsi?.value?.toFixed(1) ?? 'n/a',
               macdCrossover: candidate.output.technicalAnalysis?.macd?.crossover ?? 'n/a',
+              trend: candidate.output.technicalAnalysis?.trend?.trendDirection ?? 'n/a',
+              sma50: candidate.output.technicalAnalysis?.trend?.sma50?.toFixed(2) ?? 'n/a',
               llmNode: llmResult.node, positionsThisTick, totalExposurePct: (totalExposurePct * 100).toFixed(1),
               paperTrade: PAPER_TRADE_MODE,
             });
@@ -2087,18 +2166,45 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
               );
             } catch { /* schema compat */ }
 
-            // ── Smart Exit Logic ────────────────────────────────────
-            // Paper mode uses tighter thresholds to generate more learning data.
-            // Three exit conditions (any one triggers close):
-            //   1. Take profit: 1.5% (paper) / 3% (live)
-            //   2. Stop loss: -1% (paper) / -2% (live)
-            //   3. Time-based: close after 2h if profitable, 4h regardless (paper only)
-            //      This prevents capital being tied up in ranging positions.
-            const TP_THRESHOLD = PAPER_TRADE_MODE ? 0.015 : 0.03;
-            const SL_THRESHOLD = PAPER_TRADE_MODE ? -0.01 : -0.02;
+            // ── Smart Exit Logic with Trailing Stop ───────────────────
+            // Instead of fixed TP/SL, use a trailing stop that locks in
+            // profits as the position moves in Sven's favor:
+            //   1. Initial stop loss: -1% (paper) / -2% (live) — hard floor
+            //   2. Trailing stop: once position is >0.5% profitable, trail
+            //      at 40% of peak gain (so if peak was +2%, stop at +1.2%)
+            //   3. Take profit: 3% (paper) / 5% (live) — hard ceiling
+            //   4. Time-based: 2h profit lock, 4h expiry (paper only)
+            const HARD_SL = PAPER_TRADE_MODE ? -0.01 : -0.02;
+            const HARD_TP = PAPER_TRADE_MODE ? 0.03 : 0.05;
+            const TRAIL_ACTIVATION = 0.005; // activate trailing stop at 0.5% profit
+            const TRAIL_DISTANCE = 0.40;    // give back 40% of peak gain before stopping
 
-            let shouldClose = priceDelta >= TP_THRESHOLD || priceDelta <= SL_THRESHOLD;
-            let closeReason = priceDelta >= TP_THRESHOLD ? 'take_profit' : priceDelta <= SL_THRESHOLD ? 'stop_loss' : '';
+            // Track peak P&L for this position
+            const prevPeak = trailingStopPeaks.get(pos.id) ?? 0;
+            const currentPeak = Math.max(prevPeak, priceDelta);
+            trailingStopPeaks.set(pos.id, currentPeak);
+
+            let shouldClose = false;
+            let closeReason = '';
+
+            // Hard stop loss — always active
+            if (priceDelta <= HARD_SL) {
+              shouldClose = true;
+              closeReason = 'stop_loss';
+            }
+            // Hard take profit — lock in big wins
+            else if (priceDelta >= HARD_TP) {
+              shouldClose = true;
+              closeReason = 'take_profit';
+            }
+            // Trailing stop — only fires after position was profitable
+            else if (currentPeak >= TRAIL_ACTIVATION) {
+              const trailLevel = currentPeak * (1 - TRAIL_DISTANCE);
+              if (priceDelta <= trailLevel) {
+                shouldClose = true;
+                closeReason = `trailing_stop (peak=${(currentPeak * 100).toFixed(2)}%, trail=${(trailLevel * 100).toFixed(2)}%)`;
+              }
+            }
 
             // Time-based exit for paper mode — force close stale positions to generate learning data
             if (!shouldClose && PAPER_TRADE_MODE && pos.opened_at) {
@@ -2119,6 +2225,9 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
                 `UPDATE trading_positions SET status = 'closed', current_price = $1, unrealized_pnl = $2, closed_at = NOW() WHERE id = $3 AND org_id = $4`,
                 [currentData.currentPrice, pnl, pos.id, defaultOrg],
               );
+
+              // Clean up trailing stop tracking for this position
+              trailingStopPeaks.delete(pos.id);
 
               // Update Sven's account balance
               svenAccount.balance += pnl;
@@ -2192,6 +2301,9 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
                   modelAccuracy: svenLearning.modelAccuracy,
                 });
               }
+
+              // Persist state to DB after every position close
+              void persistSvenState();
             }
           }
         }
