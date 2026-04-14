@@ -354,3 +354,186 @@ export function computeRiskRewardRatio(
   const ratio = reward / risk;
   return { risk, reward, ratio, favorable: ratio >= 2.0 };
 }
+
+/* ── Batch 10E: Portfolio Correlation Guard ─────────────────────────────── */
+// Full portfolio-level correlation analysis that goes beyond the simple
+// pairwise veto in Batch 8. Computes a correlation matrix for all open
+// positions + candidate, measures aggregate correlated exposure, and
+// produces a heat score indicating concentration risk.
+
+export interface PortfolioCorrelationResult {
+  readonly allowed: boolean;
+  readonly reason: string;
+  readonly portfolioHeat: number;       // 0.0–1.0: aggregate concentration score
+  readonly pairwiseCorrelations: Array<{
+    readonly symbolA: string;
+    readonly symbolB: string;
+    readonly correlation: number;
+  }>;
+  readonly clusterExposurePct: number;  // % of capital in highly correlated cluster
+  readonly maxPairCorrelation: number;  // highest |corr| with any open position
+}
+
+/**
+ * Compute log returns from candle close prices (for correlation calculation).
+ */
+function candleLogReturns(candles: Array<{ close: number }>, maxPeriod = 50): number[] {
+  const n = Math.min(candles.length, maxPeriod + 1);
+  if (n < 2) return [];
+  const returns: number[] = [];
+  for (let i = 1; i < n; i++) {
+    const prev = candles[i - 1].close;
+    const cur = candles[i].close;
+    if (prev > 0 && cur > 0) returns.push(Math.log(cur / prev));
+  }
+  return returns;
+}
+
+/**
+ * Pearson correlation between two return series.
+ */
+function pearsonReturns(a: number[], b: number[]): number | null {
+  const n = Math.min(a.length, b.length);
+  if (n < 10) return null;
+  const meanA = a.slice(0, n).reduce((s, r) => s + r, 0) / n;
+  const meanB = b.slice(0, n).reduce((s, r) => s + r, 0) / n;
+  let cov = 0, varA = 0, varB = 0;
+  for (let i = 0; i < n; i++) {
+    const da = a[i] - meanA;
+    const db = b[i] - meanB;
+    cov += da * db;
+    varA += da * da;
+    varB += db * db;
+  }
+  const denom = Math.sqrt(varA * varB);
+  return denom > 1e-15 ? cov / denom : null;
+}
+
+/**
+ * Portfolio correlation guard — checks whether adding a new position
+ * would create dangerous concentration in the portfolio.
+ *
+ * Rules:
+ * 1. Max pairwise |corr| >= 0.85 with any same-direction open position → block
+ * 2. Cluster exposure: sum of positions in the same correlated cluster (|corr| >= 0.70)
+ *    must not exceed 30% of capital → block if exceeded
+ * 3. Portfolio heat: weighted average of all pairwise |corr| values
+ *    between open positions (including candidate), weighted by position size.
+ *    Heat >= 0.75 → block (portfolio is too concentrated)
+ */
+export function portfolioCorrelationGuard(
+  candidateSymbol: string,
+  candidateDirection: 'long' | 'short',
+  candidateCapitalPct: number,
+  openPositions: Array<{
+    symbol: string;
+    side: 'long' | 'short';
+    capitalPct: number;
+    candles: Array<{ close: number }>;
+  }>,
+  candidateCandles: Array<{ close: number }>,
+  config: {
+    blockThreshold?: number;     // max pairwise |corr| → default 0.85
+    clusterThreshold?: number;   // min |corr| to be in same cluster → default 0.70
+    maxClusterPct?: number;      // max cluster capital % → default 0.30
+    maxHeat?: number;            // max portfolio heat → default 0.75
+  } = {},
+): PortfolioCorrelationResult {
+  const blockThreshold = config.blockThreshold ?? 0.85;
+  const clusterThreshold = config.clusterThreshold ?? 0.70;
+  const maxClusterPct = config.maxClusterPct ?? 0.30;
+  const maxHeat = config.maxHeat ?? 0.75;
+
+  const candidateReturns = candleLogReturns(candidateCandles);
+  if (candidateReturns.length < 10) {
+    return { allowed: true, reason: 'Insufficient data for correlation check', portfolioHeat: 0, pairwiseCorrelations: [], clusterExposurePct: 0, maxPairCorrelation: 0 };
+  }
+
+  // Compute pairwise correlations between candidate and all open positions
+  const pairwise: PortfolioCorrelationResult['pairwiseCorrelations'] = [];
+  let maxPairCorr = 0;
+  let clusterExposure = candidateCapitalPct;
+
+  for (const pos of openPositions) {
+    if (pos.symbol === candidateSymbol) continue;
+    const posReturns = candleLogReturns(pos.candles);
+    const corr = pearsonReturns(candidateReturns, posReturns);
+    if (corr === null) continue;
+
+    pairwise.push({ symbolA: candidateSymbol, symbolB: pos.symbol, correlation: corr });
+    const absCorr = Math.abs(corr);
+    if (absCorr > maxPairCorr) maxPairCorr = absCorr;
+
+    // Rule 1: Block if highly correlated with same-direction open position
+    const sameDirection = candidateDirection === pos.side;
+    if (sameDirection && absCorr >= blockThreshold) {
+      return {
+        allowed: false,
+        reason: `Portfolio guard: ${candidateSymbol} has ${(corr * 100).toFixed(0)}% correlation with open ${pos.symbol} (same direction ${candidateDirection}) — exceeds ${(blockThreshold * 100).toFixed(0)}% threshold`,
+        portfolioHeat: 0,
+        pairwiseCorrelations: pairwise,
+        clusterExposurePct: 0,
+        maxPairCorrelation: absCorr,
+      };
+    }
+
+    // Rule 2: Accumulate cluster exposure for highly correlated positions
+    if (absCorr >= clusterThreshold) {
+      clusterExposure += pos.capitalPct;
+    }
+  }
+
+  // Rule 2: Check cluster exposure limit
+  if (clusterExposure > maxClusterPct) {
+    return {
+      allowed: false,
+      reason: `Portfolio guard: correlated cluster exposure ${(clusterExposure * 100).toFixed(1)}% exceeds ${(maxClusterPct * 100).toFixed(0)}% limit — ${candidateSymbol} correlates with ${pairwise.filter(p => Math.abs(p.correlation) >= clusterThreshold).map(p => p.symbolB).join(', ')}`,
+      portfolioHeat: 0,
+      pairwiseCorrelations: pairwise,
+      clusterExposurePct: clusterExposure,
+      maxPairCorrelation: maxPairCorr,
+    };
+  }
+
+  // Rule 3: Compute portfolio heat (weighted average |corr|)
+  // Include all pairwise between open positions too
+  const allPositions = [...openPositions, { symbol: candidateSymbol, side: candidateDirection, capitalPct: candidateCapitalPct, candles: candidateCandles }];
+  let heatNumerator = 0;
+  let heatDenominator = 0;
+
+  for (let i = 0; i < allPositions.length; i++) {
+    for (let j = i + 1; j < allPositions.length; j++) {
+      const a = allPositions[i];
+      const b = allPositions[j];
+      const rA = candleLogReturns(a.candles);
+      const rB = candleLogReturns(b.candles);
+      const corr = pearsonReturns(rA, rB);
+      if (corr === null) continue;
+      const weight = (a.capitalPct + b.capitalPct) / 2;
+      heatNumerator += Math.abs(corr) * weight;
+      heatDenominator += weight;
+    }
+  }
+
+  const portfolioHeat = heatDenominator > 0 ? heatNumerator / heatDenominator : 0;
+
+  if (portfolioHeat >= maxHeat) {
+    return {
+      allowed: false,
+      reason: `Portfolio guard: heat ${(portfolioHeat * 100).toFixed(0)}% exceeds ${(maxHeat * 100).toFixed(0)}% — portfolio too concentrated`,
+      portfolioHeat,
+      pairwiseCorrelations: pairwise,
+      clusterExposurePct: clusterExposure,
+      maxPairCorrelation: maxPairCorr,
+    };
+  }
+
+  return {
+    allowed: true,
+    reason: 'Portfolio correlation check passed',
+    portfolioHeat,
+    pairwiseCorrelations: pairwise,
+    clusterExposurePct: clusterExposure,
+    maxPairCorrelation: maxPairCorr,
+  };
+}

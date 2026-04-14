@@ -39,6 +39,7 @@ import {
 import {
   runAllRiskChecks, riskChecksPassed,
   fixedFractionalSize, volatilityBasedSize,
+  portfolioCorrelationGuard,
 } from '@sven/trading-platform/risk';
 import {
   createOrder, applyTransition, computePortfolioState,
@@ -1827,15 +1828,23 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       // Get current open position count and symbols from DB
       let currentOpenPositions = 0;
       let openSymbolSet = new Set<string>();
+      // Batch 10E: Portfolio correlation guard — need side + quantity for open positions
+      let openPositionDetails: Array<{ symbol: string; side: 'long' | 'short'; quantity: number; avg_entry_price: number }> = [];
       try {
         const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
         if (defaultOrg) {
           const { rows } = await pool.query(
-            `SELECT symbol FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
+            `SELECT symbol, side, quantity, avg_entry_price FROM trading_positions WHERE org_id = $1 AND status = 'open' AND user_id = '${SVEN_AUTONOMOUS_USER_ID}'`,
             [defaultOrg],
           );
           currentOpenPositions = rows.length;
           openSymbolSet = new Set(rows.map((r: any) => r.symbol as string));
+          openPositionDetails = rows.map((r: any) => ({
+            symbol: r.symbol as string,
+            side: r.side as 'long' | 'short',
+            quantity: parseFloat(r.quantity) || 0,
+            avg_entry_price: parseFloat(r.avg_entry_price) || 0,
+          }));
         }
       } catch { /* schema compat */ }
 
@@ -1844,6 +1853,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         .sort((a, b) => b.signalStrength - a.signalStrength);
 
       let llmReasonings: string[] = [];
+      let portfolioGuardBlocks = 0;
       const baseConfidence = PAPER_TRADE_MODE ? PAPER_TRADE_CONFIDENCE : AUTO_TRADE_CONFIDENCE_THRESHOLD;
 
       // Batch 10B: Adaptive threshold calibration — adjust entry confidence
@@ -1890,6 +1900,44 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         if (openSymbolSet.has(candidate.symbol)) {
           logger.info('Skipping duplicate position', { symbol: candidate.symbol, reason: 'already_holding' });
           continue;
+        }
+
+        // ── Batch 10E: Portfolio Correlation Guard ──
+        // Portfolio-level check: blocks if candidate is too correlated with
+        // existing positions (same direction), cluster exposure is too high,
+        // or portfolio heat (concentration) exceeds safe limits.
+        {
+          const candidateDir = candidate.output.order!.side === 'buy' ? 'long' as const : 'short' as const;
+          const candidateCandles = validData.find(d => d.symbol === candidate.symbol)?.candles ?? [];
+          // Build open position data with candles for correlation matrix
+          const openPosForGuard = openPositionDetails
+            .filter(p => p.symbol !== candidate.symbol)
+            .map(p => ({
+              symbol: p.symbol,
+              side: p.side,
+              capitalPct: svenAccount.balance > 0 ? (p.quantity * p.avg_entry_price) / svenAccount.balance : 0,
+              candles: (validData.find(d => d.symbol === p.symbol)?.candles ?? []) as Array<{ close: number }>,
+            }));
+          // Estimate position size before full sizing calculation (rough estimate: 5% of balance)
+          const candidateCapitalPct = AUTO_TRADE_MAX_POSITION_PCT || 0.05;
+          const corrGuard = portfolioCorrelationGuard(
+            candidate.symbol,
+            candidateDir,
+            candidateCapitalPct,
+            openPosForGuard,
+            candidateCandles as Array<{ close: number }>,
+          );
+          if (!corrGuard.allowed) {
+            logger.info('Portfolio correlation guard blocked', {
+              symbol: candidate.symbol,
+              reason: corrGuard.reason,
+              heat: corrGuard.portfolioHeat.toFixed(2),
+              maxPairCorr: corrGuard.maxPairCorrelation.toFixed(2),
+              clusterPct: (corrGuard.clusterExposurePct * 100).toFixed(1),
+            });
+            portfolioGuardBlocks++;
+            continue;
+          }
         }
 
         // Ask LLM brain — escalate to power model for candidates that may execute
@@ -2550,6 +2598,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         adaptiveThreshold: { base: baseConfidence.toFixed(2), streakPenalty: streakPenalty.toFixed(2), winRateBonus: winRateBonus.toFixed(2) },
         kellyData: { trades: recentTrades, winRate: recentWinRate.toFixed(2) },
         atrExitPositions: positionAtrMap.size,
+        portfolioGuardBlocks,
         balance: svenAccount.balance,
         totalPnl: svenTotalPnl,
         dailyPnl: svenDailyPnl,
@@ -2557,6 +2606,48 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         goalProgress: `${goalMilestones.filter(m => m.achieved).length}/${goalMilestones.length}`,
         sourceWeights: svenLearning.sourceWeights,
       });
+
+      // Batch 10F: Evaluate all active alerts against current tick data
+      // Price alerts: check every symbol's current price
+      // Drawdown alerts: check current drawdown %
+      // Signal alerts: check any candidate signals
+      try {
+        const drawdownPct = svenPeakBalance > 0
+          ? ((svenPeakBalance - svenAccount.balance) / svenPeakBalance) * 100
+          : 0;
+        // Check drawdown alerts
+        const drawdownEvents = alertEngine.checkDrawdown(drawdownPct);
+        for (const evt of drawdownEvents) {
+          void pushTradeNotification(
+            `Alert: ${evt.alertName}`,
+            evt.message,
+            { alertId: evt.alertId, type: evt.type, priority: evt.priority },
+          );
+        }
+        // Check price alerts for each scanned symbol
+        for (const d of validData) {
+          const priceEvents = alertEngine.checkPrice(d.symbol, d.currentPrice);
+          for (const evt of priceEvents) {
+            void pushTradeNotification(
+              `Alert: ${evt.alertName}`,
+              evt.message,
+              { alertId: evt.alertId, type: evt.type, priority: evt.priority, symbol: evt.symbol },
+            );
+          }
+        }
+        // Check signal alerts for trade candidates
+        for (const c of tradeCandidates) {
+          const dir = c.output.order?.side === 'buy' ? 'long' : 'short';
+          const sigEvents = alertEngine.checkSignal(c.symbol, dir, c.decision.confidence);
+          for (const evt of sigEvents) {
+            void pushTradeNotification(
+              `Alert: ${evt.alertName}`,
+              evt.message,
+              { alertId: evt.alertId, type: evt.type, priority: evt.priority, symbol: evt.symbol },
+            );
+          }
+        }
+      } catch { /* alert eval non-blocking */ }
 
       // Batch 9B: Persist all state at end of every tick so trailing stop
       // peaks, profit ladder progress, and dynamic watchlist survive restarts.
