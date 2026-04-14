@@ -19,6 +19,7 @@ import {
   BINANCE_SYMBOL_MAP as BINANCE_SYMBOL_MAP_INIT,
   fetchBinanceCandles, fetchBinancePrice,
   validateBinanceSymbol,
+  BinanceWsFeed,
   type GpuNode, type GpuUtilization,
   type NewsArticle, type DynamicSymbol,
   type SvenMessage, type ScheduledMessage, type TradeLogEntry,
@@ -596,6 +597,24 @@ export async function registerTradingRoutes(app: FastifyInstance, pool: pg.Pool)
   let lastLoopAt: Date | null = null;
   let loopIterations = 0;
   let lastLlmReasoning: string | null = null;
+
+  // Batch 9E: WebSocket feed for real-time Binance prices
+  // Batch 9E: Throttle WS price broadcasts — max 1 per symbol per 10s
+  const lastWsBroadcast = new Map<string, number>();
+  const binanceWs = new BinanceWsFeed({
+    logger,
+    onPriceUpdate: (update) => {
+      const lastAt = lastWsBroadcast.get(update.symbol) ?? 0;
+      if (Date.now() - lastAt < 10_000) return; // throttle
+      lastWsBroadcast.set(update.symbol, Date.now());
+      broadcastEvent(createTradingEvent('market_data', {
+        symbol: update.symbol,
+        price: update.price,
+        change24hPct: update.change24hPct,
+        source: 'binance-ws',
+      }));
+    },
+  });
 
   // Stable UUID for Sven's autonomous trading identity
   const SVEN_AUTONOMOUS_USER_ID = '00000000-0000-4000-a000-000000000047';
@@ -1548,15 +1567,31 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       // Fetch market data for ALL symbols in parallel
       // Batch 9D: Fetch multiple timeframes (15m, 1h, 4h) for multi-timeframe
       // signal confirmation. Trends confirmed across timeframes are more reliable.
+      // Batch 9E: Use WebSocket-cached prices when available (sub-second freshness),
+      // falling back to REST only if WS is unhealthy or has no data for a symbol.
       const marketDataPromises = symbols.map(async (symbol) => {
         const binanceSymbol = BINANCE_SYMBOL_MAP[symbol] ?? symbol.replace('/', '');
+
+        // Sync WS subscriptions: ensure new symbols get subscribed
+        binanceWs.addSymbols([binanceSymbol]);
+
         try {
-          const [candles1h, candles15m, candles4h, currentPrice] = await Promise.all([
+          // Candles always fetched via REST (no WS kline history)
+          const [candles1h, candles15m, candles4h] = await Promise.all([
             fetchBinanceCandles(binanceSymbol, '1h', 200),
             fetchBinanceCandles(binanceSymbol, '15m', 100),
             fetchBinanceCandles(binanceSymbol, '4h', 100),
-            fetchBinancePrice(binanceSymbol),
           ]);
+
+          // Price: prefer WS cache, fall back to REST
+          let currentPrice: number;
+          const wsPrice = binanceWs.getPrice(binanceSymbol);
+          if (wsPrice && (Date.now() - wsPrice.updatedAt) < 30_000) {
+            currentPrice = wsPrice.price;
+          } else {
+            currentPrice = await fetchBinancePrice(binanceSymbol);
+          }
+
           return { symbol, binanceSymbol, candles: candles1h, candles15m, candles4h, currentPrice, error: null as string | null };
         } catch (err) {
           return { symbol, binanceSymbol, candles: [] as Candle[], candles15m: [] as Candle[], candles4h: [] as Candle[], currentPrice: 0, error: (err as Error).message };
@@ -2269,6 +2304,8 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         llmSentiments: symbolSentiments.size,
         multiTfAligned: analyses.filter(a => a.multiTf?.alignment === 'aligned').length,
         multiTfConflicting: analyses.filter(a => a.multiTf?.alignment === 'conflicting').length,
+        wsFeedHealthy: binanceWs.isHealthy(),
+        wsPricesCached: binanceWs.getAllPrices().size,
         balance: svenAccount.balance,
         totalPnl: svenTotalPnl,
         dailyPnl: svenDailyPnl,
@@ -2612,6 +2649,12 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     if (intervalMs) loopIntervalMs = Math.max(10_000, Math.min(Number(intervalMs), 600_000)); // 10s – 10min
     loopRunning = true;
     loopTimer = setInterval(() => { runAutonomousLoop().catch(() => {}); }, loopIntervalMs);
+
+    // Batch 9E: Start WebSocket feed for real-time prices
+    const startSymbols = [...new Set([...DEFAULT_LOOP_CONFIG.trackedSymbols, ...dynamicWatchlist.map(d => d.symbol)])];
+    const wsBinanceSymbols = startSymbols.map(s => BINANCE_SYMBOL_MAP[s] ?? s.replace('/', ''));
+    binanceWs.start(wsBinanceSymbols);
+
     broadcastEvent(createTradingEvent('loop_started', { intervalMs: loopIntervalMs }));
     logger.info(`Autonomous loop started (interval=${loopIntervalMs}ms)`);
     return { success: true, data: { running: true, intervalMs: loopIntervalMs } };
@@ -2626,6 +2669,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     if (loopTimer) clearInterval(loopTimer);
     loopTimer = null;
     loopRunning = false;
+    binanceWs.stop(); // Batch 9E: Stop WebSocket feed
     broadcastEvent(createTradingEvent('loop_stopped', { iterations: loopIterations }));
     logger.info(`Autonomous loop stopped after ${loopIterations} iterations`);
     return { success: true, data: { running: false, iterations: loopIterations } };
@@ -2640,6 +2684,10 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         iterations: loopIterations,
         lastLoopAt: lastLoopAt?.toISOString() ?? null,
         circuitBreakerTripped: svenCircuitBreaker.tripped,
+        wsFeed: {
+          healthy: binanceWs.isHealthy(),
+          cachedPrices: binanceWs.getAllPrices().size,
+        },
       },
     };
   });
@@ -3845,6 +3893,12 @@ Do NOT suggest cosmetic changes. Only propose changes that move the P&L needle.`
   if (autoStart) {
     loopRunning = true;
     loopTimer = setInterval(() => { runAutonomousLoop().catch(() => {}); }, loopIntervalMs);
+
+    // Batch 9E: Start WebSocket feed on auto-start
+    const autoStartSymbols = [...new Set([...DEFAULT_LOOP_CONFIG.trackedSymbols, ...dynamicWatchlist.map(d => d.symbol)])];
+    const wsBinanceSymbols = autoStartSymbols.map(s => BINANCE_SYMBOL_MAP[s] ?? s.replace('/', ''));
+    binanceWs.start(wsBinanceSymbols);
+
     // Run first tick after 5s boot delay (let services initialise)
     setTimeout(() => { runAutonomousLoop().catch(() => {}); }, 5_000);
     logger.info('Sven autonomous loop auto-started', {

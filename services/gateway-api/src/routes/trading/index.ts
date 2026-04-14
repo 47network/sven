@@ -28,3 +28,9 @@ export {
   fetchBinanceCandles, fetchBinancePrice,
   validateBinanceSymbol,
 } from './binance.js';
+
+export {
+  BinanceWsFeed,
+  type WsPriceUpdate,
+  type BinanceWsConfig,
+} from './binance-ws.js';
