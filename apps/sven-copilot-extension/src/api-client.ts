@@ -1,11 +1,11 @@
 /**
  * Sven API Client — connects to the Sven gateway API
- * for fetching live trading status, soul content, etc.
+ * for fetching live trading status, soul content, and chatting with Sven's brain.
  */
 
 interface SvenConfig {
   gatewayUrl: string;
-  apiToken: string;
+  apiKey: string;
 }
 
 export class SvenApiClient {
@@ -21,10 +21,8 @@ export class SvenApiClient {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-Sven-Api-Key': config.apiKey,
     };
-    if (config.apiToken) {
-      headers['Authorization'] = `Bearer ${config.apiToken}`;
-    }
 
     const res = await fetch(url, {
       ...options,
@@ -43,22 +41,38 @@ export class SvenApiClient {
     return json.data as T;
   }
 
+  /** Chat with Sven's actual brain on GPU */
+  async chat(prompt: string, history?: Array<{ role: string; content: string }>): Promise<{ response: string; model: string; node: string }> {
+    return this.request('/v1/ext/sven/chat', {
+      method: 'POST',
+      body: JSON.stringify({ prompt, history }),
+    });
+  }
+
+  /** Get Sven's soul + live status in one call */
+  async getContext(): Promise<{
+    soul: string;
+    status: {
+      state: string;
+      activeSymbol: string | null;
+      balance: number;
+      dailyPnl: number;
+      loopRunning: boolean;
+      loopIterations: number;
+      autoTradeEnabled: boolean;
+      tradesExecuted: number;
+    };
+  }> {
+    return this.request('/v1/ext/sven/context');
+  }
+
+  /** Legacy: get trading status (admin session required) */
   async getTradingStatus(): Promise<any> {
     return this.request('/v1/trading/status');
   }
 
+  /** Legacy: get active soul */
   async getActiveSoul(): Promise<{ slug: string; version: string; content: string }> {
     return this.request('/v1/admin/souls/installed');
-  }
-
-  async getMessages(limit = 20): Promise<any[]> {
-    return this.request(`/v1/trading/sven/messages?limit=${limit}`);
-  }
-
-  async sendMessage(prompt: string): Promise<any> {
-    return this.request('/v1/trading/sven/messages/send', {
-      method: 'POST',
-      body: JSON.stringify({ prompt }),
-    });
   }
 }

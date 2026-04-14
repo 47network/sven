@@ -3254,6 +3254,109 @@ Reference your actual live data when answering. Be data-driven, direct, and self
 
   logger.info('Sven trade log routes registered (/v1/trading/sven/trades)');
 
+  // ═══════════════════════════════════════════════════════════════════
+  // VS Code Extension Chat API  (/v1/ext/sven/chat)
+  // API-key gated for the Sven Copilot extension
+  // ═══════════════════════════════════════════════════════════════════
+  const EXT_API_KEY = process.env.SVEN_EXTENSION_API_KEY || '';
+
+  app.post('/v1/ext/sven/chat', {
+    config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
+    const authHeader = (request.headers['x-sven-api-key'] || request.headers['authorization'] || '') as string;
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!EXT_API_KEY || token !== EXT_API_KEY) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid extension API key' } });
+    }
+
+    const { prompt, history } = request.body as { prompt: string; history?: Array<{ role: string; content: string }> };
+    if (!prompt || typeof prompt !== 'string') {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'prompt string required' } });
+    }
+
+    try {
+      const svenContext = await buildSvenSelfAwareness();
+      const node = acquireGpu('user', 'fast');
+      if (!node) {
+        return reply.status(503).send({ success: false, error: { code: 'GPU_UNAVAILABLE', message: 'No GPU node available right now' } });
+      }
+
+      const messages: Array<{ role: string; content: string }> = [
+        { role: 'system', content: svenContext },
+      ];
+      if (history && Array.isArray(history)) {
+        for (const msg of history.slice(-10)) {
+          if (msg.role && msg.content) {
+            messages.push({ role: msg.role, content: msg.content });
+          }
+        }
+      }
+      messages.push({ role: 'user', content: prompt });
+
+      trackGpuStart(node.name, 'user');
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
+      const res = await fetch(`${node.endpoint}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: node.model,
+          messages,
+          stream: false,
+          options: { temperature: 0.5, num_predict: 1024 },
+        }),
+      });
+      clearTimeout(timeout);
+      trackGpuEnd(node.name, Date.now());
+
+      if (!res.ok) throw new Error(`LLM ${res.status}`);
+      const data = (await res.json()) as { message?: { content?: string } };
+      const replyText = data.message?.content?.trim() ?? 'I could not generate a response right now.';
+
+      return { success: true, data: { response: replyText, model: node.model, node: node.name } };
+    } catch (err) {
+      logger.error('ext/sven/chat error', { err: (err as Error).message });
+      return reply.status(500).send({ success: false, error: { code: 'INTERNAL', message: 'Failed to generate Sven response' } });
+    }
+  });
+
+  // GET — extension can fetch soul + status in one call
+  app.get('/v1/ext/sven/context', async (request, reply) => {
+    const authHeader = (request.headers['x-sven-api-key'] || request.headers['authorization'] || '') as string;
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!EXT_API_KEY || token !== EXT_API_KEY) {
+      return reply.status(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid extension API key' } });
+    }
+
+    try {
+      const soul = await buildSvenSelfAwareness();
+      const symbols = DEFAULT_LOOP_CONFIG.trackedSymbols;
+      const currentSymbol = symbols.length > 0 ? symbols[loopIterations % symbols.length] : null;
+      return {
+        success: true,
+        data: {
+          soul: soul.substring(0, 4000),
+          status: {
+            state: svenCircuitBreaker.tripped ? 'paused' : loopRunning ? 'trading' : 'monitoring',
+            activeSymbol: currentSymbol,
+            balance: svenAccount.balance,
+            dailyPnl: svenDailyPnl,
+            loopRunning,
+            loopIterations,
+            autoTradeEnabled: AUTO_TRADE_ENABLED,
+            tradesExecuted: svenTradeLog.length,
+          },
+        },
+      };
+    } catch (err) {
+      logger.error('ext/sven/context error', { err: (err as Error).message });
+      return reply.status(500).send({ success: false, error: { code: 'INTERNAL', message: 'Failed to build context' } });
+    }
+  });
+
+  logger.info('Extension chat routes registered (/v1/ext/sven/*)');
+
   /* ── Auto-start autonomous loop on boot ─────────────────── */
   const autoStart = String(process.env.SVEN_LOOP_AUTOSTART || 'true').trim().toLowerCase() !== 'false';
   if (autoStart) {

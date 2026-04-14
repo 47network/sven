@@ -2,7 +2,7 @@
   "name": "sven-copilot",
   "displayName": "Sven AI – Copilot Chat Participant",
   "description": "Sven AI assistant as a GitHub Copilot Chat participant. Sven helps code himself, provides live trading context, and tests self-healing.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "47network",
   "license": "MIT",
   "engines": {
@@ -50,13 +50,13 @@
       "properties": {
         "sven.gatewayUrl": {
           "type": "string",
-          "default": "https://sven.47network.org",
+          "default": "http://localhost:3000",
           "description": "The Sven gateway API base URL."
         },
-        "sven.apiToken": {
+        "sven.extensionApiKey": {
           "type": "string",
-          "default": "",
-          "description": "Sven API authentication token (JWT or API key)."
+          "default": "sven-ext-47-dev",
+          "description": "API key for the Sven VS Code extension (SVEN_EXTENSION_API_KEY env var on gateway)."
         }
       }
     }

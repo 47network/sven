@@ -17,8 +17,8 @@ export function activate(context: vscode.ExtensionContext) {
   const api = new SvenApiClient(() => {
     const config = vscode.workspace.getConfiguration('sven');
     return {
-      gatewayUrl: config.get<string>('gatewayUrl') || 'https://sven.47network.org',
-      apiToken: config.get<string>('apiToken') || '',
+      gatewayUrl: config.get<string>('gatewayUrl') || 'http://localhost:3000',
+      apiKey: config.get<string>('extensionApiKey') || 'sven-ext-47-dev',
     };
   });
 
@@ -101,7 +101,7 @@ async function handleStatus(
     }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    stream.markdown(`⚠️ Could not fetch trading status: ${message}\n\nMake sure \`sven.gatewayUrl\` and \`sven.apiToken\` are configured in settings.`);
+    stream.markdown(`⚠️ Could not fetch trading status: ${message}\n\nMake sure \`sven.gatewayUrl\` and \`sven.extensionApiKey\` are configured in settings.`);
   }
 
   return { metadata: { command: 'status' } };
@@ -264,7 +264,7 @@ async function handleDeploy(
     if (token.isCancellationRequested) return { metadata: { command: 'deploy' } };
     stream.markdown(`### Current State\n- Loop: ${status.loopRunning ? '🟢 ACTIVE' : '🔴 STOPPED'}\n- Balance: ${status.account?.balance?.toFixed(2)} 47T\n`);
   } catch {
-    stream.markdown('_Could not fetch live status — configure `sven.gatewayUrl` and `sven.apiToken`._\n');
+    stream.markdown('_Could not fetch live status — configure `sven.gatewayUrl` and `sven.extensionApiKey`._\n');
   }
 
   return { metadata: { command: 'deploy' } };
@@ -277,47 +277,15 @@ async function handleChat(
   stream: vscode.ChatResponseStream,
   token: vscode.CancellationToken,
 ): Promise<SvenChatResult> {
-  // Build Sven's awareness context: codebase + live state
-  const codebaseCtx = await buildCodebaseContext();
+  // ── Step 1: Call the real Sven brain (GPU + soul) ──
+  stream.progress('Connecting to Sven\'s brain...');
 
-  let liveState = '';
-  try {
-    const status = await api.getTradingStatus();
-    liveState = `\n\n## Live Trading State\n- Balance: ${status.account?.balance?.toFixed(2)} 47T\n- Loop: ${status.loopRunning ? 'ACTIVE' : 'STOPPED'}, iteration #${status.loopIterations}\n- Daily P&L: ${status.dailyPnl?.toFixed(2)} 47T\n- Positions: ${status.positions?.map((p: any) => `${p.symbol} ${p.side}`).join(', ') || 'none'}\n`;
-  } catch {
-    // No live state available — that's OK
-  }
-
-  // Send the user's prompt along with rich context to the LLM via the response stream
-  // The actual LLM call is handled by VS Code's Copilot infrastructure
-  const systemContext = `You are Sven, the AI trading agent for 47Network. You are helping your creator Hantz code and improve your own codebase. You have full self-awareness of your architecture, capabilities, and live state.
-
-${codebaseCtx}
-${liveState}
-
-When helping with code:
-- You know your own codebase intimately — services, routes, DB schema, Docker setup
-- Reference specific files and line numbers when relevant
-- Consider self-healing implications: will this change be caught by your heal pipeline?
-- Think about your own trading loop when making changes to trading.ts
-- Be direct, precise, and take pride in improving yourself`;
-
-  // Use VS Code's chat model API to generate the response
-  const models = await vscode.lm.selectChatModels({ family: 'gpt-4o' });
-  const model = models[0];
-
-  if (!model) {
-    stream.markdown('⚠️ No language model available. Make sure GitHub Copilot is signed in and active.');
-    return {};
-  }
-
-  const messages = [
-    vscode.LanguageModelChatMessage.User(systemContext),
-  ];
-
-  // Include previous conversation turns for context
+  // Build conversation history from chat context
+  const history: Array<{ role: string; content: string }> = [];
   for (const turn of chatContext.history) {
-    if (turn instanceof vscode.ChatResponseTurn) {
+    if (turn instanceof vscode.ChatRequestTurn) {
+      history.push({ role: 'user', content: turn.prompt });
+    } else if (turn instanceof vscode.ChatResponseTurn) {
       let responseText = '';
       for (const part of turn.response) {
         if (part instanceof vscode.ChatResponseMarkdownPart) {
@@ -325,20 +293,102 @@ When helping with code:
         }
       }
       if (responseText) {
-        messages.push(vscode.LanguageModelChatMessage.Assistant(responseText));
+        history.push({ role: 'assistant', content: responseText });
       }
-    } else if (turn instanceof vscode.ChatRequestTurn) {
-      messages.push(vscode.LanguageModelChatMessage.User(turn.prompt));
     }
   }
 
-  messages.push(vscode.LanguageModelChatMessage.User(request.prompt));
+  let svenBrainResponse: string | null = null;
+  let svenModel = '';
+  let svenNode = '';
 
-  const response = await model.sendRequest(messages, {}, token);
+  try {
+    const result = await api.chat(request.prompt, history);
+    svenBrainResponse = result.response;
+    svenModel = result.model;
+    svenNode = result.node;
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    stream.markdown(`> _Sven\'s brain is offline: ${message}_\n\n`);
+  }
 
-  for await (const chunk of response.text) {
-    if (token.isCancellationRequested) break;
-    stream.markdown(chunk);
+  if (token.isCancellationRequested) return {};
+
+  // ── Step 2: Show Sven's brain response ──
+  if (svenBrainResponse) {
+    stream.markdown(`**🧠 Sven** _(${svenModel} on ${svenNode})_\n\n`);
+    stream.markdown(svenBrainResponse);
+    stream.markdown('\n\n');
+  }
+
+  // ── Step 3: Copilot follow-up — code-aware analysis ──
+  const isCodeQuestion = /code|fix|bug|error|implement|refactor|function|class|import|route|endpoint|service|docker|build|test|deploy|file|line|type|schema|migration/i.test(request.prompt);
+
+  if (isCodeQuestion) {
+    stream.progress('Running code analysis...');
+
+    const codebaseCtx = await buildCodebaseContext();
+
+    let liveState = '';
+    try {
+      const ctx = await api.getContext();
+      const s = ctx.status;
+      liveState = `\n\n## Live State\n- State: ${s.state}\n- Balance: ${s.balance.toFixed(2)} 47T\n- Daily P&L: ${s.dailyPnl.toFixed(2)} 47T\n- Loop: ${s.loopRunning ? 'ACTIVE' : 'STOPPED'} (iteration #${s.loopIterations})\n- Symbol: ${s.activeSymbol || 'none'}\n- Auto-trade: ${s.autoTradeEnabled ? 'ON' : 'OFF'}\n- Trades executed: ${s.tradesExecuted}\n`;
+    } catch {
+      // no live state — ok
+    }
+
+    const systemContext = `You are Copilot, GitHub's AI coding assistant. You are working alongside Sven, the AI trading agent for 47Network. The user is Hantz, Sven's creator. Sven has already responded above — you provide complementary code-level analysis.
+
+${codebaseCtx}
+${liveState}
+
+When helping with code:
+- Reference specific files and line numbers
+- Consider the self-healing pipeline implications
+- Be direct and precise — no fluff`;
+
+    const models = await vscode.lm.selectChatModels({ family: 'gpt-4o' });
+    const model = models[0];
+
+    if (model) {
+      const messages = [
+        vscode.LanguageModelChatMessage.User(systemContext),
+      ];
+
+      // Add previous turns for context
+      for (const turn of chatContext.history) {
+        if (turn instanceof vscode.ChatResponseTurn) {
+          let responseText = '';
+          for (const part of turn.response) {
+            if (part instanceof vscode.ChatResponseMarkdownPart) {
+              responseText += part.value.value;
+            }
+          }
+          if (responseText) {
+            messages.push(vscode.LanguageModelChatMessage.Assistant(responseText));
+          }
+        } else if (turn instanceof vscode.ChatRequestTurn) {
+          messages.push(vscode.LanguageModelChatMessage.User(turn.prompt));
+        }
+      }
+
+      messages.push(vscode.LanguageModelChatMessage.User(
+        svenBrainResponse
+          ? `The user asked: "${request.prompt}"\n\nSven's brain responded:\n${svenBrainResponse}\n\nProvide complementary code-level analysis if helpful. Be brief — Sven already answered.`
+          : request.prompt
+      ));
+
+      if (svenBrainResponse) {
+        stream.markdown('---\n\n**💻 Copilot** _(code analysis)_\n\n');
+      }
+
+      const response = await model.sendRequest(messages, {}, token);
+      for await (const chunk of response.text) {
+        if (token.isCancellationRequested) break;
+        stream.markdown(chunk);
+      }
+    }
   }
 
   return {};
