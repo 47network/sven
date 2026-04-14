@@ -1,0 +1,75 @@
+{
+  "name": "sven-copilot",
+  "displayName": "Sven AI – Copilot Chat Participant",
+  "description": "Sven AI assistant as a GitHub Copilot Chat participant. Sven helps code himself, provides live trading context, and tests self-healing.",
+  "version": "0.1.0",
+  "publisher": "47network",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Chat"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "sven.chat",
+        "fullName": "Sven",
+        "name": "sven",
+        "description": "Sven AI assistant — knows his own codebase, live trading state, and can help code himself.",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "status",
+            "description": "Show Sven's live trading status — balance, positions, P&L, loop state."
+          },
+          {
+            "name": "soul",
+            "description": "Show Sven's current active soul content."
+          },
+          {
+            "name": "heal",
+            "description": "Run self-healing diagnostics — scan for type errors, lint issues, and propose fixes."
+          },
+          {
+            "name": "codebase",
+            "description": "Provide context about Sven's own codebase to help with coding tasks."
+          },
+          {
+            "name": "deploy",
+            "description": "Show deployment status and guide through deploying changes."
+          }
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "Sven AI",
+      "properties": {
+        "sven.gatewayUrl": {
+          "type": "string",
+          "default": "https://sven.47network.org",
+          "description": "The Sven gateway API base URL."
+        },
+        "sven.apiToken": {
+          "type": "string",
+          "default": "",
+          "description": "Sven API authentication token (JWT or API key)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "lint": "eslint src --ext .ts",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.100.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.8.0"
+  }
+}

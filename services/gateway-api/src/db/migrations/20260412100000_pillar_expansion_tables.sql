@@ -9,8 +9,8 @@ BEGIN;
 -- ═══════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS design_audits (
   id          UUID PRIMARY KEY,
-  org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   scope       TEXT NOT NULL DEFAULT 'full',
   findings    JSONB NOT NULL DEFAULT '{}',
   score       REAL NOT NULL DEFAULT 0,
@@ -23,8 +23,8 @@ CREATE INDEX IF NOT EXISTS idx_design_audits_org ON design_audits(org_id, create
 -- ═══════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS agent_instances (
   id             UUID PRIMARY KEY,
-  org_id         UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id        UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name           TEXT NOT NULL,
   definition_id  TEXT NOT NULL,
   personality    TEXT NOT NULL DEFAULT 'default',
@@ -37,8 +37,8 @@ CREATE INDEX IF NOT EXISTS idx_agent_instances_org ON agent_instances(org_id, st
 
 CREATE TABLE IF NOT EXISTS model_benchmark_runs (
   id          UUID PRIMARY KEY,
-  org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   suite_id    TEXT NOT NULL,
   results     JSONB NOT NULL DEFAULT '{}',
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -50,8 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_model_benchmarks_org ON model_benchmark_runs(org_
 -- ═══════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS document_jobs (
   id          UUID PRIMARY KEY,
-  org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type        TEXT NOT NULL,
   filename    TEXT NOT NULL DEFAULT 'inline',
   status      TEXT NOT NULL DEFAULT 'completed',
@@ -65,8 +65,8 @@ CREATE INDEX IF NOT EXISTS idx_document_jobs_org ON document_jobs(org_id, create
 -- ═══════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS quantum_jobs (
   id          UUID PRIMARY KEY,
-  org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type        TEXT NOT NULL,
   config      JSONB NOT NULL DEFAULT '{}',
   result      JSONB NOT NULL DEFAULT '{}',
@@ -79,8 +79,8 @@ CREATE INDEX IF NOT EXISTS idx_quantum_jobs_org ON quantum_jobs(org_id, created_
 -- ═══════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS security_scans (
   id              UUID PRIMARY KEY,
-  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type            TEXT NOT NULL,
   target          TEXT NOT NULL DEFAULT '',
   finding_count   INTEGER NOT NULL DEFAULT 0,
@@ -97,8 +97,8 @@ CREATE INDEX IF NOT EXISTS idx_security_scans_org ON security_scans(org_id, type
 -- ═══════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS trading_orders (
   id            UUID PRIMARY KEY,
-  org_id        UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id       UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   symbol        TEXT NOT NULL,
   side          TEXT NOT NULL CHECK (side IN ('buy','sell')),
   type          TEXT NOT NULL CHECK (type IN ('market','limit','stop','stop_limit')),
@@ -115,8 +115,8 @@ CREATE INDEX IF NOT EXISTS idx_trading_orders_org ON trading_orders(org_id, stat
 
 CREATE TABLE IF NOT EXISTS trading_positions (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  org_id           UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id          UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   symbol           TEXT NOT NULL,
   side             TEXT NOT NULL CHECK (side IN ('long','short')),
   quantity         NUMERIC(20,8) NOT NULL,
@@ -131,7 +131,7 @@ CREATE INDEX IF NOT EXISTS idx_trading_positions_org ON trading_positions(org_id
 
 CREATE TABLE IF NOT EXISTS trading_performance (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   total_trades    INTEGER NOT NULL DEFAULT 0,
   winning_trades  INTEGER NOT NULL DEFAULT 0,
   total_pnl       NUMERIC(20,8) NOT NULL DEFAULT 0,
@@ -143,8 +143,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_trading_performance_org ON trading_perform
 
 CREATE TABLE IF NOT EXISTS trading_predictions (
   id          UUID PRIMARY KEY,
-  org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   symbol      TEXT NOT NULL,
   horizon     TEXT NOT NULL DEFAULT '1h',
   prediction  JSONB NOT NULL DEFAULT '{}',
@@ -155,7 +155,7 @@ CREATE INDEX IF NOT EXISTS idx_trading_predictions_org ON trading_predictions(or
 
 CREATE TABLE IF NOT EXISTS trading_news_events (
   id              UUID PRIMARY KEY,
-  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   headline        TEXT NOT NULL,
   source          TEXT NOT NULL DEFAULT '',
   impact_level    TEXT NOT NULL DEFAULT 'low',
@@ -170,8 +170,8 @@ CREATE INDEX IF NOT EXISTS idx_trading_news_org ON trading_news_events(org_id, c
 -- ═══════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS marketing_competitors (
   id          UUID PRIMARY KEY,
-  org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name        TEXT NOT NULL,
   url         TEXT NOT NULL,
   profile     JSONB NOT NULL DEFAULT '{}',
@@ -182,8 +182,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_marketing_competitors_uniq ON marketing_co
 
 CREATE TABLE IF NOT EXISTS marketing_content (
   id          UUID PRIMARY KEY,
-  org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type        TEXT NOT NULL DEFAULT 'blog',
   title       TEXT NOT NULL DEFAULT '',
   body        TEXT NOT NULL DEFAULT '',
@@ -195,8 +195,8 @@ CREATE INDEX IF NOT EXISTS idx_marketing_content_org ON marketing_content(org_id
 
 CREATE TABLE IF NOT EXISTS marketing_campaigns (
   id          UUID PRIMARY KEY,
-  org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name        TEXT NOT NULL,
   objective   TEXT NOT NULL DEFAULT '',
   channels    JSONB NOT NULL DEFAULT '[]',
@@ -214,7 +214,7 @@ CREATE INDEX IF NOT EXISTS idx_marketing_campaigns_org ON marketing_campaigns(or
 -- ═══════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS compute_devices (
   id              UUID PRIMARY KEY,
-  org_id          UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   hostname        TEXT NOT NULL,
   capabilities    JSONB NOT NULL DEFAULT '{}',
   tags            JSONB NOT NULL DEFAULT '[]',
@@ -226,8 +226,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_compute_devices_uniq ON compute_devices(or
 
 CREATE TABLE IF NOT EXISTS compute_jobs (
   id               UUID PRIMARY KEY,
-  org_id           UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  user_id          UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name             TEXT NOT NULL,
   type             TEXT NOT NULL,
   priority         TEXT NOT NULL DEFAULT 'normal' CHECK (priority IN ('low','normal','high','critical')),
