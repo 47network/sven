@@ -1217,6 +1217,119 @@ Return [] if nothing notable.`;
   // Mutable Binance symbol map — starts from BINANCE_SYMBOL_MAP_INIT, extended by trend scout
   const BINANCE_SYMBOL_MAP: Record<string, string> = { ...BINANCE_SYMBOL_MAP_INIT };
 
+  // ── Batch 9C: LLM-based per-symbol news sentiment ───────────
+  // The keyword-based scoreSentiment() is crude — it counts positive/negative
+  // words without understanding context, sarcasm, or implications.
+  // This LLM scorer gives Sven a nuanced, directional sentiment per symbol
+  // by analyzing recent news headlines through the power model.
+  interface LlmSentimentResult {
+    direction: 'bullish' | 'bearish' | 'neutral';
+    score: number;         // -1.0 (very bearish) to +1.0 (very bullish)
+    confidence: number;    // 0-1
+    reasoning: string;
+    scoredAt: number;      // Date.now()
+  }
+  const llmSentimentCache = new Map<string, LlmSentimentResult>();
+  const LLM_SENTIMENT_TTL_MS = 10 * 60_000; // 10 min cache per symbol
+
+  /**
+   * Score per-symbol news sentiment via LLM. Returns cached result if fresh.
+   * Gracefully returns null if no relevant news or GPU unavailable.
+   */
+  async function scoreSymbolSentimentLlm(symbol: string): Promise<LlmSentimentResult | null> {
+    // Check cache first
+    const cached = llmSentimentCache.get(symbol);
+    if (cached && Date.now() - cached.scoredAt < LLM_SENTIMENT_TTL_MS) return cached;
+
+    // Find news mentioning this symbol (by ticker or currency reference)
+    const ticker = symbol.split('/')[0]?.toUpperCase() ?? symbol;
+    const fourHoursAgo = Date.now() - 4 * 60 * 60_000;
+    const relevantNews = newsCache.filter(n => {
+      if (n.publishedAt.getTime() < fourHoursAgo) return false;
+      // Check if symbol is mentioned in currencies or headline
+      if (n.currencies.some(c => c.toUpperCase() === ticker || c.toUpperCase() === symbol.replace('/', ''))) return true;
+      if (n.headline.toUpperCase().includes(ticker)) return true;
+      return false;
+    });
+
+    // Also include general market news (no specific currency) for BTC/ETH
+    const marketNews = (ticker === 'BTC' || ticker === 'ETH')
+      ? newsCache.filter(n =>
+          n.publishedAt.getTime() > fourHoursAgo &&
+          n.currencies.length === 0 &&
+          !relevantNews.includes(n)
+        ).slice(0, 5)
+      : [];
+
+    const allRelevant = [...relevantNews, ...marketNews];
+    if (allRelevant.length < 1) return null;
+
+    const node = acquireGpu(GPU_FLEET, gpuUtilization, 'trading', 'fast');
+    if (!node) return null;
+
+    try {
+      trackGpuStart(gpuUtilization, node.name, 'trading');
+      const headlines = allRelevant.slice(0, 12).map((n, i) =>
+        `${i + 1}. [${n.source}] ${n.headline}`
+      ).join('\n');
+
+      const prompt = `You are a quantitative analyst scoring news sentiment for ${symbol}. Analyze these recent headlines and provide a sentiment assessment.
+
+HEADLINES (last 4h relevant to ${ticker}):
+${headlines}
+
+Score the overall sentiment:
+- direction: "bullish", "bearish", or "neutral"
+- score: a number from -1.0 (very bearish) to +1.0 (very bullish)
+- confidence: 0.0 to 1.0 (how confident in this assessment)
+- reasoning: one sentence explaining why
+
+Respond ONLY with a JSON object, no other text:
+{"direction":"bullish","score":0.6,"confidence":0.7,"reasoning":"Multiple positive catalysts including partnership announcement"}`;
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), SVEN_LLM_TIMEOUT);
+      const llmResult = await callLlm(node, [
+        { role: 'system', content: 'You are a quantitative news sentiment analyst. Respond only with valid JSON. No markdown, no extra text.' },
+        { role: 'user', content: prompt },
+      ], { temperature: 0.1, num_predict: 128, signal: controller.signal });
+      clearTimeout(timeout);
+      trackGpuEnd(gpuUtilization, node.name, Date.now());
+
+      if (!llmResult.ok || !llmResult.content) return null;
+
+      // Parse LLM response — extract JSON from potentially noisy output
+      const jsonMatch = llmResult.content.match(/\{[^}]+\}/);
+      if (!jsonMatch) return null;
+
+      const parsed = JSON.parse(jsonMatch[0]);
+      const result: LlmSentimentResult = {
+        direction: ['bullish', 'bearish', 'neutral'].includes(parsed.direction) ? parsed.direction : 'neutral',
+        score: Math.max(-1, Math.min(1, Number(parsed.score) || 0)),
+        confidence: Math.max(0, Math.min(1, Number(parsed.confidence) || 0.5)),
+        reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning.substring(0, 200) : '',
+        scoredAt: Date.now(),
+      };
+
+      llmSentimentCache.set(symbol, result);
+
+      logger.info('LLM sentiment scored', {
+        symbol,
+        direction: result.direction,
+        score: result.score,
+        confidence: result.confidence,
+        newsCount: allRelevant.length,
+        reasoning: result.reasoning.substring(0, 80),
+      });
+
+      return result;
+    } catch (err) {
+      trackGpuEnd(gpuUtilization, node.name, Date.now());
+      logger.debug('LLM sentiment scoring failed', { symbol, err: (err as Error).message });
+      return null;
+    }
+  }
+
   /** Fetch recent news from database */
   async function fetchRecentNews(): Promise<any[]> {
     try {
@@ -1422,7 +1535,36 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         }
       } catch { /* schema compat */ }
 
+      // Batch 9C: Score per-symbol LLM sentiment in parallel (cached, 10min TTL)
+      // This adds nuanced directional intelligence beyond keyword matching.
+      const sentimentPromises = validData.map(async d => ({
+        symbol: d.symbol,
+        sentiment: await scoreSymbolSentimentLlm(d.symbol).catch(() => null),
+      }));
+      const sentimentResults = await Promise.all(sentimentPromises);
+      const symbolSentiments = new Map<string, LlmSentimentResult>();
+      for (const r of sentimentResults) {
+        if (r.sentiment) symbolSentiments.set(r.symbol, r.sentiment);
+      }
+
       for (const data of validData) {
+        // Batch 9C: Merge LLM sentiment as a synthetic high-confidence news event
+        // so the decision engine factors in nuanced sentiment understanding.
+        const perSymbolNews = [...newsEvents];
+        const llmSent = symbolSentiments.get(data.symbol);
+        if (llmSent && llmSent.confidence >= 0.4) {
+          perSymbolNews.push({
+            id: `llm-sentiment-${data.symbol}-${Date.now()}`,
+            headline: `LLM Sentiment: ${data.symbol} rated ${llmSent.direction} (${llmSent.reasoning})`,
+            source: 'sven-llm-sentiment',
+            publishedAt: new Date(),
+            impactLevel: llmSent.confidence >= 0.7 ? 3 : 2,
+            sentiment: llmSent.score,
+            symbols: [data.symbol.split('/')[0] ?? data.symbol],
+            tags: ['llm-sentiment'],
+          });
+        }
+
         const input: AutonomousDecisionInput = {
           symbol: data.symbol,
           candles: data.candles,
@@ -1430,7 +1572,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           portfolio,
           config: DEFAULT_LOOP_CONFIG,
           learningMetrics: svenLearning,
-          newsEvents,
+          newsEvents: perSymbolNews,
           circuitBreaker: svenCircuitBreaker,
           paperTradeMode: PAPER_TRADE_MODE,
           openPositionCandles,
@@ -1988,6 +2130,11 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           signalStrength: a.signalStrength,
           riskPassed: a.riskPassed,
           isDynamic: dynamicSymbols.includes(a.symbol),
+          llmSentiment: symbolSentiments.get(a.symbol) ? {
+            direction: symbolSentiments.get(a.symbol)!.direction,
+            score: symbolSentiments.get(a.symbol)!.score,
+            confidence: symbolSentiments.get(a.symbol)!.confidence,
+          } : null,
         })),
         llmReasonings: llmReasonings.slice(0, 5),
         autoTradeEnabled: AUTO_TRADE_ENABLED,
@@ -2015,6 +2162,7 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         tradesExecuted: positionsThisTick,
         holdsCount: holdCount,
         taVetoes: taVetoCount,
+        llmSentiments: symbolSentiments.size,
         balance: svenAccount.balance,
         totalPnl: svenTotalPnl,
         dailyPnl: svenDailyPnl,
