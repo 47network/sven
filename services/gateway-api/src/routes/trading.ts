@@ -2674,6 +2674,50 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
     };
   });
 
+  // ── Public Sven Status (no auth) — safe read-only data for guest visitors ──
+  app.get('/v1/trading/sven/public-status', async (_request, reply) => {
+    let openPosCount = 0;
+    let totalTrades = 0;
+    let winRate = 0;
+    try {
+      const defaultOrg = await resolvePublicOrg(pool, { orgId: '' });
+      if (defaultOrg) {
+        const posRes = await pool.query(
+          `SELECT COUNT(*) as cnt FROM trading_positions WHERE org_id = $1 AND status = 'open'`,
+          [defaultOrg],
+        );
+        openPosCount = parseInt(posRes.rows[0]?.cnt ?? '0', 10);
+        const perfRes = await pool.query(
+          `SELECT total_trades, winning_trades FROM trading_performance WHERE org_id = $1`,
+          [defaultOrg],
+        );
+        if (perfRes.rows[0]) {
+          totalTrades = parseInt(perfRes.rows[0].total_trades ?? '0', 10);
+          const wins = parseInt(perfRes.rows[0].winning_trades ?? '0', 10);
+          winRate = totalTrades > 0 ? wins / totalTrades : 0;
+        }
+      }
+    } catch { /* non-critical */ }
+
+    return {
+      success: true,
+      data: {
+        balance: svenAccount.balance,
+        totalPnl: svenTotalPnl,
+        dailyPnl: svenDailyPnl,
+        openPositions: openPosCount,
+        totalTrades,
+        winRate,
+        dailyTrades: svenDailyTradeCount,
+        mode: PAPER_TRADE_MODE ? 'paper' : 'live',
+        state: svenCircuitBreaker.tripped ? 'paused' : loopRunning ? 'trading' : 'monitoring',
+        loopRunning,
+        loopIterations,
+        peakBalance: svenPeakBalance,
+      },
+    };
+  });
+
   // ── Autonomous Decision Trigger ─────────────────────────────────
   app.post('/v1/trading/sven/decide', { preHandler: [requireAdmin], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request, reply) => {
     const orgId = await requireTenantMembership(pool, request, reply);

@@ -92,10 +92,42 @@ export function SvenBrainPanel() {
         if (accRes.ok) {
           const accJson = await accRes.json();
           if (accJson.success) setAccount(accJson.data);
+        } else {
+          // Guest fallback — fetch public status for balance display
+          const pubRes = await fetch(`${API_BASE}/v1/trading/sven/public-status`);
+          if (pubRes.ok) {
+            const pubJson = await pubRes.json();
+            if (pubJson.success) {
+              setAccount({
+                account: { owner: 'sven', balance: pubJson.data.balance, frozen: 0 },
+                tokenConfig: { name: '47Token', ticker: '47T', usdPeg: 1, svenStartingAllowance: 100000 },
+                learningMetrics: { sourceWeights: {}, modelAccuracy: {}, learningIterations: 0, learnedPatterns: 0 },
+              });
+            }
+          }
         }
         if (statusRes.ok) {
           const statusJson = await statusRes.json();
           if (statusJson.success) setStatus(statusJson.data);
+        } else {
+          // Guest fallback — hydrate status from public endpoint
+          const pubRes = await fetch(`${API_BASE}/v1/trading/sven/public-status`);
+          if (pubRes.ok) {
+            const pubJson = await pubRes.json();
+            if (pubJson.success) {
+              setStatus({
+                state: pubJson.data.state ?? 'monitoring',
+                activeSymbol: null,
+                openPositions: pubJson.data.openPositions ?? 0,
+                pendingOrders: 0,
+                todayPnl: pubJson.data.dailyPnl ?? 0,
+                todayTrades: pubJson.data.dailyTrades ?? 0,
+                uptime: 0,
+                mode: pubJson.data.mode ?? 'paper',
+                circuitBreaker: { tripped: false, reason: null, dailyLossPct: 0, consecutiveLosses: 0, currentDrawdownPct: 0 },
+              });
+            }
+          }
         }
       } catch {
         // Gateway not available — use defaults
