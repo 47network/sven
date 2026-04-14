@@ -2168,6 +2168,30 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
                 positionId: pos.id, symbol: pos.symbol, side: pos.side, closeReason,
                 pnl, pnlPct: (priceDelta * 100).toFixed(2), balance: svenAccount.balance,
               });
+
+              // ── Learn from this trade outcome ──
+              // Record whether each signal source predicted the correct direction.
+              // If the trade was profitable, the signal that drove it was correct.
+              // If it lost, it was wrong. This feeds into source weight adjustment.
+              const wasCorrect = pnl > 0;
+              svenLearning = recordPredictionOutcome(svenLearning, 'kronos_v1', wasCorrect);
+              svenLearning = recordPredictionOutcome(svenLearning, 'mirofish', wasCorrect);
+              svenLearning = recordPredictionOutcome(svenLearning, 'technical', wasCorrect);
+              svenLearning = recordPredictionOutcome(svenLearning, 'news', wasCorrect);
+
+              // After every 5 closed trades, adjust source weights based on accuracy
+              const totalClosed = Object.values(svenLearning.modelAccuracy)
+                .reduce((sum, m) => sum + m.total, 0);
+              if (totalClosed > 0 && totalClosed % 5 === 0) {
+                const prevWeights = { ...svenLearning.sourceWeights };
+                svenLearning = adjustWeights(svenLearning, 5); // Lower threshold for paper mode
+                logger.info('Sven source weights adjusted', {
+                  iteration: svenLearning.learningIterations,
+                  previous: prevWeights,
+                  updated: svenLearning.sourceWeights,
+                  modelAccuracy: svenLearning.modelAccuracy,
+                });
+              }
             }
           }
         }
@@ -2245,17 +2269,24 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
         at: lastLoopAt.toISOString(),
       }));
 
+      // Count decision types for observability
+      const holdCount = analyses.filter(a => a.decision.decisionType === 'hold').length;
+      const taVetoCount = analyses.filter(a => a.decision.decisionType === 'hold' && a.decision.reason?.startsWith('TA veto')).length;
+
       logger.info('autonomous loop tick (multi-symbol)', {
         iteration: loopIterations,
         symbolsScanned: validData.length,
         coreSymbols: coreSymbols.length,
         dynamicSymbols: dynamicSymbols.length,
         tradesExecuted: positionsThisTick,
+        holdsCount: holdCount,
+        taVetoes: taVetoCount,
         balance: svenAccount.balance,
         totalPnl: svenTotalPnl,
         dailyPnl: svenDailyPnl,
         openPositions: currentOpenPositions + positionsThisTick,
         goalProgress: `${goalMilestones.filter(m => m.achieved).length}/${goalMilestones.length}`,
+        sourceWeights: svenLearning.sourceWeights,
       });
     } catch (err) {
       logger.error('autonomous loop error', { err: (err as Error).message });
