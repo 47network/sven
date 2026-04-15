@@ -47,6 +47,8 @@ import {
   Bot,
   Shield,
   BarChart3,
+  TrendingUp,
+  Server,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import SidebarBrand from './sidebar/SidebarBrand';
@@ -106,6 +108,15 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/ai-pipelines', label: 'AI Pipelines', icon: BrainCircuit },
       { href: '/brain', label: 'Brain Admin', icon: BrainCircuit },
       { href: '/improvements', label: 'Improvements', icon: Lightbulb },
+    ],
+  },
+  {
+    label: 'Trading',
+    roles: ['admin', 'operator'],
+    items: [
+      { href: '/trading', label: 'Trading Dashboard', icon: TrendingUp, roles: ['admin', 'operator'] },
+      { href: '/trading-credentials', label: 'Exchange Keys', icon: KeyRound, roles: ['admin'] },
+      { href: '/trading-brokers', label: 'Brokers', icon: Server, roles: ['admin', 'operator'] },
     ],
   },
   {

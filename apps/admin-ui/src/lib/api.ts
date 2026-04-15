@@ -2355,6 +2355,21 @@ export type AnalyticsOverviewData = {
   daily_activity: Array<{ day: string; messages: number; active_users: number }>;
 };
 
+// ── Trading ──
+export const trading = {
+  dashboard: () => request<{ success: boolean; data: Record<string, unknown> }>('GET', '/admin/trading/dashboard'),
+  correlationMatrix: () => request<{ success: boolean; data: Record<string, unknown> }>('GET', '/admin/trading/correlation-matrix'),
+  executionQuality: () => request<{ success: boolean; data: Record<string, unknown> }>('GET', '/admin/trading/execution-quality'),
+  pnlChart: () => request<{ success: boolean; data: Array<{ date: string; equity: number }> }>('GET', '/admin/trading/pnl-chart'),
+  credentials: () => requestRowsSoft('/admin/trading/exchange-credentials'),
+  addCredential: (body: { broker: string; apiKey: string; apiSecret: string; isPaper: boolean; label?: string }) =>
+    request<{ success: boolean }>('POST', '/admin/trading/exchange-credentials', body),
+  revokeCredential: (id: string) =>
+    request<{ success: boolean }>('DELETE', `/admin/trading/exchange-credentials/${id}`),
+  brokers: () => requestRowsSoft('/v1/trading/broker/list'),
+  brokerHealth: () => request<Record<string, boolean>>('GET', '/v1/trading/broker/health'),
+};
+
 export const api = {
   auth,
   users,
@@ -2412,4 +2427,5 @@ export const api = {
   communityAgents,
   federation,
   analyticsOverview,
+  trading,
 };

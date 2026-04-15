@@ -1736,3 +1736,14 @@ export function useUpdateSovereignty() { const qc = useQueryClient(); return use
 export function useExportPolicy() { return useQuery({ queryKey: ['federation', 'export-policy'], queryFn: api.federation.exportPolicy }); }
 export function useMeshHealth() { return useQuery({ queryKey: ['federation', 'mesh-health'], queryFn: api.federation.meshHealth }); }
 export function useHealthCheck() { const qc = useQueryClient(); return useMutation({ mutationFn: (peerId: string) => api.federation.healthCheck(peerId), onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'mesh-health'] }) }); }
+
+// ── Trading (Batch 12) ──
+export function useTradingDashboard() { return useQuery({ queryKey: ['trading', 'dashboard'], queryFn: api.trading.dashboard }); }
+export function useTradingCorrelation() { return useQuery({ queryKey: ['trading', 'correlation'], queryFn: api.trading.correlationMatrix }); }
+export function useTradingExecutionQuality() { return useQuery({ queryKey: ['trading', 'execution-quality'], queryFn: api.trading.executionQuality }); }
+export function useTradingPnlChart() { return useQuery({ queryKey: ['trading', 'pnl-chart'], queryFn: api.trading.pnlChart }); }
+export function useTradingCredentials() { return useQuery({ queryKey: ['trading', 'credentials'], queryFn: api.trading.credentials }); }
+export function useAddTradingCredential() { const qc = useQueryClient(); return useMutation({ mutationFn: api.trading.addCredential, onSuccess: () => qc.invalidateQueries({ queryKey: ['trading', 'credentials'] }) }); }
+export function useRevokeTradingCredential() { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.trading.revokeCredential(id), onSuccess: () => qc.invalidateQueries({ queryKey: ['trading', 'credentials'] }) }); }
+export function useTradingBrokers() { return useQuery({ queryKey: ['trading', 'brokers'], queryFn: api.trading.brokers }); }
+export function useTradingBrokerHealth() { return useQuery({ queryKey: ['trading', 'broker-health'], queryFn: api.trading.brokerHealth }); }
