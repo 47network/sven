@@ -25,6 +25,9 @@ import 'news_feed_page.dart';
 import 'trend_scout_page.dart';
 import 'pnl_summary_page.dart';
 import 'sven_intelligence_page.dart';
+import 'backtest_page.dart';
+import 'exchange_credentials_page.dart';
+import 'broker_status_page.dart';
 
 class TradingDashboardPage extends StatefulWidget {
   const TradingDashboardPage({
@@ -231,6 +234,9 @@ class _TradingDashboardPageState extends State<TradingDashboardPage> {
                 onTrendScout: _openTrendScout,
                 onPnl: _openPnl,
                 onIntelligence: _openIntelligence,
+                onBacktest: _openBacktest,
+                onExchangeCredentials: _openExchangeCredentials,
+                onBrokerStatus: _openBrokerStatus,
               ),
               const SizedBox(height: 12),
               _LiveEventsCard(
@@ -409,6 +415,36 @@ class _TradingDashboardPageState extends State<TradingDashboardPage> {
     HapticFeedback.lightImpact();
     Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (_) => SvenIntelligencePage(
+        tradingService: widget.tradingService,
+        visualMode: widget.visualMode,
+      ),
+    ));
+  }
+
+  void _openBacktest() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => BacktestPage(
+        tradingService: widget.tradingService,
+        visualMode: widget.visualMode,
+      ),
+    ));
+  }
+
+  void _openExchangeCredentials() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => ExchangeCredentialsPage(
+        tradingService: widget.tradingService,
+        visualMode: widget.visualMode,
+      ),
+    ));
+  }
+
+  void _openBrokerStatus() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => BrokerStatusPage(
         tradingService: widget.tradingService,
         visualMode: widget.visualMode,
       ),
@@ -693,6 +729,9 @@ class _QuickActionsRow extends StatelessWidget {
     required this.onTrendScout,
     required this.onPnl,
     required this.onIntelligence,
+    required this.onBacktest,
+    required this.onExchangeCredentials,
+    required this.onBrokerStatus,
   });
 
   final SvenModeTokens tokens;
@@ -709,6 +748,9 @@ class _QuickActionsRow extends StatelessWidget {
   final VoidCallback onTrendScout;
   final VoidCallback onPnl;
   final VoidCallback onIntelligence;
+  final VoidCallback onBacktest;
+  final VoidCallback onExchangeCredentials;
+  final VoidCallback onBrokerStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -825,6 +867,43 @@ class _QuickActionsRow extends StatelessWidget {
                 onTap: onIntelligence,
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionButton(
+                tokens: tokens,
+                icon: Icons.science_rounded,
+                label: 'Backtest',
+                onTap: onBacktest,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ActionButton(
+                tokens: tokens,
+                icon: Icons.vpn_key_rounded,
+                label: 'Exchange Keys',
+                onTap: onExchangeCredentials,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionButton(
+                tokens: tokens,
+                icon: Icons.dns_rounded,
+                label: 'Broker Health',
+                onTap: onBrokerStatus,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(child: SizedBox.shrink()),
           ],
         ),
       ],

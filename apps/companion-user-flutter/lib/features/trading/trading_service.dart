@@ -281,7 +281,8 @@ class TradingService extends ChangeNotifier {
 
       debugPrint('[TradingService] configureAutoTrade → POST $_tradingBase/v1/trading/sven/auto-trade/config body=$body');
       final resp = await _postJson('/v1/trading/sven/auto-trade/config', body);
-      debugPrint('[TradingService] configureAutoTrade ← status=${resp?.statusCode} body=${resp?.body?.substring(0, (resp?.body?.length ?? 0).clamp(0, 200))}');
+      final respBody = resp?.body;
+      debugPrint('[TradingService] configureAutoTrade ← status=${resp?.statusCode} body=${respBody?.substring(0, (respBody.length).clamp(0, 200))}');
       if (resp != null && resp.statusCode == 200) {
         await fetchStatus();
         return true;
@@ -395,6 +396,215 @@ class TradingService extends ChangeNotifier {
       return false;
     } catch (e) {
       _error = 'Failed to delete alert: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ── Backtest API (Batch 12A) ────────────────────────────────────────────
+
+  List<BacktestStrategy> _backtestStrategies = [];
+  List<BacktestStrategy> get backtestStrategies => _backtestStrategies;
+
+  BacktestResult? _lastBacktestResult;
+  BacktestResult? get lastBacktestResult => _lastBacktestResult;
+
+  bool _backtestRunning = false;
+  bool get backtestRunning => _backtestRunning;
+
+  /// Fetch available backtest strategies.
+  Future<void> fetchBacktestStrategies() async {
+    try {
+      final resp = await _get('/v1/trading/backtest/strategies');
+      if (resp != null && resp.statusCode == 200) {
+        final body = jsonDecode(resp.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['data'] != null) {
+          final list = body['data'] as List<dynamic>;
+          _backtestStrategies = list
+              .map((e) =>
+                  BacktestStrategy.fromJson(e as Map<String, dynamic>))
+              .toList();
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('[TradingService] fetchBacktestStrategies failed: $e');
+    }
+  }
+
+  /// Run a backtest with auto-fetched Binance historical candles (Batch 12A).
+  Future<BacktestResult?> runBacktestAuto({
+    required String strategy,
+    String symbol = 'BTC/USDT',
+    String timeframe = '1h',
+    int bars = 1000,
+    double initialCapital = 100000,
+  }) async {
+    _backtestRunning = true;
+    _lastBacktestResult = null;
+    notifyListeners();
+    try {
+      final payload = <String, dynamic>{
+        'strategy': strategy,
+        'symbol': symbol,
+        'timeframe': timeframe,
+        'bars': bars,
+        'initialCapital': initialCapital,
+      };
+      final resp =
+          await _postJson('/v1/trading/backtest/run-auto', payload);
+      if (resp != null && resp.statusCode == 200) {
+        final body = jsonDecode(resp.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['data'] != null) {
+          final data = body['data'] as Map<String, dynamic>;
+          _lastBacktestResult = BacktestResult.fromJson(data);
+          notifyListeners();
+          return _lastBacktestResult;
+        }
+      }
+      _error = 'Backtest failed: HTTP ${resp?.statusCode ?? 'null'}';
+      notifyListeners();
+      return null;
+    } catch (e) {
+      _error = 'Backtest failed: $e';
+      notifyListeners();
+      return null;
+    } finally {
+      _backtestRunning = false;
+      notifyListeners();
+    }
+  }
+
+  // ── Exchange Credentials API (Batch 12D) ────────────────────────────────
+
+  List<ExchangeCredential> _exchangeCredentials = [];
+  List<ExchangeCredential> get exchangeCredentials => _exchangeCredentials;
+
+  /// Fetch exchange credentials (masked keys) for admin.
+  Future<void> fetchExchangeCredentials() async {
+    try {
+      final resp =
+          await _get('/v1/admin/trading/exchange-credentials');
+      if (resp != null && resp.statusCode == 200) {
+        final body = jsonDecode(resp.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['data'] != null) {
+          final list = body['data'] as List<dynamic>;
+          _exchangeCredentials = list
+              .map((e) => ExchangeCredential.fromJson(
+                  e as Map<String, dynamic>))
+              .toList();
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('[TradingService] fetchExchangeCredentials failed: $e');
+    }
+  }
+
+  /// Add or update exchange credentials (requires admin auth).
+  Future<bool> addExchangeCredential({
+    required String broker,
+    required String apiKey,
+    required String apiSecret,
+    bool isPaper = true,
+    String? label,
+  }) async {
+    try {
+      final payload = <String, dynamic>{
+        'broker': broker,
+        'apiKey': apiKey,
+        'apiSecret': apiSecret,
+        'isPaper': isPaper,
+        if (label != null) 'label': label,
+      };
+      final resp = await _postJson(
+          '/v1/admin/trading/exchange-credentials', payload);
+      if (resp != null && resp.statusCode == 200) {
+        await fetchExchangeCredentials();
+        return true;
+      }
+      _error = 'Failed to add credential: HTTP ${resp?.statusCode ?? 'null'}';
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = 'Failed to add credential: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Revoke an exchange credential (requires admin auth).
+  Future<bool> revokeExchangeCredential(String id) async {
+    try {
+      final uri = Uri.parse(
+          '$_tradingBase/v1/admin/trading/exchange-credentials/$id');
+      final resp = await _client.delete(uri);
+      if (resp.statusCode == 200) {
+        _exchangeCredentials.removeWhere((c) => c.id == id);
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _error = 'Failed to revoke credential: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ── Broker Health API (Batch 12C) ───────────────────────────────────────
+
+  List<BrokerHealth> _brokerList = [];
+  List<BrokerHealth> get brokerList => _brokerList;
+
+  /// Fetch registered brokers and their status.
+  Future<void> fetchBrokerList() async {
+    try {
+      final resp = await _get('/v1/trading/broker/list');
+      if (resp != null && resp.statusCode == 200) {
+        final body = jsonDecode(resp.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['data'] != null) {
+          final data = body['data'] as Map<String, dynamic>;
+          final brokers = data['brokers'] as List<dynamic>? ?? [];
+          _brokerList = brokers
+              .map((e) =>
+                  BrokerHealth.fromJson(e as Map<String, dynamic>))
+              .toList();
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('[TradingService] fetchBrokerList failed: $e');
+    }
+  }
+
+  /// Connect a broker with credentials (requires admin auth).
+  Future<bool> connectBroker({
+    required String broker,
+    required String apiKey,
+    required String apiSecret,
+    bool isPaper = true,
+  }) async {
+    try {
+      final payload = <String, dynamic>{
+        'broker': broker,
+        'credentials': {
+          'apiKey': apiKey,
+          'apiSecret': apiSecret,
+          'isPaper': isPaper,
+        },
+      };
+      final resp =
+          await _postJson('/v1/trading/broker/connect', payload);
+      if (resp != null && resp.statusCode == 200) {
+        await fetchBrokerList();
+        return true;
+      }
+      _error = 'Broker connect failed: HTTP ${resp?.statusCode ?? 'null'}';
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = 'Broker connect failed: $e';
       notifyListeners();
       return false;
     }

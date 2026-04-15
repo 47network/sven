@@ -761,3 +761,170 @@ class DedupGuardInfo {
         maxPerSymbol: (j['maxPerSymbol'] as num?)?.toInt() ?? 1,
       );
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Batch 12 — Backtest, Exchange Credentials, Broker Health
+// ═══════════════════════════════════════════════════════════════════════════
+
+class BacktestResult {
+  final String id;
+  final String strategy;
+  final String symbol;
+  final String timeframe;
+  final double initialCapital;
+  final int totalTrades;
+  final int winningTrades;
+  final double totalReturn;
+  final double totalReturnPct;
+  final double maxDrawdown;
+  final double sharpeRatio;
+  final double profitFactor;
+  final DateTime createdAt;
+  final Map<String, dynamic> meta;
+
+  const BacktestResult({
+    required this.id,
+    required this.strategy,
+    required this.symbol,
+    required this.timeframe,
+    required this.initialCapital,
+    required this.totalTrades,
+    required this.winningTrades,
+    required this.totalReturn,
+    required this.totalReturnPct,
+    required this.maxDrawdown,
+    required this.sharpeRatio,
+    required this.profitFactor,
+    required this.createdAt,
+    this.meta = const {},
+  });
+
+  double get winRate =>
+      totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
+
+  factory BacktestResult.fromJson(Map<String, dynamic> j) => BacktestResult(
+        id: j['id'] as String? ?? '',
+        strategy: j['strategy'] as String? ?? '',
+        symbol: j['symbol'] as String? ?? '',
+        timeframe: j['timeframe'] as String? ?? '1h',
+        initialCapital:
+            (j['initialCapital'] as num?)?.toDouble() ?? 100000,
+        totalTrades: (j['totalTrades'] as num?)?.toInt() ?? 0,
+        winningTrades: (j['winningTrades'] as num?)?.toInt() ?? 0,
+        totalReturn: (j['totalReturn'] as num?)?.toDouble() ?? 0,
+        totalReturnPct:
+            (j['totalReturnPct'] as num?)?.toDouble() ?? 0,
+        maxDrawdown: (j['maxDrawdown'] as num?)?.toDouble() ?? 0,
+        sharpeRatio: (j['sharpeRatio'] as num?)?.toDouble() ?? 0,
+        profitFactor: (j['profitFactor'] as num?)?.toDouble() ?? 0,
+        createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ??
+            DateTime.now(),
+        meta: j['meta'] as Map<String, dynamic>? ?? const {},
+      );
+}
+
+class BacktestStrategy {
+  final String name;
+  final String description;
+  final Map<String, dynamic> params;
+
+  const BacktestStrategy({
+    required this.name,
+    this.description = '',
+    this.params = const {},
+  });
+
+  factory BacktestStrategy.fromJson(Map<String, dynamic> j) =>
+      BacktestStrategy(
+        name: j['name'] as String? ?? '',
+        description: j['description'] as String? ?? '',
+        params: j['params'] as Map<String, dynamic>? ?? const {},
+      );
+}
+
+class ExchangeCredential {
+  final String id;
+  final String broker;
+  final bool isPaper;
+  final String? endpoint;
+  final String status;
+  final String? label;
+  final String apiKeyMasked;
+  final DateTime createdAt;
+  final DateTime? revokedAt;
+
+  const ExchangeCredential({
+    required this.id,
+    required this.broker,
+    required this.isPaper,
+    this.endpoint,
+    required this.status,
+    this.label,
+    required this.apiKeyMasked,
+    required this.createdAt,
+    this.revokedAt,
+  });
+
+  String get brokerDisplay {
+    switch (broker) {
+      case 'ccxt_binance':
+        return 'Binance';
+      case 'ccxt_bybit':
+        return 'Bybit';
+      case 'alpaca':
+        return 'Alpaca';
+      default:
+        return broker;
+    }
+  }
+
+  factory ExchangeCredential.fromJson(Map<String, dynamic> j) =>
+      ExchangeCredential(
+        id: j['id'] as String? ?? '',
+        broker: j['broker'] as String? ?? '',
+        isPaper: j['is_paper'] as bool? ?? true,
+        endpoint: j['endpoint'] as String?,
+        status: j['status'] as String? ?? 'active',
+        label: j['label'] as String?,
+        apiKeyMasked: j['api_key_masked'] as String? ?? '***',
+        createdAt:
+            DateTime.tryParse(j['created_at'] as String? ?? '') ??
+                DateTime.now(),
+        revokedAt: j['revoked_at'] != null
+            ? DateTime.tryParse(j['revoked_at'] as String)
+            : null,
+      );
+}
+
+class BrokerHealth {
+  final String name;
+  final bool connected;
+  final int? latencyMs;
+
+  const BrokerHealth({
+    required this.name,
+    required this.connected,
+    this.latencyMs,
+  });
+
+  String get displayName {
+    switch (name) {
+      case 'ccxt_binance':
+        return 'Binance';
+      case 'ccxt_bybit':
+        return 'Bybit';
+      case 'alpaca':
+        return 'Alpaca';
+      case 'paper':
+        return 'Paper Trading';
+      default:
+        return name;
+    }
+  }
+
+  factory BrokerHealth.fromJson(Map<String, dynamic> j) => BrokerHealth(
+        name: j['name'] as String? ?? '',
+        connected: j['connected'] as bool? ?? false,
+        latencyMs: (j['latencyMs'] as num?)?.toInt(),
+      );
+}
