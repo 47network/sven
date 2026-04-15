@@ -25,7 +25,7 @@ export {
 
 export {
   BINANCE_SYMBOL_MAP,
-  fetchBinanceCandles, fetchBinancePrice,
+  fetchBinanceCandles, fetchBinancePrice, fetchBinanceHistoricalCandles,
   validateBinanceSymbol,
 } from './binance.js';
 

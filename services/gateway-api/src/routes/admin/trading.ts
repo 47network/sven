@@ -430,4 +430,93 @@ export async function registerTradingDashboardRoutes(
       throw err;
     }
   });
+
+  // ══════════════════════════════════════════════════════════════════
+  // Exchange Credential Management (12D)
+  // ══════════════════════════════════════════════════════════════════
+
+  const ALLOWED_BROKERS = ['alpaca', 'ccxt_binance', 'ccxt_bybit'] as const;
+
+  // ── GET /trading/exchange-credentials ──────────────────────────
+  // Lists all exchange credentials for the org (keys masked).
+  app.get('/trading/exchange-credentials', async (request: any) => {
+    const orgId = String(request.orgId || '');
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, broker, is_paper, endpoint, status, label,
+                LEFT(api_key_enc, 8) || '...' AS api_key_masked,
+                created_at, updated_at, revoked_at
+         FROM exchange_credentials
+         WHERE org_id = $1 ORDER BY created_at DESC`,
+        [orgId],
+      );
+      return { success: true, data: rows };
+    } catch (err) {
+      if (isSchemaCompatError(err)) return { success: true, data: [] };
+      throw err;
+    }
+  });
+
+  // ── POST /trading/exchange-credentials ─────────────────────────
+  // Adds or updates exchange credentials for a broker.
+  app.post('/trading/exchange-credentials', async (request: any, reply: any) => {
+    const orgId = String(request.orgId || '');
+    const { broker, apiKey, apiSecret, isPaper, endpoint, label } = request.body as Record<string, any>;
+
+    if (!broker || !ALLOWED_BROKERS.includes(broker)) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: `broker must be one of: ${ALLOWED_BROKERS.join(', ')}` } });
+    }
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.length < 8) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'apiKey required (min 8 chars)' } });
+    }
+    if (!apiSecret || typeof apiSecret !== 'string' || apiSecret.length < 8) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'apiSecret required (min 8 chars)' } });
+    }
+
+    try {
+      const { rows } = await pool.query(
+        `INSERT INTO exchange_credentials (org_id, broker, api_key_enc, api_secret_enc, is_paper, endpoint, label, status, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', NOW())
+         ON CONFLICT (org_id, broker) DO UPDATE SET
+           api_key_enc = $3, api_secret_enc = $4, is_paper = $5,
+           endpoint = $6, label = $7, status = 'active',
+           revoked_at = NULL, updated_at = NOW()
+         RETURNING id, broker, is_paper, endpoint, status, label, created_at`,
+        [orgId, broker, apiKey, apiSecret, isPaper !== false, endpoint ?? null, label ?? null],
+      );
+      return { success: true, data: rows[0] };
+    } catch (err) {
+      if (isSchemaCompatError(err)) {
+        return reply.status(503).send({ success: false, error: { code: 'SCHEMA_PENDING', message: 'exchange_credentials table not yet created — run migrations' } });
+      }
+      throw err;
+    }
+  });
+
+  // ── DELETE /trading/exchange-credentials/:id ───────────────────
+  // Soft-revokes an exchange credential (never hard-deletes for audit trail).
+  app.delete('/trading/exchange-credentials/:id', async (request: any, reply: any) => {
+    const orgId = String(request.orgId || '');
+    const credId = (request.params as any)?.id;
+    if (!credId) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'credential id required' } });
+    }
+
+    try {
+      const { rowCount } = await pool.query(
+        `UPDATE exchange_credentials SET status = 'revoked', revoked_at = NOW(), updated_at = NOW()
+         WHERE id = $1 AND org_id = $2 AND status = 'active'`,
+        [credId, orgId],
+      );
+      if (!rowCount) {
+        return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND', message: 'Credential not found or already revoked' } });
+      }
+      return { success: true, data: { id: credId, status: 'revoked' } };
+    } catch (err) {
+      if (isSchemaCompatError(err)) {
+        return reply.status(503).send({ success: false, error: { code: 'SCHEMA_PENDING', message: 'exchange_credentials table not yet created' } });
+      }
+      throw err;
+    }
+  });
 }

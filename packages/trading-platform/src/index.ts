@@ -12,5 +12,12 @@ export * from './indicators/index.js';
 export * from './autonomous/index.js';
 export * from './broker/index.js';
 export * from './backtest/index.js';
-export * from './analytics/index.js';
+export {
+  type EquitySnapshot, type DrawdownPeriod, type RollingMetrics,
+  type ExposureBreakdown, type CorrelationEntry, type PortfolioAnalytics,
+  buildEquityCurve, computeDrawdowns, findMaxDrawdown, computeRollingMetrics,
+  computeAnnualizedReturn, computeAnnualizedVolatility, computeCalmarRatio,
+  computeExposure, buildCorrelationMatrix, buildPortfolioAnalytics,
+  computeCorrelation as computeReturnsCorrelation,
+} from './analytics/index.js';
 export * from './alerts/index.js';

@@ -315,6 +315,7 @@ export type TradingEventType =
   | 'trade_executed'     // Sven auto-executed a trade
   | 'trend_scout'       // news-driven symbol discovery event
   | 'signal_override'    // signal source override (e.g. paper mode)
+  | 'broker_connected'   // exchange broker connected/registered
   | 'sven_message';      // proactive message from Sven
 
 export interface TradingEvent {

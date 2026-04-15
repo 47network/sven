@@ -17,7 +17,7 @@ import {
   fetchDefiLlamaTvl, fetchRssNewsSource,
   RSS_FEEDS, KNOWN_ALTS,
   BINANCE_SYMBOL_MAP as BINANCE_SYMBOL_MAP_INIT,
-  fetchBinanceCandles, fetchBinancePrice,
+  fetchBinanceCandles, fetchBinancePrice, fetchBinanceHistoricalCandles,
   validateBinanceSymbol,
   BinanceWsFeed,
   type GpuNode, type GpuUtilization,
@@ -77,7 +77,11 @@ import {
 } from '@sven/trading-platform/autonomous';
 import {
   createDefaultBrokerRegistry,
+  createAlpacaConnector,
+  createBinanceConnector,
+  createBybitConnector,
   type BrokerName,
+  type BrokerCredentials,
 } from '@sven/trading-platform/broker';
 import {
   runBacktest, BUILT_IN_STRATEGIES,
@@ -1994,8 +1998,10 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
           const positionPct = (quantity * candidate.currentPrice) / svenAccount.balance;
           totalExposurePct += positionPct;
 
-          // Execute via paper broker
-          const connector = brokerRegistry.get('paper' as BrokerName);
+          // Execute via configured broker (paper by default, real when connected)
+          const activeBrokerName = (process.env.SVEN_ACTIVE_BROKER ?? 'paper') as BrokerName;
+          const connector = brokerRegistry.get(PAPER_TRADE_MODE ? 'paper' as BrokerName : activeBrokerName)
+            ?? brokerRegistry.get('paper' as BrokerName);
           if (connector) {
             const clientOrderId = `sven-auto-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
             await connector.submitOrder({
@@ -3144,6 +3150,40 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
   // ═══════════════════════════════════════════════════════════════════
   const brokerRegistry = createDefaultBrokerRegistry();
 
+  // Auto-load persisted exchange credentials on startup
+  try {
+    const { rows: savedCreds } = await pool.query(
+      `SELECT broker, api_key_enc, api_secret_enc, is_paper, endpoint
+       FROM exchange_credentials WHERE status = 'active' ORDER BY created_at DESC`,
+    );
+    for (const row of savedCreds) {
+      try {
+        const creds: BrokerCredentials = {
+          apiKey: row.api_key_enc,
+          apiSecret: row.api_secret_enc,
+          isPaper: row.is_paper,
+          endpoint: row.endpoint,
+        };
+        const brokerName = row.broker as BrokerName;
+        const connector = brokerName === 'alpaca' ? createAlpacaConnector(creds)
+          : brokerName === 'ccxt_binance' ? createBinanceConnector(creds)
+          : brokerName === 'ccxt_bybit' ? createBybitConnector(creds)
+          : null;
+        if (connector) {
+          brokerRegistry.register(brokerName, connector);
+          logger.info('Auto-loaded exchange credential', { broker: brokerName, isPaper: creds.isPaper });
+        }
+      } catch (loadErr) {
+        logger.warn('Failed to load exchange credential', { broker: row.broker, err: (loadErr as Error).message });
+      }
+    }
+  } catch (credLoadErr) {
+    // Table may not exist yet — safe to ignore
+    if (!isSchemaCompatError(credLoadErr)) {
+      logger.warn('exchange_credentials load error', { err: (credLoadErr as Error).message });
+    }
+  }
+
   app.get('/v1/trading/broker/list', { preHandler: [requireAdmin] }, async (request, reply) => {
     return { success: true, data: { brokers: brokerRegistry.list() } };
   });
@@ -3156,8 +3196,50 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'broker name required' } });
     }
     try {
-      brokerRegistry.register(broker as BrokerName, credentials || {});
-      return { success: true, data: { broker, connected: true } };
+      const brokerName = broker as BrokerName;
+      const creds: BrokerCredentials = {
+        apiKey: String(credentials?.apiKey ?? ''),
+        apiSecret: String(credentials?.apiSecret ?? ''),
+        isPaper: credentials?.isPaper !== false,
+        endpoint: credentials?.endpoint,
+      };
+      if (!creds.apiKey || !creds.apiSecret) {
+        return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'apiKey and apiSecret required in credentials' } });
+      }
+      let connector;
+      switch (brokerName) {
+        case 'alpaca':
+          connector = createAlpacaConnector(creds);
+          break;
+        case 'ccxt_binance':
+          connector = createBinanceConnector(creds);
+          break;
+        case 'ccxt_bybit':
+          connector = createBybitConnector(creds);
+          break;
+        default:
+          return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: `Unsupported broker: ${broker}. Use: alpaca, ccxt_binance, ccxt_bybit` } });
+      }
+      // Health check before registering
+      const health = await connector.healthCheck();
+      if (!health.ok) {
+        return reply.status(502).send({ success: false, error: { code: 'BROKER_UNREACHABLE', message: `${broker} health check failed (${health.latencyMs}ms)` } });
+      }
+      brokerRegistry.register(brokerName, connector);
+      logger.info('Broker connected', { broker: brokerName, isPaper: creds.isPaper, latencyMs: health.latencyMs });
+      // Persist encrypted credentials to DB for restart survival
+      try {
+        await pool.query(
+          `INSERT INTO exchange_credentials (org_id, broker, api_key_enc, api_secret_enc, is_paper, endpoint, status, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, 'active', NOW())
+           ON CONFLICT (org_id, broker) DO UPDATE SET api_key_enc = $3, api_secret_enc = $4, is_paper = $5, endpoint = $6, status = 'active', updated_at = NOW()`,
+          [orgId, brokerName, creds.apiKey, creds.apiSecret, creds.isPaper, creds.endpoint ?? null],
+        );
+      } catch (dbErr) {
+        if (!isSchemaCompatError(dbErr)) logger.warn('Failed to persist broker creds', { err: (dbErr as Error).message });
+      }
+      broadcastEvent(createTradingEvent('broker_connected', { broker: brokerName, isPaper: creds.isPaper, latencyMs: health.latencyMs }));
+      return { success: true, data: { broker: brokerName, connected: true, isPaper: creds.isPaper, latencyMs: health.latencyMs } };
     } catch (err) {
       logger.error('broker/connect error', { err: (err as Error).message });
       return reply.status(500).send({ success: false, error: { code: 'INTERNAL', message: 'Broker connection failed' } });
@@ -3314,6 +3396,79 @@ Provide a CONCISE reasoning (2-4 sentences max) for what you would do. Consider 
       throw err;
     }
   });
+
+  // Batch 12A: Auto-fetch backtest — fetches real Binance candles then runs backtest
+  app.post('/v1/trading/backtest/run-auto', { preHandler: [requireAdmin] }, async (request, reply) => {
+    const orgId = await requireTenantMembership(pool, request, reply);
+    if (!orgId) return;
+    const {
+      strategy, symbol = 'BTC/USDT', timeframe = '1h', bars = 1000,
+      initialCapital = 100_000, positionSizePct = 0.1, commissionPct = 0.001,
+      slippageBps = 5, warmupBars = 50, maxOpenPositions = 1,
+    } = request.body as Record<string, any>;
+    if (!strategy) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'strategy required' } });
+    }
+    const stratEntry = BUILT_IN_STRATEGIES[strategy as keyof typeof BUILT_IN_STRATEGIES];
+    if (!stratEntry) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: `Unknown strategy: ${strategy}. Available: ${Object.keys(BUILT_IN_STRATEGIES).join(', ')}` } });
+    }
+    const binanceSymbol = BINANCE_SYMBOL_MAP[symbol] ?? String(symbol).replace('/', '');
+    try {
+      // Fetch real historical candles from Binance
+      const historicalCandles = await fetchBinanceHistoricalCandles(
+        binanceSymbol, String(timeframe), Math.min(Number(bars) || 1000, 5000),
+      );
+      if (historicalCandles.length < 100) {
+        return reply.status(400).send({ success: false, error: { code: 'INSUFFICIENT_DATA', message: `Only ${historicalCandles.length} candles available for ${symbol} ${timeframe}. Need at least 100.` } });
+      }
+      const config: BacktestConfig = {
+        symbol: String(symbol),
+        strategyName: strategy,
+        strategy: stratEntry.create(),
+        candles: historicalCandles.map((c) => ({ open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume, timestamp: c.time.getTime() })),
+        initialCapital: Number(initialCapital),
+        positionSizePct: Number(positionSizePct),
+        commissionPct: Number(commissionPct),
+        slippageBps: Number(slippageBps),
+        warmupBars: Number(warmupBars),
+        maxOpenPositions: Number(maxOpenPositions),
+      };
+      const result = runBacktest(config);
+      // Persist to DB
+      try {
+        await pool.query(
+          `INSERT INTO trading_backtest_results (org_id, user_id, strategy, symbol, timeframe, initial_capital, total_trades, winning_trades, total_return, total_return_pct, max_drawdown, sharpe_ratio, profit_factor, trades, equity_curve, monthly_returns, config, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW())`,
+          [
+            orgId, request.userId, strategy, String(symbol), String(timeframe),
+            Number(initialCapital),
+            result.performance.totalTrades, result.performance.winningTrades,
+            result.performance.totalReturn, result.performance.totalReturnPct,
+            result.performance.maxDrawdown, result.performance.sharpeRatio,
+            result.performance.profitFactor,
+            JSON.stringify(result.trades), JSON.stringify(result.equityCurve),
+            JSON.stringify(result.monthlyReturns),
+            JSON.stringify({ bars: historicalCandles.length, timeframe, positionSizePct, commissionPct, slippageBps, warmupBars, maxOpenPositions, source: 'binance' }),
+          ],
+        );
+      } catch (dbErr) {
+        if (!isSchemaCompatError(dbErr)) throw dbErr;
+      }
+      broadcastEvent(createTradingEvent('backtest_complete', { strategy, symbol, timeframe, bars: historicalCandles.length, trades: result.trades.length, performance: result.performance }));
+      return {
+        success: true,
+        data: {
+          ...result,
+          meta: { symbol, timeframe, bars: historicalCandles.length, source: 'binance', fetchedAt: new Date().toISOString() },
+        },
+      };
+    } catch (err) {
+      logger.error('backtest/run-auto error', { err: (err as Error).message, symbol, timeframe });
+      return reply.status(500).send({ success: false, error: { code: 'INTERNAL', message: `Backtest failed: ${(err as Error).message}` } });
+    }
+  });
+
   // ═══════════════════════════════════════════════════════════════════
   // Analytics Routes  (/v1/trading/analytics/*)
   // ═══════════════════════════════════════════════════════════════════
