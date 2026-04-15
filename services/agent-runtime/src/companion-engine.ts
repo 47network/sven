@@ -554,7 +554,7 @@ export function createSession(
   }
 
   sessionStore.set(id, session);
-  logger.info({ sessionId: id, orgId, form: prefs.form }, 'companion session created');
+  logger.info('companion session created', { sessionId: id, orgId, form: prefs.form });
   return session;
 }
 
@@ -582,7 +582,7 @@ export function listSessions(orgId: string): CompanionSession[] {
 export function destroySession(sessionId: string): boolean {
   const existed = sessionStore.delete(sessionId);
   if (existed) {
-    logger.info({ sessionId }, 'companion session destroyed');
+    logger.info('companion session destroyed', { sessionId });
   }
   return existed;
 }
@@ -599,7 +599,7 @@ export function processEvent(
 ): AnimationDescriptor | null {
   const session = sessionStore.get(sessionId);
   if (!session) {
-    logger.warn({ sessionId }, 'processEvent: session not found');
+    logger.warn('processEvent: session not found', { sessionId });
     return null;
   }
 
@@ -616,8 +616,8 @@ export function processEvent(
   // Validate transition
   if (!isValidTransition(session.state, targetState)) {
     logger.debug(
-      { sessionId, from: session.state, to: targetState, trigger: event.type },
       'invalid state transition, ignored',
+      { sessionId, from: session.state, to: targetState, trigger: event.type },
     );
     return null;
   }
@@ -679,8 +679,8 @@ export function processEvent(
 
   globalTransitionCount++;
   logger.debug(
-    { sessionId, from: previousState, to: targetState, emotion: session.emotion },
     'state transition',
+    { sessionId, from: previousState, to: targetState, emotion: session.emotion },
   );
 
   return buildAnimationDescriptor(session);
@@ -745,7 +745,7 @@ export function updatePreferences(
     session.form = updates.form;
   }
 
-  logger.info({ sessionId, updates: Object.keys(updates) }, 'preferences updated');
+  logger.info('preferences updated', { sessionId, updates: Object.keys(updates) });
   return session;
 }
 

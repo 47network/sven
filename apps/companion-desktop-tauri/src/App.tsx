@@ -61,35 +61,35 @@ function App() {
         return (
           <AiDashboardPanel
             token={app.token}
-            apiBase={app.config.api_base ?? ''}
+            apiBase={app.config.gateway_url ?? ''}
           />
         );
       case 'brain':
         return (
           <BrainPanel
             token={app.token}
-            apiBase={app.config.api_base ?? ''}
+            apiBase={app.config.gateway_url ?? ''}
           />
         );
       case 'community-agents':
         return (
           <CommunityAgentsPanel
             token={app.token}
-            apiBase={app.config.api_base ?? ''}
+            apiBase={app.config.gateway_url ?? ''}
           />
         );
       case 'federation':
         return (
           <FederationPanel
             token={app.token}
-            apiBase={app.config.api_base ?? ''}
+            apiBase={app.config.gateway_url ?? ''}
           />
         );
       case 'profile':
         return (
           <ProfilePanel
             token={app.token}
-            apiBase={app.config.api_base ?? ''}
+            apiBase={app.config.gateway_url ?? ''}
           />
         );
       case 'theme':

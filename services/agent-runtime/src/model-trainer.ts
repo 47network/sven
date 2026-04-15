@@ -516,7 +516,7 @@ export function createTrainingJob(opts: {
   }
 
   jobStore.set(id, job);
-  logger.info({ jobId: id, orgId: opts.orgId, recipe: opts.recipe, baseModel: config.baseModel }, 'training job created');
+  logger.info('training job created', { jobId: id, orgId: opts.orgId, recipe: opts.recipe, baseModel: config.baseModel });
   return job;
 }
 
@@ -550,7 +550,7 @@ export function cancelTrainingJob(jobId: string): boolean {
 
   job.status = 'cancelled';
   job.updatedAt = new Date().toISOString();
-  logger.info({ jobId }, 'training job cancelled');
+  logger.info('training job cancelled', { jobId });
   return true;
 }
 
@@ -589,8 +589,8 @@ export function recordEvaluation(jobId: string, evaluation: EvaluationResult, ad
   job.updatedAt = job.completedAt;
 
   logger.info(
-    { jobId, improvement: evaluation.improvement, perplexity: evaluation.perplexity },
     'training job completed with evaluation',
+    { jobId, improvement: evaluation.improvement, perplexity: evaluation.perplexity },
   );
   return true;
 }
@@ -606,7 +606,7 @@ export function failTrainingJob(jobId: string, errorMessage: string): boolean {
   job.errorMessage = errorMessage;
   job.updatedAt = new Date().toISOString();
 
-  logger.error({ jobId, error: errorMessage }, 'training job failed');
+  logger.error('training job failed', { jobId, error: errorMessage });
   return true;
 }
 
@@ -629,7 +629,7 @@ export function transitionJobStatus(jobId: string, newStatus: TrainingStatus): b
   };
 
   if (!validTransitions[job.status]?.includes(newStatus)) {
-    logger.warn({ jobId, from: job.status, to: newStatus }, 'invalid training status transition');
+    logger.warn('invalid training status transition', { jobId, from: job.status, to: newStatus });
     return false;
   }
 
@@ -664,7 +664,7 @@ export function registerExport(
   job.outputModelName = litellmModelName;
   job.updatedAt = new Date().toISOString();
 
-  logger.info({ jobId, modelName: litellmModelName }, 'model export registered');
+  logger.info('model export registered', { jobId, modelName: litellmModelName });
   return exp;
 }
 
@@ -768,12 +768,12 @@ export interface ScheduleTrainingOptions {
 export function scheduleTrainingOnMesh(opts: ScheduleTrainingOptions): MeshJob | null {
   const job = jobStore.get(opts.jobId);
   if (!job) {
-    logger.warn({ jobId: opts.jobId }, 'Cannot schedule: training job not found');
+    logger.warn('Cannot schedule: training job not found', { jobId: opts.jobId });
     return null;
   }
 
   if (job.status !== 'pending') {
-    logger.warn({ jobId: opts.jobId, status: job.status }, 'Cannot schedule: job not in pending status');
+    logger.warn('Cannot schedule: job not in pending status', { jobId: opts.jobId, status: job.status });
     return null;
   }
 
@@ -846,14 +846,14 @@ export function scheduleTrainingOnMesh(opts: ScheduleTrainingOptions): MeshJob |
   // Transition training job to preparing
   transitionJobStatus(job.id, 'preparing');
 
-  logger.info({
+  logger.info('training job scheduled on compute-mesh', {
     jobId: job.id,
     meshJobId: meshJob.id,
     baseModel: job.config.baseModel,
     method: job.config.method,
     gpuRequired: reqs.requiresGpu,
     estimatedVramMb: reqs.minVramMb,
-  }, 'training job scheduled on compute-mesh');
+  });
 
   return meshJob;
 }

@@ -12,6 +12,7 @@
     "test:citations": "tsx scripts/citation-check.ts"
   },
   "dependencies": {
+    "@sven/compute-mesh": "workspace:*",
     "@sven/shared": "*",
     "nats": "^2.19.0",
     "pg": "^8.11.0",

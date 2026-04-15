@@ -281,7 +281,7 @@ export function createImageElement(
  * Build drawtext filter string for a text element.
  */
 export function buildTextFilter(el: VideoElement, sceneOffset: number, videoW: number, videoH: number): string {
-  const p = el.props as TextElementProps;
+  const p = el.props as unknown as TextElementProps;
   const x = Math.round(el.position[0] * videoW - (el.size[0] * videoW) / 2);
   const y = Math.round(el.position[1] * videoH - (el.size[1] * videoH) / 2);
   const start = sceneOffset + el.startTime;
@@ -397,7 +397,7 @@ export function buildFfmpegArgs(spec: VideoSpec, outputPath: string): string[] {
     for (let ei = 0; ei < spec.scenes[si].elements.length; ei++) {
       const el = spec.scenes[si].elements[ei];
       if (el.type === 'image') {
-        const p = el.props as ImageElementProps;
+        const p = el.props as unknown as ImageElementProps;
         args.push('-i', p.src);
         imageInputs.push({ sceneIdx: si, elIdx: ei, inputIdx, el });
         inputIdx++;
@@ -523,7 +523,7 @@ export async function executeRender(
   job.updatedAt = now;
   job.progress = 0;
 
-  logger.info({ jobId: job.id }, 'render started');
+  logger.info('render started', { jobId: job.id });
 
   const outputPath = `${outputDir}/${job.id}.${job.spec.format}`;
 
@@ -535,7 +535,7 @@ export async function executeRender(
       job.status = 'failed';
       job.error = result.stderr.slice(0, 2000);
       job.updatedAt = new Date();
-      logger.error({ jobId: job.id, stderr: job.error }, 'render failed');
+      logger.error('render failed', { jobId: job.id, stderr: job.error });
       return {
         jobId: job.id,
         status: 'failed',
@@ -551,7 +551,7 @@ export async function executeRender(
     job.updatedAt = job.completedAt;
 
     const durationMs = job.completedAt.getTime() - (job.startedAt?.getTime() ?? now.getTime());
-    logger.info({ jobId: job.id, durationMs, outputPath }, 'render completed');
+    logger.info('render completed', { jobId: job.id, durationMs, outputPath });
 
     return {
       jobId: job.id,
@@ -565,7 +565,7 @@ export async function executeRender(
     job.status = 'failed';
     job.error = msg;
     job.updatedAt = new Date();
-    logger.error({ jobId: job.id, error: msg }, 'render error');
+    logger.error('render error', { jobId: job.id, error: msg });
     return {
       jobId: job.id,
       status: 'failed',
@@ -599,7 +599,7 @@ export function createRenderJob(
     updatedAt: now,
   };
   jobStore.set(job.id, job);
-  logger.info({ jobId: job.id, orgId, template }, 'render job created');
+  logger.info('render job created', { jobId: job.id, orgId, template });
   return job;
 }
 
@@ -613,7 +613,7 @@ export function cancelRenderJob(jobId: string): boolean {
   if (job.status === 'completed' || job.status === 'failed') return false;
   job.status = 'cancelled';
   job.updatedAt = new Date();
-  logger.info({ jobId }, 'render job cancelled');
+  logger.info('render job cancelled', { jobId });
   return true;
 }
 
@@ -709,7 +709,7 @@ Description: ${description}`;
       quality: Math.max(0, Math.min(51, Number(parsed.quality) || 23)),
     };
   } catch {
-    logger.warn({ raw: raw.slice(0, 500) }, 'failed to parse LLM video spec, using fallback');
+    logger.warn('failed to parse LLM video spec, using fallback', { raw: raw.slice(0, 500) });
     // Fallback: single text scene
     return {
       title: 'Generated Video',

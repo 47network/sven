@@ -28,5 +28,12 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "@types/uuid": "^10.0.0",
+    "nats": "^2.19.0",
+    "pg": "^8.11.0",
+    "uuid": "^10.0.0"
   }
 }

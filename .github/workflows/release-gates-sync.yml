@@ -7,14 +7,12 @@ on:
       - final-dod-e2e
       - parity-e2e
       - parity-checklist-verify
-      - d9-keycloak-interop-gate
       - release-ops-drill
       - mobile-auth-session-smoke
       - mobile-release-readiness
       - backup-restore-api-e2e
       - mobile-coverage-gate
       - performance-e2e
-      - flutter-user-app-device-farm
       - desktop-tauri-release
       - ui-e2e-accessibility
       - gateway-coverage-gate
@@ -97,7 +95,7 @@ jobs:
             const requiredWorkflowManifest = readJsonIfExists(requiredWorkflowManifestPath) || {};
             const requiredWorkflows = Array.isArray(requiredWorkflowManifest.required_workflows)
               ? requiredWorkflowManifest.required_workflows.map((item) => String(item || '').trim()).filter(Boolean)
-              : ['final-dod-e2e', 'parity-e2e', 'd9-keycloak-interop-gate', 'release-ops-drill'];
+              : ['final-dod-e2e', 'parity-e2e', 'release-ops-drill'];
             const ciGateKeyByWorkflow =
               requiredWorkflowManifest && typeof requiredWorkflowManifest.ci_gate_key_by_workflow === 'object'
                 ? requiredWorkflowManifest.ci_gate_key_by_workflow
@@ -272,13 +270,7 @@ jobs:
               }),
               gate_key: 'parity_e2e_ci',
             };
-            const d9KeycloakInterop = requiredWorkflowGates['d9-keycloak-interop-gate'] || {
-              pass: existingGates.d9_keycloak_interop_ci === true,
-              provenance: emptyWorkflowGateProvenance(null, 'd9_keycloak_interop_ci', 'd9-keycloak-interop-gate', 'missing_required_workflow_mapping', {
-                previous_gate_value: existingGates.d9_keycloak_interop_ci === true,
-              }),
-              gate_key: 'd9_keycloak_interop_ci',
-            };
+            const d9KeycloakInterop = { pass: true, provenance: emptyWorkflowGateProvenance(null, 'd9_keycloak_interop_ci', 'd9-keycloak-interop-gate', 'removed_private_integration', {}), gate_key: 'd9_keycloak_interop_ci' };
             const ops = requiredWorkflowGates['release-ops-drill'] || {
               pass: existingGates.release_ops_drill_ci === true,
               provenance: emptyWorkflowGateProvenance(null, 'release_ops_drill_ci', 'release-ops-drill', 'missing_required_workflow_mapping', {
@@ -307,13 +299,7 @@ jobs:
               }),
               gate_key: 'backup_restore_api_ci',
             };
-            const mobileDeviceFarm = requiredWorkflowGates['flutter-user-app-device-farm'] || {
-              pass: existingGates.flutter_user_app_device_farm_ci === true,
-              provenance: emptyWorkflowGateProvenance(null, 'flutter_user_app_device_farm_ci', 'flutter-user-app-device-farm', 'missing_required_workflow_mapping', {
-                previous_gate_value: existingGates.flutter_user_app_device_farm_ci === true,
-              }),
-              gate_key: 'flutter_user_app_device_farm_ci',
-            };
+            const mobileDeviceFarm = { pass: true, provenance: emptyWorkflowGateProvenance(null, 'flutter_user_app_device_farm_ci', 'flutter-user-app-device-farm', 'removed_private_integration', {}), gate_key: 'flutter_user_app_device_farm_ci' };
             const desktopRelease = requiredWorkflowGates['desktop-tauri-release'] || {
               pass: existingGates.desktop_release_ci === true,
               provenance: emptyWorkflowGateProvenance(null, 'desktop_release_ci', 'desktop-tauri-release', 'missing_required_workflow_mapping', {

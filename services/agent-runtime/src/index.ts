@@ -1831,6 +1831,7 @@ async function loadContext(pool: pg.Pool, chatId: string, senderIdentityId: stri
       model_name: sessionSettings.model_name || null,
       profile_name: sessionSettings.profile_name || null,
       rag_enabled: sessionSettings.rag_enabled !== false,
+      council_mode: Boolean(sessionSettings.council_mode || false),
     },
   };
 }
