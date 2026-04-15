@@ -1,0 +1,27 @@
+{
+  "name": "@sven/marketing-intel-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone Marketing Intelligence service for Sven — competitive intel, brand voice, content generation, campaign planning, communication coaching, and analytics with Postgres persistence and NATS events.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sven/marketing-intel": "workspace:*",
+    "@sven/shared": "workspace:*",
+    "fastify": "^5.7.4",
+    "nats": "^2.19.0",
+    "pg": "^8.11.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "catalog:"
+  }
+}

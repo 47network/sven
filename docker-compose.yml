@@ -698,6 +698,28 @@ services:
         condition: service_healthy
     logging: *default-logging
 
+  marketing-intel:
+    build:
+      context: .
+      dockerfile: services/marketing-intel/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - MARKETING_PORT=9474
+      - MARKETING_DEFAULT_ORG_ID=${MARKETING_DEFAULT_ORG_ID:-default}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9474:9474"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
   # ── Voice Services (STT/TTS/Wake Word) ───────────────────────────────────────────────
   faster-whisper:
     build:
