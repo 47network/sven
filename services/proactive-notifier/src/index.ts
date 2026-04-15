@@ -14,7 +14,7 @@ import Fastify from 'fastify';
 import pg from 'pg';
 import { connect } from 'nats';
 import { createLogger } from '@sven/shared';
-import { v7 as uuidv7 } from 'uuid';
+import crypto from 'node:crypto';
 
 import { ProactiveEngine } from '@sven/proactive-notifier/engine';
 import { DEFAULT_TRIGGER_RULES, type TriggerCategory, type NotificationSeverity } from '@sven/proactive-notifier/triggers';
@@ -74,7 +74,7 @@ async function main(): Promise<void> {
   // ── Seed default trigger rules ──
   const seedRules = DEFAULT_TRIGGER_RULES.map((r) => ({
     ...r,
-    id: uuidv7(),
+    id: crypto.randomUUID(),
     organization_id: null,
   }));
   const seeded = await ruleStore.seedDefaults(seedRules);
@@ -182,7 +182,7 @@ async function main(): Promise<void> {
     }
 
     const rule = {
-      id: uuidv7(),
+      id: crypto.randomUUID(),
       name,
       category,
       enabled: body.enabled !== false,
@@ -259,7 +259,7 @@ async function main(): Promise<void> {
     }
 
     const endpoint = {
-      id: uuidv7(),
+      id: crypto.randomUUID(),
       channel,
       channel_chat_id: channelChatId,
       label,
@@ -380,7 +380,7 @@ async function main(): Promise<void> {
     const body = request.body as Record<string, unknown>;
 
     const event = {
-      event_id: (body.event_id as string) || uuidv7(),
+      event_id: (body.event_id as string) || crypto.randomUUID(),
       occurred_at: (body.occurred_at as string) || new Date().toISOString(),
       category: (body.category as TriggerCategory) || 'custom',
       severity: (body.severity as NotificationSeverity) || 'info',

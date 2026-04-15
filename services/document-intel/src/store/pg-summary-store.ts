@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import pg from 'pg';
-import { v7 as uuidv7 } from 'uuid';
+import crypto from 'node:crypto';
 import type { DocumentSummary } from '@sven/document-intel/summarizer';
 
 export interface SummaryRecord {
@@ -27,7 +27,7 @@ export class PgSummaryStore {
   constructor(private readonly pool: pg.Pool) {}
 
   async saveSummary(orgId: string, ds: DocumentSummary, jobId?: string): Promise<string> {
-    const id = uuidv7();
+    const id = crypto.randomUUID();
     await this.pool.query(
       `INSERT INTO document_summaries
          (id, job_id, org_id, document_id, title, summary, key_points, style,

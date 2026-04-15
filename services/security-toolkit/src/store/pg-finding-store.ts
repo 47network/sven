@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 
 import pg from 'pg';
-import { v7 as uuidv7 } from 'uuid';
+import crypto from 'node:crypto';
 
 export interface FindingRecord {
   id: string;
@@ -64,7 +64,7 @@ export class PgFindingStore {
     const owaspRefs: (string | null)[] = [];
 
     for (const f of findings) {
-      ids.push(uuidv7());
+      ids.push(crypto.randomUUID());
       scanIds.push(scanId);
       orgIds.push(orgId);
       ruleIds.push(f.ruleId);

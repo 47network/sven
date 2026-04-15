@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import pg from 'pg';
-import { v7 as uuidv7 } from 'uuid';
+import crypto from 'node:crypto';
 import type { Entity } from '@sven/document-intel/entities';
 
 export interface EntityRecord {
@@ -42,7 +42,7 @@ export class PgEntityStore {
     const positions: (string | null)[] = [];
 
     for (const e of entities) {
-      ids.push(uuidv7());
+      ids.push(crypto.randomUUID());
       jobIds.push(jobId);
       orgIds.push(orgId);
       categories.push(e.category);
