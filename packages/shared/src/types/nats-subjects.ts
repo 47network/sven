@@ -26,6 +26,7 @@ export const NATS_STREAMS = {
   INFRA: 'INFRA',
   XLVII_BRAND: 'XLVII_BRAND',
   MESH: 'MESH',
+  MODEL: 'MODEL',
 } as const;
 
 export const NATS_SUBJECTS = {
@@ -148,6 +149,19 @@ export const NATS_SUBJECTS = {
   meshUnitStatus: (unitId: string) => `mesh.unit.status.${unitId}`,
   meshUnitError: (unitId: string) => `mesh.unit.error.${unitId}`,
   MESH_METRICS: 'mesh.metrics',
+
+  // Model Router (inference routing, fleet health, benchmarks)
+  MODEL_REGISTERED: 'model.registered',
+  MODEL_UNREGISTERED: 'model.unregistered',
+  MODEL_STATUS_CHANGED: 'model.status.changed',
+  MODEL_ROUTE_DECISION: 'model.route.decision',
+  MODEL_FLEET_HEALTH: 'model.fleet.health',
+  MODEL_FLEET_NODE_PROBE: 'model.fleet.node.probe',
+  MODEL_HOTSWAP_RESULT: 'model.hotswap.result',
+  MODEL_BENCHMARK_COMPLETE: 'model.benchmark.complete',
+  MODEL_DEPLOY_STATUS: 'model.deploy.status',
+  MODEL_VRAM_ALERT: 'model.vram.alert',
+  modelNodeProbe: (nodeId: string) => `model.fleet.node.probe.${nodeId}`,
 } as const;
 
 export const STREAM_CONFIGS = {
@@ -284,6 +298,13 @@ export const STREAM_CONFIGS = {
     name: NATS_STREAMS.MESH,
     subjects: ['mesh.>'] as string[],
     retention: RetentionPolicy.Workqueue,
+    storage: StorageType.File,
+  },
+  MODEL: {
+    name: NATS_STREAMS.MODEL,
+    subjects: ['model.>'] as string[],
+    retention: RetentionPolicy.Limits,
+    max_age: 30 * 24 * 60 * 60 * 1_000_000_000, // 30 days — routing decision + fleet health audit
     storage: StorageType.File,
   },
 } as const;

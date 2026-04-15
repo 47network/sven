@@ -26,6 +26,8 @@ build/
 !services/gateway-api/migrations/*.sql
 # Keep: compute-mesh migration SQL files
 !services/compute-mesh/migrations/*.sql
+# Keep: model-router migration SQL files
+!services/model-router/migrations/*.sql
 
 # ─── Temporary / scratch ────────────────────────────────────────
 tmp/

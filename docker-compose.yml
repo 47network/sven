@@ -627,6 +627,33 @@ services:
         condition: service_healthy
     logging: *default-logging
 
+  # ── Model Router ─────────────────────────────────────────────────────────────────────
+  model-router:
+    build:
+      context: .
+      dockerfile: services/model-router/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - ROUTER_PORT=9471
+      - ROUTER_PROBE_INTERVAL_MS=${ROUTER_PROBE_INTERVAL_MS:-30000}
+      - ROUTER_VRAM_ALERT_PCT=${ROUTER_VRAM_ALERT_PCT:-90}
+      - ROUTER_DEFAULT_ORG_ID=${ROUTER_DEFAULT_ORG_ID:-default}
+      - SVEN_LLM_POWER_ENDPOINT=${SVEN_LLM_POWER_ENDPOINT}
+      - SVEN_LLM_ENDPOINT=${SVEN_LLM_ENDPOINT}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9471:9471"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
   # ── Voice Services (STT/TTS/Wake Word) ───────────────────────────────────────────────
   faster-whisper:
     build:
