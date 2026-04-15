@@ -9,7 +9,7 @@ import {
   ChevronDown, ArrowRight, Activity,
 } from 'lucide-react';
 import { cn, formatUsd, formatPct } from '@/lib/utils';
-import { fetchBacktestStrategies, runBacktest } from '@/lib/api';
+import { fetchBacktestStrategies, runBacktest, runBacktestAuto } from '@/lib/api';
 import { useTradingStore } from '@/lib/store';
 import Link from 'next/link';
 
@@ -104,37 +104,75 @@ export default function BacktestPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<BacktestResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<'auto' | 'manual'>('auto');
+  const [autoSymbol, setAutoSymbol] = useState('BTC/USDT');
+  const [autoTimeframe, setAutoTimeframe] = useState('1h');
+  const [autoBars, setAutoBars] = useState('1000');
 
   const handleRun = useCallback(async () => {
-    if (candles.length < 50) {
-      setError('Need at least 50 candles loaded. Switch to the dashboard to load market data first.');
+    if (mode === 'manual' && candles.length < 50) {
+      setError('Need at least 50 candles loaded. Switch to the dashboard to load market data first, or use Auto-Fetch mode.');
       return;
     }
     setIsRunning(true);
     setError(null);
     try {
-      const res = await runBacktest({
-        strategy,
-        candles: candles.map((c) => ({
-          open: c.open,
-          high: c.high,
-          low: c.low,
-          close: c.close,
-          volume: c.volume,
-          timestamp: c.timestamp,
-        })),
-        initialCapital: Number(capital),
-        positionSizePct: Number(positionSize),
-        commissionPct: Number(commission),
-        slippagePct: Number(slippage),
-      });
-      setResult(res as unknown as BacktestResult);
+      if (mode === 'auto') {
+        const res = await runBacktestAuto({
+          strategy,
+          symbol: autoSymbol,
+          timeframe: autoTimeframe,
+          bars: Number(autoBars),
+          initialCapital: Number(capital),
+        });
+        if (res.success && res.data) {
+          const d = res.data;
+          setResult({
+            trades: [],
+            equityCurve: [],
+            performance: {
+              totalPnl: d.totalReturn,
+              totalPnlPct: d.totalReturnPct,
+              winRate: d.totalTrades > 0 ? d.winningTrades / d.totalTrades : 0,
+              sharpeRatio: d.sharpeRatio,
+              sortinoRatio: 0,
+              maxDrawdownPct: d.maxDrawdown,
+              avgWin: 0,
+              avgLoss: 0,
+              profitFactor: d.profitFactor,
+              totalTrades: d.totalTrades,
+              winningTrades: d.winningTrades,
+              losingTrades: d.totalTrades - d.winningTrades,
+            },
+            monthlyReturns: [],
+          });
+        } else {
+          setError('Backtest auto-fetch failed');
+        }
+      } else {
+        const res = await runBacktest({
+          strategy,
+          candles: candles.map((c) => ({
+            open: c.open,
+            high: c.high,
+            low: c.low,
+            close: c.close,
+            volume: c.volume,
+            timestamp: c.timestamp,
+          })),
+          initialCapital: Number(capital),
+          positionSizePct: Number(positionSize),
+          commissionPct: Number(commission),
+          slippagePct: Number(slippage),
+        });
+        setResult(res as unknown as BacktestResult);
+      }
     } catch (err) {
       setError((err as Error).message);
     } finally {
       setIsRunning(false);
     }
-  }, [strategy, candles, capital, positionSize, commission, slippage]);
+  }, [mode, strategy, candles, capital, positionSize, commission, slippage, autoSymbol, autoTimeframe, autoBars]);
 
   const perf = result?.performance;
 
@@ -147,6 +185,8 @@ export default function BacktestPage() {
         <span className="text-sm text-brand-400 font-semibold">Backtest</span>
         <Link href="/analytics" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Analytics</Link>
         <Link href="/alerts" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Alerts</Link>
+        <Link href="/credentials" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Credentials</Link>
+        <Link href="/brokers" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Brokers</Link>
       </nav>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -155,7 +195,90 @@ export default function BacktestPage() {
           Strategy Backtesting
         </h1>
 
+        {/* Mode toggle */}
+        <div className="flex items-center gap-2 mb-6">
+          <button
+            onClick={() => setMode('auto')}
+            className={cn(
+              'px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
+              mode === 'auto' ? 'bg-brand-500 text-white' : 'bg-surface-muted text-gray-400 hover:text-gray-200',
+            )}
+          >
+            Auto-Fetch (Binance)
+          </button>
+          <button
+            onClick={() => setMode('manual')}
+            className={cn(
+              'px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
+              mode === 'manual' ? 'bg-brand-500 text-white' : 'bg-surface-muted text-gray-400 hover:text-gray-200',
+            )}
+          >
+            Manual (Loaded Candles)
+          </button>
+        </div>
+
         {/* Config */}
+        {mode === 'auto' ? (
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Strategy</label>
+              <select
+                value={strategy}
+                onChange={(e) => setStrategy(e.target.value)}
+                className="w-full bg-surface-muted border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-brand-400"
+              >
+                {STRATEGY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Symbol</label>
+              <select
+                value={autoSymbol}
+                onChange={(e) => setAutoSymbol(e.target.value)}
+                className="w-full bg-surface-muted border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-brand-400"
+              >
+                {['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT','ADA/USDT','DOGE/USDT','AVAX/USDT','DOT/USDT','LINK/USDT'].map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Timeframe</label>
+              <select
+                value={autoTimeframe}
+                onChange={(e) => setAutoTimeframe(e.target.value)}
+                className="w-full bg-surface-muted border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-brand-400"
+              >
+                {['1m','5m','15m','1h','4h','1d'].map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Candles</label>
+              <select
+                value={autoBars}
+                onChange={(e) => setAutoBars(e.target.value)}
+                className="w-full bg-surface-muted border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-brand-400"
+              >
+                {['100','250','500','1000','2000','5000'].map((b) => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Capital ($)</label>
+              <input
+                type="number"
+                value={capital}
+                onChange={(e) => setCapital(e.target.value)}
+                className="w-full bg-surface-muted border border-gray-700 rounded-md px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-brand-400 font-mono"
+              />
+            </div>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
           <div className="md:col-span-2">
             <label className="block text-xs text-gray-400 mb-1">Strategy</label>
@@ -206,6 +329,7 @@ export default function BacktestPage() {
             />
           </div>
         </div>
+        )}
 
         <div className="flex items-center gap-4 mb-8">
           <button

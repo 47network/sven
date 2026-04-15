@@ -255,6 +255,73 @@ export function runBacktest(body: {
   });
 }
 
+export function runBacktestAuto(body: {
+  strategy: string;
+  symbol?: string;
+  timeframe?: string;
+  bars?: number;
+  initialCapital?: number;
+}): Promise<{
+  success: boolean;
+  data: {
+    id: string;
+    strategy: string;
+    symbol: string;
+    timeframe: string;
+    totalTrades: number;
+    winningTrades: number;
+    totalReturn: number;
+    totalReturnPct: number;
+    maxDrawdown: number;
+    sharpeRatio: number;
+    profitFactor: number;
+    initialCapital: number;
+    meta: Record<string, unknown>;
+  };
+}> {
+  return request('/v1/trading/backtest/run-auto', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+/* ── Exchange Credentials ────────────────────────────────────── */
+
+export interface ExchangeCredentialData {
+  id: string;
+  broker: string;
+  is_paper: boolean;
+  endpoint: string | null;
+  status: string;
+  label: string | null;
+  api_key_masked: string;
+  created_at: string;
+  revoked_at: string | null;
+}
+
+export function fetchExchangeCredentials(): Promise<{ success: boolean; data: ExchangeCredentialData[] }> {
+  return request('/v1/admin/trading/exchange-credentials');
+}
+
+export function addExchangeCredential(body: {
+  broker: string;
+  apiKey: string;
+  apiSecret: string;
+  isPaper?: boolean;
+  label?: string;
+}): Promise<{ success: boolean }> {
+  return request('/v1/admin/trading/exchange-credentials', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+export function revokeExchangeCredential(id: string): Promise<{ success: boolean }> {
+  return request(`/v1/admin/trading/exchange-credentials/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+}
+
 /* ── Analytics ───────────────────────────────────────────────── */
 
 export function fetchAnalytics(body: {

@@ -177,6 +177,8 @@ export default function AnalyticsPage() {
         <Link href="/backtest" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Backtest</Link>
         <span className="text-sm text-brand-400 font-semibold">Analytics</span>
         <Link href="/alerts" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Alerts</Link>
+        <Link href="/credentials" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Credentials</Link>
+        <Link href="/brokers" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Brokers</Link>
       </nav>
 
       <div className="max-w-7xl mx-auto px-6 py-8">

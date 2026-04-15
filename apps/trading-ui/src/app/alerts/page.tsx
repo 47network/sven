@@ -123,6 +123,8 @@ export default function AlertsPage() {
         <Link href="/backtest" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Backtest</Link>
         <Link href="/analytics" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Analytics</Link>
         <span className="text-sm text-brand-400 font-semibold">Alerts</span>
+        <Link href="/credentials" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Credentials</Link>
+        <Link href="/brokers" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">Brokers</Link>
       </nav>
 
       <div className="max-w-5xl mx-auto px-6 py-8">
