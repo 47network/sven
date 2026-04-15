@@ -342,39 +342,29 @@ Sven is a general-purpose AI platform. Here are some of the ways it is being use
 
 ## 🆚 How Sven Compares
 
-| Capability | Sven | Single-user AI CLI | Chat Bridge Platform |
-|:---|:---:|:---:|:---:|
-| Self-hosted, zero cloud dependency | ✅ | ✅ | ✅ |
-| Full platform (agents + voice + RAG + security + compute) | ✅ | ❌ | ❌ |
-| Multi-tenant RBAC + Enterprise SSO | ✅ | ❌ | ❌ |
-| Native mobile app (Flutter) | ✅ | ❌ | Limited |
-| Native desktop app (Tauri) | ✅ | ❌ | Limited |
-| Full local voice stack (wake word + STT + TTS) | ✅ | Partial | ❌ |
-| Per-user private memory with temporal decay | ✅ | ❌ | ❌ |
-| Full RAG pipeline (Git + NAS + Notes) | ✅ | Partial | ❌ |
-| Sandboxed skill execution (gVisor) | ✅ | Partial | ❌ |
-| Skill marketplace with revenue sharing | ✅ | ❌ | ❌ |
-| Document intelligence (OCR, PII, entities) | ✅ | ❌ | ❌ |
-| Security scanning (SAST, secrets, CVE, pen-test) | ✅ | ❌ | ❌ |
-| Quantum simulation | ✅ | ❌ | ❌ |
-| Distributed compute mesh | ✅ | ❌ | ❌ |
-| LLM fleet routing + VRAM management | ✅ | ❌ | ❌ |
-| Marketing & competitive intelligence | ✅ | ❌ | ❌ |
-| Messaging adapters | **20** | 0 | **20** |
-| Canary deployment pipeline | ✅ | ❌ | ❌ |
-| Full observability (metrics + traces + alerts) | ✅ | Partial | Partial |
-| Operator runbook library | ✅ | ❌ | ❌ |
-| Billing / usage metering | ✅ | ❌ | ❌ |
+Sven occupies a unique position in the self-hosted AI space. Most open-source projects solve one problem well — a chat agent, a voice pipeline, a RAG engine, a deployment framework. Sven integrates all of these into a single, deployable platform.
 
-### Capability Proof (machine-verified)
+**Where Sven excels:**
 
-| Scope | Proven | Coverage |
-|:---|:---:|:---:|
-| Agent Zero parity matrix | 111 / 111 | 100% |
-| OpenClaw parity matrix | 176 / 176 | 100% |
-| Combined competitor rows | 287 / 287 | 100% |
+| Strength | What it means |
+|:---|:---|
+| **Breadth** | Agents, voice, RAG, document processing, security scanning, compute orchestration, quantum simulation, marketing analytics — one deployment, one codebase |
+| **Production readiness** | Structured logging, distributed tracing, health endpoints, migration scripts, rollback procedures, runbook library, canary deploys |
+| **Enterprise features** | Multi-tenancy, RBAC, SSO, billing, usage metering, audit trail — not afterthoughts, core architecture |
+| **Client surfaces** | Native Flutter mobile app, Tauri desktop app, web admin, real-time canvas, embeddable widget, 20 messaging adapters |
+| **Privacy** | Every component runs locally. LLM inference, search, STT, TTS, vector DB — nothing phones home |
+| **Extensibility** | 80+ sandboxed skills, dynamic tool creation at runtime, skill marketplace with versioning |
 
-Evidence: `docs/release/status/competitor-capability-proof-latest.json`
+**Where other projects may be stronger:**
+
+| Area | Honest assessment |
+|:---|:---|
+| **Agent framework depth** | Projects like Agent Zero and AutoGPT focus exclusively on agent reasoning loops and may offer more sophisticated planning, reflection, and multi-step reasoning out of the box. Sven prioritises breadth over agent-loop depth |
+| **Community size** | Sven is young (v0.1.0). Established projects have larger communities, more battle-tested edge cases, and more third-party integrations |
+| **Simplicity** | Sven's 47+ services mean a steeper learning curve. If you only need a CLI agent or a simple chatbot, a focused tool is a better fit |
+| **Cutting-edge research** | Sven is an engineering platform, not a research project. It integrates proven patterns rather than pushing the frontier of agent cognition |
+
+> Sven is not trying to replace any single project. It is trying to be the **platform layer** that ties agents, tools, infrastructure, and user interfaces together into something you can actually deploy and operate at scale.
 
 ---
 
@@ -391,8 +381,7 @@ Evidence: `docs/release/status/competitor-capability-proof-latest.json`
 | [Performance Guide](docs/release/section-j-performance-accessibility.md) | SLOs, load tests, accessibility |
 | [Release Checklists](docs/release/checklists/) | Production readiness gates |
 | [Onboarding Kits](docs/guides/onboarding-kits-by-role.md) | Role-based getting started guides |
-| [Parity: vs Agent Zero](docs/parity/sven-vs-agent-zero-feature-comparison.md) | Feature-by-feature comparison |
-| [Parity: vs OpenClaw](docs/parity/Sven_vs_OpenClaw_Feature_Comparison.md) | Feature-by-feature comparison |
+| [Parity Analysis](docs/parity/) | Feature comparison methodology and results |
 
 ---
 
