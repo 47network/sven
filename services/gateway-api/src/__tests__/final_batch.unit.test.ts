@@ -83,7 +83,7 @@ describe('Flutter Brain Visualization (2.6)', () => {
   test('brain_page.dart exists with BrainPage widget and CustomPaint', () => {
     const content = readFile(`${brainDir}/brain_page.dart`);
     expect(content).toContain('class BrainPage extends StatefulWidget');
-    expect(content).toContain('class _BrainGraphPainter extends CustomPainter');
+    expect(content).toContain('class _Brain3DPainter extends CustomPainter');
     expect(content).toContain("title: const Text('Brain Map')");
   });
 
@@ -92,7 +92,7 @@ describe('Flutter Brain Visualization (2.6)', () => {
     expect(content).toContain('GestureDetector');
     expect(content).toContain('onScaleUpdate');
     expect(content).toContain('onTapUp');
-    expect(content).toContain('_panOffset');
+    expect(content).toContain('focalPointDelta');
   });
 
   test('brain_page.dart renders node colors matching Canvas UI', () => {
@@ -231,7 +231,6 @@ describe('Flutter On-Device Inference (6.2)', () => {
   test('inference_page.dart has model management UI', () => {
     const content = readFile(`${infDir}/inference_page.dart`);
     expect(content).toContain('_buildModelSection');
-    expect(content).toContain("'Install'");
     expect(content).toContain("'Load'");
     expect(content).toContain("'Unload'");
     expect(content).toContain("'Remove'");

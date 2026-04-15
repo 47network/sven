@@ -1,0 +1,55 @@
+# docker-compose.vm-agents-test.yml — Isolated test environment for agent integration tests.
+# Runs gateway-api-test, postgres-test, and nats-test on an isolated network.
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sven_test
+      POSTGRES_PASSWORD: sven_test
+      POSTGRES_DB: sven_test
+    ports:
+      - "15432:5432"
+    networks:
+      - sven-agents-test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sven_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  nats-test:
+    image: nats:2.10-alpine
+    command: ["--jetstream", "--store_dir=/data"]
+    ports:
+      - "14222:4222"
+    networks:
+      - sven-agents-test
+    healthcheck:
+      test: ["CMD", "nats-server", "--signal", "ldm"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  gateway-api-test:
+    build:
+      context: ../../
+      dockerfile: services/gateway-api/Dockerfile
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgres://sven_test:sven_test@postgres-test:5432/sven_test
+      NATS_URL: nats://nats-test:4222
+      PORT: 3100
+    ports:
+      - "13100:3100"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      nats-test:
+        condition: service_healthy
+    networks:
+      - sven-agents-test
+
+networks:
+  sven-agents-test:
+    driver: bridge

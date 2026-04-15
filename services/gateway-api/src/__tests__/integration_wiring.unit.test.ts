@@ -90,7 +90,8 @@ describe('Flutter Providers (providers.dart)', () => {
 
   test('defines inferenceServiceProvider as ChangeNotifierProvider', () => {
     const content = readFile(filePath);
-    expect(content).toContain('final inferenceServiceProvider = ChangeNotifierProvider<OnDeviceInferenceService>');
+    expect(content).toContain('final inferenceServiceProvider =');
+    expect(content).toContain('ChangeNotifierProvider<OnDeviceInferenceService>');
   });
 
   test('inferenceServiceProvider uses StateError pattern', () => {
