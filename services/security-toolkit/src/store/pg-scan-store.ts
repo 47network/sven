@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 
 import pg from 'pg';
-import { v7 as uuidv7 } from 'uuid';
+import crypto from 'node:crypto';
 
 export type ScanType = 'sast' | 'dependency-audit' | 'secret-scan' | 'infra-audit' | 'pentest' | 'posture';
 export type ScanStatus = 'pending' | 'running' | 'completed' | 'failed';
@@ -35,7 +35,7 @@ export class PgScanStore {
     target: string;
     metadata?: Record<string, unknown>;
   }): Promise<string> {
-    const id = uuidv7();
+    const id = crypto.randomUUID();
     await this.pool.query(
       `INSERT INTO security_scans (id, org_id, user_id, scan_type, target, status, metadata, created_at)
        VALUES ($1, $2, $3, $4, $5, 'running', $6, NOW())`,

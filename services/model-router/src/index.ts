@@ -11,7 +11,7 @@
 import Fastify from 'fastify';
 import pg from 'pg';
 import { connect, JSONCodec } from 'nats';
-import { v7 as uuidv7 } from 'uuid';
+import crypto from 'node:crypto';
 import { createLogger } from '@sven/shared';
 
 // Pure functions from the library package
@@ -202,7 +202,7 @@ async function main(): Promise<void> {
     const startMs = Date.now();
 
     const inferenceReq: InferenceRequest = {
-      id: uuidv7(),
+      id: crypto.randomUUID(),
       task: (body.task as TaskType) || classifyTask((body.prompt as string) || ''),
       prompt: (body.prompt as string) || '',
       preferredModel: body.preferredModel as string | undefined,
@@ -459,7 +459,7 @@ async function main(): Promise<void> {
     if (!body.suiteId || !body.modelId) {
       return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'suiteId and modelId are required' } });
     }
-    const runId = uuidv7();
+    const runId = crypto.randomUUID();
     await benchmarkStore.createRun({
       id: runId,
       suiteId: body.suiteId as string,

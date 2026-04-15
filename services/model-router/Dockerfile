@@ -1,58 +1,63 @@
-# ── Build stage ─────────────────────────────────────────────────────────
-FROM node:22-slim@sha256:c6585df72c34172bebd8d36abed961e231d7d3b5cee2e01294c4495e8a03f687 AS build
-
+FROM node@sha256:c6585df72c34172bebd8d36abed961e231d7d3b5cee2e01294c4495e8a03f687 AS builder
 WORKDIR /app
 
-# Copy root workspace files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+COPY package.json tsconfig.base.json ./
+COPY packages/shared/package.json packages/shared/
+COPY packages/model-router/package.json packages/model-router/
+COPY services/model-router/package.json services/model-router/
 
-# Copy shared package
-COPY packages/shared/package.json packages/shared/tsconfig.json packages/shared/
-COPY packages/shared/src packages/shared/src
+# Strip workspace:* and catalog: protocols that npm cannot handle
+RUN node -e " \
+  const fs=require('fs'); \
+  function strip(file){\
+    const p=JSON.parse(fs.readFileSync(file,'utf8'));\
+    for(const sec of ['dependencies','devDependencies']){\
+      for(const k of Object.keys(p[sec]||{})){\
+        const v=String(p[sec][k]);\
+        if(v.startsWith('workspace:')||v.startsWith('catalog:'))delete p[sec][k];\
+      }\
+    }\
+    fs.writeFileSync(file,JSON.stringify(p,null,2));\
+  }\
+  strip('services/model-router/package.json');\
+  strip('packages/shared/package.json');\
+  strip('packages/model-router/package.json');"
 
-# Copy model-router library package
-COPY packages/model-router/package.json packages/model-router/tsconfig.json packages/model-router/
-COPY packages/model-router/src packages/model-router/src
+RUN npm install --include=dev
 
-# Copy this service
-COPY services/model-router/package.json services/model-router/tsconfig.json services/model-router/
-COPY services/model-router/src services/model-router/src
+# Copy sources (restores original package.json files)
+COPY packages/shared packages/shared
+COPY packages/model-router packages/model-router
+COPY services/model-router services/model-router
 
-# Install pnpm and dependencies
-RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN pnpm install --frozen-lockfile --filter @sven/shared --filter @sven/model-router --filter @sven/model-router-service
+# Build shared
+RUN npm run build --workspace=packages/shared
 
-# Build all three workspaces
-RUN pnpm --filter @sven/shared run build \
- && pnpm --filter @sven/model-router run build \
- && pnpm --filter @sven/model-router-service run build
+# Build pillar package
+RUN cd packages/model-router && npx tsc
 
-# ── Production stage ────────────────────────────────────────────────────
-FROM node:22-slim@sha256:c6585df72c34172bebd8d36abed961e231d7d3b5cee2e01294c4495e8a03f687
+# Symlink @sven packages into node_modules
+RUN mkdir -p node_modules/@sven \
+  && ln -sf /app/packages/shared node_modules/@sven/shared \
+  && ln -sf /app/packages/model-router node_modules/@sven/model-router
 
+# Build service
+RUN cd services/model-router && npx tsc
+
+# ── Runtime ──
+FROM node@sha256:c6585df72c34172bebd8d36abed961e231d7d3b5cee2e01294c4495e8a03f687
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy built artifacts
-COPY --from=build /app/packages/shared/dist packages/shared/dist
-COPY --from=build /app/packages/shared/package.json packages/shared/
-COPY --from=build /app/packages/model-router/dist packages/model-router/dist
-COPY --from=build /app/packages/model-router/package.json packages/model-router/
-COPY --from=build /app/services/model-router/dist services/model-router/dist
-COPY --from=build /app/services/model-router/package.json services/model-router/
-COPY --from=build /app/node_modules node_modules
-COPY --from=build /app/package.json ./
+COPY --from=builder /app/node_modules node_modules
+COPY --from=builder /app/packages packages
+COPY --from=builder /app/services/model-router/dist services/model-router/dist
+COPY --from=builder /app/services/model-router/package.json services/model-router/package.json
+COPY --from=builder /app/services/model-router/migrations services/model-router/migrations
 
-# Copy migrations
-COPY services/model-router/migrations services/model-router/migrations
-
-# Symlink workspace packages
-RUN mkdir -p node_modules/@sven \
- && ln -sf /app/packages/shared node_modules/@sven/shared \
- && ln -sf /app/packages/model-router node_modules/@sven/model-router
+RUN rm -rf node_modules/@sven && mkdir -p node_modules/@sven \
+  && ln -s ../../packages/shared node_modules/@sven/shared \
+  && ln -s ../../packages/model-router node_modules/@sven/model-router
 
 USER node
-
-EXPOSE 9471
-
 CMD ["node", "services/model-router/dist/index.js"]

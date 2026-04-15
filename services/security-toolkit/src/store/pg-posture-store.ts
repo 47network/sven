@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 
 import pg from 'pg';
-import { v7 as uuidv7 } from 'uuid';
+import crypto from 'node:crypto';
 import type { SecurityPosture } from '@sven/security-toolkit/report';
 
 export interface PostureRecord {
@@ -32,7 +32,7 @@ export class PgPostureStore {
   constructor(private readonly pool: pg.Pool) {}
 
   async record(orgId: string, posture: SecurityPosture, scanIds: string[] = []): Promise<string> {
-    const id = uuidv7();
+    const id = crypto.randomUUID();
     await this.pool.query(
       `INSERT INTO security_postures
          (id, org_id, overall_score, grade, scores, critical_count, high_count,

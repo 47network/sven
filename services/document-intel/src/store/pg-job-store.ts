@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import pg from 'pg';
-import { v7 as uuidv7 } from 'uuid';
+import crypto from 'node:crypto';
 
 export interface JobRecord {
   id: string;
@@ -33,7 +33,7 @@ export class PgJobStore {
     piiSafe: boolean;
     metadata?: Record<string, unknown>;
   }): Promise<string> {
-    const id = uuidv7();
+    const id = crypto.randomUUID();
     await this.pool.query(
       `INSERT INTO document_jobs (id, org_id, user_id, file_name, mime_type, doc_type, status, stage, pii_safe, metadata, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, 'running', 'ocr', $7, $8, NOW())`,

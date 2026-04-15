@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import pg from 'pg';
-import { v7 as uuidv7 } from 'uuid';
+import crypto from 'node:crypto';
 import type { OcrResult } from '@sven/document-intel/ocr';
 import type { StageResult } from '@sven/document-intel/pipeline';
 
@@ -31,7 +31,7 @@ export class PgResultStore {
     stages: StageResult[];
     processingMs: number;
   }): Promise<string> {
-    const id = uuidv7();
+    const id = crypto.randomUUID();
     const ocr = opts.ocrResult;
     await this.pool.query(
       `INSERT INTO document_results
