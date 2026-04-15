@@ -654,6 +654,28 @@ services:
         condition: service_healthy
     logging: *default-logging
 
+  security-toolkit:
+    build:
+      context: .
+      dockerfile: services/security-toolkit/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - SECURITY_PORT=9472
+      - SECURITY_DEFAULT_ORG_ID=${SECURITY_DEFAULT_ORG_ID:-default}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9472:9472"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
   # ── Voice Services (STT/TTS/Wake Word) ───────────────────────────────────────────────
   faster-whisper:
     build:

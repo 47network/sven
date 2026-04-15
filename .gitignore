@@ -28,6 +28,8 @@ build/
 !services/compute-mesh/migrations/*.sql
 # Keep: model-router migration SQL files
 !services/model-router/migrations/*.sql
+# Keep: security-toolkit migration SQL files
+!services/security-toolkit/migrations/*.sql
 
 # ─── Temporary / scratch ────────────────────────────────────────
 tmp/

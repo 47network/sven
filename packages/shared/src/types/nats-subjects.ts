@@ -27,6 +27,7 @@ export const NATS_STREAMS = {
   XLVII_BRAND: 'XLVII_BRAND',
   MESH: 'MESH',
   MODEL: 'MODEL',
+  SECURITY: 'SECURITY',
 } as const;
 
 export const NATS_SUBJECTS = {
@@ -162,6 +163,16 @@ export const NATS_SUBJECTS = {
   MODEL_DEPLOY_STATUS: 'model.deploy.status',
   MODEL_VRAM_ALERT: 'model.vram.alert',
   modelNodeProbe: (nodeId: string) => `model.fleet.node.probe.${nodeId}`,
+
+  // Security Toolkit
+  SECURITY_SAST_COMPLETE: 'security.sast.complete',
+  SECURITY_SECRET_SCAN_COMPLETE: 'security.secret.scan.complete',
+  SECURITY_SECRET_FOUND: 'security.secret.found',
+  SECURITY_DEP_AUDIT_COMPLETE: 'security.dep.audit.complete',
+  SECURITY_INFRA_AUDIT_COMPLETE: 'security.infra.audit.complete',
+  SECURITY_PENTEST_COMPLETE: 'security.pentest.complete',
+  SECURITY_POSTURE_GENERATED: 'security.posture.generated',
+  SECURITY_CRITICAL_FINDING: 'security.critical.finding',
 } as const;
 
 export const STREAM_CONFIGS = {
@@ -305,6 +316,13 @@ export const STREAM_CONFIGS = {
     subjects: ['model.>'] as string[],
     retention: RetentionPolicy.Limits,
     max_age: 30 * 24 * 60 * 60 * 1_000_000_000, // 30 days — routing decision + fleet health audit
+    storage: StorageType.File,
+  },
+  SECURITY: {
+    name: NATS_STREAMS.SECURITY,
+    subjects: ['security.>'] as string[],
+    retention: RetentionPolicy.Limits,
+    max_age: 90 * 24 * 60 * 60 * 1_000_000_000, // 90 days — security scan audit trail
     storage: StorageType.File,
   },
 } as const;
