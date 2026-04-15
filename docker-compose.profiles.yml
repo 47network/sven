@@ -73,3 +73,6 @@ services:
 
   proactive-notifier:
     profiles: ["dev", "staging", "production"]
+
+  quantum-sim:
+    profiles: ["dev", "staging", "production"]

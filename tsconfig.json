@@ -28,7 +28,8 @@
     { "path": "services/security-toolkit" },
     { "path": "services/document-intel" },
     { "path": "services/marketing-intel" },
-    { "path": "services/proactive-notifier" }
+    { "path": "services/proactive-notifier" },
+    { "path": "services/quantum-sim" }
   ],
   "files": []
 }

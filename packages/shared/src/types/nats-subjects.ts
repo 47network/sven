@@ -196,6 +196,13 @@ export const NATS_SUBJECTS = {
   MARKETING_COACHING_DEBRIEF: 'marketing.coaching.debrief',
   MARKETING_ANALYTICS_REPORT: 'marketing.analytics.report',
   MARKETING_THREAT_MATRIX_BUILT: 'marketing.threat.matrix.built',
+
+  // Quantum Sim (circuit simulation, job management, algorithm execution)
+  QUANTUM_JOB_SUBMIT: 'quantum.job.submit',
+  QUANTUM_JOB_CANCEL: 'quantum.job.cancel',
+  QUANTUM_JOB_COMPLETED: 'quantum.job.completed',
+  QUANTUM_JOB_FAILED: 'quantum.job.failed',
+  quantumJobStatus: (jobId: string) => `quantum.job.status.${jobId}`,
 } as const;
 
 export const STREAM_CONFIGS = {

@@ -741,6 +741,28 @@ services:
         condition: service_healthy
     logging: *default-logging
 
+  quantum-sim:
+    build:
+      context: .
+      dockerfile: services/quantum-sim/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - QUANTUM_PORT=9476
+      - QUANTUM_DEFAULT_ORG_ID=${QUANTUM_DEFAULT_ORG_ID:-default}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9476:9476"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
   # ── Voice Services (STT/TTS/Wake Word) ───────────────────────────────────────────────
   faster-whisper:
     build:

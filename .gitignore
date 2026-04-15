@@ -36,6 +36,8 @@ build/
 !services/marketing-intel/migrations/*.sql
 # Keep: proactive-notifier migration SQL files
 !services/proactive-notifier/migrations/*.sql
+# Keep: quantum-sim migration SQL files
+!services/quantum-sim/migrations/*.sql
 
 # ─── Temporary / scratch ────────────────────────────────────────
 tmp/

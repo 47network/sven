@@ -1066,6 +1066,34 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  services/quantum-sim:
+    dependencies:
+      '@sven/quantum-sim':
+        specifier: workspace:*
+        version: link:../../packages/quantum-sim
+      '@sven/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      fastify:
+        specifier: ^5.7.4
+        version: 5.8.4
+      nats:
+        specifier: ^2.19.0
+        version: 2.29.3
+      pg:
+        specifier: ^8.11.0
+        version: 8.20.0
+    devDependencies:
+      '@types/pg':
+        specifier: ^8.11.0
+        version: 8.20.0
+      tsx:
+        specifier: ^4.7.0
+        version: 4.21.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   services/rag-git-ingestor:
     dependencies:
       '@sven/shared':

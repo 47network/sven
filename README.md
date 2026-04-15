@@ -173,7 +173,47 @@ GitHub-facing release documentation uses generic example hostnames. Real deploym
 - Health monitoring: watches your services and proactively alerts
 - Configurable triggers for any event type
 
-### 🔒 Production Security
+### � Quantum Simulation
+- **State-vector simulator** — up to 25-qubit circuit simulation with full gate library
+- Standard gates (H, X, Y, Z, S, T, CNOT, SWAP, CZ, Toffoli) + parametric (Rx, Ry, Rz)
+- **Quantum algorithms** — QAOA, Grover's search, quantum Monte Carlo, quantum annealing, portfolio optimisation
+- **Quantum random number generation** — true random bits via superposition measurement
+- Noise models: depolarizing, amplitude damping, phase damping
+- Multi-backend support: local simulator, IBM Quantum, AWS Braket, Origin Quantum
+- Job management with cost estimation, result caching, and NATS-driven async execution
+- Circuit ASCII visualisation and quantum volume estimation
+
+### 🔧 Compute Mesh
+- Distributed workload orchestration across heterogeneous device fleets
+- Device registration, heartbeat monitoring, capability-based job scheduling
+- Work unit partitioning with fault-tolerant reassignment
+- Real-time metrics and fleet topology visualisation
+
+### 🧠 Model Router
+- Intelligent LLM inference routing across multi-provider fleets
+- Fleet health probing, VRAM monitoring, and automatic failover
+- Hot-swap model deployment with zero-downtime rollover
+- Benchmark tracking and latency-based routing decisions
+
+### 🛡️ Security Toolkit
+- Static analysis (SAST), secret scanning, dependency CVE audit
+- Infrastructure audit and penetration testing automation
+- Security posture reports with critical finding escalation
+- Integrated with NATS for real-time security event streaming
+
+### 📄 Document Intelligence
+- OCR pipeline with entity extraction and automatic summarisation
+- PII detection and redaction across document batches
+- Multi-format support: PDF, images, scanned documents
+- NATS-driven async processing with batch status tracking
+
+### 📈 Marketing Intelligence
+- Competitive signal monitoring and threat matrix generation
+- Brand voice analysis and content scoring
+- Campaign management with ROI analytics and coaching debriefs
+- Automated report generation and strategic recommendations
+
+### �🔒 Production Security
 - TLS 1.2+ enforced end-to-end
 - Auth lockout, token expiry, session invalidation on password change
 - TOTP required for admin accounts
@@ -260,9 +300,13 @@ Sven ships **20 messaging platform adapters** out of the box:
 ║ (LLM +   ║ (gVisor) ║ (OS +    ║                                  ║
 ║  tools)  ║          ║  pgvec)  ║                                  ║
 ╠══════════╩══════════╩══════════╩══════════════════════════════════╣
+║  Compute Mesh  │  Model Router  │  Security Toolkit               ║
+║  Document Intel │  Marketing Intel │  Proactive Notifier           ║
+║  Quantum Sim   │  Notification Service │  Registry Worker          ║
+╠═══════════════════════════════════════════════════════════════════╣
 ║  PostgreSQL  │  NATS JetStream  │  OpenSearch  │  LiteLLM         ║
 ║  SearXNG     │  Keycloak SSO    │  Faster-Whisper STT             ║
-║  Piper TTS   │  Wake-Word       │  Notification Service           ║
+║  Piper TTS   │  Wake-Word       │  Egress Proxy                   ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║                   Messaging Adapters (20)                         ║
 ║  Slack · Teams · Telegram · Discord · WhatsApp · Signal           ║
@@ -291,6 +335,13 @@ thesven/
 │   ├── rag-git-ingestor/          # Git repo ingestion
 │   ├── rag-nas-ingestor/          # NAS / filesystem ingestion
 │   ├── rag-notes-ingestor/        # Notes app connectors
+│   ├── compute-mesh/              # Distributed workload orchestration (device fleet, job scheduling)
+│   ├── model-router/              # LLM inference routing, fleet health, benchmarks, VRAM management
+│   ├── security-toolkit/          # SAST, secret scanning, dependency audit, infra audit, pen-test
+│   ├── document-intel/            # OCR, entity extraction, summarisation, PII detection pipeline
+│   ├── marketing-intel/           # Competitive intelligence, brand voice, content, campaign analytics
+│   ├── proactive-notifier/        # Autonomous notification engine (triggers, quiet hours, rate limiting)
+│   ├── quantum-sim/               # Quantum circuit simulation, algorithms (QAOA, Grover), job management
 │   ├── litellm/                   # LLM provider proxy
 │   ├── searxng/                   # Self-hosted private search
 │   ├── egress-proxy/              # Outbound allowlist proxy
@@ -301,6 +352,16 @@ thesven/
 │   ├── sven-mirror-agent/         # Edge agent (Raspberry Pi / kiosk)
 │   └── adapter-*/                 # 20 messaging adapters
 ├── packages/                      # Shared TypeScript packages
+│   ├── shared/                    # Common utilities, types, NATS subjects, logger
+│   ├── compute-mesh/              # Distributed compute mesh library
+│   ├── model-router/              # Model routing & fleet management library
+│   ├── security-toolkit/          # Security scanning & audit library
+│   ├── document-intel/            # Document processing & OCR library
+│   ├── marketing-intel/           # Marketing intelligence & analytics library
+│   ├── proactive-notifier/        # Proactive notification engine library
+│   ├── quantum-sim/               # Quantum gates, simulator, algorithms, hardware backends
+│   ├── design-system/             # UI component library (React)
+│   └── cli/                       # Command-line interface tool
 ├── skills/                        # Built-in skills (SKILL.md standard)
 ├── tests/                         # E2E + load tests
 ├── deploy/                        # Kubernetes, Helm, Compose configs
