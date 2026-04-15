@@ -32,7 +32,6 @@
     "@sven/quantum-sim": "file:../../packages/quantum-sim",
     "@sven/security-toolkit": "file:../../packages/security-toolkit",
     "@sven/shared": "file:../../packages/shared",
-    "@sven/trading-platform": "file:../../packages/trading-platform",
     "bcrypt": "^6.0.0",
     "fastify": "^5.7.4",
     "multicast-dns": "^7.2.5",

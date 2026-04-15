@@ -34,6 +34,8 @@ import {
     type TimelineItem,
 } from './api';
 import { useSSE } from './useSSE';
+import { emit } from '@tauri-apps/api/event';
+import { playTaskComplete, playError, playNotification } from './sounds';
 import type { NavTab } from '../components/Sidebar';
 
 const MAX_LOG_LINES = 50;
@@ -168,6 +170,18 @@ export function useDesktopApp(): DesktopAppState {
                 }
                 return prev;
             });
+        }, []),
+        onAgentState: useCallback((ev: { state: string; message?: string; task?: string }) => {
+            // Forward agent state to overlay window via Tauri event system
+            emit('agent-state-update', { state: ev.state, message: ev.message ?? ev.task ?? '' })
+                .catch(() => undefined);
+            // D.4.1/D.4.2 — Play sounds on state transitions
+            const s = (ev.state || '').toLowerCase();
+            if (s.includes('complete') || s.includes('success') || s.includes('done')) {
+                playTaskComplete();
+            } else if (s.includes('error') || s.includes('fail')) {
+                playError();
+            }
         }, []),
         onLog: pushLog,
     });

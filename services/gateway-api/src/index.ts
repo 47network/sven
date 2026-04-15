@@ -52,7 +52,6 @@ import { registerModelRouterRoutes } from './routes/model-router.js';
 import { registerDocumentRoutes } from './routes/documents.js';
 import { registerQuantumRoutes } from './routes/quantum.js';
 import { registerSecurityToolkitRoutes } from './routes/security-toolkit.js';
-import { registerTradingRoutes } from './routes/trading.js';
 import { registerMarketingRoutes } from './routes/marketing.js';
 import { registerComputeMeshRoutes } from './routes/compute-mesh.js';
 import { TailscaleService } from './services/TailscaleService.js';
@@ -412,7 +411,6 @@ async function main() {
     const acceptsEventStream = String(request.headers.accept || '').toLowerCase().includes('text/event-stream');
     const isSseRoute =
       rawUrl.endsWith('/v1/admin/events') ||
-      rawUrl.endsWith('/v1/trading/events') ||
       rawUrl.endsWith('/v1/stream') ||
       rawUrl.endsWith('/a2ui/stream') ||
       rawUrl.endsWith('/v1/entity/stream') ||
@@ -795,7 +793,6 @@ async function main() {
   await registerDocumentRoutes(app, pool);
   await registerQuantumRoutes(app, pool);
   await registerSecurityToolkitRoutes(app, pool);
-  await registerTradingRoutes(app, pool);
   await registerMarketingRoutes(app, pool);
   await registerComputeMeshRoutes(app, pool);
 

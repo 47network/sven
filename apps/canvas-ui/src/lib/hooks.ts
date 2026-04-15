@@ -7,6 +7,9 @@ import {
   type ArtifactRecord,
   type ChatDetails,
   type ChatSummary,
+  type CouncilConfig,
+  type CouncilSession,
+  type MemoryRecord,
   type MessageRecord,
   type RegistryCatalogEntry,
   type RegistryInstalledEntry,
@@ -17,6 +20,7 @@ import {
   type SearchResponse,
   type ToolRunRecord,
   type UserMeRecord,
+  type VideoJob,
 } from './api';
 
 // ── Me ──
@@ -366,5 +370,131 @@ export function useSearch(
     ],
     queryFn: async () => (await api.search.query(query, chatId, paging)).data,
     enabled: query.length > 1,
+  });
+}
+
+// ── Council ──
+export function useCouncilConfig() {
+  return useQuery<CouncilConfig>({
+    queryKey: ['council-config'],
+    queryFn: async () => (await api.council.getConfig()).config,
+    staleTime: 30_000,
+  });
+}
+
+export function useUpdateCouncilConfig() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (config: Partial<CouncilConfig>) => api.council.updateConfig(config),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['council-config'] }); },
+  });
+}
+
+export function useCouncilDeliberate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ query, models, strategy }: { query: string; models?: string[]; strategy?: string }) =>
+      api.council.deliberate(query, { models, strategy }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['council-sessions'] }); },
+  });
+}
+
+export function useCouncilSessions(limit = 20) {
+  return useQuery<{ sessions: CouncilSession[]; total: number }>({
+    queryKey: ['council-sessions', limit],
+    queryFn: () => api.council.sessions({ limit }),
+    refetchInterval: 10_000,
+  });
+}
+
+export function useCouncilSession(id: string) {
+  return useQuery<CouncilSession>({
+    queryKey: ['council-sessions', id],
+    queryFn: () => api.council.session(id),
+    enabled: !!id,
+    refetchInterval: (query) => {
+      const data = query.state.data as CouncilSession | undefined;
+      return data?.status === 'completed' || data?.status === 'failed' ? false : 3_000;
+    },
+  });
+}
+
+// ── Memory ──
+export function useMemories(params?: { scope?: string; chat_id?: string }) {
+  return useQuery<{ rows: MemoryRecord[]; total: number }>({
+    queryKey: ['memories', params?.scope ?? 'all', params?.chat_id ?? 'all'],
+    queryFn: async () => (await api.memory.list(params)).data,
+    staleTime: 15_000,
+  });
+}
+
+export function useMemorySearch(query: string, chatId?: string) {
+  return useQuery<{ rows: MemoryRecord[] }>({
+    queryKey: ['memory-search', query, chatId],
+    queryFn: async () => (await api.memory.search(query, { chat_id: chatId, limit: 10 })).data,
+    enabled: query.length > 2,
+  });
+}
+
+export function useCreateMemory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { key: string; value: string; scope?: string; visibility?: string; importance?: number; chat_id?: string }) =>
+      api.memory.create(data),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['memories'] }); },
+  });
+}
+
+export function useDeleteMemory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.memory.remove(id),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['memories'] }); },
+  });
+}
+
+export function useMemoryStats() {
+  return useQuery({
+    queryKey: ['memory-stats'],
+    queryFn: async () => (await api.memory.stats()).data,
+    staleTime: 60_000,
+  });
+}
+
+// ── Video ──
+export function useCreateVideoJob() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { title?: string; description?: string; template?: string; spec?: Record<string, unknown> }) =>
+      api.video.createJob(data),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['video-jobs'] }); },
+  });
+}
+
+export function useVideoJobs(limit = 10) {
+  return useQuery<{ jobs: VideoJob[]; total: number }>({
+    queryKey: ['video-jobs', limit],
+    queryFn: () => api.video.jobs({ limit }),
+    refetchInterval: 10_000,
+  });
+}
+
+export function useVideoJob(id: string) {
+  return useQuery<VideoJob>({
+    queryKey: ['video-jobs', id],
+    queryFn: () => api.video.job(id),
+    enabled: !!id,
+    refetchInterval: (query) => {
+      const data = query.state.data as VideoJob | undefined;
+      return data?.status === 'completed' || data?.status === 'failed' || data?.status === 'cancelled' ? false : 5_000;
+    },
+  });
+}
+
+export function useCancelVideoJob() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.video.cancel(id),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['video-jobs'] }); },
   });
 }

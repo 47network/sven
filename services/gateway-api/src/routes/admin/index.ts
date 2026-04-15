@@ -65,7 +65,9 @@ import { registerGemma4Routes } from './gemma4.js';
 import { registerPipelineRoutes } from './pipeline.js';
 import { registerAnalyticsOverviewRoutes } from './analytics-overview.js';
 import { registerProactiveNotificationRoutes } from './proactive-notifications.js';
-import { registerTradingDashboardRoutes } from './trading.js';
+import { registerCouncilRoutes } from './council.js';
+import { registerRevenueRoutes } from './revenue.js';
+import { registerInfraRoutes } from './infra.js';
 
 export async function registerAdminRoutes(
   app: FastifyInstance,
@@ -370,7 +372,9 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerPipelineRoutes(scopedApp));
       await mountAdminRoutes((scopedApp) => registerAnalyticsOverviewRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerProactiveNotificationRoutes(scopedApp, pool, nc));
-      await mountAdminRoutes((scopedApp) => registerTradingDashboardRoutes(scopedApp, pool));
+      await mountAdminRoutes(async (scopedApp) => { registerCouncilRoutes(scopedApp, pool); });
+      await mountAdminRoutes(async (scopedApp) => { registerRevenueRoutes(scopedApp, pool); });
+      await mountAdminRoutes(async (scopedApp) => { registerInfraRoutes(scopedApp, pool); });
     },
     { prefix: '/v1/admin' },
   );

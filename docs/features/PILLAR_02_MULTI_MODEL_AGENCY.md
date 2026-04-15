@@ -28,12 +28,11 @@ Sven breaks free from single-model dependency. He routes inference across multip
 | Qwen 3.5 | Various | Multilingual, coding, vision | VM5 |
 | MIMO V2 Pro | TBD | Xiaomi's multimodal (vision + text) | VM5 |
 | GLM-OCR | 0.9B | Document OCR (see Pillar 3) | VM5 or edge |
-| Kronos | TBD | Financial time-series (see Pillar 6) | VM5 |
 | Local small models | 1-7B | Fast responses, device-side inference | Edge devices |
 
 **Capabilities**:
 - [ ] Model registry (name, size, quantization, VRAM requirement, supported tasks)
-- [ ] Task classification (reasoning, coding, vision, OCR, translation, summarization, financial)
+- [ ] Task classification (reasoning, coding, vision, OCR, translation, summarization)
 - [ ] Routing logic (match task → best available model by quality/latency/cost)
 - [ ] Failover (if primary model OOM or slow, fall back to secondary)
 - [ ] Load balancing across GPU instances (VM5, VM13, edge devices)
@@ -158,7 +157,6 @@ Sven breaks free from single-model dependency. He routes inference across multip
 - **Skill Runner**: Route tool calls through model-router for optimal model selection
 - **Agent Runtime**: Agency system extends existing agent loop
 - **Gateway API**: Expose model status and agent dashboard to admin
-- **Trading Engine** (Pillar 6): Financial models routed through model-router
 - **Distributed Compute** (Pillar 8): Edge inference coordinated via model-router
 
 ---

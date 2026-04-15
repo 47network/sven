@@ -112,64 +112,7 @@
 
 ---
 
-## Phase C — Trading Platform (Weeks 11-20)
-
-### Pillar 6: Trading Platform & Financial AI
-> Spec: [PILLAR_06_TRADING_PLATFORM.md](PILLAR_06_TRADING_PLATFORM.md)
-
-#### Phase 6A — Data Foundation (Weeks 11-12)
-- [ ] TimescaleDB hypertables on VM6
-- [ ] Market data ingest service with Binance + CoinGecko connectors
-- [ ] Data normalization and NATS broadcasting
-- [ ] Continuous aggregates: 1m → 5m, 15m, 1h, 4h, 1d
-- [ ] Data quality monitoring and gap detection
-- [ ] Retention policy: hot → warm → cold tiering
-
-#### Phase 6B — Prediction Layer (Weeks 13-14)
-- [ ] Kronos model downloaded and integrated
-- [ ] Binary Spherical Quantization tokenizer
-- [ ] Prediction pipeline: ingest → tokenize → predict → decode
-- [ ] Multi-horizon predictions: 1h, 4h, 1d
-- [ ] Prediction accuracy tracking
-- [ ] MiroFish simulation engine: agent factory, orderbook sim
-
-#### Phase 6C — Trading Engine (Weeks 15-16)
-- [ ] Trading engine service with strategy framework
-- [ ] Order Management System (paper trading)
-- [ ] Risk management module with circuit breakers
-- [ ] Position sizing: fixed fractional, Kelly, volatility-based
-- [ ] Decision logging with full context
-- [ ] Sven autonomous trading loop (60s cycle)
-
-#### Phase 6D — News Intelligence (Weeks 16-17)
-- [ ] News intelligence service
-- [ ] News source integration: NewsAPI, Finnhub, CryptoPanic
-- [ ] NLP pipeline: dedup → entities → sentiment → impact
-- [ ] Sven LLM analysis for high-impact events
-- [ ] News signals connected to trading engine
-
-#### Phase 6E — Trading UI (Weeks 17-19)
-- [ ] React SPA at trading.sven.systems
-- [ ] Dashboard: portfolio, P&L, positions
-- [ ] TradingView lightweight-charts integration
-- [ ] Predictions page with accuracy history
-- [ ] News feed with impact scoring
-- [ ] Strategy management page
-- [ ] Real-time WebSocket data flow
-- [ ] Demo mode for external users
-
-#### Phase 6F — Advanced (Weeks 19-20)
-- [ ] MiroFish simulation complete
-- [ ] Tool Builder: Sven self-creates analysis tools
-- [ ] Backtesting engine with walk-forward optimization
-- [ ] Monte Carlo simulation for stress testing
-- [ ] Agent swarm: 8 specialized financial agents
-- [ ] Internal currency system (47Token)
-- [ ] Portfolio reviewer agent
-
----
-
-## Phase D — Frontier (Weeks 21+)
+## Phase C — Frontier (Weeks 11+)
 
 ### Pillar 4: Quantum Computing Exploration
 > Spec: [PILLAR_04_QUANTUM_EXPLORATION.md](PILLAR_04_QUANTUM_EXPLORATION.md)
@@ -181,76 +124,45 @@
 - [ ] Quantum-ready encryption assessment for Sven infrastructure
 - [ ] Educational mode: Sven explains quantum concepts
 - [ ] Hardware gateway: connect to IBM/IonQ/Origin when available
-- [ ] Quantum-inspired optimization for trading strategies
+- [ ] Quantum-inspired optimization for scheduling and routing
 - [ ] Documentation: quantum computing primer for the team
 
 ---
 
 ## Cross-Pillar Integration
 
-### Prediction → Trading
-- [ ] Kronos predictions feed directly into trading signal aggregation
-- [ ] MiroFish simulation consensus feeds into trading decisions
-- [ ] News intelligence impact scores trigger trading signals
-
 ### Security → Self-Healing
 - [ ] Vulnerability scanner findings feed into auto-remediation
 - [ ] Security scan results tracked in self-healing audit trail
 - [ ] Auto-fix pipeline for known vulnerability patterns
-
-### Distributed Compute → Trading
-- [ ] Backtesting distributed across compute mesh
-- [ ] MiroFish simulations distributed across GPU devices
-- [ ] Batch prediction processing distributed
-
-### Marketing → Trading
-- [ ] Trading performance data generates marketing content
-- [ ] Competitive intel on trading platforms feeds strategy
 
 ### Multi-Model → All Pillars
 - [ ] Model router serves all pillar LLM needs
 - [ ] Local inference preferred, cloud fallback
 - [ ] Task classification routes to best model per pillar
 
-### OCR → Trading + Marketing
-- [ ] Financial document processing for trading research
+### OCR → Marketing
 - [ ] Marketing collateral analysis through OCR
 
 ---
 
 ## Infrastructure Checklist
 
-### DNS
-- [ ] trading.sven.systems → VM4/VM-TRADE
-- [ ] TLS certificate for trading.sven.systems
-
 ### New Services
-- [ ] trading-engine (VM4)
-- [ ] trading-gateway (VM4)
-- [ ] market-data-ingest (VM4)
-- [ ] prediction-engine (VM5)
-- [ ] news-intelligence (VM4)
 - [ ] compute-mesh coordinator (VM4)
 - [ ] Worker containers on VM4-VM13
 
-### Database Extensions
-- [ ] TimescaleDB extension on VM6
-- [ ] All hypertables created (market data, predictions, orders, etc.)
-- [ ] Backup and retention policies configured
-
 ### Docker Compose
-- [ ] docker-compose.trading.yml
 - [ ] docker-compose.mesh.yml
 - [ ] Integrated into main compose profiles
 
 ### Monitoring
 - [ ] Prometheus targets for all new services
-- [ ] Grafana dashboards: trading, mesh, predictions, security
-- [ ] Alert rules: data gaps, prediction failures, risk breaches
+- [ ] Grafana dashboards: mesh, security
+- [ ] Alert rules: prediction failures, risk breaches
 - [ ] Health endpoints on all new services
 
 ### Models & ML
-- [ ] Kronos weights downloaded to VM5
 - [ ] GLM-OCR weights downloaded to VM5
 - [ ] Gemma 4 compact variants pushed to mobile devices
 - [ ] ONNX runtime configured for desktop inference
@@ -260,14 +172,12 @@
 
 ## Security & Compliance Checklist
 
-- [ ] Exchange API keys encrypted at rest (AES-256)
 - [ ] No secrets in code, config, or logs
 - [ ] All new endpoints rate-limited
 - [ ] JWT authentication on all WebSocket connections
-- [ ] Admin-gated approval for real exchange connections
 - [ ] Work unit encryption for distributed compute
 - [ ] Device authentication tokens for mesh workers
-- [ ] PII handling: none in trading logs, mesh payloads, or marketing scrapes
+- [ ] PII handling: none in mesh payloads or marketing scrapes
 - [ ] GDPR: competitive intel scraping respects robots.txt and public data only
 - [ ] Audit trail: all privileged actions logged
 - [ ] TLS on all new connections
@@ -276,16 +186,11 @@
 
 ## Testing Checklist
 
-- [ ] Unit tests for all new skills (marketing, trading, security, OCR)
-- [ ] Integration tests: data pipeline → prediction → trading signal
-- [ ] Integration tests: news → impact scoring → trading signal
+- [ ] Unit tests for all new skills (marketing, security, OCR)
 - [ ] Integration tests: mesh coordinator → worker → result aggregation
-- [ ] E2E tests: trading loop (paper trading) executes full cycle
 - [ ] E2E tests: competitive intel scan produces report
-- [ ] Load tests: data pipeline handles 50+ symbols at 1s resolution
 - [ ] Load tests: mesh handles 1000+ work units concurrently
 - [ ] Security tests: SAST/DAST on all new services
-- [ ] Backtest validation: strategy backtests produce consistent results
 
 ---
 
@@ -297,7 +202,6 @@
 - [ ] PILLAR_03_OCR_DOCUMENT_INTELLIGENCE.md — complete
 - [ ] PILLAR_04_QUANTUM_EXPLORATION.md — complete
 - [ ] PILLAR_05_SECURITY_DEFENSE.md — complete
-- [ ] PILLAR_06_TRADING_PLATFORM.md — complete
 - [ ] PILLAR_07_MARKETING_INTELLIGENCE.md — complete
 - [ ] PILLAR_08_DISTRIBUTED_COMPUTE.md — complete
 - [ ] EXPANSION_MASTER_CHECKLIST.md — complete

@@ -1,0 +1,65 @@
+# ─────────────────────────────────────────────────────────────────────
+# docker-compose.vm14-website.yml
+#
+# VM14 (daedalus, 10.47.47.14) — Static websites for the47network.com
+# and plate.the47network.com, served via nginx.
+#
+# Usage:
+#   cp deploy/multi-vm/.env.vm14.example deploy/multi-vm/.env.vm14
+#   # Edit .env.vm14 with production values
+#   docker compose -f deploy/multi-vm/docker-compose.vm14-website.yml \
+#     --env-file deploy/multi-vm/.env.vm14 up -d
+# ─────────────────────────────────────────────────────────────────────
+
+services:
+  # ── Main website: the47network.com (port 80) ──
+  the47network-web:
+    image: nginx:stable-alpine
+    container_name: the47network-web
+    restart: unless-stopped
+    ports:
+      - "${VM14_INTERNAL_IP:-10.47.47.14}:80:80"
+    volumes:
+      - ${THE47NETWORK_WEBROOT:-/var/www/the47network.com}:/usr/share/nginx/html:ro
+      - ../../deploy/47network-website/nginx-daedalus.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - vm14-net
+
+  # ── Plate website: plate.the47network.com (port 8080) ──
+  plate-web:
+    image: nginx:stable-alpine
+    container_name: plate-web
+    restart: unless-stopped
+    ports:
+      - "${VM14_INTERNAL_IP:-10.47.47.14}:8080:8080"
+    volumes:
+      - ${PLATE_WEBROOT:-/var/www/plate.the47network.com}:/usr/share/nginx/html:ro
+      - ../../deploy/47network-website/nginx-plate.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - vm14-net
+
+networks:
+  vm14-net:
+    driver: bridge

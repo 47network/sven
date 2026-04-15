@@ -39,12 +39,6 @@ abstract class SvenNotificationChannels {
   static const String remindersName = 'Reminders';
   static const String remindersDesc =
       'Scheduled reminders and suggestions from Sven';
-
-  /// Trading alerts — trade executions, market insights, circuit breaker trips.
-  static const String trading = 'sven_trading';
-  static const String tradingName = 'Trading Alerts';
-  static const String tradingDesc =
-      'Trade executions, market insights, and trading alerts from Sven';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -106,17 +100,14 @@ class PushNotificationManager {
   static const _groupKeyMessages = 'com.sven.messages';
   static const _groupKeyApprovals = 'com.sven.approvals';
   static const _groupKeyReminders = 'com.sven.reminders';
-  static const _groupKeyTrading = 'com.sven.trading';
 
   /// Fixed notification IDs used for the group summary notifications (one per channel).
   static const _summaryIdMessages = 90001;
   static const _summaryIdApprovals = 90002;
   static const _summaryIdReminders = 90003;
-  static const _summaryIdTrading = 90004;
   final List<String> _recentMessageLines = [];
   final List<String> _recentApprovalLines = [];
   final List<String> _recentReminderLines = [];
-  final List<String> _recentTradingLines = [];
 
   /// Callback to navigate to a specific chat. Set by the app shell.
   void Function(String chatId)? onNavigateToChat;
@@ -307,17 +298,6 @@ class PushNotificationManager {
         description: SvenNotificationChannels.remindersDesc,
         importance: Importance.defaultImportance,
         enableVibration: false,
-        playSound: true,
-      ),
-    );
-
-    await androidPlugin.createNotificationChannel(
-      const AndroidNotificationChannel(
-        SvenNotificationChannels.trading,
-        SvenNotificationChannels.tradingName,
-        description: SvenNotificationChannels.tradingDesc,
-        importance: Importance.high,
-        enableVibration: true,
         playSound: true,
       ),
     );
@@ -563,10 +543,6 @@ class PushNotificationManager {
       groupKey = _groupKeyReminders;
       lines = _recentReminderLines;
       summaryId = _summaryIdReminders;
-    } else if (channel == SvenNotificationChannels.trading) {
-      groupKey = _groupKeyTrading;
-      lines = _recentTradingLines;
-      summaryId = _summaryIdTrading;
     } else {
       groupKey = _groupKeyMessages;
       lines = _recentMessageLines;
@@ -604,9 +580,7 @@ class PushNotificationManager {
           ? 'Approvals'
           : channel == SvenNotificationChannels.reminders
               ? 'Reminders'
-              : channel == SvenNotificationChannels.trading
-                  ? 'Trading'
-                  : 'Messages',
+              : 'Messages',
       htmlFormatSummaryText: false,
     );
 
@@ -622,9 +596,7 @@ class PushNotificationManager {
               ? SvenNotificationChannels.approvalsName
               : channel == SvenNotificationChannels.reminders
                   ? SvenNotificationChannels.remindersName
-                  : channel == SvenNotificationChannels.trading
-                      ? SvenNotificationChannels.tradingName
-                      : SvenNotificationChannels.messagesName,
+                  : SvenNotificationChannels.messagesName,
           importance: _effectiveSoundProfile == 'subtle'
               ? Importance.defaultImportance
               : Importance.high,

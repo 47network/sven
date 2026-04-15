@@ -21,11 +21,28 @@ const REFRESH_TOKEN_COOKIE = 'sven_refresh';
 const ACCESS_TOKEN_MAX_AGE = 7 * 24 * 60 * 60; // 7 days (seconds)
 const REFRESH_TOKEN_MAX_AGE = 90 * 24 * 60 * 60; // 90 days (seconds)
 
-function authCookieOptions(maxAge: number) {
+function isRequestSecure(request?: { headers?: Record<string, string | string[] | undefined> }): boolean {
+  // Explicit override for non-standard setups (e.g. HTTP-only staging behind VPN)
+  const override = String(process.env.AUTH_COOKIE_SECURE ?? '').trim().toLowerCase();
+  if (override === 'true' || override === '1') return true;
+  if (override === 'false' || override === '0') return false;
+
+  // Respect X-Forwarded-Proto set by reverse proxy (nginx, caddy, traefik)
+  if (request?.headers) {
+    const proto = String(request.headers['x-forwarded-proto'] ?? '').split(',')[0].trim().toLowerCase();
+    if (proto === 'https') return true;
+    if (proto === 'http') return false;
+  }
+
+  // Fallback: secure in production
+  return process.env.NODE_ENV === 'production';
+}
+
+function authCookieOptions(maxAge: number, request?: { headers?: Record<string, string | string[] | undefined> }) {
   return {
     path: '/',
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isRequestSecure(request),
     sameSite: 'strict' as const,
     maxAge,
   };
@@ -1064,9 +1081,10 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     groups: string[];
     attributes?: Record<string, unknown>;
     reply: any;
+    request: any;
     config: AuthSsoConfig;
   }) => {
-    const { accountId, provider, subject, email, displayName, username, groups, attributes, reply, config } = params;
+    const { accountId, provider, subject, email, displayName, username, groups, attributes, reply, request, config } = params;
     const normalizedSubject = subject.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 64) || 'subject';
     const requestedUsername = String(username || `sso_${provider}_${normalizedSubject}`)
       .toLowerCase()
@@ -1174,8 +1192,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       throw err;
     });
 
-    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
-    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE));
+    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
 
     return {
       userId,
@@ -1398,6 +1416,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       groups,
       attributes: idTokenClaims,
       reply,
+      request,
       config,
     });
 
@@ -1497,6 +1516,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       groups,
       attributes: { mode: 'mock' },
       reply,
+      request,
       config,
     });
 
@@ -1810,6 +1830,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       groups,
       attributes: claims,
       reply,
+      request,
       config,
     });
 
@@ -1976,6 +1997,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
         ...parsed.attributes,
       },
       reply,
+      request,
       config,
     });
 
@@ -2060,8 +2082,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     // Issue a fresh session pair so the caller remains authenticated.
     const newSessionId = await createAccessSession(pool, request.userId);
     const newRefreshToken = await createRefreshSession(pool, request.userId);
-    reply.setCookie(SESSION_COOKIE, newSessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
-    reply.setCookie(REFRESH_TOKEN_COOKIE, newRefreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE));
+    reply.setCookie(SESSION_COOKIE, newSessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+    reply.setCookie(REFRESH_TOKEN_COOKIE, newRefreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
 
     reply.send({
       success: true,
@@ -2312,8 +2334,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
 
     const sessionId = await createAccessSession(pool, user.userId);
     const refreshToken = await createRefreshSession(pool, user.userId);
-    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
-    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE));
+    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
     logger.info('Tailscale bootstrap session issued', { user_id: user.userId, username: user.username });
     return reply.redirect(redirectPath);
   });
@@ -2432,8 +2454,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     const sessionId = await createAccessSession(pool, user.id);
     const refreshToken = await createRefreshSession(pool, user.id);
 
-    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
-    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE));
+    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
 
     logger.info('User logged in', { user_id: user.id, username: user.username });
     reply.send({
@@ -2513,8 +2535,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     );
     const refreshToken = await createRefreshSession(pool, session.user_id);
 
-    reply.setCookie(SESSION_COOKIE, pre_session_id, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
-    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE));
+    reply.setCookie(SESSION_COOKIE, pre_session_id, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
 
     logger.info('TOTP verified, session active', { user_id: session.user_id });
     reply.send({
@@ -2691,8 +2713,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     await rotateSsoSessionLinksOnRefresh(pool, sessionId, refreshedSessionId, refreshedRefreshToken);
 
     if (cookieRefreshToken) {
-      reply.setCookie(SESSION_COOKIE, refreshedSessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
-      reply.setCookie(REFRESH_TOKEN_COOKIE, refreshedRefreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE));
+      reply.setCookie(SESSION_COOKIE, refreshedSessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+      reply.setCookie(REFRESH_TOKEN_COOKIE, refreshedRefreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
     }
 
     reply.send({
@@ -3217,8 +3239,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       const sessionId = await createAccessSession(pool, userId);
       const refreshToken = await createRefreshSession(pool, userId);
 
-      reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
-      reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE));
+      reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+      reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
 
       logger.info('Deep-link token exchanged', { user_id: userId });
       reply.redirect(safeRedirectPath);
@@ -3631,7 +3653,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     );
     const user = userRes.rows[0] || {};
 
-    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE));
+    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
     reply.send({
       success: true,
       data: {

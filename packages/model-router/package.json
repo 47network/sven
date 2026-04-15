@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Multi-model inference routing, model registry, benchmarking, agency orchestration, and VRAM budget management for Sven.",
+  "description": "Multi-model inference routing, model registry, benchmarking, agency orchestration, fleet monitoring, and VRAM budget management for Sven.",
   "exports": {
     "./registry": {
       "types": "./src/registry/index.ts",
@@ -24,13 +24,26 @@
       "types": "./src/benchmark/index.ts",
       "import": "./dist/benchmark/index.js",
       "default": "./dist/benchmark/index.js"
+    },
+    "./fleet": {
+      "types": "./src/fleet/index.ts",
+      "import": "./dist/fleet/index.js",
+      "default": "./dist/fleet/index.js"
+    },
+    "./deploy": {
+      "types": "./src/deploy/index.ts",
+      "import": "./dist/deploy/index.js",
+      "default": "./dist/deploy/index.js"
     }
   },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --passWithNoTests",
+    "test:coverage": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --coverage"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.0",
     "typescript": "catalog:"
   }
 }

@@ -28,6 +28,22 @@ import { resolveMetricsBindHost, runtimeMetrics, startMetricsServer } from './me
 import { parseAllowedShortcutServices, parseVoiceShortcut } from './voice-shortcuts.js';
 import { buildSessionStitchingPrompt } from './session-stitching.js';
 import { normalizeToolRunId } from './tool-run-id.js';
+import {
+  allocateTokenBudget,
+  computeImportanceScore,
+  estimateTokens,
+  findDuplicates,
+  formatMemoriesForPrompt,
+  summarizeConversationOffline,
+  type MemoryNode,
+  type CompressionLevel,
+} from './memory-compression.js';
+import {
+  deliberate as councilDeliberate,
+  mergeConfig as mergeCouncilConfig,
+  type LLMCompletionProvider,
+  type CouncilStrategy,
+} from './llm-council.js';
 import { normalizeToolCalls } from './tool-calls.js';
 import { mapApprovalVoteErrorToUserMessage } from './approval-errors.js';
 import { isMissingChatQueueDispatchError } from './queue-dispatch.js';
@@ -520,6 +536,39 @@ async function main() {
 
       await extractLongTermMemories(pool, event.chat_id, context.user_id, event.text || '', memoryExtractor, isMemoryExtractorEnabled());
 
+      // C.3.1 — "Forget this" user memory control
+      const forgetMatch = (event.text || '').match(/\bforget(?: that)?[: ]+(.{3,180})/i);
+      if (forgetMatch) {
+        const forgetQuery = forgetMatch[1].trim().toLowerCase();
+        try {
+          const forgetRes = await pool.query(
+            `UPDATE memories SET archived_at = NOW()
+             WHERE archived_at IS NULL
+               AND (user_id = $1 OR visibility = 'chat_shared')
+               AND (chat_id = $2 OR visibility = 'global')
+               AND LOWER(value) LIKE $3
+             RETURNING id, key`,
+            [context.user_id, event.chat_id, `%${forgetQuery.slice(0, 100)}%`],
+          );
+          if (forgetRes.rowCount && forgetRes.rowCount > 0) {
+            await canvasEmitter.emit({
+              chat_id: event.chat_id,
+              channel: event.channel,
+              text: `Forgot ${forgetRes.rowCount} memory item${forgetRes.rowCount > 1 ? 's' : ''} matching "${forgetQuery.slice(0, 60)}".`,
+            });
+            logger.info('User requested memory forget', {
+              chat_id: event.chat_id,
+              user_id: context.user_id,
+              memoriesArchived: forgetRes.rowCount,
+            });
+            msg.ack();
+            continue;
+          }
+        } catch (err) {
+          logger.warn('Forget memory command failed', { err: String(err) });
+        }
+      }
+
       if (buddyEnabled && isImproveYourselfRequest(event.text || '')) {
         const improvementId = await createImprovementItem(pool, {
           title: 'Improve yourself',
@@ -543,6 +592,13 @@ async function main() {
       }
 
       let systemPrompt = context.systemPrompt;
+
+      // C.2.2 — Inject persistent memories as system context [MEMORIES] section
+      const memoryPrimingPrompt = formatMemoriesForPrompt(context.memoryNodes || []);
+      if (memoryPrimingPrompt) {
+        systemPrompt = `${systemPrompt}\n\n${memoryPrimingPrompt}`;
+      }
+
       const delayedRecallPrompt = await maybeBuildDelayedRecallPrompt(
         pool,
         event.chat_id,
@@ -728,19 +784,105 @@ async function main() {
         }
       }
 
-      // 5. Route to LLM
+      // 5. Route to LLM (or council deliberation)
       msg.working(); // extend NATS ack deadline — LLM calls can take 30-120s+
+
+      // A.2.1 — Council mode: detect /council command or agent council_mode flag
+      const councilCommandMatch = (event.text || '').match(/^\/council\s+(.+)/is);
+      const councilEnabled = councilCommandMatch || agentConfig?.council_mode === true
+        || context.sessionSettings.council_mode === true;
+      const councilQuery = councilCommandMatch ? councilCommandMatch[1].trim() : (event.text || '');
+
       const llmStartedAt = Date.now();
-      const llmResponse = await llmRouter.complete({
-        messages: context.messages,
-        systemPrompt,
-        user_id: context.user_id,
-        chat_id: event.chat_id,
-        agent_id: routedAgentId || undefined,
-        model_override: context.sessionSettings.model_name || agentConfig?.model_name || undefined,
-        profile_override: context.sessionSettings.profile_name || agentConfig?.profile_name || undefined,
-        think_level: effectiveThinkLevel || undefined,
-      });
+      let llmResponse: any;
+
+      if (councilEnabled && councilQuery.length >= 3) {
+        // A.2 — Council deliberation path
+        const councilProvider: LLMCompletionProvider = {
+          async complete(params) {
+            const msgs = params.messages.map((m) => ({
+              role: m.role,
+              text: m.content,
+              content_type: 'text',
+            }));
+            const resp = await llmRouter.complete({
+              messages: msgs,
+              systemPrompt: params.messages.find((m) => m.role === 'system')?.content || '',
+              user_id: context.user_id,
+              chat_id: event.chat_id,
+              model_override: params.model,
+              think_level: undefined,
+            });
+            return {
+              text: resp.text,
+              tokensUsed: {
+                prompt: Number(resp.tokens_used?.prompt || 0),
+                completion: Number(resp.tokens_used?.completion || 0),
+              },
+            };
+          },
+        };
+
+        const councilConfig = mergeCouncilConfig({
+          models: agentConfig?.council_models || undefined,
+          chairman: agentConfig?.council_chairman || undefined,
+          strategy: (agentConfig?.council_strategy as CouncilStrategy) || undefined,
+          rounds: agentConfig?.council_rounds || undefined,
+        });
+
+        logger.info('Council deliberation invoked', {
+          chat_id: event.chat_id,
+          user_id: context.user_id,
+          models: councilConfig.models,
+          strategy: councilConfig.strategy,
+          viaCommand: Boolean(councilCommandMatch),
+          correlation_id: correlationId,
+        });
+
+        const councilResult = await councilDeliberate(councilProvider, {
+          query: councilQuery,
+          systemPrompt,
+          config: councilConfig,
+        });
+
+        // Map council result to standard llmResponse shape
+        llmResponse = {
+          text: councilResult.synthesis,
+          blocks: [],
+          tool_calls: [],
+          citations: [],
+          provider_used: 'council',
+          model_used: `council:${councilConfig.chairman}`,
+          tokens_used: {
+            prompt: councilResult.totalTokens.prompt,
+            completion: councilResult.totalTokens.completion,
+          },
+          council_metadata: {
+            sessionId: councilResult.sessionId,
+            opinions: councilResult.opinions.map((o) => ({
+              model: o.model,
+              score: o.score,
+              responsePreview: o.response.slice(0, 200),
+            })),
+            modelCount: councilResult.modelCount,
+            strategy: councilResult.strategy,
+            totalCost: councilResult.totalCost,
+            elapsedMs: councilResult.elapsedMs,
+          },
+        };
+      } else {
+        // Standard single-model path
+        llmResponse = await llmRouter.complete({
+          messages: context.messages,
+          systemPrompt,
+          user_id: context.user_id,
+          chat_id: event.chat_id,
+          agent_id: routedAgentId || undefined,
+          model_override: context.sessionSettings.model_name || agentConfig?.model_name || undefined,
+          profile_override: context.sessionSettings.profile_name || agentConfig?.profile_name || undefined,
+          think_level: effectiveThinkLevel || undefined,
+        });
+      }
       runtimeMetrics.observeLlm(
         Date.now() - llmStartedAt,
         Number(llmResponse.tokens_used?.prompt || 0),
@@ -1583,15 +1725,50 @@ async function loadContext(pool: pg.Pool, chatId: string, senderIdentityId: stri
     systemPrompt = stripAdminOnlySections(systemPrompt);
   }
 
-  // Get relevant memories
+  // Get relevant memories — importance-weighted retrieval with access tracking (C.2.1)
   const memoriesRes = await pool.query(
-    `SELECT key, value FROM memories
+    `SELECT id, key, value, importance, access_count, compression_level,
+            last_accessed_at, created_at
+     FROM memories
      WHERE (visibility = 'global')
         OR (visibility = 'chat_shared' AND chat_id = $1)
         OR (visibility = 'user_private' AND user_id = $2)
-     ORDER BY updated_at DESC LIMIT 20`,
+     ORDER BY importance DESC, updated_at DESC LIMIT 40`,
     [chatId, userId],
   );
+
+  // Convert to MemoryNode for token budget allocation (C.1.4)
+  const memoryNodes: MemoryNode[] = memoriesRes.rows.map((r: any) => ({
+    id: r.id,
+    key: r.key || '',
+    value: r.value || '',
+    importance: Number(r.importance) || 0.5,
+    accessCount: Number(r.access_count) || 0,
+    compressionLevel: (Number(r.compression_level) || 0) as CompressionLevel,
+    tokenCount: estimateTokens(r.value || ''),
+    lastAccessedAt: r.last_accessed_at || null,
+    createdAt: r.created_at || new Date().toISOString(),
+  }));
+
+  // Allocate within token budget (2048 tokens for memory context)
+  const allocation = allocateTokenBudget(memoryNodes, 2048);
+
+  // Increment access_count for selected memories (C.1.3)
+  if (allocation.selectedMemories.length > 0) {
+    const selectedIds = allocation.selectedMemories.map((m) => m.id);
+    try {
+      await pool.query(
+        `UPDATE memories
+         SET access_count = access_count + 1,
+             last_accessed_at = NOW()
+         WHERE id = ANY($1::text[])`,
+        [selectedIds],
+      );
+    } catch { /* non-critical — skip if column missing pre-migration */ }
+  }
+
+  // Backward-compatible: return key/value pairs for existing consumers
+  const memoriesForLegacy = allocation.selectedMemories.map((m) => ({ key: m.key, value: m.value }));
 
   let sessionSettings: any = {};
   try {
@@ -1645,7 +1822,8 @@ async function loadContext(pool: pg.Pool, chatId: string, senderIdentityId: stri
     user_id: userId,
     messages,
     systemPrompt,
-    memories: memoriesRes.rows,
+    memories: memoriesForLegacy,
+    memoryNodes: allocation.selectedMemories,
     sessionSettings: {
       think_level: sessionSettings.think_level || null,
       verbose: Boolean(sessionSettings.verbose || false),
@@ -2349,11 +2527,19 @@ async function extractLongTermMemories(
   if (candidates.length === 0) return;
 
   for (const item of candidates) {
+    // C.1.3 — Compute initial importance based on source type
+    const isUserBookmarked = item.key.startsWith('memory.note.') || item.key.startsWith('profile.');
+    const initialImportance = computeImportanceScore({
+      accessCount: 0,
+      ageMs: 0,
+      isUserBookmarked,
+      relevance: isUserBookmarked ? 0.9 : 0.6,
+    });
     try {
       await pool.query(
-        `INSERT INTO memories (id, user_id, chat_id, visibility, key, value, source, importance, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, 'auto_extract', 1.15, NOW(), NOW())`,
-        [generateTaskId('memory'), userId || null, chatId || null, item.visibility, item.key, item.value],
+        `INSERT INTO memories (id, user_id, chat_id, visibility, key, value, source, importance, compression_level, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, 'auto_extract', $7, 0, NOW(), NOW())`,
+        [generateTaskId('memory'), userId || null, chatId || null, item.visibility, item.key, item.value, initialImportance],
       );
     } catch (err) {
       logger.warn('Memory extraction insert skipped', { err: String(err), key: item.key });
@@ -3170,6 +3356,46 @@ function startMemoryMaintenance(pool: pg.Pool, extractor: MemoryExtractor, isEna
             remaining: result.remaining,
           });
         }, { type: 'memory-consolidation', parentSessionId: 'maintenance' });
+      }
+
+      // C.1.5 — Semantic deduplication pass
+      try {
+        const allMemRows = await pool.query(
+          `SELECT id, key, value, importance, access_count,
+                  COALESCE(compression_level, 0) AS compression_level,
+                  last_accessed_at, created_at
+           FROM memories
+           ORDER BY importance DESC
+           LIMIT 500`,
+        );
+        const memNodes: MemoryNode[] = allMemRows.rows.map((r: any) => ({
+          id: r.id,
+          key: r.key || '',
+          value: r.value || '',
+          importance: Number(r.importance) || 0.5,
+          accessCount: Number(r.access_count) || 0,
+          compressionLevel: (Number(r.compression_level) || 0) as CompressionLevel,
+          tokenCount: estimateTokens(r.value || ''),
+          lastAccessedAt: r.last_accessed_at || null,
+          createdAt: r.created_at || new Date().toISOString(),
+        }));
+        const dedupResult = findDuplicates(memNodes, 0.7);
+        if (dedupResult.mergedPairs.length > 0) {
+          const removeIds = dedupResult.mergedPairs.map((p) => p.removedId);
+          await pool.query(
+            `UPDATE memories SET archived_at = NOW(), merged_into = k.kept_id
+             FROM (SELECT unnest($1::text[]) AS id, unnest($2::text[]) AS kept_id) k
+             WHERE memories.id = k.id AND memories.archived_at IS NULL`,
+            [removeIds, dedupResult.mergedPairs.map((p) => p.keptId)],
+          );
+          logger.info('Memory semantic deduplication complete', {
+            duplicatesFound: dedupResult.duplicatesFound,
+            memoriesMerged: dedupResult.memoriesMerged,
+            tokensReclaimed: dedupResult.tokensReclaimed,
+          });
+        }
+      } catch (dedupErr) {
+        logger.warn('Memory semantic dedup skipped (pre-migration)', { err: String(dedupErr) });
       }
     } catch (err) {
       logger.warn('Memory maintenance skipped', { err: String(err) });

@@ -9,7 +9,7 @@ This runbook covers provisioning, operating, and troubleshooting the Sven multi-
 | VM | Role | Internal IP | WireGuard IP | Containers | Services |
 |----|------|-------------|--------------|------------|----------|
 | VM4 | Platform | 10.47.47.8 | 10.47.0.6 | 15 | PostgreSQL+pgvector, NATS, Gateway API, Agent Runtime, Skill Runner, Registry Worker, Notification, Workflow Executor, bridge-47dynamics, Nginx, node-exporter, NATS-exporter, pg-exporter, OpenFGA, Promtail |
-| VM5 | AI & Voice | 10.47.47.9 | 10.47.0.7 | 6 | Ollama (2× RTX 3060), LiteLLM, faster-whisper (GPU), Piper TTS, Wake-word, Promtail |
+| VM5 | AI & Voice | 10.47.47.9 | 10.47.0.7 | 6 | llama-server/Ollama (AMD RX 9070 XT + RX 6750 XT), LiteLLM, faster-whisper, Piper TTS, Wake-word, Promtail |
 | VM6 | Data & Observability | 10.47.47.10 | 10.47.0.8 | 12 | OpenSearch, RAG Indexer, RAG Ingestors, SearXNG, Egress Proxy, OTEL, Prometheus, Grafana, Loki, Promtail, node-exporter |
 | VM7 | Adapters | 10.47.47.11 | 10.47.0.9 | 7 active + 14 stopped | Channel Adapters (Discord, Slack, Telegram, etc.), Cloudflared, Mirror, Promtail |
 
@@ -30,20 +30,20 @@ part of the live Sven environment.
 | VM | CPU | RAM | Disk | GPU | Network |
 |----|-----|-----|------|-----|---------|
 | VM4 (Platform) | 12 cores | 16 GB | 200 GB NVMe/SSD | None | 1 Gbps |
-| VM5 (AI & Voice) | 12 cores | 32 GB | 100 GB SSD | 2× NVIDIA RTX 3060 (12 GB each) | 1 Gbps |
+| VM5 (AI & Voice) | 12 cores | 32 GB | 100 GB SSD | AMD RX 9070 XT (16 GiB) + RX 6750 XT (12 GiB) | 1 Gbps |
 | VM6 (Data & Obs.) | 12 cores | 16 GB | 500 GB NVMe/SSD | None | 1 Gbps |
 | VM7 (Adapters) | 8 cores | 16 GB | 50 GB SSD | None | 1 Gbps |
-| **Total** | **44 cores** | **80 GB** | **850 GB** | **2× RTX 3060** | |
+| **Total** | **44 cores** | **80 GB** | **850 GB** | **RX 9070 XT + RX 6750 XT** | |
 
 #### Recommended Specifications (production / 10x headroom)
 
 | VM | CPU | RAM | Disk | GPU | Notes |
 |----|-----|-----|------|-----|-------|
 | VM4 (Platform) | 16 cores | 32 GB | 500 GB NVMe | None | PostgreSQL benefits from fast storage and RAM for shared_buffers/connections |
-| VM5 (AI & Voice) | 16 cores | 64 GB | 200 GB NVMe | 2× NVIDIA RTX 3060 (12 GB each) | Ollama uses both GPUs; faster‑whisper shares GPU 1. System RAM for CPU‑offloaded layers |
+| VM5 (AI & Voice) | 16 cores | 64 GB | 200 GB NVMe | AMD RX 9070 XT (16 GiB) + RX 6750 XT (12 GiB) | llama-server tensor-split across both GPUs; Ollama optional (profile). System RAM for CPU‑offloaded layers |
 | VM6 (Data & Obs.) | 16 cores | 32 GB | 1 TB NVMe | None | OpenSearch JVM heap + Prometheus TSDB + Loki chunks grow with retention |
 | VM7 (Adapters) | 8 cores | 16 GB | 100 GB SSD | None | Adapters are IO‑bound; rarely CPU‑bound even at scale |
-| **Total** | **56 cores** | **144 GB** | **1.8 TB** | **2× RTX 3060** | |
+| **Total** | **56 cores** | **144 GB** | **1.8 TB** | **RX 9070 XT + RX 6750 XT** | |
 
 #### Per-Service Resource Limits (from Docker Compose)
 
@@ -67,7 +67,7 @@ part of the live Sven environment.
 
 | Service | CPU Limit | RAM Limit | GPU | Notes |
 |---------|-----------|-----------|-----|-------|
-| Ollama | 6.0 | 24 GB | 2× RTX 3060 (all) | LLM inference; both GPUs reserved; RAM limit for CPU‑offloaded layers |
+| Ollama | 6.0 | 24 GB | RX 9070 XT + RX 6750 XT (ROCm) | LLM inference; tensor-split across both GPUs; RAM limit for CPU‑offloaded layers |
 | LiteLLM | 2.0 | 2 GB | No | Proxy/router to Ollama, OpenAI, Anthropic, etc. |
 | faster-whisper | 2.0 | 2 GB | Yes (shared) | Speech‑to‑text; GPU accelerated via CTranslate2 |
 | Piper TTS | 1.5 | 1 GB | No | Text‑to‑speech; CPU‑only, lightweight |
@@ -108,7 +108,7 @@ part of the live Sven environment.
 - Network connectivity between all VMs (10.47.47.x subnet)
 - Root or sudo access on all VMs
 - DNS records pointing to VM4 for the domain
-- NVIDIA driver 550+ and nvidia-container-toolkit installed on VM5 (2× RTX 3060)
+- ROCm + amdgpu-dkms installed on VM5 (AMD RX 9070 XT + RX 6750 XT); NVIDIA driver on VM13 (RTX 3060)
 
 ## Deployment Sequence
 

@@ -49,8 +49,6 @@ import '../features/ai/brain_admin_service.dart';
 import '../features/ai/community_agents_service.dart';
 import '../features/ai/calibration_service.dart';
 import '../features/ai/federation_service.dart';
-import '../features/trading/trading_service.dart';
-import '../features/trading/trading_sse_service.dart';
 import 'app_state.dart';
 import 'authenticated_client.dart';
 import 'feature_flag_service.dart';
@@ -278,16 +276,3 @@ final federationServiceProvider = Provider<FederationService>(
   name: 'federationServiceProvider',
 );
 
-// ── Trading providers ────────────────────────────────────────────────────
-
-/// The [TradingService] (API client for trading.sven.systems).
-final tradingServiceProvider = Provider<TradingService>(
-  (ref) => sl<TradingService>(),
-  name: 'tradingServiceProvider',
-);
-
-/// The [TradingSseService] (live SSE stream from trading events).
-final tradingSseServiceProvider = Provider<TradingSseService>(
-  (ref) => sl<TradingSseService>(),
-  name: 'tradingSseServiceProvider',
-);

@@ -9,7 +9,6 @@
     "paths": {
       "@sven/shared": ["../../packages/shared/src/index.ts"],
       "@sven/shared/*": ["../../packages/shared/src/*"],
-      "@sven/trading-platform/*": ["../../packages/trading-platform/src/*"],
       "@sven/compute-mesh/*": ["../../packages/compute-mesh/src/*"],
       "@sven/design-system/*": ["../../packages/design-system/src/*"],
       "@sven/document-intel/*": ["../../packages/document-intel/src/*"],

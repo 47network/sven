@@ -1,6 +1,6 @@
 /**
  * Sven API Client — connects to the Sven gateway API
- * for fetching live trading status, soul content, and chatting with Sven's brain.
+ * for fetching soul content and chatting with Sven's brain.
  * Uses Node.js http/https modules (always available in VS Code extension host).
  */
 
@@ -86,15 +86,8 @@ export class SvenApiClient {
     soul: string;
     status: {
       state: string;
-      activeSymbol: string | null;
-      balance: number;
-      dailyPnl: number;
       loopRunning: boolean;
       loopIterations: number;
-      autoTradeEnabled: boolean;
-      tradesExecuted: number;
-      paperTradeMode: boolean;
-      confidenceThreshold: number;
     };
   }> {
     return this.request('/v1/ext/sven/context');
@@ -196,81 +189,19 @@ export class SvenApiClient {
     };
   }
 
-  /** Legacy: get trading status (admin session required) */
-  async getTradingStatus(): Promise<any> {
-    return this.request('/v1/trading/status');
-  }
-
   /** Legacy: get active soul */
   async getActiveSoul(): Promise<{ slug: string; version: string; content: string }> {
     return this.request('/v1/admin/souls/installed');
   }
 
-  /** Get open positions via extension auth */
-  async getPositions(): Promise<{
-    positions: Array<{
-      id: string;
-      symbol: string;
-      side: string;
-      quantity: number;
-      entryPrice: number;
-      currentPrice: number;
-      unrealizedPnl: number;
-      status: string;
-      openedAt: string;
-    }>;
-    paperTradeMode: boolean;
-  }> {
-    return this.request('/v1/ext/sven/positions');
-  }
-
-  /** Trigger paper analysis for a symbol */
-  async analyzeSymbol(symbol: string): Promise<{
-    symbol: string;
-    currentPrice: number;
-    decision: string;
-    confidence: number;
-    reasoning: string;
-    signals: Array<{ name: string; value: number; direction: string }>;
-    events: Array<{ type: string; message: string }>;
-    paperTradeMode: boolean;
-  }> {
-    return this.request('/v1/ext/sven/analyze', {
-      method: 'POST',
-      body: JSON.stringify({ symbol }),
-    });
-  }
-
-  /** Get recent trade history */
-  async getTradeHistory(limit = 20): Promise<{
-    trades: Array<{
-      symbol: string;
-      side: string;
-      price: number;
-      quantity: number;
-      pnl?: number;
-      timestamp: string;
-      paperTrade?: boolean;
-    }>;
-    totalTrades: number;
-    paperTradeMode: boolean;
-  }> {
-    return this.request(`/v1/ext/sven/trades?limit=${limit}`);
-  }
-
-  /** Sven self-improvement analysis via GPU */
   async analyzeForImprovement(focus?: string, codeSnippet?: string): Promise<{
     analysis: string;
     model: string;
     node: string;
     metrics: {
       loopIterations: number;
-      tradesExecuted: number;
-      winRate: number;
-      profitFactor: number;
       learningIterations: number;
       learnedPatterns: number;
-      paperTradeMode: boolean;
     };
   }> {
     return this.request('/v1/ext/sven/improve', {

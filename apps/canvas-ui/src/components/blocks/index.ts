@@ -10,3 +10,5 @@ export { FilePreviewBlock } from './FilePreviewBlock';
 export { ImageBlock } from './ImageBlock';
 export { AudioBlock } from './AudioBlock';
 export { LinkBlock } from './LinkBlock';
+export { CouncilBlock } from './CouncilBlock';
+export { VideoBlock } from './VideoBlock';

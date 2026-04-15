@@ -757,4 +757,128 @@ export const registry = {
     request<{ success: boolean; data: RegistrySkillReview }>('POST', '/registry/reviews', payload),
 };
 
-export const api = { auth, me, chats, artifacts, runs, approvals, search, a2ui, push, registry };
+// ── Council ──
+export type CouncilConfig = {
+  council_mode?: boolean;
+  council_models?: string[];
+  council_chairman?: string;
+  council_strategy?: string;
+  council_rounds?: number;
+};
+
+export type CouncilSession = {
+  id: string;
+  userId: string;
+  query: string;
+  config: CouncilConfig;
+  status: string;
+  synthesisPreview?: string | null;
+  synthesis?: string | null;
+  opinions?: Array<Record<string, unknown>>;
+  peerReviews?: Array<Record<string, unknown>>;
+  scores?: Record<string, unknown>;
+  totalTokens: { prompt: number; completion: number };
+  totalCost: number;
+  elapsedMs: number;
+  createdAt: string;
+  completedAt: string | null;
+};
+
+export const council = {
+  getConfig: () =>
+    request<{ config: CouncilConfig }>('GET', '/admin/council/config'),
+  updateConfig: (config: Partial<CouncilConfig>) =>
+    request<{ updated: boolean; config: CouncilConfig }>('PUT', '/admin/council/config', {
+      enabled: config.council_mode,
+      models: config.council_models,
+      chairman: config.council_chairman,
+      strategy: config.council_strategy,
+      rounds: config.council_rounds,
+    }),
+  deliberate: (query: string, opts?: { models?: string[]; strategy?: string }) =>
+    request<{ sessionId: string; status: string }>('POST', '/admin/council/deliberate', { query, ...opts }),
+  sessions: (params?: { limit?: number; offset?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.limit) qs.set('limit', String(params.limit));
+    if (params?.offset) qs.set('offset', String(params.offset));
+    const q = qs.toString();
+    return request<{ sessions: CouncilSession[]; total: number }>('GET', `/admin/council/sessions${q ? `?${q}` : ''}`);
+  },
+  session: (id: string) =>
+    request<CouncilSession>('GET', `/admin/council/sessions/${id}`),
+};
+
+// ── Memory ──
+export type MemoryRecord = {
+  id: string;
+  key: string;
+  value: string;
+  scope: string;
+  visibility: string;
+  importance: number;
+  access_count: number;
+  chat_id?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export const memory = {
+  list: (params?: { scope?: string; chat_id?: string; page?: number; per_page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.scope) qs.set('scope', params.scope);
+    if (params?.chat_id) qs.set('chat_id', params.chat_id);
+    if (params?.page) qs.set('page', String(params.page));
+    if (params?.per_page) qs.set('per_page', String(params.per_page));
+    const q = qs.toString();
+    return request<{ success: boolean; data: { rows: MemoryRecord[]; total: number } }>('GET', `/admin/memories${q ? `?${q}` : ''}`);
+  },
+  create: (data: { key: string; value: string; scope?: string; visibility?: string; importance?: number; chat_id?: string }) =>
+    request<{ success: boolean; data: MemoryRecord }>('POST', '/admin/memories', data),
+  remove: (id: string) =>
+    request<{ success: boolean }>('DELETE', `/admin/memories/${id}`),
+  search: (query: string, opts?: { scope?: string; chat_id?: string; limit?: number }) =>
+    request<{ success: boolean; data: { rows: MemoryRecord[] } }>('POST', '/admin/memories/search', { query, ...opts }),
+  stats: () =>
+    request<{ success: boolean; data: Record<string, unknown> }>('GET', '/admin/memories/stats'),
+};
+
+// ── Video ──
+export type VideoJob = {
+  id: string;
+  title: string;
+  template: string;
+  status: string;
+  progress: number;
+  width: number;
+  height: number;
+  fps: number;
+  duration_secs: number;
+  output_format: string;
+  render_time_ms: number;
+  output_size_bytes: number;
+  output_path?: string;
+  spec?: Record<string, unknown>;
+  created_at: string;
+  started_at?: string;
+  completed_at?: string;
+};
+
+export const video = {
+  createJob: (data: { title?: string; description?: string; template?: string; spec?: Record<string, unknown> }) =>
+    request<{ success: boolean; data: VideoJob }>('POST', '/admin/video/jobs', data),
+  jobs: (params?: { limit?: number; status?: string }) => {
+    const qs = new URLSearchParams();
+    if (params?.limit) qs.set('limit', String(params.limit));
+    if (params?.status) qs.set('status', params.status);
+    const q = qs.toString();
+    return request<{ jobs: VideoJob[]; total: number }>('GET', `/admin/video/jobs${q ? `?${q}` : ''}`);
+  },
+  job: (id: string) =>
+    request<VideoJob>('GET', `/admin/video/jobs/${id}`),
+  cancel: (id: string) =>
+    request<{ success: boolean }>('POST', `/admin/video/jobs/${id}/cancel`),
+  stats: () =>
+    request<Record<string, unknown>>('GET', '/admin/video/stats'),
+};
+
+export const api = { auth, me, chats, artifacts, runs, approvals, search, a2ui, push, registry, council, memory, video };

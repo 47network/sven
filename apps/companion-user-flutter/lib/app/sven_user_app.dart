@@ -349,12 +349,6 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
   }
 
   void _handleNotificationTap(RemoteMessage message) {
-    // Trading notifications — deep link to the Trading tab.
-    final channel = message.data['channel'] as String?;
-    if (channel == 'sven_trading') {
-      _handleDeepLink(Uri.parse('sven://trading'));
-      return;
-    }
     final chatId = message.data['chat_id'] as String?;
     if (chatId == null || chatId.isEmpty) return;
     _handleDeepLink(Uri.parse('sven://chat/$chatId'));
@@ -787,13 +781,6 @@ class _SvenUserAppState extends ConsumerState<SvenUserApp>
     }
     if (target.kind == 'chat' && target.chatId != null) {
       _router.push(appRouteHomeChat(target.chatId!));
-    }
-    if (target.kind == 'trading') {
-      _router.go(appRouteHome);
-      // Post-frame callback to let home page settle, then switch to trading tab.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        TradingDeepLink.pending = true;
-      });
     }
   }
 

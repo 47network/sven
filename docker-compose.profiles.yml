@@ -23,6 +23,12 @@ services:
   ollama:
     profiles: ["dev", "staging", "production"]
 
+  ollama-vm13:
+    profiles: ["gpu-fleet"]
+
+  llama-server-vm5:
+    profiles: ["gpu-fleet"]
+
   rag-git-ingestor:
     profiles: ["dev", "staging", "production"]
 

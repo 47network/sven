@@ -23,7 +23,7 @@ export async function buildCodebaseContext(): Promise<string> {
   if (services.length > 0) {
     sections.push('**Services:**');
     const serviceDescriptions: Record<string, string> = {
-      'gateway-api': 'Fastify API — trading engine, all routes, Binance, news, Kronos, MiroFish, GPU fleet, messaging, souls, goals',
+      'gateway-api': 'Fastify API — all routes, news, Kronos, MiroFish, GPU fleet, messaging, souls, goals',
       'agent-runtime': 'Chat sessions, LLM routing, soul loading, memory recall, session stitching, token budgeting',
       'skill-runner': 'Tool execution, self-healing pipeline (v9), security scanner, deploy manager, code healer, ops audit',
       'notification-service': 'Push notifications, Home Assistant, async delivery, NATS events',
@@ -59,7 +59,7 @@ export async function buildCodebaseContext(): Promise<string> {
     const appDescriptions: Record<string, string> = {
       'admin-ui': 'Next.js admin dashboard — souls, users, orgs, settings, integrations',
       'canvas-ui': 'Canvas-based UI',
-      'companion-user-flutter': 'Flutter mobile companion — dashboard, messages, trading, portfolio, news, goals',
+      'companion-user-flutter': 'Flutter mobile companion — dashboard, messages, news, goals',
       'companion-desktop-tauri': 'Tauri desktop companion app',
       'sven-copilot-extension': 'VS Code Copilot Chat participant (@sven) — this extension!',
     };
@@ -95,7 +95,7 @@ export async function buildCodebaseContext(): Promise<string> {
 
   // Key files in scope
   sections.push('**Key Files (most frequently modified):**');
-  sections.push('- `services/gateway-api/src/routes/trading.ts` — Main trading engine (3000+ lines)');
+  sections.push('- `services/gateway-api/src/routes/` — API route handlers');
   sections.push('- `services/gateway-api/src/db/seed.ts` — DB seed including soul content');
   sections.push('- `services/agent-runtime/src/index.ts` — Agent session handler');
   sections.push('- `services/skill-runner/src/index.ts` — Skill execution + self-healing');

@@ -47,6 +47,9 @@ class $AssetsImagesGen {
 class $AssetsLottieGen {
   const $AssetsLottieGen();
 
+  /// File path: assets/lottie/sven_celebrating.json
+  String get svenCelebrating => 'assets/lottie/sven_celebrating.json';
+
   /// File path: assets/lottie/sven_happy.json
   String get svenHappy => 'assets/lottie/sven_happy.json';
 
@@ -56,14 +59,33 @@ class $AssetsLottieGen {
   /// File path: assets/lottie/sven_listening.json
   String get svenListening => 'assets/lottie/sven_listening.json';
 
+  /// File path: assets/lottie/sven_sleeping.json
+  String get svenSleeping => 'assets/lottie/sven_sleeping.json';
+
   /// File path: assets/lottie/sven_speaking.json
   String get svenSpeaking => 'assets/lottie/sven_speaking.json';
 
   /// File path: assets/lottie/sven_thinking.json
   String get svenThinking => 'assets/lottie/sven_thinking.json';
 
+  /// File path: assets/lottie/sven_thought_bubble.json
+  String get svenThoughtBubble => 'assets/lottie/sven_thought_bubble.json';
+
+  /// File path: assets/lottie/sven_working.json
+  String get svenWorking => 'assets/lottie/sven_working.json';
+
   /// List of all assets
-  List<String> get values => [svenHappy, svenIdle, svenListening, svenSpeaking, svenThinking];
+  List<String> get values => [
+        svenCelebrating,
+        svenHappy,
+        svenIdle,
+        svenListening,
+        svenSleeping,
+        svenSpeaking,
+        svenThinking,
+        svenThoughtBubble,
+        svenWorking,
+      ];
 }
 
 class $AssetsTrayGen {

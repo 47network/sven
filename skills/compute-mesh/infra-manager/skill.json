@@ -1,0 +1,16 @@
+{
+  "name": "infra-manager",
+  "description": "Manage Sven's infrastructure on sven.systems and the47network.com — nodes, health, scaling, deployments, proposals, cost reports, and goal tracking",
+  "version": "1.0.0",
+  "category": "compute-mesh",
+  "entry": "handler.ts",
+  "parameters": {
+    "action": { "type": "string", "required": true, "description": "register_node | list_nodes | evaluate_scaling | create_proposal | approve_proposal | create_deployment | create_goal | update_goal | cost_report | stats" },
+    "node_id": { "type": "string", "description": "Node ID for operations" },
+    "hostname": { "type": "string", "description": "Hostname of the node" },
+    "domain": { "type": "string", "description": "Domain (e.g. sven.systems)" },
+    "provider": { "type": "string", "description": "Hosting provider" },
+    "region": { "type": "string", "description": "Region" },
+    "org_id": { "type": "string", "description": "Organisation ID" }
+  }
+}

@@ -1,8 +1,13 @@
 'use client';
 
-import { ArrowLeft, Copy, Download, Link2, Pause, Play, RefreshCw, Search, Sparkles, Unlink2 } from 'lucide-react';
+import { ArrowLeft, Copy, Download, Link2, Pause, Play, RefreshCw, Search, Sparkles, Unlink2, Users } from 'lucide-react';
+import { useCouncilMode } from '@/lib/store';
+import { useUpdateCouncilConfig } from '@/lib/hooks';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import MemoryIndicator from './MemoryIndicator';
 
-type Chat = { name?: string; members?: unknown[]; type?: string };
+type Chat = { id?: string; name?: string; members?: unknown[]; type?: string };
 
 type Props = {
     chat?: Chat | null;
@@ -67,6 +72,8 @@ export default function ChatHeader({
                     <span className="ml-2">• {chat?.type}</span>
                 </div>
             </div>
+            <MemoryIndicator chatId={chat?.id} />
+            <CouncilToggle />
             <button
                 onClick={onToggleSearch}
                 className={`rounded-md p-2 text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800 ${searchOpen ? 'bg-slate-100 dark:bg-slate-800' : ''}`}
@@ -139,5 +146,35 @@ export default function ChatHeader({
                 </button>
             )}
         </div>
+    );
+}
+
+/** A.4.1 — Council Mode toggle in chat header */
+function CouncilToggle() {
+    const { enabled, setEnabled } = useCouncilMode();
+    const updateConfig = useUpdateCouncilConfig();
+
+    function toggle() {
+        const next = !enabled;
+        setEnabled(next);
+        updateConfig.mutate({ council_mode: next }, {
+            onSuccess: () => toast.success(next ? 'Council mode enabled' : 'Council mode disabled'),
+            onError: () => { setEnabled(!next); toast.error('Failed to update council mode'); },
+        });
+    }
+
+    return (
+        <button
+            onClick={toggle}
+            className={cn(
+                'rounded-md p-2 transition-colors',
+                enabled
+                    ? 'text-purple-500 bg-purple-50 dark:text-purple-300 dark:bg-purple-900/25'
+                    : 'text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800',
+            )}
+            title={enabled ? 'Council mode ON — click to disable' : 'Enable Council mode (multi-model debate)'}
+        >
+            <Users className="h-4 w-4" />
+        </button>
     );
 }

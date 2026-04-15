@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Send, SlidersHorizontal } from 'lucide-react';
+import { Film, Send, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useCreateVideoJob } from '@/lib/hooks';
+import { toast } from 'sonner';
 
 type ComposerCommand = { name: string; description: string; template: string };
 
@@ -39,6 +41,26 @@ export default function ComposerBar({
     onInsertTemplate,
     inputRef,
 }: Props) {
+    const createVideo = useCreateVideoJob();
+
+    const handleCreateVideo = () => {
+        const prompt = input.trim().replace(/^\/video\s*/i, '');
+        if (!prompt) {
+            onInsertTemplate('/video prompt: ');
+            return;
+        }
+        createVideo.mutate(
+            { prompt },
+            {
+                onSuccess: () => {
+                    toast.success('Video generation started');
+                    setInput('');
+                },
+                onError: () => toast.error('Failed to start video generation'),
+            },
+        );
+    };
+
     return (
         <form
             onSubmit={onSubmit}
@@ -127,6 +149,15 @@ export default function ComposerBar({
                         {label}
                     </button>
                 ))}
+                <button
+                    type="button"
+                    onClick={handleCreateVideo}
+                    disabled={createVideo.isPending}
+                    className="badge badge-neutral hover:bg-violet-100 dark:hover:bg-violet-900/40 hover:text-violet-600 dark:hover:text-violet-300 inline-flex items-center gap-1"
+                >
+                    <Film className="h-3 w-3" />
+                    Create Video
+                </button>
             </div>
 
             {/* Slash command picker */}

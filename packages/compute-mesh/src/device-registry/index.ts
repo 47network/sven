@@ -57,20 +57,20 @@ export interface MeshDevice {
 /* --------------------------------------------------------- registry class */
 
 const BUILT_IN_DEVICES: MeshDevice[] = [
-  createDevice('vm4-coordinator', 'VM4 Coordinator', 'vm', {
-    cpuCores: 8, cpuFrequencyMhz: 3400, ramMb: 32_768,
-    gpu: null, storageFreeGb: 200, networkBandwidthMbps: 1000,
+  createDevice('vm4-coordinator', 'VM4 Platform', 'vm', {
+    cpuCores: 16, cpuFrequencyMhz: 3400, ramMb: 32_768,
+    gpu: null, storageFreeGb: 500, networkBandwidthMbps: 1000,
     battery: null, runtimes: ['docker', 'node', 'python'], maxWorkUnits: 20,
   }),
-  createDevice('vm5-gpu', 'VM5 GPU Worker', 'vm', {
+  createDevice('vm5-gpu', 'VM5/VM9 AI & Voice', 'vm', {
     cpuCores: 16, cpuFrequencyMhz: 3600, ramMb: 65_536,
-    gpu: { name: 'NVIDIA A100', vramMb: 40_960, computeCapability: '8.0' },
-    storageFreeGb: 500, networkBandwidthMbps: 10_000,
+    gpu: { name: 'AMD RX 9070 XT + RX 6750 XT', vramMb: 28_570, computeCapability: 'gfx1201+gfx1031' },
+    storageFreeGb: 200, networkBandwidthMbps: 1000,
     battery: null, runtimes: ['docker', 'node', 'python'], maxWorkUnits: 10,
   }),
-  createDevice('vm13-inference', 'VM13 Inference', 'vm', {
+  createDevice('vm13-inference', 'VM13 Kaldorei', 'vm', {
     cpuCores: 8, cpuFrequencyMhz: 3200, ramMb: 32_768,
-    gpu: { name: 'NVIDIA T4', vramMb: 16_384, computeCapability: '7.5' },
+    gpu: { name: 'NVIDIA RTX 3060', vramMb: 12_288, computeCapability: '8.6' },
     storageFreeGb: 100, networkBandwidthMbps: 1000,
     battery: null, runtimes: ['docker', 'node'], maxWorkUnits: 8,
   }),
@@ -81,10 +81,14 @@ const BUILT_IN_DEVICES: MeshDevice[] = [
     battery: { levelPct: 85, charging: false, estimatedMinutes: 480 },
     runtimes: ['dart-isolate', 'wasm'], maxWorkUnits: 3,
   }),
+  createDevice('vm14-web', 'VM14 Daedalus', 'vm', {
+    cpuCores: 4, cpuFrequencyMhz: 2400, ramMb: 8_192,
+    gpu: null, storageFreeGb: 80, networkBandwidthMbps: 1000,
+    battery: null, runtimes: ['docker', 'node'], maxWorkUnits: 4,
+  }),
   createDevice('desktop-workstation', 'Desktop Workstation', 'desktop', {
     cpuCores: 12, cpuFrequencyMhz: 4200, ramMb: 32_768,
-    gpu: { name: 'RTX 4070', vramMb: 12_288, computeCapability: '8.9' },
-    storageFreeGb: 300, networkBandwidthMbps: 500,
+    gpu: null, storageFreeGb: 300, networkBandwidthMbps: 500,
     battery: null, runtimes: ['docker', 'node', 'python', 'wasm'], maxWorkUnits: 8,
   }),
 ];

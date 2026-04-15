@@ -12,15 +12,6 @@ class DeepLinkTarget {
       DeepLinkTarget._('gateway_connect', gatewayUrl: url);
 
   static DeepLinkTarget chat(String id) => DeepLinkTarget._('chat', chatId: id);
-  static DeepLinkTarget trading() => const DeepLinkTarget._('trading');
-}
-
-/// Lightweight one-shot flag consumed by SvenHubPage to switch to the Trading
-/// tab when the app is opened via `sven://trading`.  Cleared immediately after
-/// the hub reads it.
-class TradingDeepLink {
-  TradingDeepLink._();
-  static bool pending = false;
 }
 
 DeepLinkTarget? parseDeepLink(Uri uri) {
@@ -34,10 +25,6 @@ DeepLinkTarget? parseDeepLink(Uri uri) {
 
   if (segments.first == 'approvals') {
     return DeepLinkTarget.approvals();
-  }
-
-  if (segments.first == 'trading') {
-    return DeepLinkTarget.trading();
   }
 
   if (segments.first == 'widget') {

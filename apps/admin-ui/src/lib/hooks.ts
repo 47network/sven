@@ -1737,13 +1737,67 @@ export function useExportPolicy() { return useQuery({ queryKey: ['federation', '
 export function useMeshHealth() { return useQuery({ queryKey: ['federation', 'mesh-health'], queryFn: api.federation.meshHealth }); }
 export function useHealthCheck() { const qc = useQueryClient(); return useMutation({ mutationFn: (peerId: string) => api.federation.healthCheck(peerId), onSuccess: () => qc.invalidateQueries({ queryKey: ['federation', 'mesh-health'] }) }); }
 
-// ── Trading (Batch 12) ──
-export function useTradingDashboard() { return useQuery({ queryKey: ['trading', 'dashboard'], queryFn: api.trading.dashboard }); }
-export function useTradingCorrelation() { return useQuery({ queryKey: ['trading', 'correlation'], queryFn: api.trading.correlationMatrix }); }
-export function useTradingExecutionQuality() { return useQuery({ queryKey: ['trading', 'execution-quality'], queryFn: api.trading.executionQuality }); }
-export function useTradingPnlChart() { return useQuery({ queryKey: ['trading', 'pnl-chart'], queryFn: api.trading.pnlChart }); }
-export function useTradingCredentials() { return useQuery({ queryKey: ['trading', 'credentials'], queryFn: api.trading.credentials }); }
-export function useAddTradingCredential() { const qc = useQueryClient(); return useMutation({ mutationFn: api.trading.addCredential, onSuccess: () => qc.invalidateQueries({ queryKey: ['trading', 'credentials'] }) }); }
-export function useRevokeTradingCredential() { const qc = useQueryClient(); return useMutation({ mutationFn: (id: string) => api.trading.revokeCredential(id), onSuccess: () => qc.invalidateQueries({ queryKey: ['trading', 'credentials'] }) }); }
-export function useTradingBrokers() { return useQuery({ queryKey: ['trading', 'brokers'], queryFn: api.trading.brokers }); }
-export function useTradingBrokerHealth() { return useQuery({ queryKey: ['trading', 'broker-health'], queryFn: api.trading.brokerHealth }); }
+// ── GPU Fleet & Model Deploy (Epic G) ──
+export function useFleetStatus() { return useQuery({ queryKey: ['fleet', 'status'], queryFn: api.gpuFleet.status, refetchInterval: 30_000 }); }
+export function useFleetNodes() { return useQuery({ queryKey: ['fleet', 'nodes'], queryFn: api.gpuFleet.nodes }); }
+export function useFleetProbe() { const qc = useQueryClient(); return useMutation({ mutationFn: () => api.gpuFleet.probe(), onSuccess: () => { qc.invalidateQueries({ queryKey: ['fleet'] }); } }); }
+export function useFleetProbeNode() { const qc = useQueryClient(); return useMutation({ mutationFn: (nodeId: string) => api.gpuFleet.probeNode(nodeId), onSuccess: () => { qc.invalidateQueries({ queryKey: ['fleet'] }); } }); }
+export function useFleetLoadModel() { const qc = useQueryClient(); return useMutation({ mutationFn: ({ nodeId, model }: { nodeId: string; model: string }) => api.gpuFleet.loadModel(nodeId, model), onSuccess: () => { qc.invalidateQueries({ queryKey: ['fleet'] }); } }); }
+export function useFleetUnloadModel() { const qc = useQueryClient(); return useMutation({ mutationFn: ({ nodeId, model }: { nodeId: string; model: string }) => api.gpuFleet.unloadModel(nodeId, model), onSuccess: () => { qc.invalidateQueries({ queryKey: ['fleet'] }); } }); }
+export function useModelHealthCheck() { return useMutation({ mutationFn: api.gpuFleet.healthCheck }); }
+export function useModelProfile() { return useMutation({ mutationFn: api.gpuFleet.profileModel }); }
+export function useQuantRecommend() { return useMutation({ mutationFn: api.gpuFleet.quantRecommend }); }
+export function useDeployPipeline() { const qc = useQueryClient(); return useMutation({ mutationFn: api.gpuFleet.deployPipeline, onSuccess: () => { qc.invalidateQueries({ queryKey: ['fleet'] }); } }); }
+export function useModelComparisons(modelId?: string) { return useQuery({ queryKey: ['fleet', 'comparisons', modelId], queryFn: () => api.gpuFleet.comparisons(modelId) }); }
+
+// ── Council (Epic A) ──
+export function useCouncilConfig() { return useQuery({ queryKey: ['council', 'config'], queryFn: api.council.config }); }
+export function useUpdateCouncilConfig() { const qc = useQueryClient(); return useMutation({ mutationFn: api.council.updateConfig, onSuccess: () => qc.invalidateQueries({ queryKey: ['council', 'config'] }) }); }
+export function useCouncilDeliberate() { const qc = useQueryClient(); return useMutation({ mutationFn: api.council.deliberate, onSuccess: () => qc.invalidateQueries({ queryKey: ['council', 'sessions'] }) }); }
+export function useCouncilSessions(params?: { limit?: number; offset?: number }) { return useQuery({ queryKey: ['council', 'sessions', params], queryFn: () => api.council.sessions(params) }); }
+export function useCouncilSession(id: string) { return useQuery({ queryKey: ['council', 'sessions', id], queryFn: () => api.council.session(id), enabled: !!id }); }
+
+// ── Evolution (Epic B) ──
+export function useEvolutionRuns(params?: { limit?: number; status?: string }) { return useQuery({ queryKey: ['evolution', 'runs', params], queryFn: () => api.evolution.runs(params), refetchInterval: 15_000 }); }
+export function useEvolutionRun(id: string) { return useQuery({ queryKey: ['evolution', 'runs', id], queryFn: () => api.evolution.run(id), enabled: !!id, refetchInterval: 10_000 }); }
+export function useCreateEvolutionRun() { const qc = useQueryClient(); return useMutation({ mutationFn: api.evolution.create, onSuccess: () => qc.invalidateQueries({ queryKey: ['evolution', 'runs'] }) }); }
+export function useStopEvolutionRun() { const qc = useQueryClient(); return useMutation({ mutationFn: api.evolution.stop, onSuccess: () => qc.invalidateQueries({ queryKey: ['evolution', 'runs'] }) }); }
+export function useEvolutionBest(id: string) { return useQuery({ queryKey: ['evolution', 'best', id], queryFn: () => api.evolution.best(id), enabled: !!id }); }
+export function useInjectEvolutionKnowledge() { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, ...body }: { id: string; title: string; content: string }) => api.evolution.injectKnowledge(id, body), onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ['evolution', 'runs', vars.id] }) }); }
+export function useEvolutionTemplates() { return useQuery({ queryKey: ['evolution', 'templates'], queryFn: api.evolution.templates }); }
+export function useEvolutionStats() { return useQuery({ queryKey: ['evolution', 'stats'], queryFn: api.evolution.stats }); }
+
+// ── Revenue (Epic I) ──
+export function useRevenuePipelines(params?: { type?: string; status?: string }) { return useQuery({ queryKey: ['revenue', 'pipelines', params], queryFn: () => api.revenue.pipelines(params) }); }
+export function useCreateRevenuePipeline() { const qc = useQueryClient(); return useMutation({ mutationFn: api.revenue.createPipeline, onSuccess: () => qc.invalidateQueries({ queryKey: ['revenue', 'pipelines'] }) }); }
+export function useActivateRevenuePipeline() { const qc = useQueryClient(); return useMutation({ mutationFn: api.revenue.activatePipeline, onSuccess: () => qc.invalidateQueries({ queryKey: ['revenue', 'pipelines'] }) }); }
+export function usePauseRevenuePipeline() { const qc = useQueryClient(); return useMutation({ mutationFn: api.revenue.pausePipeline, onSuccess: () => qc.invalidateQueries({ queryKey: ['revenue', 'pipelines'] }) }); }
+export function useRevenueEvents(params?: { pipeline_id?: string; limit?: number; offset?: number }) { return useQuery({ queryKey: ['revenue', 'events', params], queryFn: () => api.revenue.events(params) }); }
+export function useRevenueServices() { return useQuery({ queryKey: ['revenue', 'services'], queryFn: api.revenue.services }); }
+export function useCreateRevenueService() { const qc = useQueryClient(); return useMutation({ mutationFn: api.revenue.createService, onSuccess: () => qc.invalidateQueries({ queryKey: ['revenue', 'services'] }) }); }
+export function useRevenueProducts() { return useQuery({ queryKey: ['revenue', 'products'], queryFn: api.revenue.products }); }
+export function useRevenueStats() { return useQuery({ queryKey: ['revenue', 'stats'], queryFn: api.revenue.stats }); }
+
+// ── Infrastructure (Epic I) ──
+export function useInfraNodes(params?: { status?: string }) { return useQuery({ queryKey: ['infra', 'nodes', params], queryFn: () => api.infra.nodes(params), refetchInterval: 30_000 }); }
+export function useCreateInfraNode() { const qc = useQueryClient(); return useMutation({ mutationFn: api.infra.createNode, onSuccess: () => qc.invalidateQueries({ queryKey: ['infra', 'nodes'] }) }); }
+export function useUpdateInfraNodeStatus() { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, status }: { id: string; status: string }) => api.infra.updateNodeStatus(id, status), onSuccess: () => qc.invalidateQueries({ queryKey: ['infra', 'nodes'] }) }); }
+export function useInfraNodeHealth(id: string) { return useQuery({ queryKey: ['infra', 'node-health', id], queryFn: () => api.infra.nodeHealth(id), enabled: !!id }); }
+export function useInfraProposals(params?: { status?: string }) { return useQuery({ queryKey: ['infra', 'proposals', params], queryFn: () => api.infra.proposals(params) }); }
+export function useCreateInfraProposal() { const qc = useQueryClient(); return useMutation({ mutationFn: api.infra.createProposal, onSuccess: () => qc.invalidateQueries({ queryKey: ['infra', 'proposals'] }) }); }
+export function useApproveInfraProposal() { const qc = useQueryClient(); return useMutation({ mutationFn: api.infra.approveProposal, onSuccess: () => qc.invalidateQueries({ queryKey: ['infra', 'proposals'] }) }); }
+export function useInfraDeployments(params?: { node_id?: string; status?: string }) { return useQuery({ queryKey: ['infra', 'deployments', params], queryFn: () => api.infra.deployments(params) }); }
+export function useInfraGoals(params?: { type?: string; status?: string }) { return useQuery({ queryKey: ['infra', 'goals', params], queryFn: () => api.infra.goals(params) }); }
+export function useCreateInfraGoal() { const qc = useQueryClient(); return useMutation({ mutationFn: api.infra.createGoal, onSuccess: () => qc.invalidateQueries({ queryKey: ['infra', 'goals'] }) }); }
+export function useUpdateInfraGoalProgress() { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, currentValue }: { id: string; currentValue: number }) => api.infra.updateGoalProgress(id, currentValue), onSuccess: () => qc.invalidateQueries({ queryKey: ['infra', 'goals'] }) }); }
+export function useInfraCosts() { return useQuery({ queryKey: ['infra', 'costs'], queryFn: api.infra.costs }); }
+export function useInfraStats() { return useQuery({ queryKey: ['infra', 'stats'], queryFn: api.infra.stats }); }
+
+// ── Video (Epic E) ──
+export function useVideoJobs(params?: { limit?: number; status?: string }) { return useQuery({ queryKey: ['video', 'jobs', params], queryFn: () => api.video.jobs(params), refetchInterval: 10_000 }); }
+export function useVideoJob(id: string) { return useQuery({ queryKey: ['video', 'jobs', id], queryFn: () => api.video.job(id), enabled: !!id, refetchInterval: 5_000 }); }
+export function useCreateVideoJob() { const qc = useQueryClient(); return useMutation({ mutationFn: api.video.createJob, onSuccess: () => qc.invalidateQueries({ queryKey: ['video', 'jobs'] }) }); }
+export function useCancelVideoJob() { const qc = useQueryClient(); return useMutation({ mutationFn: api.video.cancelJob, onSuccess: () => qc.invalidateQueries({ queryKey: ['video', 'jobs'] }) }); }
+export function useVideoTemplates() { return useQuery({ queryKey: ['video', 'templates'], queryFn: api.video.templates }); }
+export function useCreateVideoTemplate() { const qc = useQueryClient(); return useMutation({ mutationFn: api.video.createTemplate, onSuccess: () => qc.invalidateQueries({ queryKey: ['video', 'templates'] }) }); }
+export function useVideoStats() { return useQuery({ queryKey: ['video', 'stats'], queryFn: api.video.stats }); }

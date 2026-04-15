@@ -61,3 +61,18 @@ export const useRuntime = create<RuntimeState>()((set) => ({
 export function setRuntimeHealth(next: { health: RuntimeHealth; source: string; message: string }) {
   useRuntime.getState().set(next);
 }
+
+interface CouncilModeStore {
+  enabled: boolean;
+  setEnabled: (enabled: boolean) => void;
+}
+
+export const useCouncilMode = create<CouncilModeStore>()(
+  persist(
+    (set) => ({
+      enabled: false,
+      setEnabled: (enabled: boolean) => set({ enabled }),
+    }),
+    { name: 'canvas-council-mode' },
+  ),
+);

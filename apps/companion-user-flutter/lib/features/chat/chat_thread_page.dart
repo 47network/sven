@@ -17,6 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'mermaid_block.dart';
+import 'council_block.dart';
 
 import 'chat_composer.dart';
 import 'chat_models.dart';
@@ -27,6 +28,7 @@ import 'prompt_templates_service.dart';
 import 'voice_service.dart';
 import 'sync_service.dart';
 import '../approvals/approvals_service.dart';
+import '../ai/council_service.dart';
 import '../memory/memory_service.dart';
 import '../onboarding/tutorial_service.dart';
 import '../home/streak_service.dart';
@@ -164,6 +166,11 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
   String _searchQuery = '';
   final _searchController = TextEditingController();
   int _searchCursor = 0; // index within _computeSearchMatches() results
+
+  // ── Council mode (A.5.1) ──
+  bool _councilEnabled = false;
+  bool _councilLoading = false;
+  CouncilService? _councilService;
 
   // ── Request deduplication ──
   String? _lastSentText;
@@ -348,6 +355,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     _loadMessages();
     _loadAgentState();
     _loadPinnedIds();
+    _loadCouncilConfig();
     _startSse();
     _scrollController.addListener(_onScroll);
     // Preload adjacent conversations so switching is instant.
@@ -405,6 +413,45 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     // Auto-summarize conversation for cross-conversation context
     _autoSummarize();
     super.dispose();
+  }
+
+  // ── A.5.1 — Council mode toggle ──
+
+  Future<void> _loadCouncilConfig() async {
+    try {
+      _councilService ??= CouncilService(widget.chatService.authClient);
+      final config = await _councilService!.getConfig();
+      if (mounted) setState(() => _councilEnabled = config.councilMode);
+    } catch (_) {
+      // Council API may not be available — leave toggle off.
+    }
+  }
+
+  Future<void> _toggleCouncilMode() async {
+    if (_councilLoading) return;
+    final newValue = !_councilEnabled;
+    // Optimistic update
+    setState(() {
+      _councilEnabled = newValue;
+      _councilLoading = true;
+    });
+    try {
+      _councilService ??= CouncilService(widget.chatService.authClient);
+      await _councilService!.setEnabled(newValue);
+    } catch (_) {
+      // Rollback on failure
+      if (mounted) {
+        setState(() => _councilEnabled = !newValue);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to toggle council mode'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _councilLoading = false);
+    }
   }
 
   /// Extract a summary of this conversation and store it in MemoryService.
@@ -2398,6 +2445,20 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                           _localTitle ?? widget.thread.title,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
+                      ),
+                      // A.5.1 — Council mode toggle
+                      IconButton(
+                        tooltip: _councilEnabled
+                            ? 'Council mode ON'
+                            : 'Council mode OFF',
+                        icon: Icon(
+                          Icons.groups_rounded,
+                          size: 20,
+                          color: _councilEnabled
+                              ? Theme.of(context).colorScheme.primary
+                              : null,
+                        ),
+                        onPressed: _councilLoading ? null : _toggleCouncilMode,
                       ),
                       IconButton(
                         tooltip: _agentPaused ? 'Resume agent' : 'Pause agent',

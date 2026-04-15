@@ -1,9 +1,12 @@
 'use client';
 
-import { Bot, Copy, Reply, ThumbsDown, ThumbsUp, User, Wand2 } from 'lucide-react';
+import { Bot, BookmarkPlus, BookmarkX, Copy, Reply, ThumbsDown, ThumbsUp, User, Wand2 } from 'lucide-react';
 import { cn, formatDate, relativeTime } from '@/lib/utils';
 import { BlockRenderer, type CanvasBlock } from '@/components/blocks';
 import { MarkdownBlock } from '@/components/blocks/MarkdownBlock';
+import { useCreateMemory, useDeleteMemory } from '@/lib/hooks';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 export type ChatMessage = {
     id: string;
@@ -72,6 +75,10 @@ export default function MessageBubble({
     const isSystem = message.role === 'system';
     const isQueued = message.status === 'queued';
     const copyPayload = getCopyPayload(message);
+
+    const createMemory = useCreateMemory();
+    const deleteMemory = useDeleteMemory();
+    const [rememberedId, setRememberedId] = useState<string | null>(null);
 
     if (isSystem) {
         return (
@@ -158,6 +165,47 @@ export default function MessageBubble({
                             onClick={() => onRemix(message)}
                         >
                             <Wand2 className="h-3.5 w-3.5" />
+                        </button>
+                    )}
+                    {isAssistant && !rememberedId && (
+                        <button
+                            type="button"
+                            className="rounded-md p-1 text-[var(--fg-muted)] hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-600 dark:hover:text-violet-400"
+                            title="Remember this response"
+                            disabled={createMemory.isPending}
+                            onClick={() => {
+                                const content = copyPayload || message.text;
+                                if (!content) return;
+                                createMemory.mutate(
+                                    { content, scope: 'chat', chat_id: message.chat_id, metadata: { message_id: message.id, source: 'user_action' } },
+                                    {
+                                        onSuccess: (data: { id?: string }) => {
+                                            setRememberedId(data?.id ?? 'saved');
+                                            toast.success('Memory saved');
+                                        },
+                                        onError: () => toast.error('Failed to save memory'),
+                                    },
+                                );
+                            }}
+                        >
+                            <BookmarkPlus className="h-3.5 w-3.5" />
+                        </button>
+                    )}
+                    {isAssistant && rememberedId && (
+                        <button
+                            type="button"
+                            className="rounded-md p-1 text-violet-600 dark:text-violet-400 hover:bg-violet-100/70 dark:hover:bg-violet-900/30"
+                            title="Forget this memory"
+                            disabled={deleteMemory.isPending}
+                            onClick={() => {
+                                if (rememberedId === 'saved') { setRememberedId(null); return; }
+                                deleteMemory.mutate(rememberedId, {
+                                    onSuccess: () => { setRememberedId(null); toast.success('Memory removed'); },
+                                    onError: () => toast.error('Failed to remove memory'),
+                                });
+                            }}
+                        >
+                            <BookmarkX className="h-3.5 w-3.5" />
                         </button>
                     )}
                     {isAssistant && onFeedback && (

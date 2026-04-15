@@ -73,7 +73,6 @@ Sven gains the ability to read, extract, and understand any document — PDFs, i
 
 ### 3.4 Integration with Other Pillars
 
-- [ ] **Trading Platform** (Pillar 6): OCR financial reports, earnings documents, charts
 - [ ] **Security** (Pillar 5): OCR security advisories, vulnerability reports
 - [ ] **Marketing** (Pillar 7): OCR competitor marketing materials for analysis
 - [ ] **Design** (Pillar 1): OCR design specs, wireframes, mockup annotations

@@ -37,6 +37,7 @@ export interface SSEOptions {
     onCallSignal?: (event: { call_id: string; from_user_id: string; type: string; sdp?: string; candidate?: Record<string, unknown> }) => void;
     onCallState?: (event: { call_id: string; status: string; call_type?: string; chat_id?: string }) => void;
     onPresence?: (event: { user_id: string; status: string; status_message?: string }) => void;
+    onAgentState?: (event: { state: string; message?: string; task?: string }) => void;
     onLog?: (line: string) => void;
 }
 
@@ -197,6 +198,10 @@ export function useSSE(opts: SSEOptions) {
                 break;
             case 'presence':
                 o.onPresence?.(ev.data as { user_id: string; status: string; status_message?: string });
+                break;
+            case 'agent_state':
+            case 'agent_nudged':
+                o.onAgentState?.(ev.data as { state: string; message?: string; task?: string });
                 break;
             case 'heartbeat':
                 // No-op — just keeps the connection alive

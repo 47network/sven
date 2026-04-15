@@ -16,7 +16,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             'Self-healing — production v9 pipeline with 33 safety features: file quarantine, circuit breaker, git checkpoints, build/test verification, auto-rollback.',
           ],
           infrastructure: {
-            deployment: 'Multi-VM on Proxmox with WireGuard mesh (6 VMs)',
+            deployment: 'Multi-VM on Proxmox with WireGuard mesh (7 VMs)',
             orchestration: 'Docker Compose with profile-based service activation',
             database: 'PostgreSQL 16 + pgvector',
             eventBus: 'NATS JetStream',
@@ -32,6 +32,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             { name: 'VM7 (sven-adapters)', role: 'Channel adapters — 20+ messaging adapters (WhatsApp, Discord, Slack, Telegram, etc.)' },
             { name: 'VM12', role: 'Matrix/Synapse federation' },
             { name: 'VM13 (kaldorei)', role: 'GPU fallback — Ollama with qwen2.5:7b for fast trading inference' },
+            { name: 'VM14 (daedalus)', role: 'Public web — the47network.com static site, plate.the47network.com, TLS terminated at VM1' },
           ],
         },
       };
@@ -90,6 +91,8 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             { name: 'prometheus', host: 'VM6', role: 'Metrics storage (30d retention)', port: 9090 },
             { name: 'grafana', host: 'VM6', role: 'Dashboards', port: 9091 },
             { name: 'ollama', host: 'VM13', role: 'GPU fallback (qwen2.5:7b fast inference)', port: 11434 },
+            { name: 'nginx (the47network.com)', host: 'VM14', role: 'Static website for the47network.com', port: 80 },
+            { name: 'nginx (plate)', host: 'VM14', role: 'Static website for plate.the47network.com', port: 8080 },
           ],
           adapterCount: '20+ messaging adapters on VM7',
           totalContainers: '40+',

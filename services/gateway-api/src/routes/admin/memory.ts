@@ -955,4 +955,96 @@ export async function registerMemoryRoutes(app: FastifyInstance, pool: pg.Pool) 
       },
     });
   });
+
+  // ─── C.4.3 — Memory Analytics (compression, token savings) ──────────
+  app.get('/memory-analytics', async (request, reply) => {
+    const orgId = requireOrgId(request, reply);
+    if (!orgId) return;
+
+    const query = request.query as { days?: string };
+    const days = parseNumber(query.days, 30);
+
+    try {
+      const [events, summaries, compressionStats] = await Promise.all([
+        pool.query(
+          `SELECT event_type, COUNT(*)::int AS count,
+                  COALESCE(SUM(tokens_before), 0)::int AS total_tokens_before,
+                  COALESCE(SUM(tokens_after), 0)::int AS total_tokens_after,
+                  COALESCE(SUM(tokens_saved), 0)::int AS total_tokens_saved,
+                  COALESCE(AVG(hit_rate), 0)::real AS avg_hit_rate
+           FROM memory_analytics
+           WHERE org_id = $1 AND created_at >= NOW() - ($2 || ' days')::interval
+           GROUP BY event_type
+           ORDER BY count DESC`,
+          [orgId, String(Math.min(365, Math.max(1, days)))],
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS total_summaries,
+                  COALESCE(SUM(source_token_count), 0)::int AS total_source_tokens,
+                  COALESCE(SUM(summary_tokens), 0)::int AS total_summary_tokens,
+                  COALESCE(AVG(compression_ratio), 0)::real AS avg_compression_ratio
+           FROM memory_summaries
+           WHERE org_id = $1`,
+          [orgId],
+        ),
+        pool.query(
+          `SELECT COALESCE(compression_level, 0) AS level, COUNT(*)::int AS count,
+                  COALESCE(AVG(importance), 0)::real AS avg_importance
+           FROM memories
+           WHERE organization_id = $1 AND archived_at IS NULL
+           GROUP BY COALESCE(compression_level, 0)
+           ORDER BY level`,
+          [orgId],
+        ),
+      ]);
+
+      reply.send({
+        success: true,
+        data: {
+          events: events.rows,
+          summaries: summaries.rows[0] || {},
+          compression_by_level: compressionStats.rows,
+        },
+      });
+    } catch (err) {
+      logger.warn('Memory analytics query failed (pre-migration?)', { err: String(err) });
+      reply.send({ success: true, data: { events: [], summaries: {}, compression_by_level: [] } });
+    }
+  });
+
+  // ─── C.3.2 — User memory export ────────────────────────────────────
+  app.get('/memories/export', async (request, reply) => {
+    const orgId = requireOrgId(request, reply);
+    if (!orgId) return;
+
+    const query = request.query as { user_id?: string; format?: string };
+    if (!query.user_id) {
+      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'user_id required' } });
+    }
+    const validUser = await validateUserInOrg(orgId, query.user_id);
+    if (!validUser) {
+      return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND', message: 'User not in organization' } });
+    }
+
+    const res = await pool.query(
+      `SELECT id, key, value, visibility, source, importance, access_count,
+              compression_level, created_at, updated_at, last_accessed_at
+       FROM memories
+       WHERE user_id = $1 AND organization_id = $2 AND archived_at IS NULL
+       ORDER BY importance DESC, updated_at DESC`,
+      [query.user_id, orgId],
+    );
+
+    if (query.format === 'csv') {
+      const header = 'id,key,value,visibility,source,importance,access_count,compression_level,created_at';
+      const rows = res.rows.map((r: any) =>
+        [r.id, r.key, toCsvCell(r.value), r.visibility, r.source, r.importance, r.access_count, r.compression_level ?? 0, r.created_at].join(','),
+      );
+      reply.header('Content-Type', 'text/csv');
+      reply.header('Content-Disposition', `attachment; filename="memories-${query.user_id}.csv"`);
+      return reply.send([header, ...rows].join('\n'));
+    }
+
+    reply.send({ success: true, data: res.rows });
+  });
 }

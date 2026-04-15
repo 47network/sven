@@ -17,8 +17,6 @@ import '../features/ai/brain_admin_service.dart';
 import '../features/ai/community_agents_service.dart';
 import '../features/ai/calibration_service.dart';
 import '../features/ai/federation_service.dart';
-import '../features/trading/trading_service.dart';
-import '../features/trading/trading_sse_service.dart';
 import 'authenticated_client.dart';
 import 'database.dart';
 import 'db_encryption.dart';
@@ -242,19 +240,6 @@ Future<void> setupServiceLocator() async {
     );
   }
 
-  // ── 18. Trading service ───────────────────────────────────────────────────
-  if (!sl.isRegistered<TradingService>()) {
-    sl.registerLazySingleton<TradingService>(
-      () => TradingService(client: sl<AuthenticatedClient>()),
-    );
-  }
-
-  // ── 19. Trading SSE service ───────────────────────────────────────────────
-  if (!sl.isRegistered<TradingSseService>()) {
-    sl.registerLazySingleton<TradingSseService>(
-      () => TradingSseService(client: sl<AuthenticatedClient>()),
-    );
-  }
 }
 
 /// Reset all registrations.  Call in tests to get a clean slate.
