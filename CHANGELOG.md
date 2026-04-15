@@ -9,6 +9,12 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+---
+
+## [0.2.0] — 2026-04-15
+
 ### Fixed
 - CI: release-gates-sync — Added missing `Keycloak live interop gate` and `selfcheck:local` checkbox targets to the 2026 parity checklist so the sync script can find them.
 - CI: security-baseline — Created `.detect-secrets.cfg` and generated `.secrets.baseline` (149 audited findings, all false positives in config/docs) so the detect-secrets workflow has its required baseline.
@@ -419,5 +425,6 @@ Initial public release of Sven — a production-grade, self-hosted AI assistant 
 
 ---
 
-[Unreleased]: https://github.com/47network/thesven/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/47network/thesven/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/47network/thesven/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/47network/thesven/releases/tag/v0.1.0
