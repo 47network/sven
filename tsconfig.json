@@ -27,7 +27,8 @@
     { "path": "services/model-router" },
     { "path": "services/security-toolkit" },
     { "path": "services/document-intel" },
-    { "path": "services/marketing-intel" }
+    { "path": "services/marketing-intel" },
+    { "path": "services/proactive-notifier" }
   ],
   "files": []
 }

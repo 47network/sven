@@ -1032,6 +1032,40 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
+  services/proactive-notifier:
+    dependencies:
+      '@sven/proactive-notifier':
+        specifier: workspace:*
+        version: link:../../packages/proactive-notifier
+      '@sven/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      fastify:
+        specifier: ^5.7.4
+        version: 5.8.4
+      nats:
+        specifier: ^2.19.0
+        version: 2.29.3
+      pg:
+        specifier: ^8.11.0
+        version: 8.20.0
+      uuid:
+        specifier: ^10.0.0
+        version: 10.0.0
+    devDependencies:
+      '@types/pg':
+        specifier: ^8.11.0
+        version: 8.20.0
+      '@types/uuid':
+        specifier: ^10.0.0
+        version: 10.0.0
+      tsx:
+        specifier: ^4.7.0
+        version: 4.21.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   services/rag-git-ingestor:
     dependencies:
       '@sven/shared':

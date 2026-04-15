@@ -34,6 +34,8 @@ build/
 !services/document-intel/migrations/*.sql
 # Keep: marketing-intel migration SQL files
 !services/marketing-intel/migrations/*.sql
+# Keep: proactive-notifier migration SQL files
+!services/proactive-notifier/migrations/*.sql
 
 # ─── Temporary / scratch ────────────────────────────────────────
 tmp/

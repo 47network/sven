@@ -720,6 +720,27 @@ services:
         condition: service_healthy
     logging: *default-logging
 
+  proactive-notifier:
+    build:
+      context: .
+      dockerfile: services/proactive-notifier/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - PROACTIVE_PORT=9475
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9475:9475"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
   # ── Voice Services (STT/TTS/Wake Word) ───────────────────────────────────────────────
   faster-whisper:
     build:

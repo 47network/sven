@@ -70,3 +70,6 @@ services:
 
   adapter-whatsapp-personal:
     profiles: ["dev", "staging", "production"]
+
+  proactive-notifier:
+    profiles: ["dev", "staging", "production"]
