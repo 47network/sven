@@ -10,20 +10,21 @@ inputs_schema:
   properties:
     action:
       type: string
-      enum: [describe_architecture, list_capabilities, list_services, list_skills, codebase_map, trading_status, self_assessment]
+      enum: [describe_identity, describe_architecture, list_capabilities, list_services, list_skills, codebase_map, trading_status, self_assessment]
   required: [action]
 outputs_schema:
   type: object
   properties:
     result:
       type: object
-when-to-use: When users ask "what can you do?", "how do you work?", "describe yourself", "what services do you run?", "what is your architecture?", "tell me about yourself", or when Sven needs to introspect on his own capabilities, codebase, or infrastructure.
+when-to-use: When users ask "who are you?", "what are you?", "what can you do?", "how do you work?", "describe yourself", "what services do you run?", "what is your architecture?", "tell me about yourself", or when Sven needs to introspect on his own capabilities, codebase, or infrastructure.
 ---
 # self-knowledge
 
 Provides Sven with structured self-awareness of his own architecture, capabilities, services, skills, codebase layout, and operational state. This skill is how Sven "knows himself" — answering questions about what he is, what he can do, and how he works internally.
 
 Actions:
+- `describe_identity` — Who Sven is: name, version, website, repo, license, organisation, and what makes him different
 - `describe_architecture` — High-level overview of Sven's architecture, design philosophy, and infrastructure
 - `list_capabilities` — Enumerate all major capability domains with descriptions
 - `list_services` — All microservices with their roles, hosts, and resource limits

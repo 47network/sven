@@ -35,7 +35,7 @@ function composeSystemPrompt(rows: IdentityDocRow[]): string {
   const projectDoc = rows.find((row) => row.scope === 'project')?.content?.trim() || '';
   const chatDoc = rows.find((row) => row.scope === 'chat')?.content?.trim() || '';
   const sections = [globalDoc, projectDoc, chatDoc].filter(Boolean);
-  if (sections.length === 0) return 'You are Sven, a helpful AI assistant.';
+  if (sections.length === 0) return 'You are Sven, the AI platform built by 47 Network (sven.systems, github.com/47network/sven).';
   return sections.join('\n\n');
 }
 
