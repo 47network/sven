@@ -29,6 +29,7 @@ export const NATS_STREAMS = {
   MODEL: 'MODEL',
   SECURITY: 'SECURITY',
   DOCUMENT: 'DOCUMENT',
+  MARKETING: 'MARKETING',
 } as const;
 
 export const NATS_SUBJECTS = {
@@ -183,6 +184,18 @@ export const NATS_SUBJECTS = {
   DOCUMENT_ENTITIES_EXTRACTED: 'document.entities.extracted',
   DOCUMENT_SUMMARY_GENERATED: 'document.summary.generated',
   DOCUMENT_PII_DETECTED: 'document.pii.detected',
+
+  // Marketing Intelligence (competitive intel, brand voice, content, campaigns, analytics)
+  MARKETING_COMPETITOR_ADDED: 'marketing.competitor.added',
+  MARKETING_SIGNAL_DETECTED: 'marketing.signal.detected',
+  MARKETING_REPORT_GENERATED: 'marketing.report.generated',
+  MARKETING_BRAND_CHECK_COMPLETE: 'marketing.brand.check.complete',
+  MARKETING_CONTENT_CREATED: 'marketing.content.created',
+  MARKETING_CAMPAIGN_CREATED: 'marketing.campaign.created',
+  MARKETING_CAMPAIGN_SCORED: 'marketing.campaign.scored',
+  MARKETING_COACHING_DEBRIEF: 'marketing.coaching.debrief',
+  MARKETING_ANALYTICS_REPORT: 'marketing.analytics.report',
+  MARKETING_THREAT_MATRIX_BUILT: 'marketing.threat.matrix.built',
 } as const;
 
 export const STREAM_CONFIGS = {
@@ -340,6 +353,13 @@ export const STREAM_CONFIGS = {
     subjects: ['document.>'] as string[],
     retention: RetentionPolicy.Limits,
     max_age: 30 * 24 * 60 * 60 * 1_000_000_000, // 30 days — document processing audit trail
+    storage: StorageType.File,
+  },
+  MARKETING: {
+    name: NATS_STREAMS.MARKETING,
+    subjects: ['marketing.>'] as string[],
+    retention: RetentionPolicy.Limits,
+    max_age: 90 * 24 * 60 * 60 * 1_000_000_000, // 90 days — marketing campaign and analytics audit trail
     storage: StorageType.File,
   },
 } as const;

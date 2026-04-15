@@ -32,6 +32,8 @@ build/
 !services/security-toolkit/migrations/*.sql
 # Keep: document-intel migration SQL files
 !services/document-intel/migrations/*.sql
+# Keep: marketing-intel migration SQL files
+!services/marketing-intel/migrations/*.sql
 
 # ─── Temporary / scratch ────────────────────────────────────────
 tmp/
