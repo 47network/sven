@@ -9,6 +9,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+- README.md — Complete rewrite. Repositioned Sven as a full-scale self-hosted AI platform (not just a family companion). New structure: Platform Overview with collapsible sections, Service Port Map, Use Cases table spanning personal to enterprise to research, expanded comparison matrix (22 rows including document intel, security scanning, quantum sim, compute mesh, model routing, marketing intel). Fixed all repository URLs from `47network/thesven` to `47network/sven` (badges, clone URL, stars). Removed "Live Entry Points" section with example.com placeholder URLs. Condensed docs table. Upgraded stars badge to `for-the-badge` style. Tightened deployment guides into a dedicated subsection. Compact 4-column messaging adapter grid.
+
 ### Added
 - Quantum Simulation Service (`services/quantum-sim/`) — Standalone Fastify service (port 9476) wrapping `@sven/quantum-sim` library. Circuit simulation (state-vector simulator up to 25 qubits, standard + parametric gates, noise models), quantum algorithms (QAOA, Grover's search, quantum Monte Carlo, quantum random number generation, quantum annealing, portfolio optimisation), async job management with Postgres persistence, multi-backend cost estimation (local-sim, IBM Quantum, AWS Braket, Origin Quantum), result caching, NATS event-driven job submission/cancellation (5 new subjects), and circuit ASCII visualisation. 1 Postgres table (quantum_jobs). 20+ REST endpoints. Dockerfile, docker-compose, profiles entries.
 - README.md updated: architecture diagram now includes Compute Mesh, Model Router, Security Toolkit, Document Intel, Marketing Intel, Proactive Notifier, and Quantum Sim services. Monorepo layout expanded with all 7 new services and 10 packages. New feature sections for Quantum Simulation, Compute Mesh, Model Router, Security Toolkit, Document Intelligence, and Marketing Intelligence.

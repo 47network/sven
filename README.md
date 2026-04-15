@@ -9,24 +9,26 @@
  ╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝
 ```
 
-**The AI companion you run for everyone you care about.**
+### The self-hosted AI platform.
 
-*Deploy once. Your parents use it on WhatsApp. Your household talks to it by voice. Your friends find it on Telegram. Your team gets it on Slack. All private. All local. All yours.*
+**47+ microservices. 20 messaging adapters. Native mobile & desktop apps. Enterprise multi-tenancy. Full observability. Zero cloud dependency.**
+
+One platform that runs your entire AI stack — agents, voice, RAG, document intelligence, security scanning, quantum simulation, compute orchestration — on infrastructure you own.
 
 ---
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Build](https://github.com/47network/thesven/actions/workflows/deployment-pipeline.yml/badge.svg)](https://github.com/47network/thesven/actions)
-[![Security](https://github.com/47network/thesven/actions/workflows/security-baseline.yml/badge.svg)](https://github.com/47network/thesven/actions)
-[![Flutter CI](https://github.com/47network/thesven/actions/workflows/flutter-user-app-ci.yml/badge.svg)](https://github.com/47network/thesven/actions)
-[![E2E](https://github.com/47network/thesven/actions/workflows/parity-e2e.yml/badge.svg)](https://github.com/47network/thesven/actions)
-[![Release Gates](https://github.com/47network/thesven/actions/workflows/release-gates-sync.yml/badge.svg)](https://github.com/47network/thesven/actions)
+[![Build](https://github.com/47network/sven/actions/workflows/deployment-pipeline.yml/badge.svg)](https://github.com/47network/sven/actions)
+[![Security](https://github.com/47network/sven/actions/workflows/security-baseline.yml/badge.svg)](https://github.com/47network/sven/actions)
+[![Flutter CI](https://github.com/47network/sven/actions/workflows/flutter-user-app-ci.yml/badge.svg)](https://github.com/47network/sven/actions)
+[![E2E](https://github.com/47network/sven/actions/workflows/parity-e2e.yml/badge.svg)](https://github.com/47network/sven/actions)
+[![Release Gates](https://github.com/47network/sven/actions/workflows/release-gates-sync.yml/badge.svg)](https://github.com/47network/sven/actions)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue)](CHANGELOG.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 <br/>
 
-[Quick Start](#-quick-start) &nbsp;·&nbsp; [Architecture](#-architecture) &nbsp;·&nbsp; [Features](#-key-features) &nbsp;·&nbsp; [Adapters](#-messaging-adapters) &nbsp;·&nbsp; [Docs](docs/) &nbsp;·&nbsp; [Contributing](CONTRIBUTING.md)
+[Quick Start](#-quick-start) &nbsp;·&nbsp; [Platform Overview](#-platform-overview) &nbsp;·&nbsp; [Architecture](#-architecture) &nbsp;·&nbsp; [Services](#-services--capabilities) &nbsp;·&nbsp; [Docs](docs/) &nbsp;·&nbsp; [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -34,252 +36,77 @@
 
 ## What is Sven?
 
-Sven is the AI companion **you deploy on your own server, so the people you care about can use it every day** — without needing to understand anything about servers, Docker, or AI.
+Sven is a **self-hosted AI platform** — a complete, production-grade system for deploying intelligent agents, voice interfaces, document processing, security scanning, distributed compute, and more across any scale of organisation.
 
-Your parents already have WhatsApp. Your flatmates can just say *"Hey Sven"*. Your friends are on Telegram. Your colleagues use Slack. You connect the adapters once, create a user for each person, and they immediately have a private, intelligent companion waiting for them in the app they already use. No signup on their side, no new app to download, no data going anywhere you don't control.
+It is not a chatbot. It is not a wrapper around an LLM API. It is a **full-stack AI operating environment** with 47+ independently deployable microservices, 10 shared libraries, native mobile and desktop applications, 20 messaging platform adapters, and enterprise infrastructure — all running on your own hardware, under your own control.
 
-Sven scales from a single Raspberry Pi home hub up to a full enterprise deployment: multi-tenant, multi-agent, native Flutter mobile app, Tauri desktop app, 20 messaging adapters, a full local voice stack, a RAG pipeline, a sandboxed skill marketplace, and full observability — all self-hosted, all MIT open source.
+### What makes Sven different
 
-> **Your data — and your family's — never leaves your infrastructure.**
-
----
-
-## 🌐 Live Entry Points (Reference Release Model)
-
-GitHub-facing release documentation uses generic example hostnames. Real deployment runbooks and env templates can use your actual domains.
-
-| Surface | URL |
-|:---|:---|
-| Release landing + install | `https://example.com/` |
-| Landing suite | `https://example.com/suite` |
-| Canvas runtime | `https://app.example.com/` |
-| Community hub | `https://app.example.com/community` |
-| Admin control center | `https://app.example.com/admin47` |
-
----
-
-## 👥 Who is Sven for?
-
-**You** — the person who runs it. One `docker compose up -d` and you give the people you love an AI that just works.
-
-| | Who | What they use | What they experience |
-|:---:|:---|:---|:---|
-| 👨‍👩‍👧 | **Your family** | WhatsApp, iMessage, Telegram | A helpful AI in the app they already have. No signup, no new app. |
-| 🏠 | **Your household** | Wake word — *"Hey Sven"* | Hands-free voice assistant. Timers, questions, music, schedules. 100% local. |
-| 👥 | **Your friends** | Discord, Telegram, Signal | Shared bot, private memory per person. Knows each of them individually. |
-| 🏢 | **Your team** | Slack, Teams, Mattermost | SSO, RBAC, multi-tenant, full observability. Enterprise-ready when you need it. |
-
-> The people you share Sven with don't need to know anything about servers. They just chat.
-
----
-
-## ✨ Why Sven?
-
-| | What you get |
+| | |
 |:---:|---|
-| 👨‍👩‍👧 | **A companion for everyone you love** — family, friends, and household all on the platforms they already use, with zero setup on their side |
-| 🏠 | **Your home hub** — wake word detection, local Whisper STT, Piper TTS, speaker ID; no audio ever leaves your home |
-| 🔒 | **Fully private, fully local** — every model, search engine, STT, and TTS component runs on your own server; nothing touches a third-party cloud |
-| 🧠 | **Memory per person** — each user gets their own private memory; Sven knows your mum's preferences separately from your friends' inside jokes |
-| 📱 | **Native everywhere** — Flutter (iOS + Android), Tauri (macOS / Windows / Linux), browser, and all 20 chat platforms |
-| 🔧 | **Skills you install once, everyone benefits** — gVisor-sandboxed, versioned, hot-reloaded; Spotify, calendar, weather, notes, and 80+ more |
-| 🏢 | **Grows with you** — when you're ready: multi-tenancy, RBAC, Keycloak SSO, canary deploys, observability, runbook library |
+| **Full platform** | Not a single tool — an entire AI infrastructure stack: agents, memory, RAG, voice, security, compute mesh, document intelligence, quantum simulation, marketing analytics, and more |
+| **Any scale** | Runs on a Raspberry Pi for personal use, scales to multi-tenant enterprise with SSO, RBAC, canary deploys, and full observability |
+| **Any interface** | Native Flutter mobile app, Tauri desktop app, web admin dashboard, real-time chat canvas, embeddable widget, 20 messaging adapters, voice with wake word |
+| **Zero cloud dependency** | Every component — LLM inference, search, STT, TTS, vector DB — runs locally. Nothing phones home. Your data never leaves your infrastructure |
+| **Production-grade** | Not a demo. Structured logging, distributed tracing, Prometheus metrics, health endpoints, graceful shutdown, migration scripts, rollback procedures, runbook library |
+
+> **MIT licensed. Self-hosted. No telemetry. No vendor lock-in.**
 
 ---
 
-## 💡 Key Features
+## 🧩 Platform Overview
 
-### 🤖 Multi-Agent Runtime
-- Parallel agent execution with dedicated per-agent runtimes
-- Routing rules: route channels, accounts, or topics to specific agents
-- **Self-correcting agent loop** — error classification, bounded autonomous retries, strategy adjustments, infinite-loop detection
-- Approval gates triggered at configurable retry thresholds
-- Sub-agent nesting with context isolation
-- Agent pause / resume mid-task
-- Per-agent model and profile overrides
+<details open>
+<summary><strong>Core AI Runtime</strong></summary>
 
-### 🧠 Memory & Intelligence
-- Persistent memory: per-user private, chat-shared, global, and knowledge-graph scopes
-- **Temporal decay scoring** — recent memories ranked higher automatically
-- **MMR re-ranking** — Maximal Marginal Relevance for diverse, non-redundant results
-- Hybrid BM25 + pgvector semantic search (OpenSearch + PostgreSQL)
-- Memory dashboard: browse, search, edit, delete, bulk-export, import
-- Memory consolidation with AI-driven deduplication
-- Session memory indexing for fast in-session recall
-- Delayed recall for background memory enrichment
+- **Multi-agent orchestration** — parallel execution, routing rules, self-correcting loops, approval gates, sub-agent nesting, pause/resume
+- **Per-user persistent memory** — private, shared, global, and knowledge-graph scopes with temporal decay scoring and MMR re-ranking
+- **RAG pipeline** — Git repos, NAS, Apple Notes, Obsidian, Bear, Notion ingestion with chunking, embedding, incremental re-indexing, and feedback loops
+- **80+ sandboxed skills** — gVisor-isolated execution, dynamic tool creation at runtime, skill marketplace with versioning and revenue share
+- **LLM flexibility** — LiteLLM proxy supporting OpenAI, Anthropic, Google, Mistral, Ollama, LM Studio; per-agent model selection, virtual API keys with spend limits
 
-### 📚 RAG — Retrieval-Augmented Generation
-- **Git ingestor** — clone any repo, index commits and code for agent context
-- **NAS ingestor** — index your network-attached storage
-- **Notes ingestor** — Apple Notes, Obsidian, Bear, Notion
-- Chunking, embedding, and incremental re-indexing pipelines
-- Structured RAG, multimodal RAG, temporal RAG, and cross-agent knowledge sharing
-- RAG feedback loop: thumbs up/down on retrieved results → improved future retrieval
+</details>
 
-### 🔧 Skills & Tools (80+)
-- **Sandboxed execution** via gVisor — zero host-escape risk
-- **Dynamic tool creation** — agent authors new skills at runtime, auto-quarantined pending admin approval
-- Skill marketplace (registry): install, version, review, revenue share
-- Built-in tools: web fetch (Firecrawl), file ops, code execution, email, image generation, media analysis, Spotify, Sonos, Apple Notes, Reminders, Things 3, Notion, Obsidian, Bear, Trello, X (Twitter), 1Password, GIFs, weather, and more
-- Policy engine: per-tool allowlist, privilege scopes, budget guards
-- Secrets management: SOPS, Vault, file, env — mounted read-only; never exposed to the agent
+<details open>
+<summary><strong>Voice & Communication</strong></summary>
 
-### 🔍 Private Search
-- **Self-hosted SearXNG** — privacy-respecting web search, no query leakage to third parties
-- **Brave Search** as an alternative backend
-- Configurable engines, safe search levels, per-category controls
-- Search audit log (local only), egress proxy routing
+- **Full local voice stack** — wake word detection, Whisper STT (faster-whisper), Piper TTS, speaker identification, emotion detection — 100% on-device
+- **20 messaging adapters** — Slack, Teams, Telegram, Discord, WhatsApp, Signal, Matrix, iMessage, Google Chat, Mattermost, IRC, Nostr, Twitch, Line, Zalo, Feishu, Nextcloud Talk, Tlon, WebChat, Voice Call
+- **Meeting assistant** — transcription, speaker ID, summarisation, action item extraction
+- **Proactive notifications** — scheduled messages, calendar prefetch, pattern detection, health monitoring, configurable triggers with quiet hours and rate limiting
 
-### 🎙️ Voice Stack
-- **Wake word detection** — always-listening, fully local processing
-- **Whisper STT** (faster-whisper) — local speech-to-text, multi-language
-- **Piper TTS** — local high-quality text-to-speech synthesis
-- Continuous conversation mode — hands-free back-and-forth interaction
-- Speaker identification — know who is speaking at all times
-- Emotion detection in voice input
-- Voice shortcuts — single phrase triggers complex multi-step workflows
-- Voice call integration — full call routing through the agent
-- Meeting assistant — transcribe, summarise, extract action items
+</details>
 
-### 📱 Native Mobile — Flutter (iOS & Android)
-- Full iOS and Android companion app built in Flutter
-- Chat, voice, notifications, deep links, push (FCM + APNs)
-- Cold-start < 2 s on mid-range devices
-- Offline-capable with sync on reconnect
-- Accessibility: WCAG 2.1 AA compliant
-- Production release pipeline with signing and store distribution
+<details open>
+<summary><strong>Intelligence Services</strong></summary>
 
-### 🖥️ Native Desktop — Tauri (macOS / Windows / Linux)
-- Rust-based Tauri app — smaller binary, lower memory, OS-native APIs
-- Secure keychain / credential store integration
-- Auto-update with code signing and provenance verification
-- System tray, notifications, deep link handling
+- **Document Intelligence** — OCR, entity extraction, summarisation, PII detection and redaction, multi-format batch processing
+- **Marketing Intelligence** — competitive signal monitoring, brand voice analysis, content scoring, campaign management, ROI analytics, coaching debriefs
+- **Security Toolkit** — SAST (14 rules), secret scanning (20 patterns), dependency CVE audit, infrastructure audit, pen-test scenarios, security posture reporting
+- **Quantum Simulation** — 25-qubit state-vector simulator, QAOA, Grover's search, quantum Monte Carlo, annealing, portfolio optimisation, multi-backend cost estimation (IBM, AWS, Origin)
 
-### 🌐 Web UIs
-- **Admin UI** — full control panel: agents, memory, RAG, scheduler, registry, billing, observability
-- **Canvas UI** — rich real-time chat surface with KaTeX math, markdown, code blocks, tool trace viewer, approval flows
-- **WebChat widget** — drop Sven into any webpage with a single script tag
+</details>
 
-### 🏢 Multi-Tenancy & Enterprise SSO
-- Organisation-scoped data isolation, RBAC (admin / operator / member)
-- **Keycloak / OIDC SSO** — full enterprise single sign-on
-- Per-tenant storage mapping, usage metering, and billing
-- Integration runtime isolation — tenant workloads sandboxed separately
+<details open>
+<summary><strong>Infrastructure & Compute</strong></summary>
 
-### 📊 Proactive Intelligence
-- Scheduled messages: *"remind me every Monday at 9am"*
-- Calendar prefetch: surfaces upcoming events as agent context
-- Pattern detection: learns recurring tasks and offers to automate them
-- Health monitoring: watches your services and proactively alerts
-- Configurable triggers for any event type
+- **Compute Mesh** — distributed workload orchestration across heterogeneous device fleets with capability-based scheduling and fault-tolerant reassignment
+- **Model Router** — LLM inference routing across multi-provider GPU fleets, VRAM monitoring, hot-swap deployment, benchmark tracking, latency-based decisions
+- **Workflow Executor** — cron scheduling, natural language task creation, missed-run detection, admin UI with run history
+- **Notification Service** — push (FCM/APNs), email, in-app notifications across all client surfaces
 
-### � Quantum Simulation
-- **State-vector simulator** — up to 25-qubit circuit simulation with full gate library
-- Standard gates (H, X, Y, Z, S, T, CNOT, SWAP, CZ, Toffoli) + parametric (Rx, Ry, Rz)
-- **Quantum algorithms** — QAOA, Grover's search, quantum Monte Carlo, quantum annealing, portfolio optimisation
-- **Quantum random number generation** — true random bits via superposition measurement
-- Noise models: depolarizing, amplitude damping, phase damping
-- Multi-backend support: local simulator, IBM Quantum, AWS Braket, Origin Quantum
-- Job management with cost estimation, result caching, and NATS-driven async execution
-- Circuit ASCII visualisation and quantum volume estimation
+</details>
 
-### 🔧 Compute Mesh
-- Distributed workload orchestration across heterogeneous device fleets
-- Device registration, heartbeat monitoring, capability-based job scheduling
-- Work unit partitioning with fault-tolerant reassignment
-- Real-time metrics and fleet topology visualisation
+<details open>
+<summary><strong>Enterprise & Operations</strong></summary>
 
-### 🧠 Model Router
-- Intelligent LLM inference routing across multi-provider fleets
-- Fleet health probing, VRAM monitoring, and automatic failover
-- Hot-swap model deployment with zero-downtime rollover
-- Benchmark tracking and latency-based routing decisions
+- **Multi-tenancy** — organisation-scoped data isolation, RBAC (admin / operator / member), per-tenant storage, usage metering, billing
+- **SSO** — Keycloak / OIDC, TOTP for admin accounts
+- **Observability** — Prometheus metrics, structured JSON logging, distributed tracing, pre-built Grafana dashboards, alerting baselines
+- **Security** — TLS 1.2+, CORS/egress allowlists, secrets encryption, SBOM + cosign signing, dependency vulnerability scanning
+- **Operations** — canary deployment (phase 0 → 100%), one-command rollback, backup/restore with S3, full runbook library
 
-### 🛡️ Security Toolkit
-- Static analysis (SAST), secret scanning, dependency CVE audit
-- Infrastructure audit and penetration testing automation
-- Security posture reports with critical finding escalation
-- Integrated with NATS for real-time security event streaming
-
-### 📄 Document Intelligence
-- OCR pipeline with entity extraction and automatic summarisation
-- PII detection and redaction across document batches
-- Multi-format support: PDF, images, scanned documents
-- NATS-driven async processing with batch status tracking
-
-### 📈 Marketing Intelligence
-- Competitive signal monitoring and threat matrix generation
-- Brand voice analysis and content scoring
-- Campaign management with ROI analytics and coaching debriefs
-- Automated report generation and strategic recommendations
-
-### �🔒 Production Security
-- TLS 1.2+ enforced end-to-end
-- Auth lockout, token expiry, session invalidation on password change
-- TOTP required for admin accounts
-- CORS allowlist, egress allowlist, no raw-IP egress
-- Secrets encrypted at rest, separated from runtime config
-- SBOM + cosign image signing, Dependabot, npm audit enforcement
-- Dependency vulnerability scanning in CI
-- Penetration testing baseline documented in [SECURITY.md](SECURITY.md)
-
-### 📈 Observability & Operations
-- Prometheus metrics, structured JSON logging, distributed tracing
-- Pre-built dashboards: SLO, agent performance, memory growth, API contract coverage
-- Alerting baselines with noise thresholds
-- Full ops runbook library: key rotation, incident triage, upgrade guide, backup/restore
-- Canary deployment strategy (phase 0 → phase 2 → 100%)
-- One-command rollback with rehearsal scripts
-
-### 🗂️ Scheduler
-- One-time and recurring tasks (cron expressions)
-- Chat-driven scheduling: *"schedule a task"* in natural language
-- Admin UI scheduler with run history, manual trigger, enable/disable per task
-- Missed-run detection with configurable retry policy
-
-### 💾 Backup & Restore
-- One-click backup: PostgreSQL + NATS + config + uploaded files
-- S3-compatible remote backup destination
-- Configurable retention policy (keep last N backups)
-- Pre-restore integrity validation + version compatibility check
-- Nightly auto-backup cron with verification alert
-
-### 🔌 AI / LLM Flexibility
-- **LiteLLM proxy** — OpenAI, Anthropic, Google, Mistral, local (Ollama, LM Studio), and more
-- Per-agent model selection from the Admin UI
-- Virtual API keys with per-key spend limits and cost tracking
-- Context-window optimisation, prompt refinement A/B testing
-- Tool-selection optimisation, resource optimisation profiles
-- AI-generated weekly ops report
-
----
-
-## 📬 Messaging Adapters
-
-Sven ships **20 messaging platform adapters** out of the box:
-
-| Adapter | Notes |
-|:---|:---|
-| 💬 **Slack** | Bolt SDK, DM + channels |
-| 🟦 **Microsoft Teams** | Bot Framework |
-| ✈️ **Telegram** | grammY |
-| 🎮 **Discord** | discord.js |
-| 🟩 **WhatsApp** | Full business API integration |
-| 🔵 **Signal** | signal-cli bridge |
-| 🟪 **Matrix** | E2E encrypted rooms |
-| 🔵 **Google Chat** | Chat API |
-| 🍎 **iMessage** | macOS + BlueBubbles |
-| 🔷 **Mattermost** | Self-hosted teams chat |
-| 🖥️ **IRC** | Classic network support |
-| 🔑 **Nostr** | Decentralized protocol |
-| 🎥 **Twitch** | Live chat integration |
-| 🟢 **Line** | Asia-Pacific messaging |
-| 🇻🇳 **Zalo** | Vietnam market |
-| 🪶 **Feishu** | Lark / ByteDance |
-| ☁️ **Nextcloud Talk** | Self-hosted collaboration |
-| 🌊 **Tlon** | Urbit-based messaging |
-| 🌐 **WebChat** | Embeddable browser widget |
-| 📞 **Voice Call** | SIP / phone integration |
+</details>
 
 ---
 
@@ -315,19 +142,24 @@ Sven ships **20 messaging platform adapters** out of the box:
 ╚═══════════════════════════════════════════════════════════════════╝
 ```
 
+---
+
+## 📦 Services & Capabilities
+
 ### Monorepo Layout
 
 ```
-thesven/
+sven/
 ├── apps/
 │   ├── admin-ui/                  # React admin dashboard
 │   ├── canvas-ui/                 # Real-time chat canvas (KaTeX, tool traces)
 │   ├── companion-user-flutter/    # iOS + Android Flutter companion app
 │   └── companion-desktop-tauri/   # macOS / Windows / Linux (Tauri/Rust)
-├── services/
-│   ├── gateway-api/               # Central API (TypeScript / Node)
+│
+├── services/                      # 47+ independently deployable microservices
+│   ├── gateway-api/               # Central API — auth, routing, rate limiting
 │   ├── agent-runtime/             # LLM + tool orchestration engine
-│   ├── skill-runner/              # Sandboxed tool executor (gVisor)
+│   ├── skill-runner/              # gVisor-sandboxed tool executor
 │   ├── workflow-executor/         # Scheduler + cron engine
 │   ├── registry-worker/           # Skill marketplace pipeline
 │   ├── notification-service/      # Push (FCM/APNs), email, in-app
@@ -335,40 +167,57 @@ thesven/
 │   ├── rag-git-ingestor/          # Git repo ingestion
 │   ├── rag-nas-ingestor/          # NAS / filesystem ingestion
 │   ├── rag-notes-ingestor/        # Notes app connectors
-│   ├── compute-mesh/              # Distributed workload orchestration (device fleet, job scheduling)
-│   ├── model-router/              # LLM inference routing, fleet health, benchmarks, VRAM management
-│   ├── security-toolkit/          # SAST, secret scanning, dependency audit, infra audit, pen-test
-│   ├── document-intel/            # OCR, entity extraction, summarisation, PII detection pipeline
-│   ├── marketing-intel/           # Competitive intelligence, brand voice, content, campaign analytics
-│   ├── proactive-notifier/        # Autonomous notification engine (triggers, quiet hours, rate limiting)
-│   ├── quantum-sim/               # Quantum circuit simulation, algorithms (QAOA, Grover), job management
+│   ├── compute-mesh/              # Distributed workload orchestration
+│   ├── model-router/              # LLM inference routing + GPU fleet management
+│   ├── security-toolkit/          # SAST, secrets, CVE audit, infra audit, pen-test
+│   ├── document-intel/            # OCR, entities, summarisation, PII detection
+│   ├── marketing-intel/           # Competitive intel, brand voice, campaigns
+│   ├── proactive-notifier/        # Autonomous trigger-based notifications
+│   ├── quantum-sim/               # Quantum circuit simulation + algorithms
 │   ├── litellm/                   # LLM provider proxy
 │   ├── searxng/                   # Self-hosted private search
 │   ├── egress-proxy/              # Outbound allowlist proxy
-│   ├── faster-whisper/            # Local STT service
-│   ├── piper/                     # Local TTS service
+│   ├── faster-whisper/            # Local STT
+│   ├── piper/                     # Local TTS
 │   ├── wake-word/                 # Always-on wake word engine
 │   ├── sso/                       # Keycloak OIDC provider
 │   ├── sven-mirror-agent/         # Edge agent (Raspberry Pi / kiosk)
 │   └── adapter-*/                 # 20 messaging adapters
-├── packages/                      # Shared TypeScript packages
-│   ├── shared/                    # Common utilities, types, NATS subjects, logger
-│   ├── compute-mesh/              # Distributed compute mesh library
-│   ├── model-router/              # Model routing & fleet management library
-│   ├── security-toolkit/          # Security scanning & audit library
-│   ├── document-intel/            # Document processing & OCR library
-│   ├── marketing-intel/           # Marketing intelligence & analytics library
-│   ├── proactive-notifier/        # Proactive notification engine library
-│   ├── quantum-sim/               # Quantum gates, simulator, algorithms, hardware backends
-│   ├── design-system/             # UI component library (React)
-│   └── cli/                       # Command-line interface tool
-├── skills/                        # Built-in skills (SKILL.md standard)
+│
+├── packages/                      # Shared TypeScript libraries
+│   ├── shared/                    # Utilities, types, NATS subjects, logger
+│   ├── compute-mesh/              # Compute mesh library
+│   ├── model-router/              # Model routing library
+│   ├── security-toolkit/          # Security scanning library
+│   ├── document-intel/            # Document processing library
+│   ├── marketing-intel/           # Marketing intelligence library
+│   ├── proactive-notifier/        # Notification engine library
+│   ├── quantum-sim/               # Quantum gates, simulator, algorithms, hardware
+│   ├── design-system/             # React UI component library
+│   └── cli/                       # Command-line interface
+│
+├── skills/                        # 80+ built-in skills (SKILL.md standard)
 ├── tests/                         # E2E + load tests
 ├── deploy/                        # Kubernetes, Helm, Compose configs
-├── config/                        # Service configuration
-├── docs/                          # Full documentation
-└── scripts/                       # Developer and ops scripts
+├── config/                        # Prometheus, Grafana, Loki, Traefik, Caddy, nginx
+├── docs/                          # Architecture, security, ops, release docs
+└── scripts/                       # 100+ dev and ops automation scripts
 ```
+
+### Service Port Map
+
+| Service | Port | Description |
+|:---|:---:|:---|
+| Gateway API | 4000 | Central REST + WebSocket API |
+| Admin UI | 3000 | Control panel |
+| Canvas UI | 3001 | Real-time chat surface |
+| Compute Mesh | 9470 | Distributed workload orchestration |
+| Model Router | 9471 | LLM inference routing |
+| Security Toolkit | 9472 | Security scanning & audit |
+| Document Intel | 9473 | Document processing pipeline |
+| Marketing Intel | 9474 | Competitive & marketing analytics |
+| Proactive Notifier | 9475 | Autonomous notifications |
+| Quantum Sim | 9476 | Quantum circuit simulation |
 
 ---
 
@@ -387,8 +236,8 @@ thesven/
 ### 1 · Clone
 
 ```bash
-git clone https://github.com/47network/thesven.git
-cd thesven
+git clone https://github.com/47network/sven.git
+cd sven
 ```
 
 ### 2 · Configure
@@ -406,18 +255,9 @@ cp .env.example .env
 # Full dev stack (hot-reload on all services)
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
-# Single-node Linux staging / production-v1 baseline
+# Single-node Linux production baseline
 docker compose -f docker-compose.yml -f docker-compose.production.yml up -d
 ```
-
-For real deployment guidance, do not stop at raw Docker commands. Use the deployment ladder:
-
-- [docs/deploy/deployment-ladder-2026.md](docs/deploy/deployment-ladder-2026.md)
-- [docs/deploy/setup-paths-matrix-2026.md](docs/deploy/setup-paths-matrix-2026.md)
-- [docs/deploy/github-release-install-guide-2026.md](docs/deploy/github-release-install-guide-2026.md)
-- [docs/deploy/staging-linux-vm-2026.md](docs/deploy/staging-linux-vm-2026.md)
-- [docs/deploy/production-v1-linux-vm-2026.md](docs/deploy/production-v1-linux-vm-2026.md)
-- [docs/deploy/production-scale-2026.md](docs/deploy/production-scale-2026.md)
 
 ### 4 · Migrate & seed
 
@@ -434,21 +274,31 @@ npm run db:migrate
 | **Canvas Chat** | http://localhost:3001 | Rich chat surface with tool trace viewer |
 | **Gateway API** | http://localhost:4000 | REST + WebSocket API |
 
-Complete first-run setup in the Admin UI — create your first agent, connect a messaging adapter, and start chatting.
+Complete first-run setup in the Admin UI — create your first agent, connect a messaging adapter, and start using the platform.
+
+### Deployment Guides
+
+For production deployments beyond `docker compose`:
+
+- [Deployment Ladder](docs/deploy/deployment-ladder-2026.md) — choose your deployment tier
+- [Setup Paths Matrix](docs/deploy/setup-paths-matrix-2026.md) — hardware and config decision tree
+- [Staging VM Guide](docs/deploy/staging-linux-vm-2026.md) — single-node staging deployment
+- [Production VM Guide](docs/deploy/production-v1-linux-vm-2026.md) — production-grade single-node
+- [Production Scale](docs/deploy/production-scale-2026.md) — multi-node / Kubernetes
 
 ---
 
 ## ⚙️ Configuration
 
-All configuration is environment-variable driven. Use [`.env.example`](.env.example) as the canonical compose startup contract and `config/env/.env.*.example` for environment-specific overlays.
+All configuration is environment-variable driven. Use [`.env.example`](.env.example) as the canonical startup contract.
 
 | Variable | Description |
 |:---|:---|
 | `DATABASE_URL` | PostgreSQL connection string |
-| `NATS_URL` | NATS broker address |
+| `NATS_URL` | NATS JetStream broker address |
 | `LITELLM_API_BASE` | LiteLLM proxy base URL |
-| `SVEN_EGRESS_PROXY` | Forward proxy for tool egress (`http://egress-proxy:3128`) |
-| `COOKIE_SECRET` | Session/cookie signing secret — use a strong random value (required) |
+| `SVEN_EGRESS_PROXY` | Forward proxy for tool egress |
+| `COOKIE_SECRET` | Session signing secret (required) |
 | `ADMIN_INITIAL_EMAIL` | First admin account email |
 | `ADMIN_INITIAL_PASSWORD` | First admin account password |
 | `OPENSEARCH_URL` | OpenSearch / Elasticsearch URL |
@@ -457,43 +307,60 @@ All configuration is environment-variable driven. Use [`.env.example`](.env.exam
 
 ---
 
-## 🚀 Real-World Use Cases
+## 📬 Messaging Adapters
 
-- 👨‍👩‍👧 **Family companion** — your parents WhatsApp it to ask questions, check recipes, set reminders; they never know or care how it works
-- 🏠 **Smart home voice hub** — "Hey Sven" triggers from any room; answers questions, controls smart home devices, reads out schedules; runs on a Raspberry Pi mirror agent with no cloud
-- 👥 **Friends group assistant** — one bot on a shared Discord or Telegram group that knows each person individually with separate private memory
-- 💬 **Multi-channel personal assistant** — you get it on all 20 platforms simultaneously; one brain, everywhere you already are
-- 📖 **Personal knowledge base** — index your Git repos, Obsidian vault, Apple Notes, and NAS; ask cross-source questions and get cited answers
-- 🏢 **Private team assistant** — when you outgrow personal use: deploy for your organisation, each member gets private memory, shared knowledge base, their own agent profile
-- 📹 **Meeting intelligence** — join calls, transcribe in real-time, identify speakers, generate summaries and action items automatically
-- ⚙️ **Ops automation** — schedule recurring tasks, monitor service health, trigger runbooks when anomalies are detected
-- 🔐 **Enterprise AI on-prem** — multi-tenant, SSO, RBAC, full compliance audit trail — deploy inside your private cloud and own everything
+20 platform adapters ship out of the box:
+
+| | | | |
+|:---|:---|:---|:---|
+| 💬 **Slack** | 🟦 **Microsoft Teams** | ✈️ **Telegram** | 🎮 **Discord** |
+| 🟩 **WhatsApp** | 🔵 **Signal** | 🟪 **Matrix** (E2EE) | 🔵 **Google Chat** |
+| 🍎 **iMessage** | 🔷 **Mattermost** | 🖥️ **IRC** | 🔑 **Nostr** |
+| 🎥 **Twitch** | 🟢 **Line** | 🇻🇳 **Zalo** | 🪶 **Feishu** |
+| ☁️ **Nextcloud Talk** | 🌊 **Tlon** | 🌐 **WebChat** | 📞 **Voice Call** |
+
+---
+
+## 🚀 Use Cases
+
+Sven is a general-purpose AI platform. Here are some of the ways it is being used:
+
+| Scale | Use Case | Key Services |
+|:---|:---|:---|
+| **Personal** | AI assistant across all your messaging apps with private memory per conversation | Agent Runtime, Memory, 20 Adapters |
+| **Home** | Voice-controlled hub — "Hey Sven" from any room, 100% local | Wake Word, Whisper STT, Piper TTS, Mirror Agent |
+| **Team** | Private team AI — shared knowledge base, per-member memory, SSO | Multi-tenancy, RAG, Keycloak SSO, RBAC |
+| **Enterprise** | On-prem AI platform — multi-tenant, compliance audit trail, canary deploys | All services, observability stack, runbook library |
+| **Research** | Quantum algorithm exploration, circuit simulation, portfolio optimisation | Quantum Sim, Compute Mesh |
+| **Security** | Automated SAST, secret scanning, dependency audit, pen-test orchestration | Security Toolkit |
+| **Content** | Document processing at scale — OCR, entity extraction, PII redaction | Document Intel |
+| **Marketing** | Competitive intelligence, brand monitoring, campaign analytics | Marketing Intel |
+| **DevOps** | Distributed compute orchestration, GPU fleet management, model routing | Compute Mesh, Model Router |
+| **Knowledge** | Index Git repos, NAS, notes apps — cross-source semantic search | RAG Indexer, Git/NAS/Notes Ingestors |
 
 ---
 
 ## 🆚 How Sven Compares
 
-Most AI tools are built for one tech-savvy person using a terminal. Sven is built to be deployed by one person so that *many people* — regardless of technical ability — can use it every day, privately, without changing anything about how they communicate:
-
 | Capability | Sven | Single-user AI CLI | Chat Bridge Platform |
 |:---|:---:|:---:|:---:|
-| Self-hosted | ✅ | ✅ | ✅ |
-| **Non-technical end users (no setup required for them)** | ✅ | ❌ | ❌ |
-| **Per-person private memory** | ✅ | ❌ | ❌ |
-| **Home voice hub (wake word + STT + TTS, 100% local)** | ✅ | Partial | ❌ |
-| Multi-tenant RBAC | ✅ | ❌ | ❌ |
-| Enterprise SSO (Keycloak / OIDC) | ✅ | ❌ | ❌ |
+| Self-hosted, zero cloud dependency | ✅ | ✅ | ✅ |
+| Full platform (agents + voice + RAG + security + compute) | ✅ | ❌ | ❌ |
+| Multi-tenant RBAC + Enterprise SSO | ✅ | ❌ | ❌ |
 | Native mobile app (Flutter) | ✅ | ❌ | Limited |
 | Native desktop app (Tauri) | ✅ | ❌ | Limited |
+| Full local voice stack (wake word + STT + TTS) | ✅ | Partial | ❌ |
+| Per-user private memory with temporal decay | ✅ | ❌ | ❌ |
 | Full RAG pipeline (Git + NAS + Notes) | ✅ | Partial | ❌ |
-| Temporal decay + MMR re-ranking memory | ✅ | ❌ | ❌ |
-| Full local voice stack (STT + TTS + wake word) | ✅ | Partial | Limited |
-| Dynamic tool creation at runtime | ✅ | ✅ | ❌ |
 | Sandboxed skill execution (gVisor) | ✅ | Partial | ❌ |
 | Skill marketplace with revenue sharing | ✅ | ❌ | ❌ |
+| Document intelligence (OCR, PII, entities) | ✅ | ❌ | ❌ |
+| Security scanning (SAST, secrets, CVE, pen-test) | ✅ | ❌ | ❌ |
+| Quantum simulation | ✅ | ❌ | ❌ |
+| Distributed compute mesh | ✅ | ❌ | ❌ |
+| LLM fleet routing + VRAM management | ✅ | ❌ | ❌ |
+| Marketing & competitive intelligence | ✅ | ❌ | ❌ |
 | Messaging adapters | **20** | 0 | **20** |
-| Proactive agent (calendar, health, patterns) | ✅ | ❌ | ❌ |
-| One-click backup / restore | ✅ | ✅ | ❌ |
 | Canary deployment pipeline | ✅ | ❌ | ❌ |
 | Full observability (metrics + traces + alerts) | ✅ | Partial | Partial |
 | Operator runbook library | ✅ | ❌ | ❌ |
@@ -501,19 +368,13 @@ Most AI tools are built for one tech-savvy person using a terminal. Sven is buil
 
 ### Capability Proof (machine-verified)
 
-Current runtime-backed parity snapshot (generated from release status artifacts):
-
 | Scope | Proven | Coverage |
 |:---|:---:|:---:|
 | Agent Zero parity matrix | 111 / 111 | 100% |
 | OpenClaw parity matrix | 176 / 176 | 100% |
 | Combined competitor rows | 287 / 287 | 100% |
-| Wave competitor closeouts (W1..W8) | 8 / 8 pass | 100% |
 
-Evidence artifacts:
-- `docs/release/status/competitor-capability-proof-latest.json`
-- `docs/release/status/competitor-delta-sheet-latest.json`
-- `docs/release/status/parity-checklist-verify-latest.json`
+Evidence: `docs/release/status/competitor-capability-proof-latest.json`
 
 ---
 
@@ -521,31 +382,23 @@ Evidence artifacts:
 
 | Document | Description |
 |:---|:---|
-| [Feature Catalog](docs/features/sven-feature-catalog-2026-03-12.md) | Canonical current capability map and usage pointers |
-| [Audience Guides](docs/guides/README.md) | Guided paths for non-technical users, operators, and developers |
-| [Role-Based Onboarding Kits](docs/guides/onboarding-kits-by-role.md) | Day-1/week-1 onboarding checklists for family, operators, developers, and security reviewers |
-| [Feature Flow Diagrams](docs/architecture/feature-flow-diagrams-2026-03-12.md) | End-to-end execution flows for chat, relay, RAG, mobile push, and release evidence |
-| [Enterprise Documentation Standard](docs/documentation/enterprise-documentation-standard-2026.md) | Documentation quality/governance standard for production truthfulness |
-| [Master Checklist Coverage Matrix](docs/documentation/master-checklist-doc-coverage-matrix-2026-03-12.md) | Section-by-section documentation coverage with evidence anchors |
-| [Documentation Health Dashboard](docs/documentation/docs-health-dashboard-2026-03-12.md) | At-a-glance docs quality status, enterprise gates, and next actions |
-| [Repo Hygiene and Packaging](docs/documentation/repo-hygiene-and-release-packaging-2026.md) | Enterprise repository cleanup policy and release packaging audit flow |
-| [Live Release Status](docs/release/status/latest.md) | Current strict blockers and release readiness snapshot |
-| [Local Testing Guide](docs/release/LOCAL_TESTING_GUIDE.md) | Run the full stack locally end-to-end |
-| [Operator Runbooks](docs/ops/) | Key rotation, incident triage, upgrade, backup, troubleshooting |
-| [Release Checklists](docs/release/checklists/) | Production readiness gates and sign-offs |
-| [Parity Assessment](docs/release/section-i-parity-assessment.md) | Feature parity analysis vs comparable tools |
+| [Feature Catalog](docs/features/sven-feature-catalog-2026-03-12.md) | Canonical capability map |
+| [Architecture](docs/ARCHITECTURE.md) | System design and service interactions |
+| [Feature Flow Diagrams](docs/architecture/feature-flow-diagrams-2026-03-12.md) | End-to-end execution flows |
+| [Local Testing Guide](docs/release/LOCAL_TESTING_GUIDE.md) | Run the full stack locally |
+| [Operator Runbooks](docs/ops/) | Key rotation, incident triage, upgrade, backup |
 | [Security Guide](docs/release/section-k-security-privacy.md) | Threat model, controls, pen-test baseline |
-| [Performance Guide](docs/release/section-j-performance-accessibility.md) | SLOs, load test results, accessibility compliance |
-| [Flutter App Checklist](docs/release/checklists/flutter-user-app-checklist-2026.md) | Mobile release requirements and gates |
-| [Ops Runbook Index](docs/ops/runbook-index-2026.md) | Overview of all operational runbooks |
-| [Parity: Single-user AI CLI](docs/parity/sven-vs-agent-zero-feature-comparison.md) | Feature-by-feature comparison |
-| [Parity: Chat Bridge Platform](docs/parity/Sven_vs_OpenClaw_Feature_Comparison.md) | Feature-by-feature comparison |
+| [Performance Guide](docs/release/section-j-performance-accessibility.md) | SLOs, load tests, accessibility |
+| [Release Checklists](docs/release/checklists/) | Production readiness gates |
+| [Onboarding Kits](docs/guides/onboarding-kits-by-role.md) | Role-based getting started guides |
+| [Parity: vs Agent Zero](docs/parity/sven-vs-agent-zero-feature-comparison.md) | Feature-by-feature comparison |
+| [Parity: vs OpenClaw](docs/parity/Sven_vs_OpenClaw_Feature_Comparison.md) | Feature-by-feature comparison |
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome — from bug reports to new adapters to full skill implementations.
+Contributions are welcome — from bug reports to new adapters to full service implementations.
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - **Development setup** — prerequisites, local dev stack, hot-reload workflow
@@ -557,14 +410,10 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ---
 
-## ⭐ Support the Project
+<div align="center">
 
-If Sven is useful to you — or to someone you care about — consider starring the repo. It helps others discover the project.
+[![Star on GitHub](https://img.shields.io/github/stars/47network/sven?style=for-the-badge&logo=github&label=Star)](https://github.com/47network/sven)
 
-[![Star on GitHub](https://img.shields.io/github/stars/47network/thesven?style=social)](https://github.com/47network/thesven)
+**[MIT](LICENSE) © 2026 [47network](https://github.com/47network)**
 
----
-
-## 📜 License
-
-[MIT](LICENSE) © 2026 [47network](https://github.com/47network)
+</div>
