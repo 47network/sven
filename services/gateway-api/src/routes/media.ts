@@ -7,6 +7,25 @@ import { createWriteStream, existsSync, mkdirSync } from 'fs';
 import { pipeline } from 'stream/promises';
 import path from 'path';
 
+function resolveStoragePath(baseDir: string, storageKey: unknown): string | null {
+  const base = path.resolve(String(baseDir || '/data/uploads'));
+  const key = String(storageKey || '').trim();
+  if (!key) return null;
+  const candidate = path.resolve(base, key);
+  const rel = path.relative(base, candidate);
+  if (!rel || rel === '.' || rel.startsWith('..') || path.isAbsolute(rel)) {
+    return null;
+  }
+  return candidate;
+}
+
+function toSafeStorageUserSegment(value: unknown): string {
+  const trimmed = String(value || '').trim();
+  const normalized = trimmed.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 128);
+  if (normalized) return normalized;
+  return createHash('sha256').update(trimmed || 'unknown').digest('hex').slice(0, 32);
+}
+
 export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
   const requireAuth = requireRole(pool, 'admin', 'user');
 
@@ -55,16 +74,20 @@ export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
     const uploadId = uuidv7();
     const ext = path.extname(originalName) || '';
     const safeExt = ext.replace(/[^a-zA-Z0-9.]/g, '').slice(0, 10);
-    const storageKey = `${userId}/${uploadId}${safeExt}`;
+    const storageUserSegment = toSafeStorageUserSegment(userId);
+    const storageKey = `${storageUserSegment}/${uploadId}${safeExt}`;
 
     // Write to local storage
     const localPath = config.local_path || '/data/uploads';
-    const uploadDir = path.join(localPath, userId);
+    const uploadDir = path.join(localPath, storageUserSegment);
     if (!existsSync(uploadDir)) {
       mkdirSync(uploadDir, { recursive: true });
     }
 
-    const filePath = path.join(localPath, storageKey);
+    const filePath = resolveStoragePath(localPath, storageKey);
+    if (!filePath) {
+      return reply.status(400).send({ success: false, error: 'invalid storage path' });
+    }
     const hash = createHash('sha256');
     let totalBytes = 0;
 
@@ -142,7 +165,10 @@ export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
     }
 
     // Local file serve
-    const filePath = path.join(media.local_path || '/data/uploads', media.storage_key);
+    const filePath = resolveStoragePath(media.local_path || '/data/uploads', media.storage_key);
+    if (!filePath) {
+      return reply.status(404).send({ success: false, error: 'file not found' });
+    }
     if (!existsSync(filePath)) {
       return reply.status(404).send({ success: false, error: 'file not found on disk' });
     }
@@ -182,7 +208,10 @@ export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
       return reply.redirect(`${media.cdn_base_url}/${media.thumbnail_key}`);
     }
 
-    const filePath = path.join(media.local_path || '/data/uploads', media.thumbnail_key);
+    const filePath = resolveStoragePath(media.local_path || '/data/uploads', media.thumbnail_key);
+    if (!filePath) {
+      return reply.status(404).send({ success: false, error: 'thumbnail not found' });
+    }
     if (!existsSync(filePath)) {
       return reply.status(404).send({ success: false, error: 'thumbnail not found' });
     }

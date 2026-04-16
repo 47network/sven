@@ -472,6 +472,7 @@
     "security:transport:csp:check": "node scripts/security-transport-csp-check.cjs",
     "security:deps:check": "node scripts/dependency-vuln-check.cjs",
     "security:deps:check:strict": "node scripts/dependency-vuln-check.cjs --strict",
+    "security:findings:backlog": "node scripts/security-remediation-backlog.cjs",
     "security:image-signing:check": "node scripts/container-image-signing-check.cjs --strict",
     "security:release-artifact-sbom:check": "node scripts/release-artifact-sbom-check.cjs --strict",
     "release:api:observability": "node scripts/api-reliability-observability-check.cjs",
