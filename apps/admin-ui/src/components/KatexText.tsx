@@ -7,7 +7,7 @@ type Segment =
   | { type: 'text'; value: string }
   | { type: 'math'; value: string; displayMode: boolean };
 
-const MATH_PATTERN = /\$\$([\s\S]+?)\$\$|\$((?:\\.|[^$\n])+?)\$/g;
+const MATH_PATTERN = /\$\$([\s\S]+?)\$\$|\$((?:\\.|[^$\n\\])+?)\$/g;
 
 function splitMathSegments(input: string): Segment[] {
   const text = String(input || '');

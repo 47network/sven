@@ -74,7 +74,19 @@ export interface DeployPipelineResult {
 
 /* -------------------------------------------------------- HTTP helpers */
 
+function assertHttpUrl(url: string): void {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      throw new Error('Only http/https URLs are allowed');
+    }
+  } catch {
+    throw new Error(`Invalid URL: ${url}`);
+  }
+}
+
 async function fetchJson(url: string, timeoutMs = 15_000): Promise<{ ok: boolean; status: number; data: any }> {
+  assertHttpUrl(url);
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -93,6 +105,7 @@ async function postJson(
   body: Record<string, unknown>,
   timeoutMs = 30_000,
 ): Promise<{ ok: boolean; status: number; data: any }> {
+  assertHttpUrl(url);
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {

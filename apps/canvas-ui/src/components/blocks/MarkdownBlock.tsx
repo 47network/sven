@@ -9,7 +9,7 @@ interface MarkdownBlockProps {
   content: string;
 }
 
-const LATEX_PATTERN = /\$\$[\s\S]+?\$\$|\$(?!\s)(?:\\.|[^$\n])+\$/;
+const LATEX_PATTERN = /\$\$[\s\S]+?\$\$|\$(?!\s)(?:\\.|[^$\n\\])+\$/;
 
 export function MarkdownBlock({ content }: MarkdownBlockProps) {
   const text = typeof content === 'string' ? content : String(content);

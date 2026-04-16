@@ -4,6 +4,7 @@
  */
 
 import type { FastifyInstance } from 'fastify';
+import crypto from 'node:crypto';
 import { v7 as uuidv7 } from 'uuid';
 import type pg from 'pg';
 import { createLogger, resolveSecretRef } from '@sven/shared';
@@ -701,7 +702,7 @@ export async function registerCalendarRoutes(app: FastifyInstance, pool: pg.Pool
       }
 
       const eventId = `cal_evt_${uuidv7()}`;
-      const eventUid = `sim_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const eventUid = `sim_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
       const inserted = await pool.query(
         `INSERT INTO calendar_events
            (id, subscription_id, organization_id, event_uid, title, description, start_time, end_time, all_day,

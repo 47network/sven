@@ -60,7 +60,7 @@ async function getCacheConfig(toolName: string): Promise<CacheConfig | null> {
       invalidateOnWriteScope: r.invalidate_on_write_scope,
     };
   } catch (error) {
-    console.error(`Failed to get cache config for ${toolName}:`, error);
+    console.error('Failed to get cache config for tool:', toolName, error);
     return null;
   }
 }
@@ -116,7 +116,7 @@ export async function getCachedToolResult(toolName: string, inputs: any): Promis
     await recordCacheMiss(toolName, cacheKey);
     return null;
   } catch (error) {
-    console.error(`Failed to get cached result for ${toolName}:`, error);
+    console.error('Failed to get cached result for tool:', toolName, error);
     return null;
   }
 }
@@ -168,7 +168,7 @@ export async function cacheToolResult(
     // Update cache stats
     await updateCacheStats(toolName, 'write');
   } catch (error) {
-    console.error(`Failed to cache result for ${toolName}:`, error);
+    console.error('Failed to cache result for tool:', toolName, error);
   }
 }
 
@@ -197,7 +197,7 @@ async function recordCacheHit(toolName: string, cacheKey: string): Promise<void>
       [toolName, cacheKey, Date.now() - startTime]
     );
   } catch (error) {
-    console.error(`Failed to record cache hit for ${toolName}:`, error);
+    console.error('Failed to record cache hit for tool:', toolName, error);
   }
 }
 
@@ -224,7 +224,7 @@ async function recordCacheMiss(toolName: string, cacheKey: string): Promise<void
       [toolName, cacheKey, 0]
     );
   } catch (error) {
-    console.error(`Failed to record cache miss for ${toolName}:`, error);
+    console.error('Failed to record cache miss for tool:', toolName, error);
   }
 }
 
@@ -249,7 +249,7 @@ async function updateCacheStats(
       await recomputeToolCacheSizing(toolName);
     }
   } catch (error) {
-    console.error(`Failed to update cache stats for ${toolName}:`, error);
+    console.error('Failed to update cache stats for tool:', toolName, error);
   }
 }
 
@@ -273,7 +273,7 @@ async function recomputeToolCacheSizing(toolName: string): Promise<void> {
       [Number(row.current_entries || 0), Number(row.current_size_bytes || 0), toolName]
     );
   } catch (error) {
-    console.error(`Failed to recompute cache sizing for ${toolName}:`, error);
+    console.error('Failed to recompute cache sizing for tool:', toolName, error);
   }
 }
 
@@ -336,9 +336,9 @@ export async function invalidateToolCache(toolName: string): Promise<void> {
     );
     await recomputeToolCacheSizing(toolName);
 
-    console.log(`Cache invalidated for ${toolName}`);
+    console.log('Cache invalidated for tool:', toolName);
   } catch (error) {
-    console.error(`Failed to invalidate cache for ${toolName}:`, error);
+    console.error('Failed to invalidate cache for tool:', toolName, error);
   }
 }
 

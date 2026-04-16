@@ -11,6 +11,9 @@ on:
       - 'scripts/edge-network-delivery-check.cjs'
       - '.github/workflows/edge-network-delivery.yml'
 
+
+permissions:
+  contents: read
 jobs:
   check:
     runs-on: ubuntu-latest

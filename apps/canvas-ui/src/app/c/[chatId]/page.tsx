@@ -85,7 +85,7 @@ function sanitizeA2uiHtml(input: string): string {
       const name = attr.name.toLowerCase();
       const value = attr.value.trim().toLowerCase();
       if (name.startsWith('on') || name === 'style') { el.removeAttribute(attr.name); continue; }
-      if ((name === 'href' || name === 'src') && (value.startsWith('javascript:') || value.startsWith('data:text/html'))) { el.removeAttribute(attr.name); continue; }
+      if ((name === 'href' || name === 'src') && !/^(https?:|mailto:|tel:|#|\/)/i.test(value)) { el.removeAttribute(attr.name); continue; }
       if (name.startsWith('data-') && !allowedDataAttrs.has(name)) el.removeAttribute(attr.name);
     }
   });

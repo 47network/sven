@@ -53,6 +53,9 @@ on:
       - 'docs/release/evidence/traceability-matrix-latest.json'
       - '.github/workflows/release-status.yml'
 
+
+permissions:
+  contents: read
 jobs:
   status:
     runs-on: ubuntu-latest

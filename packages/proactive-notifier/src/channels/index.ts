@@ -91,7 +91,7 @@ export function severityToPriority(severity: NotificationSeverity): Notification
 
 /** Render a body template with {{variable}} placeholders */
 export function renderTemplate(template: string, data: Record<string, unknown>): string {
-  return template.replace(/\{\{([^}]+)\}\}/g, (_match, path: string) => {
+  return template.replace(/\{\{([^{}]+)\}\}/g, (_match, path: string) => {
     const keys = path.trim().split('.');
     let value: unknown = data;
     for (const key of keys) {

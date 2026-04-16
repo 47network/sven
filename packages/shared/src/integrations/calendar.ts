@@ -163,11 +163,11 @@ export class RadicaleCalendar {
 
 function decodeXmlEntities(input: string): string {
   return input
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&');
 }
 
 function parseRadicaleCalendarsFromMultiStatus(xml: string): Array<{ id: string; name: string }> {

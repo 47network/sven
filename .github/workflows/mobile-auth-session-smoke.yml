@@ -12,6 +12,9 @@ on:
       - 'services/gateway-api/**'
       - '.github/workflows/mobile-auth-session-smoke.yml'
 
+
+permissions:
+  contents: read
 jobs:
   mobile-auth-session:
     runs-on: ubuntu-latest

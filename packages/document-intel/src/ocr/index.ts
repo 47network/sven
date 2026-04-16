@@ -122,10 +122,12 @@ export function detectLanguage(text: string): DocumentLanguage {
 }
 
 export function parseTableToMarkdown(cells: OcrTableCell[], rows: number, cols: number): string {
-  const grid: string[][] = Array.from({ length: rows }, () => Array(cols).fill(''));
+  const safeRows = Math.min(Math.max(0, rows), 10000);
+  const safeCols = Math.min(Math.max(0, cols), 1000);
+  const grid: string[][] = Array.from({ length: safeRows }, () => Array(safeCols).fill(''));
 
   for (const cell of cells) {
-    if (cell.row < rows && cell.column < cols) {
+    if (cell.row >= 0 && cell.row < safeRows && cell.column >= 0 && cell.column < safeCols) {
       grid[cell.row][cell.column] = cell.text;
     }
   }

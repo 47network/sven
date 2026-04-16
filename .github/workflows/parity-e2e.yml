@@ -26,6 +26,9 @@ on:
       - 'docs/parity/wave8-langgraph-workflow-matrix-2026-03-16.md'
       - '.github/workflows/parity-e2e.yml'
 
+
+permissions:
+  contents: read
 jobs:
   parity:
     runs-on: ubuntu-latest

@@ -37,7 +37,7 @@ if (dryRun) {
   console.log(body);
 } else {
   try {
-    execSync(`gh pr comment --body "${body.replace(/"/g, '\\"')}"`, { encoding: 'utf8', stdio: 'pipe' });
+    execSync('gh pr comment --body-file -', { encoding: 'utf8', input: body, stdio: ['pipe', 'pipe', 'pipe'] });
     console.log('[bridge-vm-ci-lanes-pr-comment] PR comment posted.');
   } catch (err) {
     console.error('[bridge-vm-ci-lanes-pr-comment] Failed to post pr comment:', err.message);

@@ -11,6 +11,7 @@ import {
 } from '@sven/shared';
 
 const logger = createLogger('adapter-feishu');
+const trimSlash = (s: string) => { let i = s.length; while (i > 0 && s[i - 1] === '/') i--; return s.slice(0, i); };
 const FEISHU_MAX_WEBHOOK_BYTES = Number(process.env.FEISHU_MAX_WEBHOOK_BYTES || 512 * 1024);
 
 function safeTokenEqual(a: string, b: string): boolean {
@@ -50,7 +51,7 @@ class FeishuAdapter extends BaseAdapter {
     this.encryptKey = config.feishuEncryptKey || process.env.FEISHU_ENCRYPT_KEY || '';
     this.verifyToken = config.feishuVerifyToken || process.env.FEISHU_VERIFY_TOKEN || '';
     this.port = Number(config.feishuPort || process.env.FEISHU_PORT || 8489);
-    this.apiBase = (config.feishuApiBase || process.env.FEISHU_API_BASE || 'https://open.feishu.cn').replace(/\/+$/, '');
+    this.apiBase = trimSlash(config.feishuApiBase || process.env.FEISHU_API_BASE || 'https://open.feishu.cn');
   }
 
   protected async connect(): Promise<void> {

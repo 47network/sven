@@ -10,6 +10,7 @@ import {
 } from '@sven/shared';
 
 const logger = createLogger('adapter-tlon');
+const trimSlash = (s: string) => { let i = s.length; while (i > 0 && s[i - 1] === '/') i--; return s.slice(0, i); };
 const TLON_MAX_WEBHOOK_BYTES = Number(process.env.TLON_MAX_WEBHOOK_BYTES || 512 * 1024);
 
 interface TlonConfig extends AdapterConfig {
@@ -28,7 +29,7 @@ class TlonAdapter extends BaseAdapter {
 
   constructor(config: TlonConfig) {
     super({ ...config, channel: 'tlon' });
-    this.apiBase = (config.tlonApiBase || process.env.TLON_API_BASE || '').replace(/\/+$/, '');
+    this.apiBase = trimSlash(config.tlonApiBase || process.env.TLON_API_BASE || '');
     this.apiToken = config.tlonApiToken || process.env.TLON_API_TOKEN || '';
     this.webhookToken = config.tlonWebhookToken || process.env.TLON_WEBHOOK_TOKEN || '';
     this.port = Number(config.tlonPort || process.env.TLON_PORT || 8493);

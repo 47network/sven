@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import crypto from 'node:crypto';
 import pg from 'pg';
 import { createLogger } from '@sven/shared';
 
@@ -47,7 +48,7 @@ export function registerCouncilRoutes(app: FastifyInstance, pool: pg.Pool) {
     });
 
     // Store the request for async processing — the actual deliberation happens in agent-runtime
-    const sessionId = `council-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const sessionId = `council-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
 
     // Insert a council session record for tracking
     await pool.query(

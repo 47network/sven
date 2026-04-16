@@ -600,7 +600,29 @@ export async function registerA2ARoutes(app: FastifyInstance, pool: pg.Pool) {
           body: JSON.stringify(forwardPayload),
           signal: abortController.signal,
         });
-        const raw = await upstream.text();
+        const MAX_A2A_RESPONSE_BYTES = 5 * 1024 * 1024; // 5 MB
+        const chunks: Buffer[] = [];
+        let total = 0;
+        if (upstream.body) {
+          const reader = (upstream.body as any).getReader ? (upstream.body as any).getReader() : null;
+          if (reader) {
+            try {
+              for (;;) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                total += value.byteLength;
+                if (total > MAX_A2A_RESPONSE_BYTES) {
+                  try { await reader.cancel(); } catch { /* best effort */ }
+                  throw new Error('A2A forward response too large');
+                }
+                chunks.push(Buffer.from(value));
+              }
+            } finally {
+              reader.releaseLock();
+            }
+          }
+        }
+        const raw = chunks.length > 0 ? Buffer.concat(chunks).toString('utf-8') : await upstream.text();
         let parsed: unknown = null;
         try {
           parsed = raw ? JSON.parse(raw) : null;

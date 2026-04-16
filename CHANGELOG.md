@@ -10,6 +10,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Security
+- Remediated 90+ GitHub CodeQL alerts across 67 files (SQL injection, polynomial ReDoS, path traversal, SSRF, XSS-DOM, insecure randomness, weak crypto, prototype pollution, resource exhaustion, tainted format strings, incomplete sanitisation, stack trace exposure).
+- SQL injection: parameterised `jsonb_set` in calls route; escaped DDL identifier in schema creation.
+- Polynomial ReDoS: rewrote 30 vulnerable regexes across entity extraction, content generator, template engine, stealth-commit, LaTeX rendering, scheduler, community admin, auth, and 6 adapter trailing-slash patterns.
+- Path injection: sanitised download filenames, storage paths, and profile directories in BrowserAutomationService.
+- SSRF: added URL scheme validation in WhatsApp adapter, model-router deploy, Vault client, and openwakeword-detector.
+- Insecure randomness: replaced `Math.random()` with `crypto.randomUUID()`/`crypto.getRandomValues()` in task-id, llm-router, calendar, council, and MCP servers page.
+- Weak crypto: upgraded SHA-1 → SHA-256 in performance route; fixed pairing code hashing in devices routes.
+- XSS-DOM: added URL scheme allowlist in quickstart and suite deployment pages.
+- Resource exhaustion: bounded response reads in web integration, A2A proxy, and OCR service.
+- GitHub Actions: added least-privilege `permissions: contents: read` to 22 workflow files missing top-level permissions blocks.
 - Merged Copilot security PR #72: hardened media route path traversal (`resolveStoragePath` validates paths stay within base directory, `toSafeStorageUserSegment` sanitises user IDs in file paths). Closes OWASP A01:2021 (Broken Access Control) path traversal vector.
 - Auth surface check: added SSO, federation, community, and Google OAuth routes to public allowlist; added `authenticateA2A`, `authenticateMcp`, `requireBearerSessionUser` as recognised inline auth markers; admin sub-route inheritance detection eliminates false "unknown" classifications. 0 unknown auth routes.
 - Added `security:findings:backlog` script aggregating findings from dep audit, plaintext secrets, auth surface, transport/CSP, code scanning, and secret scanning into a triaged remediation backlog.

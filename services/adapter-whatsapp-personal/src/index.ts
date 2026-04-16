@@ -561,7 +561,7 @@ class WhatsAppPersonalAdapter extends BaseAdapter {
         logger.error('Management server error', { err: String(err) });
         if (!res.headersSent) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: String(err) }));
+          res.end(JSON.stringify({ error: 'Internal server error' }));
         }
       }
     });

@@ -7,21 +7,28 @@ function isSchemaCompatError(err: unknown): boolean {
   return code === '42P01' || code === '42703';
 }
 
+function slugify(input: string, sep: string): string {
+  let result = '';
+  let prevSep = true;
+  for (const ch of input) {
+    if ((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')) {
+      result += ch;
+      prevSep = false;
+    } else if (!prevSep) {
+      result += sep;
+      prevSep = true;
+    }
+  }
+  if (result.endsWith(sep)) result = result.slice(0, -1);
+  return result;
+}
+
 function toSlug(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 48);
+  return slugify(input.toLowerCase().trim(), '-').slice(0, 48);
 }
 
 function toTenantSchema(slug: string): string {
-  const normalized = String(slug || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 48);
+  const normalized = slugify(String(slug || '').toLowerCase(), '_').slice(0, 48);
   const schema = `tenant_${normalized || 'default'}`.slice(0, 63);
   return schema.replace(/_+$/g, '');
 }
@@ -536,7 +543,9 @@ export async function registerAccountRoutes(app: FastifyInstance, pool: pg.Pool)
 
     if (mode === 'dedicated_schema' && nextSchema) {
       try {
-        await pool.query(`CREATE SCHEMA IF NOT EXISTS ${nextSchema}`);
+        // nextSchema is validated by assertSafeSchemaName (^[a-z][a-z0-9_]{2,62}$).
+        // DDL identifiers cannot use $N params, so quote the validated identifier.
+        await pool.query(`CREATE SCHEMA IF NOT EXISTS "${nextSchema.replace(/"/g, '""')}"`);
       } catch {
         return reply.status(500).send({
           success: false,

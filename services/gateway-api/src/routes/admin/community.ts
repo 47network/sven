@@ -297,7 +297,7 @@ function normalizeEmail(raw: string | undefined): string {
 
 function isValidEmail(email: string): boolean {
   if (!email) return false;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return /^[^\s@]+@[^\s@.]+\.[^\s@]+$/.test(email);
 }
 
 function isSchemaCompatError(error: unknown): boolean {
@@ -609,12 +609,19 @@ function sanitizeIdentifier(name: string | undefined, fallback: string): string 
 }
 
 function sanitizeHandle(raw: string): string {
-  const normalized = String(raw || '')
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9_]+/g, '_')
-    .replace(/_+/g, '_')
-    .replace(/^_+|_+$/g, '');
+  let normalized = '';
+  let prevUnderscore = true;
+  for (const ch of String(raw || '').trim().toLowerCase()) {
+    if ((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch === '_') {
+      if (ch === '_' && prevUnderscore) continue;
+      normalized += ch;
+      prevUnderscore = ch === '_';
+    } else if (!prevUnderscore) {
+      normalized += '_';
+      prevUnderscore = true;
+    }
+  }
+  if (normalized.endsWith('_')) normalized = normalized.slice(0, -1);
   if (!normalized) return 'member';
   if (normalized.length >= 3) return normalized.slice(0, 28);
   return `${normalized}_member`.slice(0, 28);

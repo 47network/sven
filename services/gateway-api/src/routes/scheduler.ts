@@ -351,7 +351,7 @@ function isSchedulerWebhookTargetAllowed(url: URL, allowlist: string[]): boolean
 function normalizeOptionalEmail(raw: unknown): string | null {
   const value = String(raw || '').trim();
   if (!value) return null;
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return null;
+  if (!/^[^\s@]+@[^\s@.]+\.[^\s@]+$/.test(value)) return null;
   return value;
 }
 
@@ -361,7 +361,7 @@ function parseOptionalEmailPatch(raw: unknown): { provided: boolean; valid: bool
   if (typeof raw !== 'string') return { provided: true, valid: false, value: null };
   const value = raw.trim();
   if (!value) return { provided: true, valid: false, value: null };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return { provided: true, valid: false, value: null };
+  if (!/^[^\s@]+@[^\s@.]+\.[^\s@]+$/.test(value)) return { provided: true, valid: false, value: null };
   return { provided: true, valid: true, value };
 }
 

@@ -20,6 +20,9 @@ on:
       - 'playwright.config.ts'
       - '.github/workflows/ui-e2e-accessibility.yml'
 
+
+permissions:
+  contents: read
 jobs:
   ui-e2e:
     runs-on: ubuntu-latest

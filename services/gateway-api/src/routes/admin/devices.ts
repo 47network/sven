@@ -680,10 +680,18 @@ export async function registerDeviceRoutes(app: FastifyInstance, pool: pg.Pool) 
 function generatePairingCode(): string {
     // 6-char uppercase, no ambiguous chars (0/O, 1/I/L)
     const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    const alphabetLen = chars.length;
+    const limit = 256 - (256 % alphabetLen);
     let code = '';
-    const bytes = crypto.randomBytes(6);
-    for (let i = 0; i < 6; i++) {
-        code += chars[bytes[i] % chars.length];
+    const bytes = crypto.randomBytes(12);
+    let j = 0;
+    for (let i = 0; i < 6; ) {
+        if (j >= bytes.length) j = 0;
+        const b = bytes[j++];
+        if (b < limit) {
+            code += chars[b % alphabetLen];
+            i++;
+        }
     }
     return code;
 }

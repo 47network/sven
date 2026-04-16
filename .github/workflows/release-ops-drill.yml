@@ -21,6 +21,9 @@ on:
       - 'scripts/ops/**'
       - '.github/workflows/release-ops-drill.yml'
 
+
+permissions:
+  contents: read
 jobs:
   migration-and-backup-drill:
     runs-on: ubuntu-latest

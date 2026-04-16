@@ -280,7 +280,7 @@ export default function McpServersPage() {
   }
 
   function generateSharedToken() {
-    const uuid = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const uuid = globalThis.crypto?.randomUUID?.() || Array.from(globalThis.crypto?.getRandomValues?.(new Uint8Array(16)) ?? new Uint8Array(16), (b) => b.toString(16).padStart(2, '0')).join('');
     setSharedToken(`sven-mcp-${uuid.replace(/-/g, '')}`);
     setSharedTokenDirty(true);
   }

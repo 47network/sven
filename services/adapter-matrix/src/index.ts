@@ -28,6 +28,7 @@ import {
 import { dumpIndexedDB, restoreIndexedDB } from './crypto-persistence.js';
 
 const logger = createLogger('adapter-matrix');
+const trimSlash = (s: string) => { let i = s.length; while (i > 0 && s[i - 1] === '/') i--; return s.slice(0, i); };
 
 const MAX_UPLOAD_SIZE = 100 * 1024 * 1024; // 100 MB
 const MAX_MESSAGE_BODY = 512 * 1024; // 512 KB
@@ -78,7 +79,7 @@ class MatrixAdapter extends BaseAdapter {
 
   constructor(config: MatrixConfig) {
     super({ ...config, channel: 'matrix' });
-    this.homeserverUrl = (config.matrixHomeserverUrl || process.env.MATRIX_HOMESERVER_URL || '').replace(/\/+$/, '');
+    this.homeserverUrl = trimSlash(config.matrixHomeserverUrl || process.env.MATRIX_HOMESERVER_URL || '');
     this.accessToken = config.matrixAccessToken || process.env.MATRIX_ACCESS_TOKEN || '';
     this.userId = config.matrixUserId || process.env.MATRIX_USER_ID || '';
     this.deviceId = config.matrixDeviceId || process.env.MATRIX_DEVICE_ID || '';

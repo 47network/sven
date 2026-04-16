@@ -193,7 +193,9 @@
     document.querySelectorAll('[data-runtime-path]').forEach((link) => {
       const path = link.getAttribute('data-runtime-path');
       if (!path) return;
-      link.setAttribute('href', `${base}${path}`);
+      const href = `${base}${path}`;
+      try { const u = new URL(href); if (u.protocol !== 'http:' && u.protocol !== 'https:') return; } catch { return; }
+      link.setAttribute('href', href);
     });
   }
 

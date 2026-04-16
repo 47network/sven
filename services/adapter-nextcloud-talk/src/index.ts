@@ -10,6 +10,7 @@ import {
 } from '@sven/shared';
 
 const logger = createLogger('adapter-nextcloud-talk');
+const trimSlash = (s: string) => { let i = s.length; while (i > 0 && s[i - 1] === '/') i--; return s.slice(0, i); };
 const NEXTCLOUD_TALK_MAX_WEBHOOK_BYTES = Number(process.env.NEXTCLOUD_TALK_MAX_WEBHOOK_BYTES || 512 * 1024);
 
 interface NextcloudTalkConfig extends AdapterConfig {
@@ -30,7 +31,7 @@ class NextcloudTalkAdapter extends BaseAdapter {
 
   constructor(config: NextcloudTalkConfig) {
     super({ ...config, channel: 'nextcloud_talk' });
-    this.baseUrl = (config.ncBaseUrl || process.env.NEXTCLOUD_BASE_URL || '').replace(/\/+$/, '');
+    this.baseUrl = trimSlash(config.ncBaseUrl || process.env.NEXTCLOUD_BASE_URL || '');
     this.user = config.ncUser || process.env.NEXTCLOUD_USER || '';
     this.appPassword = config.ncAppPassword || process.env.NEXTCLOUD_APP_PASSWORD || '';
     this.port = Number(config.ncPort || process.env.NEXTCLOUD_TALK_PORT || 8495);

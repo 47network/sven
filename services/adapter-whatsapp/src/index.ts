@@ -261,7 +261,9 @@ class WhatsAppAdapter extends BaseAdapter {
 
   /** Get a download URL for a WhatsApp media ID */
   private async getMediaUrl(mediaId: string): Promise<string> {
-    const res = await fetch(`${WA_API_BASE}/${mediaId}`, {
+    const safeMediaId = String(mediaId).replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!safeMediaId) return '';
+    const res = await fetch(`${WA_API_BASE}/${safeMediaId}`, {
       headers: { Authorization: `Bearer ${this.token}` },
     });
     const data: any = await res.json();

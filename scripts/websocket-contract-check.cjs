@@ -16,10 +16,7 @@ const canvasRealtimePath = path.join(root, 'apps', 'canvas-ui', 'src', 'componen
 
 function runNpmTest(args) {
   if (process.platform === 'win32') {
-    const cmdline = ['npm', 'run', 'test', '--workspace', '@sven/gateway-api', '--', ...args]
-      .map((value) => (/\s/.test(value) ? `"${value.replace(/"/g, '\\"')}"` : value))
-      .join(' ');
-    return spawnSync('cmd.exe', ['/d', '/s', '/c', cmdline], {
+    return spawnSync('cmd.exe', ['/d', '/s', '/c', 'npm', 'run', 'test', '--workspace', '@sven/gateway-api', '--', ...args], {
       cwd: root,
       encoding: 'utf8',
       stdio: 'pipe',

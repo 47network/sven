@@ -32,6 +32,9 @@ concurrency:
   group: play-store-release-${{ github.ref }}
   cancel-in-progress: false   # never cancel a release in flight
 
+
+permissions:
+  contents: read
 jobs:
   build-and-publish:
     name: Build signed AAB & upload to Play Store

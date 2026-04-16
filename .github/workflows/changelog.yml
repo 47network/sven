@@ -5,6 +5,9 @@ on:
     tags:
       - 'flutter-user-v*'
 
+
+permissions:
+  contents: read
 jobs:
   changelog:
     runs-on: ubuntu-latest

@@ -15,6 +15,7 @@ import {
 import { readTailscaleWhoisIdentity } from '../services/TailscaleService.js';
 
 const logger = createLogger('gateway-auth');
+const trimSlash = (s: string) => { let i = s.length; while (i > 0 && s[i - 1] === '/') i--; return s.slice(0, i); };
 
 const SESSION_COOKIE = 'sven_session';
 const REFRESH_TOKEN_COOKIE = 'sven_refresh';
@@ -501,7 +502,7 @@ function parseSamlAssertionXml(xml: string): {
   attributes: Record<string, unknown>;
 } {
   const raw = String(xml || '');
-  const subjectMatch = raw.match(/<[\w:]*NameID[^>]*>([^<]+)<\/[\w:]*NameID>/i);
+  const subjectMatch = raw.match(/<(?:\w+:)?NameID[^>]*>([^<]+)<\/(?:\w+:)?NameID>/i);
   const subject = String(subjectMatch?.[1] || '').trim();
 
   const attributes: Record<string, unknown> = {};
@@ -509,12 +510,14 @@ function parseSamlAssertionXml(xml: string): {
   let email = '';
   let displayName = '';
 
-  const attrRegex = /<[\w:]*Attribute\b[^>]*Name="([^"]+)"[^>]*>([\s\S]*?)<\/[\w:]*Attribute>/gi;
+  const attrRegex = /<(?:\w+:)?Attribute\b([^>]*)>([\s\S]*?)<\/(?:\w+:)?Attribute>/gi;
   let attrMatch: RegExpExecArray | null = attrRegex.exec(raw);
   while (attrMatch) {
-    const name = String(attrMatch[1] || '').trim();
+    const attrTag = String(attrMatch[1] || '');
+    const nameExtract = attrTag.match(/Name="([^"]+)"/);
+    const name = nameExtract ? String(nameExtract[1] || '').trim() : '';
     const block = String(attrMatch[2] || '');
-    const values = Array.from(block.matchAll(/<[\w:]*AttributeValue[^>]*>([\s\S]*?)<\/[\w:]*AttributeValue>/gi))
+    const values = Array.from(block.matchAll(/<(?:\w+:)?AttributeValue[^>]*>([\s\S]*?)<\/(?:\w+:)?AttributeValue>/gi))
       .map((m) => String(m[1] || '').trim())
       .filter(Boolean);
     if (name && values.length > 0) {
@@ -913,7 +916,7 @@ async function resolveOidcEndpoints(provider: AuthSsoProvider): Promise<{
   let jwksUri = String(provider.jwks_uri || '').trim();
 
   if ((!authorizationEndpoint || !tokenEndpoint) && provider.issuer_url) {
-    const issuer = String(provider.issuer_url).replace(/\/+$/, '');
+    const issuer = trimSlash(String(provider.issuer_url));
     const wellKnownUrl = `${issuer}/.well-known/openid-configuration`;
     const discovered = await fetch(wellKnownUrl, { method: 'GET', signal: AbortSignal.timeout(10000) });
     if (!discovered.ok) {
@@ -1355,8 +1358,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
     }
 
-    const issuer = String(config.oidc.issuer_url || '').replace(/\/+$/, '');
-    const tokenIssuer = String(idTokenClaims.iss || '').replace(/\/+$/, '');
+    const issuer = trimSlash(String(config.oidc.issuer_url || ''));
+    const tokenIssuer = trimSlash(String(idTokenClaims.iss || ''));
     if (issuer && tokenIssuer && issuer !== tokenIssuer) {
       return reply.status(401).send({
         success: false,
@@ -1773,8 +1776,8 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
           error: { code: 'OIDC_SUBJECT_MISMATCH', message: 'id_token subject does not match resolved subject' },
         });
       }
-      const issuer = String(config.oidc.issuer_url || '').replace(/\/+$/, '');
-      const tokenIssuer = String(idTokenClaims.iss || '').replace(/\/+$/, '');
+      const issuer = trimSlash(String(config.oidc.issuer_url || ''));
+      const tokenIssuer = trimSlash(String(idTokenClaims.iss || ''));
       if (issuer && tokenIssuer && issuer !== tokenIssuer) {
         return reply.status(401).send({
           success: false,
@@ -1957,7 +1960,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
     }
 
-    const hasXmlSignature = /<[\w:]*Signature\b[\s\S]*?<\/[\w:]*Signature>/i.test(xml);
+    const hasXmlSignature = /<(?:\w+:)?Signature\b[\s\S]*?<\/(?:\w+:)?Signature>/i.test(xml);
     const configuredCertBody = extractPemBody(String(config.saml.cert_pem || ''));
     if (SSO_STRICT_ASSERTION_VALIDATION && !hasXmlSignature) {
       return reply.status(401).send({
@@ -1966,7 +1969,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
       });
     }
     if (configuredCertBody) {
-      const certMatch = xml.match(/<[\w:]*X509Certificate[^>]*>([\s\S]*?)<\/[\w:]*X509Certificate>/i);
+      const certMatch = xml.match(/<(?:\w+:)?X509Certificate[^>]*>([\s\S]*?)<\/(?:\w+:)?X509Certificate>/i);
       const assertionCertBody = certMatch ? String(certMatch[1] || '').replace(/\s+/g, '').trim() : '';
       if (SSO_STRICT_ASSERTION_VALIDATION && !assertionCertBody) {
         return reply.status(401).send({
@@ -2269,11 +2272,10 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
         [userId, username, displayName, passwordHash, totpSecret],
       );
 
-      const orgSlugBase = String(username || `bootstrap-${userId.slice(0, 8)}`)
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 40) || `bootstrap-${userId.slice(0, 8)}`;
+      const orgSlugRaw = String(username || `bootstrap-${userId.slice(0, 8)}`).toLowerCase();
+      let orgSlugBase = '';
+      { let prev = true; for (const ch of orgSlugRaw) { if ((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')) { orgSlugBase += ch; prev = false; } else if (!prev) { orgSlugBase += '-'; prev = true; } } if (orgSlugBase.endsWith('-')) orgSlugBase = orgSlugBase.slice(0, -1); }
+      orgSlugBase = orgSlugBase.slice(0, 40) || `bootstrap-${userId.slice(0, 8)}`;
       const orgSlug = `${orgSlugBase}-${Date.now().toString(36)}`.slice(0, 48);
       const orgName = `${displayName || username} Workspace`.trim().slice(0, 120) || 'Sven Workspace';
 

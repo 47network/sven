@@ -18,6 +18,9 @@ on:
       - '.github/workflows/ops-shell-ci.yml'
       - 'package.json'
 
+
+permissions:
+  contents: read
 jobs:
   shell-ops:
     runs-on: ubuntu-latest

@@ -217,7 +217,7 @@ export async function registerPerformanceRoutes(app: FastifyInstance, pool: Pool
         message: `Cache cleared for tool: ${toolName}`,
       });
     } catch (error) {
-      console.error(`Failed to clear cache for ${request.params.toolName}:`, error);
+      console.error('Failed to clear cache for tool:', request.params.toolName, error);
       reply.code(500).send({ status: 'error', message: 'Failed to clear cache' });
     }
   });
@@ -1272,7 +1272,7 @@ export async function registerPerformanceRoutes(app: FastifyInstance, pool: Pool
       const chatId = String(body.chat_id || '').trim();
       const userId = String(body.user_id || adminUserId).trim();
       const bucketKey = `${experimentId}:${chatId || 'no-chat'}:${userId || 'no-user'}`;
-      const digest = createHash('sha1').update(bucketKey).digest('hex');
+      const digest = createHash('sha256').update(bucketKey).digest('hex');
       const variant: 'a' | 'b' = (parseInt(digest.slice(0, 2), 16) % 2 === 0) ? 'a' : 'b';
 
       const expRes = await pool.query(

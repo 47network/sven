@@ -144,7 +144,7 @@ interface Interaction {
 /* -------- Helpers -------- */
 
 function esc(s: string): string {
-  return s.replace(/'/g, "\\'").replace(/\\/g, '\\\\');
+  return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 function countTests(code: string): number {

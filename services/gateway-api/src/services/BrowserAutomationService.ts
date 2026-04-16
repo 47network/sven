@@ -3,7 +3,7 @@ import { v7 as uuidv7 } from 'uuid';
 import { Pool } from 'pg';
 import { mkdir, access, readFile, stat } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, resolve, basename } from 'node:path';
 import { existsSync } from 'node:fs';
 
 const logger = createLogger('browser-automation');
@@ -296,8 +296,12 @@ export class BrowserAutomationService {
         }
         const download = await downloadPromise;
         const downloadDir = await this.getDownloadDir(profileId);
-        const filename = download.suggestedFilename();
-        const filePath = join(downloadDir, filename);
+        const rawFilename = download.suggestedFilename();
+        const filename = basename(rawFilename).replace(/[^a-zA-Z0-9._-]/g, '_') || 'download';
+        const filePath = resolve(join(downloadDir, filename));
+        if (!filePath.startsWith(downloadDir + '/') && filePath !== downloadDir) {
+          throw new Error('Invalid download filename');
+        }
         await download.saveAs(filePath);
         const fileStats = await stat(filePath);
         const fileBuffer = await readFile(filePath);
@@ -459,15 +463,24 @@ export class BrowserAutomationService {
     if (!storagePath) {
       throw new Error(`Invalid storage path for profile: ${profileId}`);
     }
-    const profileDir = join(process.cwd(), '.browser', storagePath);
+    const browserRoot = resolve(join(process.cwd(), '.browser'));
+    const profileDir = resolve(join(browserRoot, storagePath));
+    if (!profileDir.startsWith(browserRoot + '/')) {
+      throw new Error('Invalid storage path: directory traversal blocked');
+    }
     await mkdir(profileDir, { recursive: true });
     return join(profileDir, 'storage-state.json');
   }
 
   private async getDownloadDir(profileId: string): Promise<string> {
-    const path = join(process.cwd(), '.browser', 'downloads', profileId);
-    await mkdir(path, { recursive: true });
-    return path;
+    const browserRoot = resolve(join(process.cwd(), '.browser'));
+    const safeId = basename(profileId);
+    const dir = resolve(join(browserRoot, 'downloads', safeId));
+    if (!dir.startsWith(browserRoot + '/')) {
+      throw new Error('Invalid profile ID: directory traversal blocked');
+    }
+    await mkdir(dir, { recursive: true });
+    return dir;
   }
 
   private async fileExists(filePath: string): Promise<boolean> {

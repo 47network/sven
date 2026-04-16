@@ -10,6 +10,8 @@ import { createGitRepo } from '@sven/shared/integrations/git';
 import { v7 as uuidv7 } from 'uuid';
 import { getIncidentStatus } from '../../services/IncidentService.js';
 
+const trimSlash = (s: string) => { let i = s.length; while (i > 0 && s[i - 1] === '/') i--; return s.slice(0, i); };
+
 interface GitRepoRequest {
   provider: 'local' | 'forgejo' | 'github';
   repoName: string;
@@ -261,7 +263,7 @@ export async function registerGitRoutes(fastify: FastifyInstance, db: Database) 
     }
     const { provider, repoName, repoOwner, repoUrl, baseUrl, sshKeyRef, tokenRef, defaultBranch } = body as unknown as GitRepoRequest;
     const normalizedRepoUrl = String(repoUrl || '').trim();
-    const normalizedForgejoBaseUrl = String(baseUrl || '').trim().replace(/\/+$/, '');
+    const normalizedForgejoBaseUrl = trimSlash(String(baseUrl || '').trim());
 
     if (!provider || !repoName) {
       return sendError(reply, 400, 'VALIDATION', 'provider and repoName are required');

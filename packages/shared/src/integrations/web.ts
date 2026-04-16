@@ -453,6 +453,7 @@ export async function fetchWebContent(
 }
 
 async function readResponseBufferWithinLimit(response: Response, maxContentLength?: number): Promise<ArrayBuffer> {
+  const limit = maxContentLength || 10 * 1024 * 1024; // default 10MB
   if (response.body) {
     const reader = response.body.getReader();
     const chunks: Uint8Array[] = [];
@@ -463,13 +464,13 @@ async function readResponseBufferWithinLimit(response: Response, maxContentLengt
         if (done) break;
         const chunk = value || new Uint8Array();
         total += chunk.byteLength;
-        if (maxContentLength && total > maxContentLength) {
+        if (limit && total > limit) {
           try {
             await reader.cancel('max_content_length exceeded');
           } catch {
             // best-effort cancel for oversized response
           }
-          throw new Error(`Content too large: ${total} bytes (max ${maxContentLength})`);
+          throw new Error(`Content too large: ${total} bytes (max ${limit})`);
         }
         chunks.push(chunk);
       }
@@ -487,8 +488,8 @@ async function readResponseBufferWithinLimit(response: Response, maxContentLengt
   }
 
   const buffered = await response.arrayBuffer();
-  if (maxContentLength && buffered.byteLength > maxContentLength) {
-    throw new Error(`Content too large: ${buffered.byteLength} bytes (max ${maxContentLength})`);
+  if (limit && buffered.byteLength > limit) {
+    throw new Error(`Content too large: ${buffered.byteLength} bytes (max ${limit})`);
   }
   return buffered;
 }

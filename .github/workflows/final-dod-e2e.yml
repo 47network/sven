@@ -11,6 +11,9 @@ on:
       - 'services/gateway-api/**'
       - '.github/workflows/final-dod-e2e.yml'
 
+
+permissions:
+  contents: read
 jobs:
   final-dod:
     runs-on: ubuntu-latest

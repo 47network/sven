@@ -96,7 +96,7 @@ function extractPersons(text: string): Entity[] {
 
 function extractEmails(text: string): Entity[] {
   const entities: Entity[] = [];
-  const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  const emailPattern = /[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/g;
   let match: RegExpExecArray | null;
   while ((match = emailPattern.exec(text)) !== null) {
     entities.push({

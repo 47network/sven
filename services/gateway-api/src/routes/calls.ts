@@ -236,26 +236,20 @@ export async function registerCallRoutes(app: FastifyInstance, pool: pg.Pool) {
     const { callId } = request.params as { callId: string };
     const updates = request.body as { audio?: boolean; video?: boolean; screen?: boolean };
 
-    const fields: string[] = [];
-    if (updates.audio !== undefined) fields.push(`'audio', '${updates.audio}'::jsonb`);
-    if (updates.video !== undefined) fields.push(`'video', '${updates.video}'::jsonb`);
-    if (updates.screen !== undefined) fields.push(`'screen', '${updates.screen}'::jsonb`);
+    // Build a safe jsonb object from validated boolean fields only
+    const mediaUpdate: Record<string, boolean> = {};
+    if (updates.audio !== undefined) mediaUpdate.audio = Boolean(updates.audio);
+    if (updates.video !== undefined) mediaUpdate.video = Boolean(updates.video);
+    if (updates.screen !== undefined) mediaUpdate.screen = Boolean(updates.screen);
 
-    if (fields.length === 0) {
+    if (Object.keys(mediaUpdate).length === 0) {
       return reply.status(400).send({ success: false, error: 'no media fields to update' });
     }
 
-    // Use jsonb_set chain to update individual fields
-    let updateExpr = 'media_state';
-    for (const field of fields) {
-      const [key, val] = field.split(', ');
-      updateExpr = `jsonb_set(${updateExpr}, '{${key.replace(/'/g, '')}}', ${val})`;
-    }
-
     await pool.query(
-      `UPDATE call_participants SET media_state = ${updateExpr}
+      `UPDATE call_participants SET media_state = media_state || $3::jsonb
        WHERE call_id = $1 AND user_id = $2 AND status = 'joined'`,
-      [callId, userId],
+      [callId, userId, JSON.stringify(mediaUpdate)],
     );
 
     // Broadcast media state change to other participants via SSE

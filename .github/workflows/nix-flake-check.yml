@@ -12,6 +12,9 @@ on:
       - 'nix/**'
       - '.github/workflows/nix-flake-check.yml'
 
+
+permissions:
+  contents: read
 jobs:
   nix:
     runs-on: ubuntu-latest

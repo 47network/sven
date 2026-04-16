@@ -11,6 +11,7 @@ import {
 } from '@sven/shared';
 
 const logger = createLogger('adapter-mattermost');
+const trimSlash = (s: string) => { let i = s.length; while (i > 0 && s[i - 1] === '/') i--; return s.slice(0, i); };
 const MATTERMOST_MAX_WEBHOOK_BYTES = Number(process.env.MATTERMOST_MAX_WEBHOOK_BYTES || 512 * 1024);
 
 interface MattermostConfig extends AdapterConfig {
@@ -29,7 +30,7 @@ class MattermostAdapter extends BaseAdapter {
 
   constructor(config: MattermostConfig) {
     super({ ...config, channel: 'mattermost' });
-    this.mmUrl = (config.mattermostUrl || process.env.MATTERMOST_URL || '').replace(/\/+$/, '');
+    this.mmUrl = trimSlash(config.mattermostUrl || process.env.MATTERMOST_URL || '');
     this.botToken = config.mattermostBotToken || process.env.MATTERMOST_BOT_TOKEN || '';
     this.port = Number(config.mattermostPort || process.env.MATTERMOST_PORT || 8491);
     this.webhookToken = config.mattermostWebhookToken || process.env.MATTERMOST_WEBHOOK_TOKEN || '';

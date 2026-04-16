@@ -4,6 +4,7 @@ import logging
 import os
 from typing import Any
 from pathlib import Path
+from urllib.parse import urlparse
 from urllib.request import urlopen
 
 import numpy as np
@@ -163,6 +164,16 @@ def detect(body: DetectRequest) -> dict[str, Any]:
     }
 
 
+def _validate_audio_url(url: str) -> str:
+    """Validate audio_url to prevent SSRF — only allow http/https schemes."""
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise HTTPException(status_code=400, detail="audio_url must use http or https scheme")
+    if not parsed.hostname:
+        raise HTTPException(status_code=400, detail="audio_url must include a hostname")
+    return url
+
+
 def resolve_audio_bytes(body: DetectRequest) -> bytes:
     if body.audio_base64:
         normalized = body.audio_base64.strip()
@@ -170,14 +181,17 @@ def resolve_audio_bytes(body: DetectRequest) -> bytes:
             normalized = normalized.split(",", 1)[1]
         try:
             payload = base64.b64decode(normalized, validate=True)
-        except Exception as exc:
-            raise HTTPException(status_code=400, detail=f"Invalid audio_base64 payload: {exc}") from exc
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid audio_base64 payload")
     else:
         try:
-            with urlopen(body.audio_url, timeout=10) as response:
+            validated_url = _validate_audio_url(body.audio_url)
+            with urlopen(validated_url, timeout=10) as response:
                 payload = response.read(MAX_AUDIO_BYTES + 1)
-        except Exception as exc:
-            raise HTTPException(status_code=400, detail=f"Unable to fetch audio_url: {exc}") from exc
+        except HTTPException:
+            raise
+        except Exception:
+            raise HTTPException(status_code=400, detail="Unable to fetch audio_url")
 
     if not payload:
         raise HTTPException(status_code=400, detail="Audio payload is empty")

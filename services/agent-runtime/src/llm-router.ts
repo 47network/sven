@@ -779,7 +779,7 @@ export class LLMRouter {
 
     let selected: string;
     if (strategy === 'random') {
-      selected = pool[Math.floor(Math.random() * pool.length)];
+      selected = pool[crypto.randomInt(pool.length)];
     } else if (strategy === 'least_recently_used') {
       selected = pool.reduce((best, current) => {
         const bestAt = state.lastUsedAt.get(best) || 0;

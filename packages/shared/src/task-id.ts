@@ -50,10 +50,22 @@ export type TaskIdType = keyof typeof TASK_ID_PREFIXES;
  */
 export function generateTaskId(type: TaskIdType): string {
   const prefix = TASK_ID_PREFIXES[type];
-  const bytes = randomBytes(ID_LENGTH);
+  const alphabetLen = ID_ALPHABET.length;
+  const limit = 256 - (256 % alphabetLen);
+  const bytes = randomBytes(ID_LENGTH * 2);
   let id = `${prefix}-`;
-  for (let i = 0; i < ID_LENGTH; i++) {
-    id += ID_ALPHABET[bytes[i]! % ID_ALPHABET.length];
+  let j = 0;
+  for (let i = 0; i < ID_LENGTH; ) {
+    if (j >= bytes.length) {
+      const extra = randomBytes(ID_LENGTH * 2);
+      j = 0;
+      bytes.set ? bytes.set(extra) : extra.copy(bytes);
+    }
+    const b = bytes[j++]!;
+    if (b < limit) {
+      id += ID_ALPHABET[b % alphabetLen];
+      i++;
+    }
   }
   return id;
 }

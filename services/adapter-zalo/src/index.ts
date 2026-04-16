@@ -18,6 +18,7 @@ import {
 } from '@sven/shared';
 
 const logger = createLogger('adapter-zalo');
+const trimSlash = (s: string) => { let i = s.length; while (i > 0 && s[i - 1] === '/') i--; return s.slice(0, i); };
 const ZALO_MAX_WEBHOOK_BYTES = Number(process.env.ZALO_MAX_WEBHOOK_BYTES || 512 * 1024);
 
 interface ZaloConfig extends AdapterConfig {
@@ -39,7 +40,7 @@ class ZaloAdapter extends BaseAdapter {
     this.accessToken = config.zaloAccessToken || process.env.ZALO_ACCESS_TOKEN || '';
     this.webhookSecret = config.zaloWebhookSecret || process.env.ZALO_WEBHOOK_SECRET || '';
     this.port = config.zaloPort || parseInt(process.env.ZALO_PORT || '8484', 10);
-    this.apiBase = (config.zaloApiBase || process.env.ZALO_API_BASE || 'https://openapi.zalo.me/v3.0/oa').replace(/\/+$/, '');
+    this.apiBase = trimSlash(config.zaloApiBase || process.env.ZALO_API_BASE || 'https://openapi.zalo.me/v3.0/oa');
   }
 
   protected async connect(): Promise<void> {

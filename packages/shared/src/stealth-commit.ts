@@ -28,7 +28,7 @@ const AI_MARKER_PATTERNS: RegExp[] = [
   /\b(?:co[- ]?authored[- ]?by|assisted[- ]?by):?\s*(?:ai|gpt|claude|copilot|llm|model)\b/gi,
   /\bgenerated\s+(?:by|using|with|via)\s+(?:ai|gpt|claude|copilot|llm|chatgpt)\b/gi,
   /\[(?:ai|bot|auto|generated)\]/gi,
-  /<!--\s*(?:ai|generated|auto)[^>]*-->/gi,
+  /<!--\s*(?:ai|generated|auto)[\s\S]*?-->/gi,
   /\b(?:claude|gpt-?\d|chatgpt|copilot|gemini|llama)\s+(?:wrote|generated|created|authored|produced)\b/gi,
   /🤖\s*/g,
   /\bautomatic(?:ally)?\s+(?:generated|created|fixed|patched)\b/gi,
@@ -177,7 +177,7 @@ export class StealthCommitter {
     }
 
     // Clean up double spaces and blank lines left by removal
-    result = result.replace(/  +/g, ' ');
+    while (result.includes('  ')) result = result.replace('  ', ' ');
     result = result.replace(/\n{3,}/g, '\n\n');
     result = result.trim();
 

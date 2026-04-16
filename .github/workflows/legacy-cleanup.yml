@@ -10,6 +10,9 @@ on:
       - 'scripts/legacy-cleanup-check.cjs'
       - '.github/workflows/legacy-cleanup.yml'
 
+
+permissions:
+  contents: read
 jobs:
   check:
     runs-on: ubuntu-latest

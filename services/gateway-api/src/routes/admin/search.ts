@@ -59,9 +59,9 @@ function isLikelyAdResult(url: string, title: string, snippet: string): boolean 
     const parsed = new URL(url);
     const host = parsed.hostname.toLowerCase();
     if (
-      host.includes('doubleclick.net') ||
-      host.includes('googlesyndication.com') ||
-      host.startsWith('adservice.')
+      host === 'doubleclick.net' || host.endsWith('.doubleclick.net') ||
+      host === 'googlesyndication.com' || host.endsWith('.googlesyndication.com') ||
+      host === 'adservice.google.com' || host.startsWith('adservice.')
     ) return true;
     if (parsed.pathname.toLowerCase().includes('/aclk')) return true;
   } catch {

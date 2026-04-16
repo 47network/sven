@@ -90,6 +90,16 @@ export async function resolveSecretRef(ref: string): Promise<string> {
       throw new Error('Vault not configured');
     }
 
+    try {
+      const addrUrl = new URL(addr);
+      if (addrUrl.protocol !== 'http:' && addrUrl.protocol !== 'https:') {
+        throw new Error('VAULT_ADDR must use http or https');
+      }
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('VAULT_ADDR')) throw e;
+      throw new Error('VAULT_ADDR is not a valid URL');
+    }
+
     const parsed = new URL(ref);
     const vaultPath = `${parsed.host}${parsed.pathname}`.replace(/^\//, '').replace(/\.\./g, '');
     if (!vaultPath || vaultPath.includes('..')) {
