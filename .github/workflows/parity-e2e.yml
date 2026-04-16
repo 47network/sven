@@ -148,9 +148,10 @@ jobs:
             await c.query(
               `INSERT INTO api_keys (id, user_id, organization_id, kid, name, prefix, key_hash, scopes, expires_at, revoked_at, created_at)
                VALUES ($1,$2,$3,$4,$5,$6,$7,$8::text[],NULL,NULL,NOW())
-               ON CONFLICT (kid) DO UPDATE SET
+               ON CONFLICT (id) DO UPDATE SET
                  user_id=EXCLUDED.user_id,
                  organization_id=EXCLUDED.organization_id,
+                 kid=EXCLUDED.kid,
                  name=EXCLUDED.name,
                  prefix=EXCLUDED.prefix,
                  key_hash=EXCLUDED.key_hash,
