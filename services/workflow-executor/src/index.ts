@@ -919,8 +919,9 @@ class WorkflowExecutor {
     );
 
     // Wait for approval (default 20m, configurable per-step, max 1 hour).
-    const timeoutSec = Math.min(3600, Number(step?.config?.timeout_seconds || 1200));
-    const maxAttempts = Math.max(1, Math.floor(Number.isFinite(timeoutSec) ? timeoutSec : 1200));
+    const timeoutSec = Number(step?.config?.timeout_seconds || 1200);
+    const clampedTimeout = Math.min(3600, timeoutSec);
+    const maxAttempts = Math.max(1, Math.floor(Number.isFinite(clampedTimeout) ? clampedTimeout : 1200));
     let attempts = 0;
     while (attempts < maxAttempts) {
       const controlState = await this.waitForRunRunnable(run_id);

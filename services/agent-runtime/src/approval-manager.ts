@@ -216,12 +216,13 @@ export class ApprovalManager {
 
       resolvedApproves = countRes.rows[0].approves;
       resolvedDenies = countRes.rows[0].denies;
+      const { approves, denies } = countRes.rows[0];
       const quorum = approval.quorum_required;
 
-      // Evaluate outcome
-      if (resolvedDenies > 0) {
+      // Evaluate outcome — deny-first, then quorum check
+      if (denies > 0) {
         newStatus = 'denied';
-      } else if (resolvedApproves >= quorum) {
+      } else if (approves >= quorum) {
         newStatus = 'approved';
       }
 

@@ -136,7 +136,7 @@ function WorkflowRunsContent() {
               </div>
 
               {/* Step timeline */}
-              {Boolean(run.steps) && run.steps.length > 0 && (
+              {run.steps && run.steps.length > 0 && (
                 <div className="mt-4 ml-2 border-l-2 border-slate-200 dark:border-slate-700">
                   {run.steps.map((step, i: number) => (
                     <div key={i} className="relative ml-4 pb-4 last:pb-0">
