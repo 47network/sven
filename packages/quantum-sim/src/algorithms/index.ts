@@ -307,6 +307,30 @@ export interface AnnealingResult {
   temperatureSchedule: number[];
 }
 
+export function calculateEnergy(s: number[], problem: AnnealingProblem): number {
+  let e = 0;
+  for (const coupling of problem.couplings) {
+    e += coupling.strength * (s[coupling.i] ?? 1) * (s[coupling.j] ?? 1);
+  }
+  for (const field of problem.fields) {
+    e += field.strength * (s[field.i] ?? 1);
+  }
+  return e;
+}
+
+export function generateProposal(state: (1 | -1)[], n: number): (1 | -1)[] {
+  const flipIdx = Math.floor(Math.random() * n);
+  const proposal = [...state];
+  proposal[flipIdx] = (-(proposal[flipIdx] ?? 1)) as 1 | -1;
+  return proposal;
+}
+
+export function calculateAcceptanceProbability(deltaE: number, temperature: number, transverseField: number): number {
+  const tunnelProb = transverseField * 0.1;
+  const thermalProb = deltaE <= 0 ? 1 : Math.exp(-deltaE / Math.max(temperature, 0.01));
+  return Math.max(thermalProb, tunnelProb);
+}
+
 /**
  * Simulated quantum annealing using classical Monte Carlo with quantum-inspired schedule.
  * Uses transverse field Ising model concepts.
@@ -316,38 +340,21 @@ export function runQuantumAnnealing(problem: AnnealingProblem, maxIterations = 1
   let state = Array.from({ length: n }, () => (Math.random() > 0.5 ? 1 : -1));
   const schedule: number[] = [];
 
-  function energy(s: number[]): number {
-    let e = 0;
-    for (const coupling of problem.couplings) {
-      e += coupling.strength * (s[coupling.i] ?? 1) * (s[coupling.j] ?? 1);
-    }
-    for (const field of problem.fields) {
-      e += field.strength * (s[field.i] ?? 1);
-    }
-    return e;
-  }
-
   let bestState = [...state];
-  let bestEnergy = energy(state);
+  let bestEnergy = calculateEnergy(state, problem);
 
   for (let t = 0; t < maxIterations; t++) {
     const temperature = 10 * Math.exp(-5 * t / maxIterations); // Exponential cooling
     const transverseField = (1 - t / maxIterations); // Quantum transverse field decreases
     schedule.push(temperature);
 
-    // Flip a random spin
-    const flipIdx = Math.floor(Math.random() * n);
-    const proposal = [...state];
-    proposal[flipIdx] = (-(proposal[flipIdx] ?? 1)) as 1 | -1;
+    const proposal = generateProposal(state, n);
 
-    const currentE = energy(state);
-    const proposalE = energy(proposal);
+    const currentE = calculateEnergy(state, problem);
+    const proposalE = calculateEnergy(proposal, problem);
     const deltaE = proposalE - currentE;
 
-    // Quantum-inspired acceptance: includes transverse field tunneling
-    const tunnelProb = transverseField * 0.1;
-    const thermalProb = deltaE <= 0 ? 1 : Math.exp(-deltaE / Math.max(temperature, 0.01));
-    const acceptProb = Math.max(thermalProb, tunnelProb);
+    const acceptProb = calculateAcceptanceProbability(deltaE, temperature, transverseField);
 
     if (Math.random() < acceptProb) {
       state = proposal;
