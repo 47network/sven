@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-16T02:33:27.546Z",
+  "generated_at": "2026-04-16T02:34:47.306Z",
   "source_branch": "dependabot/npm_and_yarn/apps/companion-desktop-tauri/npm_and_yarn-9b2ff1f3aa",
   "source_head_sha": "aa836ad7b97dabdebf438301e36077bf7b569fc1",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-16T02:33:27.185Z",
+    "captured_at": "2026-04-16T02:34:46.974Z",
     "branch": "dependabot/npm_and_yarn/apps/companion-desktop-tauri/npm_and_yarn-9b2ff1f3aa",
     "total_runs": 7
   },
@@ -34,7 +34,7 @@
   "ops_shell_ci": true,
   "skill_quarantine_scan_ci": false,
   "security_audit_unified_ci": false,
-  "security_baseline_ci": true,
+  "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
       "run_id": null,
@@ -91,7 +91,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-16T02:33:21.261Z"
+      "generated_at": "2026-04-16T02:34:40.846Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +121,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-16T02:33:22.124Z"
+      "generated_at": "2026-04-16T02:34:41.736Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +136,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-16T02:33:26.834Z"
+      "generated_at": "2026-04-16T02:34:46.617Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -240,14 +240,13 @@
       "head_sha": "aa836ad7b97dabdebf438301e36077bf7b569fc1",
       "head_branch": "dependabot/npm_and_yarn/apps/companion-desktop-tauri/npm_and_yarn-9b2ff1f3aa",
       "event": "push",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310858,
       "workflow_name": "desktop-tauri-release",
       "matched_target_sha": true,
       "gate_key": "desktop_tauri_release_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "ui_e2e_ci": {
       "run_id": 24488870535,
@@ -404,14 +403,13 @@
       "head_sha": "aa836ad7b97dabdebf438301e36077bf7b569fc1",
       "head_branch": "dependabot/npm_and_yarn/apps/companion-desktop-tauri/npm_and_yarn-9b2ff1f3aa",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     }
   },
   "required_workflow_manifest": {
@@ -554,14 +552,13 @@
         "head_sha": "aa836ad7b97dabdebf438301e36077bf7b569fc1",
         "head_branch": "dependabot/npm_and_yarn/apps/companion-desktop-tauri/npm_and_yarn-9b2ff1f3aa",
         "event": "push",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310858,
         "workflow_name": "desktop-tauri-release",
         "matched_target_sha": true,
         "gate_key": "desktop_tauri_release_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "desktop_tauri_release_ci"
     },
@@ -653,20 +650,19 @@
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
-      "pass": true,
+      "pass": false,
       "provenance": {
         "run_id": 24488870524,
         "head_sha": "aa836ad7b97dabdebf438301e36077bf7b569fc1",
         "head_branch": "dependabot/npm_and_yarn/apps/companion-desktop-tauri/npm_and_yarn-9b2ff1f3aa",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "security_baseline_ci"
     },
