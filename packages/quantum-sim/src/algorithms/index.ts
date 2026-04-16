@@ -45,6 +45,33 @@ function evaluateObjective(solution: number[], problem: QAOAProblem): number {
   return cost;
 }
 
+function buildQAOACircuit(n: number, layers: number, gamma: number, beta: number, problem: QAOAProblem): QuantumCircuit {
+  let circuit = createCircuit(n);
+
+  // Initial superposition
+  for (let q = 0; q < n; q++) {
+    circuit = addGate(circuit, H, [q]);
+  }
+
+  // QAOA layers
+  for (let l = 0; l < layers; l++) {
+    // Problem unitary: apply Rz based on objective terms (simplified)
+    for (const term of problem.objective) {
+      for (const v of term.variables) {
+        if (v < n) {
+          circuit = addGate(circuit, Rz(gamma * term.weight), [v]);
+        }
+      }
+    }
+    // Mixer unitary: Rx on all qubits
+    for (let q = 0; q < n; q++) {
+      circuit = addGate(circuit, Rx(beta), [q]);
+    }
+  }
+
+  return circuit;
+}
+
 /**
  * Run QAOA for combinatorial optimization.
  * Uses variational approach: alternating problem and mixer unitaries.
@@ -63,28 +90,7 @@ export function runQAOA(problem: QAOAProblem, layers = 3, shots = 1024): QAOARes
     for (let bi = 0; bi < steps; bi++) {
       const beta = (bi / steps) * Math.PI;
 
-      let circuit = createCircuit(n);
-
-      // Initial superposition
-      for (let q = 0; q < n; q++) {
-        circuit = addGate(circuit, H, [q]);
-      }
-
-      // QAOA layers
-      for (let l = 0; l < layers; l++) {
-        // Problem unitary: apply Rz based on objective terms (simplified)
-        for (const term of problem.objective) {
-          for (const v of term.variables) {
-            if (v < n) {
-              circuit = addGate(circuit, Rz(gamma * term.weight), [v]);
-            }
-          }
-        }
-        // Mixer unitary: Rx on all qubits
-        for (let q = 0; q < n; q++) {
-          circuit = addGate(circuit, Rx(beta), [q]);
-        }
-      }
+      const circuit = buildQAOACircuit(n, layers, gamma, beta, problem);
 
       const result = simulate(circuit);
       const counts = measureMultiple(result, shots);
@@ -122,6 +128,36 @@ export interface GroverResult {
   measurementCounts: Map<string, number>;
 }
 
+function applyGroverOracle(circuit: QuantumCircuit, targetBits: string, n: number): QuantumCircuit {
+  let currentCircuit = circuit;
+  for (let q = 0; q < n; q++) {
+    if (targetBits[q] === '0') {
+      currentCircuit = addGate(currentCircuit, X, [q]);
+    }
+  }
+  // Simulated phase flip via Z on last qubit (simplified for small circuits)
+  if (n >= 1) {
+    currentCircuit = addGate(currentCircuit, Rz(Math.PI), [n - 1]);
+  }
+  for (let q = 0; q < n; q++) {
+    if (targetBits[q] === '0') {
+      currentCircuit = addGate(currentCircuit, X, [q]);
+    }
+  }
+  return currentCircuit;
+}
+
+function applyGroverDiffusion(circuit: QuantumCircuit, n: number): QuantumCircuit {
+  let currentCircuit = circuit;
+  // Diffusion operator: H → X → MCZ → X → H
+  for (let q = 0; q < n; q++) currentCircuit = addGate(currentCircuit, H, [q]);
+  for (let q = 0; q < n; q++) currentCircuit = addGate(currentCircuit, X, [q]);
+  if (n >= 1) currentCircuit = addGate(currentCircuit, Rz(Math.PI), [n - 1]);
+  for (let q = 0; q < n; q++) currentCircuit = addGate(currentCircuit, X, [q]);
+  for (let q = 0; q < n; q++) currentCircuit = addGate(currentCircuit, H, [q]);
+  return currentCircuit;
+}
+
 /**
  * Grover's algorithm for searching an unstructured list.
  * Oracle marks the target index by flipping its phase.
@@ -146,27 +182,10 @@ export function runGroverSearch(numQubits: number, targetIndex: number, shots = 
     // Oracle: flip phase of target state
     // Implemented as: X on qubits where target bit is 0, then multi-controlled Z, then X again
     const targetBits = target.toString(2).padStart(n, '0');
-    for (let q = 0; q < n; q++) {
-      if (targetBits[q] === '0') {
-        circuit = addGate(circuit, X, [q]);
-      }
-    }
-    // Simulated phase flip via Z on last qubit (simplified for small circuits)
-    if (n >= 1) {
-      circuit = addGate(circuit, Rz(Math.PI), [n - 1]);
-    }
-    for (let q = 0; q < n; q++) {
-      if (targetBits[q] === '0') {
-        circuit = addGate(circuit, X, [q]);
-      }
-    }
+    circuit = applyGroverOracle(circuit, targetBits, n);
 
     // Diffusion operator: H → X → MCZ → X → H
-    for (let q = 0; q < n; q++) circuit = addGate(circuit, H, [q]);
-    for (let q = 0; q < n; q++) circuit = addGate(circuit, X, [q]);
-    if (n >= 1) circuit = addGate(circuit, Rz(Math.PI), [n - 1]);
-    for (let q = 0; q < n; q++) circuit = addGate(circuit, X, [q]);
-    for (let q = 0; q < n; q++) circuit = addGate(circuit, H, [q]);
+    circuit = applyGroverDiffusion(circuit, n);
   }
 
   const result = simulate(circuit);
@@ -307,6 +326,30 @@ export interface AnnealingResult {
   temperatureSchedule: number[];
 }
 
+export function calculateEnergy(s: number[], problem: AnnealingProblem): number {
+  let e = 0;
+  for (const coupling of problem.couplings) {
+    e += coupling.strength * (s[coupling.i] ?? 1) * (s[coupling.j] ?? 1);
+  }
+  for (const field of problem.fields) {
+    e += field.strength * (s[field.i] ?? 1);
+  }
+  return e;
+}
+
+export function generateProposal(state: (1 | -1)[], n: number): (1 | -1)[] {
+  const flipIdx = Math.floor(Math.random() * n);
+  const proposal = [...state];
+  proposal[flipIdx] = (-(proposal[flipIdx] ?? 1)) as 1 | -1;
+  return proposal;
+}
+
+export function calculateAcceptanceProbability(deltaE: number, temperature: number, transverseField: number): number {
+  const tunnelProb = transverseField * 0.1;
+  const thermalProb = deltaE <= 0 ? 1 : Math.exp(-deltaE / Math.max(temperature, 0.01));
+  return Math.max(thermalProb, tunnelProb);
+}
+
 /**
  * Simulated quantum annealing using classical Monte Carlo with quantum-inspired schedule.
  * Uses transverse field Ising model concepts.
@@ -316,38 +359,21 @@ export function runQuantumAnnealing(problem: AnnealingProblem, maxIterations = 1
   let state = Array.from({ length: n }, () => (Math.random() > 0.5 ? 1 : -1));
   const schedule: number[] = [];
 
-  function energy(s: number[]): number {
-    let e = 0;
-    for (const coupling of problem.couplings) {
-      e += coupling.strength * (s[coupling.i] ?? 1) * (s[coupling.j] ?? 1);
-    }
-    for (const field of problem.fields) {
-      e += field.strength * (s[field.i] ?? 1);
-    }
-    return e;
-  }
-
   let bestState = [...state];
-  let bestEnergy = energy(state);
+  let bestEnergy = calculateEnergy(state, problem);
 
   for (let t = 0; t < maxIterations; t++) {
     const temperature = 10 * Math.exp(-5 * t / maxIterations); // Exponential cooling
     const transverseField = (1 - t / maxIterations); // Quantum transverse field decreases
     schedule.push(temperature);
 
-    // Flip a random spin
-    const flipIdx = Math.floor(Math.random() * n);
-    const proposal = [...state];
-    proposal[flipIdx] = (-(proposal[flipIdx] ?? 1)) as 1 | -1;
+    const proposal = generateProposal(state, n);
 
-    const currentE = energy(state);
-    const proposalE = energy(proposal);
+    const currentE = calculateEnergy(state, problem);
+    const proposalE = calculateEnergy(proposal, problem);
     const deltaE = proposalE - currentE;
 
-    // Quantum-inspired acceptance: includes transverse field tunneling
-    const tunnelProb = transverseField * 0.1;
-    const thermalProb = deltaE <= 0 ? 1 : Math.exp(-deltaE / Math.max(temperature, 0.01));
-    const acceptProb = Math.max(thermalProb, tunnelProb);
+    const acceptProb = calculateAcceptanceProbability(deltaE, temperature, transverseField);
 
     if (Math.random() < acceptProb) {
       state = proposal;

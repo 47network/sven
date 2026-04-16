@@ -192,64 +192,75 @@ export interface CampaignScore {
   insights: string[];
 }
 
+function calculateGoalCompletion(campaign: Campaign, insights: string[]): number {
+  if (campaign.goals.length === 0) return 0;
+
+  const completions = campaign.goals.map((g) =>
+    g.target > 0 ? Math.min(100, (g.current / g.target) * 100) : 0,
+  );
+  const goalCompletion = completions.reduce((s, c) => s + c, 0) / completions.length;
+
+  const exceededGoals = campaign.goals.filter((g) => g.current >= g.target);
+  if (exceededGoals.length === campaign.goals.length) {
+    insights.push('All campaign goals met or exceeded');
+  } else {
+    const missed = campaign.goals.filter((g) => g.current < g.target);
+    insights.push(
+      `${missed.length} goal(s) below target: ${missed.map((g) => g.metric).join(', ')}`,
+    );
+  }
+
+  return goalCompletion;
+}
+
+function calculateBudgetEfficiency(campaign: Campaign, insights: string[]): number {
+  if (!campaign.budget) return 50;
+
+  const utilisation = campaign.budget.spent / campaign.budget.total;
+  if (utilisation > 0.95) {
+    insights.push('Budget nearly exhausted — consider reallocation for next campaign');
+    return 40;
+  }
+  if (utilisation > 0.7) {
+    return 80;
+  }
+  if (utilisation < 0.3 && campaign.status !== 'planning') {
+    insights.push('Under-utilising budget — consider increasing channel spend');
+    return 60;
+  }
+  return 70;
+}
+
+function calculateRoiScore(campaign: Campaign, insights: string[]): number {
+  if (campaign.performance?.roi == null) return 50;
+
+  let roiScore = 20;
+  if (campaign.performance.roi > 300) roiScore = 100;
+  else if (campaign.performance.roi > 200) roiScore = 90;
+  else if (campaign.performance.roi > 100) roiScore = 75;
+  else if (campaign.performance.roi > 0) roiScore = 60;
+
+  insights.push(`Campaign ROI: ${campaign.performance.roi.toFixed(0)}%`);
+  return roiScore;
+}
+
+function calculateGrade(overall: number): CampaignScore['grade'] {
+  if (overall >= 90) return 'A';
+  if (overall >= 75) return 'B';
+  if (overall >= 60) return 'C';
+  if (overall >= 40) return 'D';
+  return 'F';
+}
+
 export function scoreCampaign(campaign: Campaign): CampaignScore {
   const insights: string[] = [];
 
-  // Goal completion
-  let goalCompletion = 0;
-  if (campaign.goals.length > 0) {
-    const completions = campaign.goals.map((g) =>
-      g.target > 0 ? Math.min(100, (g.current / g.target) * 100) : 0,
-    );
-    goalCompletion = completions.reduce((s, c) => s + c, 0) / completions.length;
-
-    const exceededGoals = campaign.goals.filter((g) => g.current >= g.target);
-    if (exceededGoals.length === campaign.goals.length) {
-      insights.push('All campaign goals met or exceeded');
-    } else {
-      const missed = campaign.goals.filter((g) => g.current < g.target);
-      insights.push(
-        `${missed.length} goal(s) below target: ${missed.map((g) => g.metric).join(', ')}`,
-      );
-    }
-  }
-
-  // Budget efficiency
-  let budgetEfficiency = 50;
-  if (campaign.budget) {
-    const utilisation = campaign.budget.spent / campaign.budget.total;
-    if (utilisation > 0.95) {
-      budgetEfficiency = 40;
-      insights.push('Budget nearly exhausted — consider reallocation for next campaign');
-    } else if (utilisation > 0.7) {
-      budgetEfficiency = 80;
-    } else if (utilisation < 0.3 && campaign.status !== 'planning') {
-      budgetEfficiency = 60;
-      insights.push('Under-utilising budget — consider increasing channel spend');
-    } else {
-      budgetEfficiency = 70;
-    }
-  }
-
-  // ROI
-  let roiScore = 50;
-  if (campaign.performance?.roi != null) {
-    if (campaign.performance.roi > 300) roiScore = 100;
-    else if (campaign.performance.roi > 200) roiScore = 90;
-    else if (campaign.performance.roi > 100) roiScore = 75;
-    else if (campaign.performance.roi > 0) roiScore = 60;
-    else roiScore = 20;
-
-    insights.push(`Campaign ROI: ${campaign.performance.roi.toFixed(0)}%`);
-  }
+  const goalCompletion = calculateGoalCompletion(campaign, insights);
+  const budgetEfficiency = calculateBudgetEfficiency(campaign, insights);
+  const roiScore = calculateRoiScore(campaign, insights);
 
   const overall = Math.round(goalCompletion * 0.5 + budgetEfficiency * 0.2 + roiScore * 0.3);
-
-  let grade: CampaignScore['grade'] = 'F';
-  if (overall >= 90) grade = 'A';
-  else if (overall >= 75) grade = 'B';
-  else if (overall >= 60) grade = 'C';
-  else if (overall >= 40) grade = 'D';
+  const grade = calculateGrade(overall);
 
   return { overall, goalCompletion, budgetEfficiency, roiScore, grade, insights };
 }

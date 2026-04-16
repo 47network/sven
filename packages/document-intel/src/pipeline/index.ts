@@ -97,54 +97,22 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineResult>
 
   try {
     // Stage 1: Normalisation
-    const normStart = Date.now();
-    const normalised = normaliseContent(input.content, input.mimeType);
-    stages.push({ stage: 'normalisation', durationMs: Date.now() - normStart, status: 'ok', details: 'Content normalised' });
+    const normalised = runNormalisationStage(input, stages);
 
     // Stage 2: Segmentation
-    const segStart = Date.now();
-    const segments = segmentDocument(normalised, input.documentType);
-    stages.push({ stage: 'segmentation', durationMs: Date.now() - segStart, status: 'ok', details: `${segments.length} segments identified` });
+    const segments = runSegmentationStage(normalised, input, stages);
 
     // Stage 3: OCR
-    const ocrStart = Date.now();
-    const config = createOcrConfig(input.ocrConfig);
-    const regions: OcrRegion[] = [];
-    for (const seg of segments) {
-      regions.push(...processOcrRegions(seg, config));
-    }
-    const page: OcrPage = {
-      pageNumber: 1,
-      width: 2480,
-      height: 3508,
-      regions,
-      text: regions.map((r) => r.content).join('\n'),
-      tables: [],
-    };
-    ocrResult = buildOcrResult(input.documentId, [page], ocrStart);
-    stages.push({ stage: 'ocr', durationMs: Date.now() - ocrStart, status: 'ok', details: `${regions.length} regions extracted` });
+    ocrResult = runOcrStage(segments, input, stages);
 
     // Stage 4: Structure assembly
-    const structStart = Date.now();
-    stages.push({ stage: 'structure_assembly', durationMs: Date.now() - structStart, status: 'ok', details: 'Document structure assembled' });
+    runStructureAssemblyStage(stages);
 
     // Stage 5: Entity extraction
-    if (input.extractEntities) {
-      const entityStart = Date.now();
-      entities = extractEntities(ocrResult.fullText, input.piiSafe);
-      stages.push({ stage: 'entity_extraction', durationMs: Date.now() - entityStart, status: 'ok', details: `${entities.length} entities found` });
-    } else {
-      stages.push({ stage: 'entity_extraction', durationMs: 0, status: 'skipped', details: 'Entity extraction not requested' });
-    }
+    entities = runEntityExtractionStage(ocrResult, input, stages);
 
     // Stage 6: Summarisation
-    if (input.summarize) {
-      const sumStart = Date.now();
-      summary = summariseText(ocrResult.fullText);
-      stages.push({ stage: 'summarisation', durationMs: Date.now() - sumStart, status: 'ok', details: 'Summary generated' });
-    } else {
-      stages.push({ stage: 'summarisation', durationMs: 0, status: 'skipped', details: 'Summarisation not requested' });
-    }
+    summary = runSummarisationStage(ocrResult, input, stages);
 
     // Stage 7: Storage (metadata only — actual storage delegated to caller)
     stages.push({ stage: 'storage', durationMs: 0, status: 'ok', details: 'Ready for storage' });
@@ -284,4 +252,67 @@ function redactEmail(email: string): string {
 
 function redactPhone(phone: string): string {
   return phone.slice(0, -4).replace(/\d/g, '*') + phone.slice(-4);
+}
+
+function runNormalisationStage(input: PipelineInput, stages: StageResult[]): string {
+  const normStart = Date.now();
+  const normalised = normaliseContent(input.content, input.mimeType);
+  stages.push({ stage: 'normalisation', durationMs: Date.now() - normStart, status: 'ok', details: 'Content normalised' });
+  return normalised;
+}
+
+function runSegmentationStage(normalised: string, input: PipelineInput, stages: StageResult[]): string[] {
+  const segStart = Date.now();
+  const segments = segmentDocument(normalised, input.documentType);
+  stages.push({ stage: 'segmentation', durationMs: Date.now() - segStart, status: 'ok', details: `${segments.length} segments identified` });
+  return segments;
+}
+
+function runOcrStage(segments: string[], input: PipelineInput, stages: StageResult[]): OcrResult {
+  const ocrStart = Date.now();
+  const config = createOcrConfig(input.ocrConfig);
+  const regions: OcrRegion[] = [];
+  for (const seg of segments) {
+    regions.push(...processOcrRegions(seg, config));
+  }
+  const page: OcrPage = {
+    pageNumber: 1,
+    width: 2480,
+    height: 3508,
+    regions,
+    text: regions.map((r) => r.content).join('\n'),
+    tables: [],
+  };
+  const ocrResult = buildOcrResult(input.documentId, [page], ocrStart);
+  stages.push({ stage: 'ocr', durationMs: Date.now() - ocrStart, status: 'ok', details: `${regions.length} regions extracted` });
+  return ocrResult;
+}
+
+function runStructureAssemblyStage(stages: StageResult[]): void {
+  const structStart = Date.now();
+  stages.push({ stage: 'structure_assembly', durationMs: Date.now() - structStart, status: 'ok', details: 'Document structure assembled' });
+}
+
+function runEntityExtractionStage(ocrResult: OcrResult, input: PipelineInput, stages: StageResult[]): ExtractedEntity[] {
+  if (input.extractEntities) {
+    const entityStart = Date.now();
+    const entities = extractEntities(ocrResult.fullText, input.piiSafe);
+    stages.push({ stage: 'entity_extraction', durationMs: Date.now() - entityStart, status: 'ok', details: `${entities.length} entities found` });
+    return entities;
+  } else {
+    stages.push({ stage: 'entity_extraction', durationMs: 0, status: 'skipped', details: 'Entity extraction not requested' });
+    return [];
+  }
+}
+
+function runSummarisationStage(ocrResult: OcrResult, input: PipelineInput, stages: StageResult[]): string | null {
+  if (input.summarize) {
+    const sumStart = Date.now();
+    const summary = summariseText(ocrResult.fullText);
+    stages.push({ stage: 'summarisation', durationMs: Date.now() - sumStart, status: 'ok', details: 'Summary generated' });
+    return summary;
+  } else {
+    stages.push({ stage: 'summarisation', durationMs: 0, status: 'skipped', details: 'Summarisation not requested' });
+    return null;
+  }
 }

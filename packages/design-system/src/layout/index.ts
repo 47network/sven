@@ -260,105 +260,129 @@ export function zIndexToCSS(): string {
 
 // ──── Layout Patterns ────────────────────────────────────────────
 
+function getHolyGrailPattern(): LayoutPattern {
+  return {
+    name: 'holy-grail',
+    description: 'Header, sidebar, main content, sidebar, footer',
+    css: [
+      '.holy-grail {',
+      '  display: grid;',
+      '  grid-template: "header header header" auto',
+      '                 "nav main aside" 1fr',
+      '                 "footer footer footer" auto',
+      '                 / 200px 1fr 200px;',
+      '  min-height: 100dvh;',
+      '}',
+      '.holy-grail > header { grid-area: header; }',
+      '.holy-grail > nav { grid-area: nav; }',
+      '.holy-grail > main { grid-area: main; }',
+      '.holy-grail > aside { grid-area: aside; }',
+      '.holy-grail > footer { grid-area: footer; }',
+    ].join('\n'),
+  };
+}
+
+function getSidebarContentPattern(): LayoutPattern {
+  return {
+    name: 'sidebar-content',
+    description: 'Fixed sidebar with scrolling main content',
+    css: [
+      '.sidebar-layout {',
+      '  display: grid;',
+      '  grid-template-columns: 280px 1fr;',
+      '  min-height: 100dvh;',
+      '}',
+      '.sidebar-layout > .sidebar {',
+      '  position: sticky;',
+      '  top: 0;',
+      '  height: 100dvh;',
+      '  overflow-y: auto;',
+      '}',
+    ].join('\n'),
+  };
+}
+
+function getCardGridPattern(): LayoutPattern {
+  return {
+    name: 'card-grid',
+    description: 'Responsive card grid with auto-fit',
+    css: [
+      '.card-grid {',
+      '  display: grid;',
+      '  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));',
+      '  gap: 1.5rem;',
+      '  padding: 1.5rem;',
+      '}',
+    ].join('\n'),
+  };
+}
+
+function getDashboardPattern(): LayoutPattern {
+  return {
+    name: 'dashboard',
+    description: 'Dashboard layout with header, sidebar, and grid content',
+    css: [
+      '.dashboard {',
+      '  display: grid;',
+      '  grid-template: "sidebar header" auto',
+      '                 "sidebar content" 1fr',
+      '                 / 64px 1fr;',
+      '  min-height: 100dvh;',
+      '}',
+      '.dashboard > .sidebar { grid-area: sidebar; }',
+      '.dashboard > .header { grid-area: header; }',
+      '.dashboard > .content {',
+      '  grid-area: content;',
+      '  display: grid;',
+      '  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));',
+      '  gap: 1rem;',
+      '  padding: 1rem;',
+      '  align-content: start;',
+      '}',
+    ].join('\n'),
+  };
+}
+
+function getSplitScreenPattern(): LayoutPattern {
+  return {
+    name: 'split-screen',
+    description: 'Two equal columns, full height',
+    css: [
+      '.split-screen {',
+      '  display: grid;',
+      '  grid-template-columns: 1fr 1fr;',
+      '  min-height: 100dvh;',
+      '}',
+      '@media (max-width: 768px) {',
+      '  .split-screen { grid-template-columns: 1fr; }',
+      '}',
+    ].join('\n'),
+  };
+}
+
+function getCenteredContentPattern(): LayoutPattern {
+  return {
+    name: 'centered-content',
+    description: 'Horizontally and vertically centered content',
+    css: [
+      '.centered-content {',
+      '  display: grid;',
+      '  place-items: center;',
+      '  min-height: 100dvh;',
+      '}',
+      '.centered-content > * { max-width: 65ch; width: 100%; }',
+    ].join('\n'),
+  };
+}
+
 export function getLayoutPatterns(): LayoutPattern[] {
   return [
-    {
-      name: 'holy-grail',
-      description: 'Header, sidebar, main content, sidebar, footer',
-      css: [
-        '.holy-grail {',
-        '  display: grid;',
-        '  grid-template: "header header header" auto',
-        '                 "nav main aside" 1fr',
-        '                 "footer footer footer" auto',
-        '                 / 200px 1fr 200px;',
-        '  min-height: 100dvh;',
-        '}',
-        '.holy-grail > header { grid-area: header; }',
-        '.holy-grail > nav { grid-area: nav; }',
-        '.holy-grail > main { grid-area: main; }',
-        '.holy-grail > aside { grid-area: aside; }',
-        '.holy-grail > footer { grid-area: footer; }',
-      ].join('\n'),
-    },
-    {
-      name: 'sidebar-content',
-      description: 'Fixed sidebar with scrolling main content',
-      css: [
-        '.sidebar-layout {',
-        '  display: grid;',
-        '  grid-template-columns: 280px 1fr;',
-        '  min-height: 100dvh;',
-        '}',
-        '.sidebar-layout > .sidebar {',
-        '  position: sticky;',
-        '  top: 0;',
-        '  height: 100dvh;',
-        '  overflow-y: auto;',
-        '}',
-      ].join('\n'),
-    },
-    {
-      name: 'card-grid',
-      description: 'Responsive card grid with auto-fit',
-      css: [
-        '.card-grid {',
-        '  display: grid;',
-        '  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));',
-        '  gap: 1.5rem;',
-        '  padding: 1.5rem;',
-        '}',
-      ].join('\n'),
-    },
-    {
-      name: 'dashboard',
-      description: 'Dashboard layout with header, sidebar, and grid content',
-      css: [
-        '.dashboard {',
-        '  display: grid;',
-        '  grid-template: "sidebar header" auto',
-        '                 "sidebar content" 1fr',
-        '                 / 64px 1fr;',
-        '  min-height: 100dvh;',
-        '}',
-        '.dashboard > .sidebar { grid-area: sidebar; }',
-        '.dashboard > .header { grid-area: header; }',
-        '.dashboard > .content {',
-        '  grid-area: content;',
-        '  display: grid;',
-        '  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));',
-        '  gap: 1rem;',
-        '  padding: 1rem;',
-        '  align-content: start;',
-        '}',
-      ].join('\n'),
-    },
-    {
-      name: 'split-screen',
-      description: 'Two equal columns, full height',
-      css: [
-        '.split-screen {',
-        '  display: grid;',
-        '  grid-template-columns: 1fr 1fr;',
-        '  min-height: 100dvh;',
-        '}',
-        '@media (max-width: 768px) {',
-        '  .split-screen { grid-template-columns: 1fr; }',
-        '}',
-      ].join('\n'),
-    },
-    {
-      name: 'centered-content',
-      description: 'Horizontally and vertically centered content',
-      css: [
-        '.centered-content {',
-        '  display: grid;',
-        '  place-items: center;',
-        '  min-height: 100dvh;',
-        '}',
-        '.centered-content > * { max-width: 65ch; width: 100%; }',
-      ].join('\n'),
-    },
+    getHolyGrailPattern(),
+    getSidebarContentPattern(),
+    getCardGridPattern(),
+    getDashboardPattern(),
+    getSplitScreenPattern(),
+    getCenteredContentPattern(),
   ];
 }
 
