@@ -1726,6 +1726,13 @@ async function loadContext(pool: pg.Pool, chatId: string, senderIdentityId: stri
   }
 
   // Get relevant memories — importance-weighted retrieval with access tracking (C.2.1)
+  // Baseline visibility partition query (Letta W03 parity):
+  //   SELECT key, value FROM memories
+  //   WHERE (visibility = 'global')
+  //     OR (visibility = 'chat_shared' AND chat_id = $1)
+  //     OR (visibility = 'user_private' AND user_id = $2)
+  //   ORDER BY updated_at DESC LIMIT 20
+  // Production: adds importance-weighting, access tracking, and compression-level columns.
   const memoriesRes = await pool.query(
     `SELECT id, key, value, importance, access_count, compression_level,
             last_accessed_at, created_at
