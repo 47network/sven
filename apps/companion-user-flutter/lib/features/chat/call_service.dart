@@ -29,9 +29,10 @@ class CallService {
     if (response.statusCode == 409) {
       // Call already in progress — return existing call info
       final data = jsonDecode(response.body)['data'] as Map<String, dynamic>?;
-      if (data != null)
+      if (data != null) {
         return CallStartResult(
             callId: data['call_id'] as String, iceServers: []);
+      }
     }
     return null;
   }
