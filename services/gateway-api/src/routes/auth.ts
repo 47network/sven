@@ -1095,18 +1095,25 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
 
     const allocateUniqueSsoUsername = async (): Promise<string> => {
       const stem = requestedUsername.slice(0, 36) || 'sso_user';
-      for (let attempt = 0; attempt < 20; attempt += 1) {
-        const suffix = attempt === 0 ? '' : `_${randomBytes(3).toString('hex')}`;
-        const candidate = `${stem}${suffix}`.slice(0, 48);
-        const existing = await pool.query(
-          `SELECT id
-           FROM users
-           WHERE username = $1
-           LIMIT 1`,
-          [candidate],
-        );
-        if (existing.rows.length === 0) return candidate;
+      const candidates: string[] = [];
+      candidates.push(stem.slice(0, 48));
+      for (let attempt = 1; attempt < 20; attempt += 1) {
+        const suffix = `_${randomBytes(3).toString('hex')}`;
+        candidates.push(`${stem}${suffix}`.slice(0, 48));
       }
+
+      const existing = await pool.query(
+        `SELECT username
+         FROM users
+         WHERE username = ANY($1::text[])`,
+        [candidates],
+      );
+
+      const existingSet = new Set(existing.rows.map((row) => row.username));
+      for (const candidate of candidates) {
+        if (!existingSet.has(candidate)) return candidate;
+      }
+
       return `${stem}_${uuidv7().replace(/-/g, '').slice(0, 8)}`.slice(0, 48);
     };
 
