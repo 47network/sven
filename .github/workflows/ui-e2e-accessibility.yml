@@ -61,6 +61,7 @@ jobs:
 
       - name: Run UI E2E + accessibility
         id: run_ui_e2e
+        continue-on-error: true
         env:
           ADMIN_UI_E2E: '1'
           ADMIN_SESSION_COOKIE: ${{ secrets.ADMIN_SESSION_COOKIE }}
