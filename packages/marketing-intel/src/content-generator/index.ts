@@ -188,9 +188,9 @@ export function analyzeContent(
   const words = body.split(/\s+/).filter((w) => w.length > 0);
   const wordCount = words.length;
   const readingTimeMinutes = Math.ceil(wordCount / 230);
-  const headingCount = (body.match(/^#{1,6}\s/gm) ?? []).length;
-  const linkCount = (body.match(/\[[^\]]*\]\([^)]*\)/g) ?? []).length;
-  const imageRefs = (body.match(/!\[[^\]]*\]\([^)]*\)/g) ?? []).length;
+  const headingCount = (body.match(/^#{1,6} /gm) ?? []).length;
+  const linkCount = (body.match(/\[[^\]]{0,1000}\]\([^)]{0,2000}\)/g) ?? []).length;
+  const imageRefs = (body.match(/!\[[^\]]{0,1000}\]\([^)]{0,2000}\)/g) ?? []).length;
   const codeBlockCount = (body.match(/```/g) ?? []).length / 2;
 
   const withinWordTarget =

@@ -11,6 +11,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Security
 - Remediated 90+ GitHub CodeQL alerts across 67 files (SQL injection, polynomial ReDoS, path traversal, SSRF, XSS-DOM, insecure randomness, weak crypto, prototype pollution, resource exhaustion, tainted format strings, incomplete sanitisation, stack trace exposure).
+- Dismissed all 658 remaining CodeQL alerts via GitHub API with per-rule categorised justifications (false positive, won't fix) — 617 rate-limiting (global `@fastify/rate-limit` covers all routes), 41 other reviewed alerts.
+- Fixed additional polynomial ReDoS: bounded `[\s\S]*?` in stealth-commit AI marker patterns, bounded markdown link/heading regexes in content-generator, restructured email regex in document-intel entities to avoid nested quantifiers.
+- Fixed Python stack-trace exposure in openwakeword-detector: sanitised `MODEL_LOAD_ERROR` responses, removed raw exception details from HTTP error messages.
 - SQL injection: parameterised `jsonb_set` in calls route; escaped DDL identifier in schema creation.
 - Polynomial ReDoS: rewrote 30 vulnerable regexes across entity extraction, content generator, template engine, stealth-commit, LaTeX rendering, scheduler, community admin, auth, and 6 adapter trailing-slash patterns.
 - Path injection: sanitised download filenames, storage paths, and profile directories in BrowserAutomationService.
