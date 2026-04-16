@@ -116,11 +116,11 @@ function buildPdf(title: string, author: string, sections: Section[], dims: { w:
   if (pages.length === 0) pages.push([]);
 
   // Build PDF objects
-  const pdfObjects: string[] = [];
+  const objects: string[] = [];
 
   const addObj = (obj: string) => {
-    const num = pdfObjects.length + 1;
-    pdfObjects.push(obj);
+    const num = objects.length + 1;
+    objects.push(obj);
     return num;
   };
 
@@ -128,7 +128,7 @@ function buildPdf(title: string, author: string, sections: Section[], dims: { w:
   const catalogNum = addObj('<< /Type /Catalog /Pages 2 0 R >>');
 
   // 2 — Pages (placeholder — we'll fix ref later)
-  const pagesObjIndex = pdfObjects.length;
+  const pagesObjIndex = objects.length;
   addObj('PLACEHOLDER');
 
   // 3 — Font (Helvetica)
@@ -169,14 +169,14 @@ function buildPdf(title: string, author: string, sections: Section[], dims: { w:
 
   // Fix Pages object
   const kids = pageObjNums.map((n) => `${n} 0 R`).join(' ');
-  pdfObjects[pagesObjIndex] = `<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`;
+  objects[pagesObjIndex] = `<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`;
 
   // Final assembly
   let rebuilt = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n';
   const newOffsets: number[] = [];
-  for (let i = 0; i < pdfObjects.length; i++) {
+  for (let i = 0; i < objects.length; i++) {
     newOffsets.push(rebuilt.length);
-    rebuilt += `${i + 1} 0 obj\n${pdfObjects[i]}\nendobj\n`;
+    rebuilt += `${i + 1} 0 obj\n${objects[i]}\nendobj\n`;
   }
 
   // Cross-reference table
