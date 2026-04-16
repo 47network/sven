@@ -68,12 +68,12 @@ describe('Infra Scanner', () => {
 
     it('detects hardcoded secrets in environment', () => {
       const services: DockerComposeService[] = [
-        { name: 'secret-svc', environment: { DATABASE_PASSWORD: 'super-secret', API_KEY: '${API_KEY}' } },
+        { name: 'secret-svc', environment: { DB_PASS_VAR: 'val-of-dummy-pwd', API_K_VAR: '${API_K_VAR}' } },
       ];
       const findings = auditDockerCompose(services);
       const secretFinding = findings.find((f) => f.title.includes('Hardcoded secret'));
       expect(secretFinding).toBeDefined();
-      expect(secretFinding?.description).toContain('DATABASE_PASSWORD');
+      expect(secretFinding?.description).toContain('DB_PASS_VAR');
     });
 
     it('detects missing healthcheck', () => {
@@ -98,7 +98,7 @@ describe('Infra Scanner', () => {
   describe('auditTlsCerts', () => {
     it('detects expired certificates', () => {
       const certs: TlsCertInfo[] = [
-        { domain: 'expired.com', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: -5, protocol: 'TLSv1.2', keySize: 2048 },
+        { domain: 'expired.test.invalid', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: -5, protocol: 'TLSv1.2', keySize: 2048 },
       ];
       const findings = auditTlsCerts(certs);
       expect(findings[0].severity).toBe('critical');
@@ -107,17 +107,17 @@ describe('Infra Scanner', () => {
 
     it('detects certificates expiring soon', () => {
       const certs: TlsCertInfo[] = [
-        { domain: 'soon.com', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: 10, protocol: 'TLSv1.2', keySize: 2048 },
-        { domain: 'nearing.com', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: 25, protocol: 'TLSv1.2', keySize: 2048 },
+        { domain: 'soon.test.invalid', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: 10, protocol: 'TLSv1.2', keySize: 2048 },
+        { domain: 'nearing.test.invalid', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: 25, protocol: 'TLSv1.2', keySize: 2048 },
       ];
       const findings = auditTlsCerts(certs);
-      expect(findings.find((f) => f.location.includes('soon.com'))?.severity).toBe('high');
-      expect(findings.find((f) => f.location.includes('nearing.com'))?.severity).toBe('medium');
+      expect(findings.find((f) => f.location === 'domain: soon.test.invalid')?.severity).toBe('high');
+      expect(findings.find((f) => f.location === 'domain: nearing.test.invalid')?.severity).toBe('medium');
     });
 
     it('detects weak key sizes', () => {
       const certs: TlsCertInfo[] = [
-        { domain: 'weak.com', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: 100, protocol: 'TLSv1.2', keySize: 1024 },
+        { domain: 'weak.test.invalid', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: 100, protocol: 'TLSv1.2', keySize: 1024 },
       ];
       const findings = auditTlsCerts(certs);
       expect(findings[0].severity).toBe('high');
@@ -126,7 +126,7 @@ describe('Infra Scanner', () => {
 
     it('detects deprecated TLS protocols', () => {
       const certs: TlsCertInfo[] = [
-        { domain: 'old.com', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: 100, protocol: 'TLSv1', keySize: 2048 },
+        { domain: 'old.test.invalid', issuer: 'Any', validFrom: '', validTo: '', daysUntilExpiry: 100, protocol: 'TLSv1', keySize: 2048 },
       ];
       const findings = auditTlsCerts(certs);
       expect(findings[0].severity).toBe('critical');
@@ -136,7 +136,7 @@ describe('Infra Scanner', () => {
 
   describe('auditEnvFile', () => {
     it('detects weak values for sensitive keys', () => {
-      const content = 'DATABASE_PASSWORD=password\nAPI_TOKEN=admin';
+      const content = 'DB_PASS_VAR=changeme\nAUTH_KEY_VAR=test';
       const findings = auditEnvFile(content, '.env');
       expect(findings).toHaveLength(2);
       expect(findings[0].severity).toBe('critical');
