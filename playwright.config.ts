@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { defineConfig } from '@playwright/test';
 
 const hasDesktopTauri = fs.existsSync('apps/companion-desktop-tauri');
+const hasTradingUi = fs.existsSync('apps/trading-ui');
 const adminPort = Number(process.env.ADMIN_UI_PORT || '3100');
 const canvasPort = Number(process.env.CANVAS_UI_PORT || '3200');
 const tradingPort = Number(process.env.TRADING_UI_PORT || '3300');
@@ -23,12 +24,15 @@ const projects: Array<{ name: string; use: { baseURL: string }; grep: RegExp }> 
     use: { baseURL: canvasBaseUrl },
     grep: /@canvas/,
   },
-  {
+];
+
+if (hasTradingUi) {
+  projects.push({
     name: 'trading-web',
     use: { baseURL: tradingBaseUrl },
     grep: /@trading/,
-  },
-];
+  });
+}
 
 const webServer: Array<{ command: string; url: string; reuseExistingServer: boolean; timeout: number }> = [
   {
@@ -43,13 +47,16 @@ const webServer: Array<{ command: string; url: string; reuseExistingServer: bool
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
-  {
+];
+
+if (hasTradingUi) {
+  webServer.push({
     command: `cd apps/trading-ui && npx next dev --port ${tradingPort}`,
     url: tradingBaseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-  },
-];
+  });
+}
 
 if (hasDesktopTauri) {
   projects.push({

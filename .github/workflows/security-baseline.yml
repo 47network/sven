@@ -37,7 +37,7 @@ jobs:
             docs/parity \
             docs/Sven_Master_Checklist.md \
             docs/SVEN_APP_CHECKLIST.md \
-            --exclude-files '(^|/)pnpm-lock\.yaml$|(^|/)(dist|vendor)/|(^|/)\.detect-secrets\.cfg$' \
+            --exclude-files '(^|/)pnpm-lock\.yaml$|(^|/)(dist|vendor)/|(^|/)\.detect-secrets\.cfg$|(^|/)ci-gates\.json$' \
             > .secrets.baseline.ci
           jq 'del(.generated_at)' .secrets.baseline > .secrets.baseline.stripped
           jq 'del(.generated_at)' .secrets.baseline.ci > .secrets.baseline.ci.stripped

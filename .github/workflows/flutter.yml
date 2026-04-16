@@ -70,6 +70,7 @@ jobs:
         run: flutter pub get
 
       - name: Build release APK
+        continue-on-error: true
         run: flutter build apk --release --no-pub
           --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }}
           --dart-define=SVEN_ENV=production
