@@ -25,7 +25,7 @@ val keystoreProperties = Properties().apply {
 
 android {
     namespace = "com.fortyseven.thesven"
-    compileSdk = 36
+    compileSdk = 35
     ndkVersion = "28.2.13676358"
 
     compileOptions {
@@ -43,7 +43,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         testInstrumentationRunner = "pl.leancode.patrol.PatrolJUnitRunner"
