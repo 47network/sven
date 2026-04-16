@@ -89,6 +89,8 @@ jobs:
         run: pnpm --filter ./services/gateway-api run db:migrate
 
       - name: Ensure device OAuth table for smoke test
+        env:
+          NODE_PATH: ${{ github.workspace }}/services/gateway-api/node_modules
         run: |
           cat > ensure-device-oauth.cjs <<'EOF'
           const { Client } = require('pg');
