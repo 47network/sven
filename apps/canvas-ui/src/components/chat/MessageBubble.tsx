@@ -179,8 +179,8 @@ export default function MessageBubble({
                                 createMemory.mutate(
                                     { key: `msg-${message.id}`, value: content, scope: 'chat', chat_id: message.chat_id },
                                     {
-                                        onSuccess: (data: { id?: string }) => {
-                                            setRememberedId(data?.id ?? 'saved');
+                                        onSuccess: (res) => {
+                                            setRememberedId(res?.data?.id ?? 'saved');
                                             toast.success('Memory saved');
                                         },
                                         onError: () => toast.error('Failed to save memory'),
