@@ -97,6 +97,26 @@ class _InMemoryTokenStore extends TokenStore {
     _store.remove(_userIdKey);
     _store.remove(_usernameKey);
   }
+
+  @override
+  Future<String?> readActiveAccountId() async => _store['active_account_id'];
+
+  @override
+  Future<void> writeActiveAccountId(String userId) async =>
+      _store['active_account_id'] = userId;
+
+  @override
+  Future<void> saveAccountTokens({
+    required String userId,
+    required String accessToken,
+    String? refreshToken,
+    String? username,
+  }) async {
+    final prefix = 'sven.account.$userId';
+    _store['$prefix.access_token'] = accessToken;
+    if (refreshToken != null) _store['$prefix.refresh_token'] = refreshToken;
+    if (username != null) _store['$prefix.username'] = username;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

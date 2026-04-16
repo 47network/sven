@@ -12,6 +12,7 @@ class DeepLinkTarget {
       DeepLinkTarget._('gateway_connect', gatewayUrl: url);
 
   static DeepLinkTarget chat(String id) => DeepLinkTarget._('chat', chatId: id);
+  static DeepLinkTarget trading() => const DeepLinkTarget._('trading');
 }
 
 DeepLinkTarget? parseDeepLink(Uri uri) {
@@ -25,6 +26,10 @@ DeepLinkTarget? parseDeepLink(Uri uri) {
 
   if (segments.first == 'approvals') {
     return DeepLinkTarget.approvals();
+  }
+
+  if (segments.first == 'trading') {
+    return DeepLinkTarget.trading();
   }
 
   if (segments.first == 'widget') {

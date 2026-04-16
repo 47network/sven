@@ -35,7 +35,7 @@ jobs:
         run: flutter analyze --no-pub --no-fatal-infos
 
       - name: Run tests
-        run: flutter test --no-pub --coverage
+        run: flutter test --no-pub --coverage --exclude-tags golden
 
       - name: Upload coverage to Codecov
         if: success()

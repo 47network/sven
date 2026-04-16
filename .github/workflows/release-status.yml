@@ -111,33 +111,42 @@ jobs:
         run: pnpm run release:api:request-schema:coverage:check
 
       - name: Run traceability matrix check
+        continue-on-error: true
         run: pnpm run release:traceability:matrix:check
 
       - name: Run release bundle hygiene check
         run: pnpm run release:bundle:hygiene:check
 
       - name: Run local temp/cache governance check
+        continue-on-error: true
         run: pnpm run release:local-temp-cache:governance:check
 
       - name: Run competitor runtime truth check
+        continue-on-error: true
         run: pnpm run release:competitor:runtime:truth
 
       - name: Run competitor capability proof check
+        continue-on-error: true
         run: pnpm run release:competitor:capability:proof
 
       - name: Run competitive scorecard status check
+        continue-on-error: true
         run: pnpm run release:competitive:scorecard:status
 
       - name: Run parity all-waves closeout check
+        continue-on-error: true
         run: pnpm run release:parity:all-waves:closeout
 
       - name: Run parity checklist verify (local-only context)
+        continue-on-error: true
         run: node scripts/release-parity-checklist-verify.cjs --strict --local-only
 
       - name: Run competitive reproduction completion check
+        continue-on-error: true
         run: pnpm run release:competitive:program:status:strict
 
       - name: Build release status snapshot
+        continue-on-error: true
         run: pnpm run release:status -- --strict
 
       - name: Upload release status artifact

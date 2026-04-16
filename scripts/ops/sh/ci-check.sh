@@ -10,7 +10,7 @@ done
 
 if command -v shellcheck >/dev/null 2>&1; then
   echo "Running shellcheck..."
-  shellcheck -x "$DIR"/*.sh
+  shellcheck -x -P "$DIR" "$DIR"/*.sh
 else
   echo "shellcheck not found; skipping shellcheck step."
 fi
