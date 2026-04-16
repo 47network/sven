@@ -28,6 +28,20 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Fixed React 19 `useRef()` breaking change in admin-ui RealtimeProvider and canvas-ui ComposerBar.
 - Added explicit `types` config in canvas-ui tsconfig.json to prevent hoisted type leakage.
 
+### Fixed
+- CI: Updated pnpm-lock.yaml for design-system devDependencies added in PR #53 (root cause of all 7 CI workflow failures).
+- wake-word: Added `jest` and `node` types to tsconfig.jest.json — 92 tests now discoverable and passing.
+- gateway-api: Excluded `stream-resume.e2e.test.ts` (node:test) from Jest runner; added separate `test:node` script.
+- agent-runtime: Fixed `/prose compile` test to use relative path within `storage/prose/` (security validation correctly rejects absolute paths).
+- agent-runtime: Fixed LLM provider-keys mock SQL pattern to match parenthesized WHERE clause.
+- skill-runner: Fixed cross-platform path assertions in media-analysis tests using `path.join()`.
+- lint: Added ESLint configs for sven-copilot-extension, workflow-executor, and admin-ui.
+- lint: Migrated admin-ui from deprecated `next lint` to eslint CLI.
+- lint: Fixed 9 React hooks rule-of-hooks violations — moved conditional hook calls above early returns in trace-view, chats, and skills pages.
+- lint: Renamed misleading `useTemplatePreset` to `applyTemplatePreset` in mcp-servers page (not a hook).
+- lint: Fixed unescaped JSX entities in audit-verifier page.
+- lint: Removed unused `path` import and prefixed unused `_token` param in sven-copilot-extension.
+
 ---
 
 ## [0.2.0] — 2026-04-15
