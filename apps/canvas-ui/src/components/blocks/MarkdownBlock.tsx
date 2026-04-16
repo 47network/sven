@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -11,7 +12,11 @@ interface MarkdownBlockProps {
 
 const LATEX_PATTERN = /\$\$[\s\S]+?\$\$|\$(?!\s)(?:\\.|[^$\n\\])+\$/;
 
-export function MarkdownBlock({ content }: MarkdownBlockProps) {
+/**
+ * Renders markdown content with GFM and LaTeX support.
+ * Memoized to prevent unnecessary re-renders of the markdown parser.
+ */
+export const MarkdownBlock = memo(function MarkdownBlock({ content }: MarkdownBlockProps) {
   const text = typeof content === 'string' ? content : String(content);
   const hasMath = LATEX_PATTERN.test(text);
 
@@ -38,4 +43,4 @@ export function MarkdownBlock({ content }: MarkdownBlockProps) {
       </ReactMarkdown>
     </div>
   );
-}
+});

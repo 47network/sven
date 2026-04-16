@@ -6,7 +6,7 @@ import { BlockRenderer, type CanvasBlock } from '@/components/blocks';
 import { MarkdownBlock } from '@/components/blocks/MarkdownBlock';
 import { useCreateMemory, useDeleteMemory } from '@/lib/hooks';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 export type ChatMessage = {
     id: string;
@@ -60,7 +60,11 @@ function getCopyPayload(message: ChatMessage): string {
     return lines.join('\n\n').trim();
 }
 
-export default function MessageBubble({
+/**
+ * Renders a single chat message bubble.
+ * Memoized to prevent unnecessary re-renders when the parent timeline updates.
+ */
+export const MessageBubble = memo(function MessageBubble({
     message,
     isMe,
     isNew,
@@ -279,4 +283,6 @@ export default function MessageBubble({
             </div>
         </div>
     );
-}
+});
+
+export default MessageBubble;
