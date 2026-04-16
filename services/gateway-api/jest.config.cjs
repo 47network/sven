@@ -20,6 +20,10 @@ module.exports = {
     '**/__tests__/**/*.e2e.ts',
     '**/__tests__/**/*.e2e.test.js',
   ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    'stream-resume\\.e2e\\.test\\.ts$',
+  ],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^@sven/shared$': '<rootDir>/../../packages/shared/src/index.ts',

@@ -1,3 +1,4 @@
+import path from 'path';
 import type pg from 'pg';
 import { analyzeMedia, extractKeyFramesWithFfmpeg, readResponseBufferWithinLimit, resolveMediaSubprocessTimeoutMs } from '../src/media-analysis';
 
@@ -309,7 +310,7 @@ describe('analyzeMedia', () => {
       deps as any,
     );
     expect(result.error).toBeUndefined();
-    expect(unlink).toHaveBeenCalledWith('C:\\tmp\\media-test-success\\media.mp3');
+    expect(unlink).toHaveBeenCalledWith(path.join('C:\\tmp\\media-test-success', 'media.mp3'));
     expect(rm).toHaveBeenCalledWith('C:\\tmp\\media-test-success', { recursive: true, force: true });
   });
 
@@ -339,7 +340,7 @@ describe('analyzeMedia', () => {
       deps as any,
     );
     expect(result.error).toMatch(/transcriber boom/i);
-    expect(unlink).toHaveBeenCalledWith('C:\\tmp\\media-test-fail\\media.mp3');
+    expect(unlink).toHaveBeenCalledWith(path.join('C:\\tmp\\media-test-fail', 'media.mp3'));
     expect(rm).toHaveBeenCalledWith('C:\\tmp\\media-test-fail', { recursive: true, force: true });
   });
 });

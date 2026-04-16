@@ -143,7 +143,8 @@ describe('ops commands', () => {
   });
 
   it('/prose compile compiles a local .prose program into native workflow steps', async () => {
-    const proseDir = await fs.mkdtemp(path.join(os.tmpdir(), 'sven-prose-'));
+    const proseDir = path.join(process.cwd(), 'storage', 'prose');
+    await fs.mkdir(proseDir, { recursive: true });
     const prosePath = path.join(proseDir, 'demo.prose');
     await fs.writeFile(
       prosePath,
@@ -182,7 +183,7 @@ describe('ops commands', () => {
     const handled = await handleChatCommand({
       pool,
       canvasEmitter,
-      event: { chat_id: 'chat-1', channel: 'test', text: `/prose compile ${prosePath}`, sender_identity_id: 'id-1' } as any,
+      event: { chat_id: 'chat-1', channel: 'test', text: '/prose compile demo.prose', sender_identity_id: 'id-1' } as any,
       userId: 'user-1',
     });
 
@@ -190,6 +191,8 @@ describe('ops commands', () => {
     expect(emitted[0]).toContain('OpenProse compiled: Weekly Review');
     expect(emitted[0]).toContain('steps: 2');
     expect(emitted[0]).toContain('edges: 1');
+
+    await fs.rm(prosePath).catch(() => {});
   });
 
   it('/agent status reports paused/nudge state', async () => {
