@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-16T19:30:13.939Z",
+  "generated_at": "2026-04-16T19:33:05.153Z",
   "source_branch": "fix/a2ui-html-sanitization-allowlist-15477955031561501242",
   "source_head_sha": "a64caa656647a59b37eafcba1d6932f93c714aba",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-16T19:30:12.848Z",
+    "captured_at": "2026-04-16T19:33:04.202Z",
     "branch": "fix/a2ui-html-sanitization-allowlist-15477955031561501242",
     "total_runs": 26
   },
@@ -54,14 +54,13 @@
       "head_sha": "a64caa656647a59b37eafcba1d6932f93c714aba",
       "head_branch": "fix/a2ui-html-sanitization-allowlist-15477955031561501242",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
       "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -90,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-16T19:30:03.004Z"
+      "generated_at": "2026-04-16T19:32:54.724Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -120,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-16T19:30:07.747Z"
+      "generated_at": "2026-04-16T19:32:59.202Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -135,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-16T19:30:12.378Z"
+      "generated_at": "2026-04-16T19:33:03.727Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -462,14 +461,13 @@
         "head_sha": "a64caa656647a59b37eafcba1d6932f93c714aba",
         "head_branch": "fix/a2ui-html-sanitization-allowlist-15477955031561501242",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
         "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "parity_e2e_ci"
     },
