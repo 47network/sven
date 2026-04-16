@@ -640,8 +640,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       if (m.role == 'assistant') lastAssistant = m.timestamp;
     }
     if (lastUser == null) return false;
-    if (lastAssistant != null && !lastAssistant.isBefore(lastUser))
+    if (lastAssistant != null && !lastAssistant.isBefore(lastUser)) {
       return false;
+    }
     return DateTime.now().difference(lastUser).inSeconds > 30;
   }
 

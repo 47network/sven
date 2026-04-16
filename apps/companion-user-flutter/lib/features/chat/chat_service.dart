@@ -390,8 +390,9 @@ class ChatService {
     }
     final respBody = jsonDecode(response.body) as Map<String, dynamic>;
     final data = respBody['data'] as Map<String, dynamic>?;
-    if (data == null)
+    if (data == null) {
       throw ChatServiceException('Invalid response from server');
+    }
     return data['id'] as String;
   }
 
