@@ -110,6 +110,14 @@ class DetectRequest(BaseModel):
     audio_url: str | None = None
 
 
+def _safe_load_error() -> str | None:
+    """Sanitise model load error for external responses — no stack traces."""
+    if MODEL_LOAD_ERROR is None:
+        return None
+    # Return only the first line to avoid leaking internal paths or tracebacks
+    return MODEL_LOAD_ERROR.split("\n")[0][:200]
+
+
 @app.get("/healthz")
 def healthz() -> dict[str, Any]:
     return {
@@ -117,7 +125,7 @@ def healthz() -> dict[str, Any]:
         "loaded_models": sorted(list_loaded_labels()),
         "resolved_model_paths": RESOLVED_MODEL_PATHS,
         "model_ready": MODEL is not None,
-        "model_load_error": MODEL_LOAD_ERROR,
+        "model_load_error": _safe_load_error(),
     }
 
 
@@ -159,7 +167,7 @@ def detect(body: DetectRequest) -> dict[str, Any]:
             "scores": scores,
             "top_scores": [{"label": label, "score": score} for label, score in top_scores],
             "model_ready": MODEL is not None,
-            "model_load_error": MODEL_LOAD_ERROR,
+            "model_load_error": _safe_load_error(),
         },
     }
 
@@ -203,8 +211,8 @@ def resolve_audio_bytes(body: DetectRequest) -> bytes:
 def decode_audio(payload: bytes) -> np.ndarray:
     try:
         audio, sample_rate = sf.read(io.BytesIO(payload), dtype="float32", always_2d=False)
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail=f"Unable to decode audio payload: {exc}") from exc
+    except Exception:
+        raise HTTPException(status_code=400, detail="Unable to decode audio payload")
 
     if isinstance(audio, np.ndarray) and audio.ndim > 1:
         audio = np.mean(audio, axis=1)
@@ -222,7 +230,8 @@ def predict_scores(samples: np.ndarray) -> dict[str, float]:
     try:
         predictions = MODEL.predict_clip(samples)
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"openWakeWord inference failed: {exc}") from exc
+        logger.exception("openWakeWord inference failed")
+        raise HTTPException(status_code=500, detail="openWakeWord inference failed") from exc
 
     aggregate: dict[str, float] = {}
     for frame in predictions:

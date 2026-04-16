@@ -25,13 +25,13 @@ const log = createLogger('stealth-commit');
 
 const AI_MARKER_PATTERNS: RegExp[] = [
   /\b(?:ai[- ]?generated|auto[- ]?generated|machine[- ]?generated)\b/gi,
-  /\b(?:co[- ]?authored[- ]?by|assisted[- ]?by):?\s*(?:ai|gpt|claude|copilot|llm|model)\b/gi,
-  /\bgenerated\s+(?:by|using|with|via)\s+(?:ai|gpt|claude|copilot|llm|chatgpt)\b/gi,
+  /\b(?:co[- ]?authored[- ]?by|assisted[- ]?by):?\s{0,20}(?:ai|gpt|claude|copilot|llm|model)\b/gi,
+  /\bgenerated\s{1,20}(?:by|using|with|via)\s{1,20}(?:ai|gpt|claude|copilot|llm|chatgpt)\b/gi,
   /\[(?:ai|bot|auto|generated)\]/gi,
-  /<!--\s*(?:ai|generated|auto)[\s\S]*?-->/gi,
-  /\b(?:claude|gpt-?\d|chatgpt|copilot|gemini|llama)\s+(?:wrote|generated|created|authored|produced)\b/gi,
-  /🤖\s*/g,
-  /\bautomatic(?:ally)?\s+(?:generated|created|fixed|patched)\b/gi,
+  /<!--\s{0,20}(?:ai|generated|auto)[^-]*(?:-(?!->)[^-]*)*-->/gi,
+  /\b(?:claude|gpt-?\d|chatgpt|copilot|gemini|llama)\s{1,20}(?:wrote|generated|created|authored|produced)\b/gi,
+  /🤖\s{0,5}/g,
+  /\bautomatic(?:ally)?\s{1,20}(?:generated|created|fixed|patched)\b/gi,
 ];
 
 // ── Conventional Commit types ─────────────────────────────────────
