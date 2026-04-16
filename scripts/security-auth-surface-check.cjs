@@ -16,14 +16,30 @@ const DEFAULT_PUBLIC_ALLOWLIST = [
   '/v1/auth/login',
   '/v1/auth/totp/verify',
   '/v1/auth/refresh',
+  '/v1/auth/sso',
+  '/v1/auth/sso/mock/login',
+  '/v1/auth/sso/oidc/start',
+  '/v1/auth/sso/oidc/callback',
+  '/v1/auth/sso/saml/start',
+  '/v1/auth/sso/saml/callback',
   '/v1/auth/device/start',
   '/v1/auth/device/token',
   '/v1/auth/token-exchange',
+  '/v1/auth/google/callback',
   '/v1/config/deployment',
   '/v1/config/deployment/setup',
   '/v1/shared/:token',
   '/v1/contracts/version',
   '/v1/devices/pair/start',
+  '/v1/federation/handshake',
+  '/v1/federation/health',
+  '/v1/federation/verify',
+  '/v1/public/community/status',
+  '/v1/public/community/feed',
+  '/v1/public/community/leaderboard',
+  '/v1/public/community/capability-proof',
+  '/v1/public/community/access-request',
+  '/v1/public/community/access-request/:requestId',
   '/v1/webhooks/:path',
 ];
 
@@ -60,6 +76,9 @@ const INLINE_AUTH_MARKERS = [
   /SESSION_COOKIE/,
   /\bsven_session\b/i,
   /resolveActiveSessionPrincipal\s*\(/,
+  /authenticateA2A\s*\(/,
+  /authenticateMcp\s*\(/,
+  /requireBearerSessionUser\s*\(/,
 ];
 
 function listTsFiles(dir) {
@@ -105,6 +124,9 @@ function classifySnippet(routePath, snippet, publicAllowlist) {
 }
 
 function extractRoutes(filePath, content, publicAllowlist) {
+  const relFile = path.relative(root, filePath).replace(/\\/g, '/');
+  const mountedUnderAdminPreHandler = relFile.startsWith('services/gateway-api/src/routes/admin/')
+    && relFile !== 'services/gateway-api/src/routes/admin/index.ts';
   const matches = [];
   let m;
   while ((m = ROUTE_DECL_RE.exec(content)) !== null) {
@@ -125,9 +147,16 @@ function extractRoutes(filePath, content, publicAllowlist) {
     const start = curr.index;
     const end = next ? next.index : content.length;
     const snippet = content.slice(start, end);
-    const cls = classifySnippet(normalizedPath, snippet, publicAllowlist);
+    let cls = classifySnippet(normalizedPath, snippet, publicAllowlist);
+    if (
+      cls.class === 'unknown'
+      && mountedUnderAdminPreHandler
+      && normalizedPath.startsWith('/v1/admin/')
+    ) {
+      cls = { class: 'protected', reason: 'mounted under admin index preHandler hooks' };
+    }
     records.push({
-      file: path.relative(root, filePath).replace(/\\/g, '/'),
+      file: relFile,
       method: curr.method,
       path: normalizedPath,
       route_literal: curr.path,
