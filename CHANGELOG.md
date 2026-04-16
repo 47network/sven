@@ -41,6 +41,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - lint: Renamed misleading `useTemplatePreset` to `applyTemplatePreset` in mcp-servers page (not a hook).
 - lint: Fixed unescaped JSX entities in audit-verifier page.
 - lint: Removed unused `path` import and prefixed unused `_token` param in sven-copilot-extension.
+- release: Synced CLI package version to 0.2.0 (was 0.1.0).
+- release: Added `## v0.2.0` heading to `docs/release/changelog.md` for release versioning gate.
+- release: Added `README.md` to release-status-hygiene allowed list and archived 7 stale ephemeral files.
+- release: Added temp cache bootstrap to 3 admin PowerShell scripts missing it (ensure-local-ollama, renew-sven-systems-certs, start-nginx-edge-from-repo).
+- release: Added `cache=./tmp/npm-cache` to `.npmrc` for local temp cache governance.
+- tests: Added MCP server route contract test (11 assertions covering auth, rate limiting, scopes, JSON-RPC errors).
+- tests: Added admin route contract tests for ha, calendar, git, nas, and web (37 assertions covering endpoints, auth, validation).
 
 ---
 

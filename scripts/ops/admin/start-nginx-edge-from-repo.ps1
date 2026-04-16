@@ -3,7 +3,13 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-
+$__svenTempBootstrap = Join-Path $PSScriptRoot 'lib\\set-project-temp-cache.ps1'
+if (-not (Test-Path $__svenTempBootstrap)) { $__svenTempBootstrap = Join-Path $PSScriptRoot '..\\lib\\set-project-temp-cache.ps1' }
+if (-not (Test-Path $__svenTempBootstrap)) { $__svenTempBootstrap = Join-Path $PSScriptRoot '..\\..\\lib\\set-project-temp-cache.ps1' }
+if (Test-Path $__svenTempBootstrap) {
+  . $__svenTempBootstrap
+  Set-SvenProjectTempAndCache -StartDir $PSScriptRoot
+}
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\\..\\..")
 $prefix = Join-Path $repoRoot "deploy\\nginx\\windows\\"
 $configPath = Join-Path $prefix "nginx.conf"

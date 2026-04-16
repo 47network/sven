@@ -13,6 +13,7 @@ const allowedExact = new Set([
   'latest.json',
   'latest.md',
   'production-gap-closure-checklist.md',
+  'README.md',
 ]);
 
 function isAllowed(fileName) {

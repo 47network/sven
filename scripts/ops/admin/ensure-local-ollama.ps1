@@ -9,6 +9,14 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+$__svenTempBootstrap = Join-Path $PSScriptRoot 'lib\\set-project-temp-cache.ps1'
+if (-not (Test-Path $__svenTempBootstrap)) { $__svenTempBootstrap = Join-Path $PSScriptRoot '..\\lib\\set-project-temp-cache.ps1' }
+if (-not (Test-Path $__svenTempBootstrap)) { $__svenTempBootstrap = Join-Path $PSScriptRoot '..\\..\\lib\\set-project-temp-cache.ps1' }
+if (Test-Path $__svenTempBootstrap) {
+  . $__svenTempBootstrap
+  Set-SvenProjectTempAndCache -StartDir $PSScriptRoot
+}
+
 function Wait-ForDockerDaemon {
   param([int]$Attempts = 30)
   for ($i = 0; $i -lt $Attempts; $i++) {
