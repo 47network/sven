@@ -107,6 +107,8 @@ jobs:
         run: pnpm --filter ./services/gateway-api run db:migrate
 
       - name: Seed admin session for parity e2e
+        env:
+          NODE_PATH: ${{ github.workspace }}/services/gateway-api/node_modules
         run: |
           cat > seed-auth.cjs <<'EOF'
           const { Client } = require('pg');
