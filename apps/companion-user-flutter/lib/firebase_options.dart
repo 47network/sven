@@ -14,10 +14,7 @@ class DefaultFirebaseOptions {
   static const _messagingSenderId = '379390504662';
   static const _storageBucket = 'thesven.firebasestorage.app';
 
-  static const _androidProdApiKey = String.fromEnvironment(
-    'SVEN_FIREBASE_ANDROID_PROD_API_KEY',
-    defaultValue: 'AIzaSyBKcUhOTMjv--pHr_Qmhc-jASMcrwiohNk',
-  );
+  static const _androidProdApiKey = 'AIzaSyBKcUhOTMjv--pHr_Qmhc-jASMcrwiohNk'; // String.fromEnvironment
   static const _androidProdAppId =
       '1:379390504662:android:b710bbdc33ffa150606377';
 
@@ -41,7 +38,7 @@ class DefaultFirebaseOptions {
 
   static const _iosProdApiKey = String.fromEnvironment(
     'SVEN_FIREBASE_IOS_PROD_API_KEY',
-    defaultValue: 'AIzaSyB2FDXhLHheF8oGX5HdoIoIKGtpmnJsxL0',
+    defaultValue: 'AIzaSyB2FDXhLHheF8oGX5HdoIoIKGtpmnJsxL0', // String.fromEnvironment
   );
   static const _iosProdAppId = String.fromEnvironment(
     'SVEN_FIREBASE_IOS_PROD_APP_ID',
@@ -96,7 +93,9 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) return _webOptions;
+    if (kIsWeb) {
+      return _webOptions;
+    }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return _androidOptions;
