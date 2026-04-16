@@ -122,6 +122,36 @@ export interface GroverResult {
   measurementCounts: Map<string, number>;
 }
 
+function applyGroverOracle(circuit: QuantumCircuit, targetBits: string, n: number): QuantumCircuit {
+  let currentCircuit = circuit;
+  for (let q = 0; q < n; q++) {
+    if (targetBits[q] === '0') {
+      currentCircuit = addGate(currentCircuit, X, [q]);
+    }
+  }
+  // Simulated phase flip via Z on last qubit (simplified for small circuits)
+  if (n >= 1) {
+    currentCircuit = addGate(currentCircuit, Rz(Math.PI), [n - 1]);
+  }
+  for (let q = 0; q < n; q++) {
+    if (targetBits[q] === '0') {
+      currentCircuit = addGate(currentCircuit, X, [q]);
+    }
+  }
+  return currentCircuit;
+}
+
+function applyGroverDiffusion(circuit: QuantumCircuit, n: number): QuantumCircuit {
+  let currentCircuit = circuit;
+  // Diffusion operator: H → X → MCZ → X → H
+  for (let q = 0; q < n; q++) currentCircuit = addGate(currentCircuit, H, [q]);
+  for (let q = 0; q < n; q++) currentCircuit = addGate(currentCircuit, X, [q]);
+  if (n >= 1) currentCircuit = addGate(currentCircuit, Rz(Math.PI), [n - 1]);
+  for (let q = 0; q < n; q++) currentCircuit = addGate(currentCircuit, X, [q]);
+  for (let q = 0; q < n; q++) currentCircuit = addGate(currentCircuit, H, [q]);
+  return currentCircuit;
+}
+
 /**
  * Grover's algorithm for searching an unstructured list.
  * Oracle marks the target index by flipping its phase.
@@ -146,27 +176,10 @@ export function runGroverSearch(numQubits: number, targetIndex: number, shots = 
     // Oracle: flip phase of target state
     // Implemented as: X on qubits where target bit is 0, then multi-controlled Z, then X again
     const targetBits = target.toString(2).padStart(n, '0');
-    for (let q = 0; q < n; q++) {
-      if (targetBits[q] === '0') {
-        circuit = addGate(circuit, X, [q]);
-      }
-    }
-    // Simulated phase flip via Z on last qubit (simplified for small circuits)
-    if (n >= 1) {
-      circuit = addGate(circuit, Rz(Math.PI), [n - 1]);
-    }
-    for (let q = 0; q < n; q++) {
-      if (targetBits[q] === '0') {
-        circuit = addGate(circuit, X, [q]);
-      }
-    }
+    circuit = applyGroverOracle(circuit, targetBits, n);
 
     // Diffusion operator: H → X → MCZ → X → H
-    for (let q = 0; q < n; q++) circuit = addGate(circuit, H, [q]);
-    for (let q = 0; q < n; q++) circuit = addGate(circuit, X, [q]);
-    if (n >= 1) circuit = addGate(circuit, Rz(Math.PI), [n - 1]);
-    for (let q = 0; q < n; q++) circuit = addGate(circuit, X, [q]);
-    for (let q = 0; q < n; q++) circuit = addGate(circuit, H, [q]);
+    circuit = applyGroverDiffusion(circuit, n);
   }
 
   const result = simulate(circuit);
