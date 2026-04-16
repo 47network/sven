@@ -35,8 +35,9 @@ class SearchService {
       Uri.parse('$base/v1/search/messages'),
       body,
     );
-    if (response.statusCode != 200)
+    if (response.statusCode != 200) {
       return const SearchResults(results: [], total: 0);
+    }
     final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
     return SearchResults.fromJson(data);
   }
@@ -59,8 +60,9 @@ class SearchService {
       Uri.parse('$base/v1/search/semantic'),
       body,
     );
-    if (response.statusCode != 200)
+    if (response.statusCode != 200) {
       return const SearchResults(results: [], total: 0);
+    }
     final data = jsonDecode(response.body)['data'] as Map<String, dynamic>;
     return SearchResults.fromJson(data);
   }
