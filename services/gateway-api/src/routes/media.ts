@@ -15,7 +15,7 @@ function resolveStoragePath(baseDir: string, storageKey: unknown): string | null
   if (!key) return null;
   const candidate = path.resolve(base, key);
   const rel = path.relative(base, candidate);
-  if (!rel || rel === '.' || rel.startsWith('..') || path.isAbsolute(rel)) {
+  if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
     return null;
   }
   return candidate;
