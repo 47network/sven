@@ -38,7 +38,9 @@ jobs:
         run: pnpm --filter ./apps/companion-desktop-tauri run typecheck
 
       - name: Cargo check desktop backend
-        run: cargo check --manifest-path apps/companion-desktop-tauri/src-tauri/Cargo.toml
+        run: |
+          mkdir -p apps/companion-desktop-tauri/dist
+          cargo check --manifest-path apps/companion-desktop-tauri/src-tauri/Cargo.toml
 
       - name: Build Tauri (Windows)
         env:
@@ -88,7 +90,9 @@ jobs:
         run: pnpm --filter ./apps/companion-desktop-tauri run typecheck
 
       - name: Cargo check desktop backend
-        run: cargo check --manifest-path apps/companion-desktop-tauri/src-tauri/Cargo.toml
+        run: |
+          mkdir -p apps/companion-desktop-tauri/dist
+          cargo check --manifest-path apps/companion-desktop-tauri/src-tauri/Cargo.toml
 
       - name: Build Tauri (Linux)
         env:

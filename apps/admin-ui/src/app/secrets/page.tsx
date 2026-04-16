@@ -3,7 +3,6 @@
 import { PageHeader } from '@/components/PageHeader';
 import { PageSpinner } from '@/components/Spinner';
 import { EmptyState } from '@/components/EmptyState';
-import { api } from '@/lib/api';
 import { ShieldCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -22,9 +21,10 @@ export default function SecretsPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await api.get('/admin/integrations/runtime/secrets');
-        if (!cancelled) {
-          setSecrets(Array.isArray(res?.data?.secrets) ? res.data.secrets : []);
+        const res = await fetch('/api/admin/integrations/runtime/secrets', { credentials: 'include' });
+        if (!cancelled && res.ok) {
+          const data = await res.json();
+          setSecrets(Array.isArray(data?.secrets) ? data.secrets : []);
         }
       } catch {
         if (!cancelled) setSecrets([]);
@@ -42,10 +42,10 @@ export default function SecretsPage() {
       <PageHeader
         title="Secrets"
         description="Manage integration secrets and API keys"
-        icon={ShieldCheck}
       />
       {secrets.length === 0 ? (
         <EmptyState
+          icon={ShieldCheck}
           title="No secrets configured"
           description="Integration secrets will appear here once configured."
         />

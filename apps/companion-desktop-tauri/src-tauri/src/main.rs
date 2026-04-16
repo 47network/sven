@@ -501,8 +501,9 @@ async fn inference_delete_model(model_name: String) -> Result<(), String> {
     .map_err(|e| format!("ollama delete failed: {e}"))?;
 
   if !res.status().is_success() {
+    let status = res.status();
     let body = res.text().await.unwrap_or_default();
-    return Err(format!("ollama delete http {}: {}", res.status(), body));
+    return Err(format!("ollama delete http {}: {}", status, body));
   }
   Ok(())
 }

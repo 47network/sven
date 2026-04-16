@@ -73,7 +73,10 @@ jobs:
             digest_ref="$(docker inspect --format='{{index .RepoDigests 0}}' "$image")"
             cosign sign --yes "$digest_ref"
             verify_out="docs/release/status/security-image-signing-verify-${service}.txt"
-            cosign verify "$digest_ref" > "$verify_out"
+            cosign verify \
+              --certificate-identity-regexp="https://github.com/47network/.*" \
+              --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+              "$digest_ref" > "$verify_out"
             verify_sha="$(sha256sum "$verify_out" | awk '{print $1}')"
             digest_only="${digest_ref#*@}"
             echo "- ${digest_ref}" >> "$md_out"

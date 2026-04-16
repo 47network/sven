@@ -41,7 +41,7 @@ jobs:
             > .secrets.baseline.ci
           jq 'del(.generated_at)' .secrets.baseline > .secrets.baseline.stripped
           jq 'del(.generated_at)' .secrets.baseline.ci > .secrets.baseline.ci.stripped
-          diff --exit-code .secrets.baseline.stripped .secrets.baseline.ci.stripped
+          diff .secrets.baseline.stripped .secrets.baseline.ci.stripped
           rm -f .secrets.baseline.ci .secrets.baseline.stripped .secrets.baseline.ci.stripped
 
       - name: Enable corepack

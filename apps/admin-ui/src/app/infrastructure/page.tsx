@@ -168,7 +168,7 @@ export default function InfraPage() {
                         <p className="text-xs text-zinc-500">Last health check: {new Date(String(n.last_health_check)).toLocaleString()}</p>
                       ) : null}
                     </div>
-                  ) : null : null}
+                  ) : null}
                 </div>
               );
             })

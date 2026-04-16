@@ -28,7 +28,7 @@ jobs:
         run: nix flake show
 
       - name: flake eval
-        run: nix flake eval .#nixosModules.sven
+        run: nix eval .#nixosModules.sven
 
       - name: build devShell
         run: nix build .#devShells.x86_64-linux.default
