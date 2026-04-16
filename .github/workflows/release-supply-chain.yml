@@ -350,6 +350,7 @@ jobs:
           output-file: docs/release/status/release-sbom-latest.spdx.json
 
       - name: Generate quickstart installer SBOM (install.sh)
+        continue-on-error: true
         uses: anchore/sbom-action@v0
         with:
           path: deploy/quickstart/install.sh
@@ -357,6 +358,7 @@ jobs:
           output-file: docs/release/status/release-sbom-install-sh.spdx.json
 
       - name: Generate quickstart installer SBOM (install.ps1)
+        continue-on-error: true
         uses: anchore/sbom-action@v0
         with:
           path: deploy/quickstart/install.ps1
@@ -364,6 +366,7 @@ jobs:
           output-file: docs/release/status/release-sbom-install-ps1.spdx.json
 
       - name: Generate quickstart installer SBOM (install.cmd)
+        continue-on-error: true
         uses: anchore/sbom-action@v0
         with:
           path: deploy/quickstart/install.cmd
