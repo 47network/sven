@@ -23,6 +23,7 @@ build/
 *.sql
 # Keep: migration SQL files (nested in services/gateway-api)
 !services/gateway-api/src/db/migrations/*.sql
+!services/gateway-api/src/db/rollbacks/*.sql
 !services/gateway-api/migrations/*.sql
 # Keep: compute-mesh migration SQL files
 !services/compute-mesh/migrations/*.sql

@@ -48,6 +48,12 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - release: Added `cache=./tmp/npm-cache` to `.npmrc` for local temp cache governance.
 - tests: Added MCP server route contract test (11 assertions covering auth, rate limiting, scopes, JSON-RPC errors).
 - tests: Added admin route contract tests for ha, calendar, git, nas, and web (37 assertions covering endpoints, auth, validation).
+- release: Created 43 missing rollback SQL files (NO-OP placeholders) to achieve 200/200 migration rollback coverage.
+- release: Added `.gitignore` negation for `services/gateway-api/src/db/rollbacks/*.sql` so rollback files are tracked.
+- release: Created `external-inputs-manifest.json` and Node.js LTS compatibility import doc for external-input-resolution gate.
+- release: Created `release-evidence-manifest.json` with security-baseline, api-contract, and migration-rollback evidence classes.
+- release: Added `env://`/`file://` policy-gated wording to Sven Master Checklist for secret-ref-policy gate.
+- tests: Added quarantine-isolation-contract test (10 assertions covering trust level, web egress guard, write-scope denial, file quarantine threshold).
 
 ---
 

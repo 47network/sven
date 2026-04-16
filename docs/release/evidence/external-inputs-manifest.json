@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "description": "External inputs required for Sven release validation. Each entry tracks an external dependency or specification that must be imported into the repo for traceability.",
+  "generated_at": "2026-04-16T11:00:00.000Z",
+  "inputs": [
+    {
+      "id": "nodejs-lts-compatibility",
+      "description": "Node.js LTS release schedule and engine compatibility requirements",
+      "source_reference": "https://nodejs.org/en/about/previous-releases",
+      "in_repo_path": "docs/release/evidence/nodejs-lts-compatibility-import.md",
+      "max_age_hours": 720,
+      "required": true
+    },
+    {
+      "id": "owasp-asvs-baseline",
+      "description": "OWASP ASVS Level 2 baseline requirements referenced in security gates",
+      "source_reference": "https://owasp.org/www-project-application-security-verification-standard/",
+      "in_repo_path": "docs/release/evidence/owasp-asvs-baseline-import.md",
+      "max_age_hours": 2160,
+      "required": false
+    },
+    {
+      "id": "pnpm-compatibility-matrix",
+      "description": "pnpm version compatibility with Node.js and workspace protocol support",
+      "source_reference": "https://pnpm.io/installation",
+      "in_repo_path": "docs/release/evidence/pnpm-compatibility-import.md",
+      "max_age_hours": 720,
+      "required": false
+    }
+  ]
+}

@@ -355,6 +355,7 @@
 
 ### 6.5 Secrets Handling
 - [x] secret refs resolved via SOPS/age or Vault
+- [x] `env://`/`file://` are policy-gated
 - [x] secrets only mounted for trusted skills
 - [x] secrets mounted as files (preferred)
 - [x] redaction filters prevent leakage to logs/canvas/tool output

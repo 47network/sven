@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "description": "Release evidence bundle manifest for Sven v0.2.0. Tracks required evidence artifacts by classification.",
+  "required_provenance_fields": ["evidence_mode"],
+  "classes": [
+    {
+      "id": "security-baseline",
+      "description": "Security audit and scanning evidence",
+      "required": true,
+      "max_age_hours": 720,
+      "artifacts": [
+        "docs/release/evidence/security-penetration-baseline-c2-4-2026-02-22.md",
+        ".secrets.baseline"
+      ]
+    },
+    {
+      "id": "api-contract",
+      "description": "API contract and OpenAPI validation evidence",
+      "required": true,
+      "max_age_hours": 720,
+      "artifacts": [
+        "docs/release/evidence/api-contract-governance-c5-1-2026-02-22.md",
+        "docs/api/openapi.yaml"
+      ]
+    },
+    {
+      "id": "migration-rollback",
+      "description": "Database migration rollback coverage evidence",
+      "required": true,
+      "max_age_hours": 720,
+      "artifacts": [
+        "docs/release/evidence/db-migration-rollback-scripts-c4-1-2026-02-22.md"
+      ]
+    },
+    {
+      "id": "accessibility",
+      "description": "Accessibility compliance evidence",
+      "required": false,
+      "max_age_hours": 720,
+      "artifacts": [
+        "docs/release/evidence/accessibility"
+      ]
+    }
+  ]
+}
