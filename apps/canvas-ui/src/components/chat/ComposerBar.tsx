@@ -5,6 +5,7 @@ import { Film, Send, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCreateVideoJob } from '@/lib/hooks';
 import { toast } from 'sonner';
+import { Spinner } from '@/components/Spinner';
 
 type ComposerCommand = { name: string; description: string; template: string };
 
@@ -74,6 +75,7 @@ export default function ComposerBar({
                         type="button"
                         className="ml-2 rounded px-2 py-0.5 text-cyan-200 hover:bg-cyan-300/20"
                         onClick={onClearReply}
+                        aria-label="Clear reply draft"
                     >
                         clear
                     </button>
@@ -86,6 +88,7 @@ export default function ComposerBar({
                     type="button"
                     className="rounded-md p-2 text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800 sm:hidden"
                     title="Composer tools"
+                    aria-label="Toggle composer tools"
                     onClick={() => setShowComposerTools((prev) => !prev)}
                 >
                     <SlidersHorizontal className="h-4 w-4" />
@@ -125,10 +128,10 @@ export default function ComposerBar({
                     type="submit"
                     disabled={!input.trim() || sending}
                     className="btn btn-primary shrink-0 px-3 py-2 disabled:opacity-60"
-                    aria-label="Send message"
+                    aria-label={sending ? 'Sending message...' : 'Send message'}
                     title="Send message"
                 >
-                    <Send className="h-4 w-4" />
+                    {sending ? <Spinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
                 </button>
             </div>
 
@@ -154,8 +157,9 @@ export default function ComposerBar({
                     onClick={handleCreateVideo}
                     disabled={createVideo.isPending}
                     className="badge badge-neutral hover:bg-violet-100 dark:hover:bg-violet-900/40 hover:text-violet-600 dark:hover:text-violet-300 inline-flex items-center gap-1"
+                    aria-label={createVideo.isPending ? 'Starting video generation...' : 'Create Video'}
                 >
-                    <Film className="h-3 w-3" />
+                    {createVideo.isPending ? <Spinner className="h-3 w-3" /> : <Film className="h-3 w-3" />}
                     Create Video
                 </button>
             </div>
