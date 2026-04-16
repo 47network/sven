@@ -52,7 +52,7 @@ class MockPool {
       }
       return { rows: [] };
     }
-    if (sql.includes('FROM model_registry') && sql.includes('WHERE name = $1 OR model_id = $1')) {
+    if (sql.includes('FROM model_registry') && sql.includes('name = $1 OR model_id = $1')) {
       return {
         rows: [{
           id: 'model-1',

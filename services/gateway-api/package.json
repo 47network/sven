@@ -9,6 +9,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --passWithNoTests",
+    "test:node": "node --import tsx --test src/__tests__/stream-resume.e2e.test.ts",
     "test:backup-restore": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/backup-restore.integration.e2e.ts",
     "test:high-frequency": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/high-frequency-api.e2e.ts",
     "test:agents": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/agents.e2e.ts",
