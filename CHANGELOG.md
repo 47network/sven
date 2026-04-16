@@ -10,6 +10,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Security
+- Merged Copilot security PR #72: hardened media route path traversal (`resolveStoragePath` validates paths stay within base directory, `toSafeStorageUserSegment` sanitises user IDs in file paths). Closes OWASP A01:2021 (Broken Access Control) path traversal vector.
+- Auth surface check: added SSO, federation, community, and Google OAuth routes to public allowlist; added `authenticateA2A`, `authenticateMcp`, `requireBearerSessionUser` as recognised inline auth markers; admin sub-route inheritance detection eliminates false "unknown" classifications. 0 unknown auth routes.
+- Added `security:findings:backlog` script aggregating findings from dep audit, plaintext secrets, auth surface, transport/CSP, code scanning, and secret scanning into a triaged remediation backlog.
+
+### Fixed
+- release: Verified `final-dod.e2e.ts` passes in CI (3 consecutive green runs) — checked off in parity checklist.
+- release: Ran 5 infrastructure-dependent gates against production VMs via SSH tunnel — `a2a-smoke`, `a2a-live-peer-evidence`, `admin-rbac-penetration`, `agent-zero-parity-verify` all now PASS (72 gates passing, up from 67).
+
+### Security
 - Upgraded Fastify from v4 to v5.8.5 across all 12 services (resolves CVE-2025-32442, CVE-2025-32440, CVE-2024-47764).
 - Upgraded Next.js from v14 to v15.3.4 in admin-ui and canvas-ui (resolves CVE-2025-29927, CVE-2024-46982, CVE-2024-51479).
 - Upgraded React from v18 to v19 across all frontend apps (admin-ui, canvas-ui, companion-desktop-tauri).

@@ -912,7 +912,7 @@ When all phases complete, verify:
 ---
 
 ## 48) Production Sign-off Checklist (Before each release tag)
-- [ ] `final-dod.e2e.ts` passes in CI
+- [x] `final-dod.e2e.ts` passes in CI
 - [x] New parity E2E suite passes in CI
 - [ ] D9 Keycloak live OIDC interop gate passes in CI
 - [ ] D9 Keycloak local selfcheck passes (`release:sso:keycloak:interop:selfcheck:local`)
