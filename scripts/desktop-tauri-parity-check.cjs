@@ -6,6 +6,7 @@ const path = require('node:path');
 const root = process.cwd();
 const rustPath = path.join(root, 'apps', 'companion-desktop-tauri', 'src-tauri', 'src', 'main.rs');
 const appPath = path.join(root, 'apps', 'companion-desktop-tauri', 'src', 'App.tsx');
+const hookPath = path.join(root, 'apps', 'companion-desktop-tauri', 'src', 'lib', 'useDesktopApp.ts');
 const apiPath = path.join(root, 'apps', 'companion-desktop-tauri', 'src', 'lib', 'api.ts');
 const outDir = path.join(root, 'docs', 'release', 'status');
 
@@ -19,7 +20,7 @@ function hasAll(text, patterns) {
 
 function run() {
   const rust = read(rustPath);
-  const app = read(appPath);
+  const app = read(appPath) + '\n' + read(hookPath);
   const api = read(apiPath);
 
   const checks = [];
@@ -45,7 +46,7 @@ function run() {
 
   add(
     'frontend_invokes_core_flows',
-    hasAll(app, [/handleDeviceLogin/, /handleRefresh\(/, /handleSend\(/, /handleVoteApproval\(/, /handleRefreshTimeline\(/]),
+    hasAll(app, [/onDeviceLogin/, /onRefreshSession/, /onSend/, /onVoteApproval/, /onRefreshTimeline/]),
     'frontend exposes login, refresh, send, approval vote, timeline refresh',
   );
 
