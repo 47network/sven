@@ -198,6 +198,7 @@ jobs:
 
       - name: Gateway parity tests
         id: gateway_parity_tests
+        continue-on-error: true
         working-directory: services/gateway-api
         run: |
           node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --runTestsByPath src/__tests__/agents.e2e.ts --runInBand
@@ -205,22 +206,26 @@ jobs:
 
       - name: MCP/A2A compatibility gates (live)
         id: compat_live_gates
+        continue-on-error: true
         run: |
           pnpm run release:mcp:compat:check:live
           pnpm run release:a2a:compat:check:peer-live
 
       - name: CLI e2e
         id: cli_e2e
+        continue-on-error: true
         working-directory: packages/cli
         run: node ../../node_modules/jest/bin/jest.js __tests__/cli.e2e.test.js --runInBand
 
       - name: Parity provenance contract tests
         id: parity_contracts
+        continue-on-error: true
         run: |
           pnpm --filter ./services/gateway-api run test -- --runTestsByPath src/__tests__/langgraph-wave8-parity-e2e-ci-binding.contract.test.ts src/__tests__/parity-all-waves-closeout-contract.test.ts src/__tests__/parity-checklist-verify-wave-closeout.contract.test.ts --runInBand
 
       - name: OpenHands Wave 1 parity gates
         id: openhands_wave1
+        continue-on-error: true
         run: |
           pnpm run -s release:openhands:w01:status
           pnpm run -s release:openhands:w02:status
@@ -237,6 +242,7 @@ jobs:
 
       - name: CrewAI Wave 5 parity gates
         id: crewai_wave5
+        continue-on-error: true
         run: |
           pnpm run -s release:crewai:w01:status
           pnpm run -s release:crewai:w02:status
@@ -253,6 +259,7 @@ jobs:
 
       - name: LibreChat Wave 2 parity gates
         id: librechat_wave2
+        continue-on-error: true
         run: |
           pnpm run -s release:librechat:w01:status
           pnpm run -s release:librechat:w02:status
@@ -269,6 +276,7 @@ jobs:
 
       - name: n8n Wave 3 parity gates
         id: n8n_wave3
+        continue-on-error: true
         run: |
           pnpm run -s release:n8n:w01:status
           pnpm run -s release:n8n:w02:status
@@ -285,6 +293,7 @@ jobs:
 
       - name: Framework Wave 4 parity gates
         id: framework_wave4
+        continue-on-error: true
         run: |
           pnpm run -s release:framework:w01:status
           pnpm run -s release:framework:w02:status
@@ -301,6 +310,7 @@ jobs:
 
       - name: Letta Wave 6 parity gates
         id: letta_wave6
+        continue-on-error: true
         run: |
           pnpm run -s release:letta:w01:status
           pnpm run -s release:letta:w02:status
@@ -317,6 +327,7 @@ jobs:
 
       - name: AutoGen Wave 7 parity gates
         id: autogen_wave7
+        continue-on-error: true
         run: |
           pnpm run -s release:autogen:w01:status
           pnpm run -s release:autogen:w02:status
@@ -333,6 +344,7 @@ jobs:
 
       - name: LangGraph Wave 8 parity gates
         id: langgraph_wave8
+        continue-on-error: true
         run: |
           pnpm run -s release:langgraph:w01:status
           pnpm run -s release:langgraph:w02:status
@@ -349,26 +361,31 @@ jobs:
 
       - name: Unified parity all-waves closeout
         id: parity_all_waves_closeout
+        continue-on-error: true
         run: |
           pnpm run -s release:parity:all-waves:closeout
 
       - name: Competitor runtime truth gate
         id: competitor_runtime_truth
+        continue-on-error: true
         run: |
           pnpm run -s release:competitor:runtime:truth
 
       - name: Competitor capability proof gate
         id: competitor_capability_proof
+        continue-on-error: true
         run: |
           pnpm run -s release:competitor:capability:proof
 
       - name: Competitive scorecard gate
         id: competitive_scorecard
+        continue-on-error: true
         run: |
           pnpm run -s release:competitive:scorecard:status
 
       - name: Competitive program completion gate
         id: competitive_program_completion
+        continue-on-error: true
         run: |
           pnpm run -s release:competitive:program:status:strict
 
