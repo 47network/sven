@@ -6069,7 +6069,9 @@ export function executeA2uiEvalScript(
   };
 
   try {
-    vm.runInNewContext(
+    // Intentional: A2UI eval executes user-provided scripts in a sandboxed
+    // vm.runInNewContext context, gated by SVEN_A2UI_EVAL_ENABLED + auth + chat membership.
+    vm.runInNewContext( // lgtm[js/code-injection]
       `result = (() => { ${script} })();`,
       sandbox,
       { timeout: 100, microtaskMode: 'afterEvaluate' },

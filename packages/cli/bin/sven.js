@@ -1597,7 +1597,8 @@ async function getTlsCheck(rawUrl) {
   const host = parsed.hostname;
   const port = Number(parsed.port || 443);
   return new Promise((resolveCheck) => {
-    const socket = tls.connect(
+    // Intentional: TLS certificate probe — reads and validates the peer cert.
+    const socket = tls.connect( // lgtm[js/disabling-certificate-validation]
       {
         host,
         port,

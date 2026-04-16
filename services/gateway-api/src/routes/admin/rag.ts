@@ -153,7 +153,9 @@ async function osRequest(method: string, path: string, body?: unknown) {
     delete headers.Authorization;
   }
 
-  (requestInit as any).rejectUnauthorized = false;
+  if (process.env.OPENSEARCH_TLS_VERIFY === 'false') {
+    (requestInit as any).rejectUnauthorized = false;
+  }
 
   const res = await fetch(url, requestInit);
 

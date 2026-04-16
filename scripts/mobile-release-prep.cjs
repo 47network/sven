@@ -584,7 +584,8 @@ function probeTlsLeafCertificate(apiBase) {
   }
 
   return new Promise((resolve) => {
-    const socket = tls.connect({
+    // Intentional: TLS certificate probe — reads and inspects the peer cert.
+    const socket = tls.connect({ // lgtm[js/disabling-certificate-validation]
       host: url.hostname,
       port: Number(url.port || 443),
       servername: url.hostname,

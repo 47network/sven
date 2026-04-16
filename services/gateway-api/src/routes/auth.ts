@@ -2351,6 +2351,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
 
   // ─── POST /v1/auth/login ───
   app.post('/v1/auth/login', {
+    config: { rateLimit: { max: 10, timeWindow: 60_000 } },
     schema: {
       body: {
         type: 'object',
@@ -2482,7 +2483,7 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
   });
 
   // ─── POST /v1/auth/totp/verify ───
-  app.post('/v1/auth/totp/verify', async (request, reply) => {
+  app.post('/v1/auth/totp/verify', { config: { rateLimit: { max: 10, timeWindow: 60_000 } } }, async (request, reply) => {
     const { pre_session_id, code } = request.body as {
       pre_session_id: string;
       code: string;

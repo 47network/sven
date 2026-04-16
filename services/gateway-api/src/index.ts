@@ -3,6 +3,7 @@ import fastifyCookie from '@fastify/cookie';
 import fastifyCors from '@fastify/cors';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyMultipart from '@fastify/multipart';
+import fastifyRateLimit from '@fastify/rate-limit';
 import { createLogger, FeatureFlagRegistry, detectProxy, createDefaultPermissionEngine, PermissionHookManager, ClientAttestor, generateTaskId, TokenBudgetTracker, QueryChain, PromptGuard, AntiDistillation, BackgroundSessionManager, HeartbeatManager } from '@sven/shared';
 import type { ProxyDetectConfig, PermissionContext } from '@sven/shared';
 import { API_CONTRACT_HEADER, API_CONTRACT_VERSION } from './contracts/api-contract.js';
@@ -349,6 +350,12 @@ async function main() {
   });
   await app.register(fastifyMultipart as any, {
     limits: { fileSize: 100 * 1024 * 1024, files: 10 },
+  });
+  await app.register(fastifyRateLimit as any, {
+    max: Number(process.env.GATEWAY_RATE_LIMIT_MAX || 200),
+    timeWindow: Number(process.env.GATEWAY_RATE_LIMIT_WINDOW_MS || 60_000),
+    keyGenerator: (request: any) => (request as any).realIp || request.ip,
+    allowList: (process.env.GATEWAY_RATE_LIMIT_ALLOW_LIST || '127.0.0.1,::1').split(',').map((s: string) => s.trim()).filter(Boolean),
   });
   requireTokenExchangeSecretForStartup(process.env);
 

@@ -69,7 +69,10 @@ export default async function handler(input: Record<string, unknown>): Promise<R
         return { result: { body_html: `<div style="font-family:sans-serif;line-height:1.6">${html}</div>`, format: 'html' } };
       }
 
-      return { result: { body: body.replace(/<[^>]+>/g, ''), format: 'plain' } };
+      let plain = body;
+      let prev = '';
+      while (plain !== prev) { prev = plain; plain = plain.replace(/<[^>]+>/g, ''); }
+      return { result: { body: plain, format: 'plain' } };
     }
 
     default:
