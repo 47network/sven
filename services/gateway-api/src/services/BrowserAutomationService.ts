@@ -163,7 +163,8 @@ export class BrowserAutomationService {
         return { ok: true };
       case 'scroll':
         if (payload.selector) {
-          await page.$eval(payload.selector, (el: any) => el.scrollIntoView());
+          const safeSelector = this.assertSafeSelector(payload.selector);
+          await page.locator(safeSelector).first().evaluate((el: any) => el.scrollIntoView());
         } else {
           await page.evaluate(
             ({ x, y }: { x: number; y: number }) => (globalThis as any).window?.scrollTo(Number(x) || 0, Number(y) || 0),
@@ -337,7 +338,7 @@ export class BrowserAutomationService {
       }
       case 'get_html': {
         const html = payload.selector
-          ? await page.$eval(payload.selector, (el: any) => el.outerHTML)
+          ? await page.locator(this.assertSafeSelector(payload.selector)).first().evaluate((el: any) => el.outerHTML)
           : await page.content();
         return { html: html || '' };
       }
@@ -530,6 +531,15 @@ export class BrowserAutomationService {
     if (!this.matchesAllowlist(host, patterns)) {
       throw new Error(`Domain not allowlisted: ${host}`);
     }
+  }
+
+  private assertSafeSelector(selector: any): string {
+    const sel = String(selector || '').trim();
+    if (!sel) throw new Error('Selector cannot be empty');
+    if (/[<>{}\n\r]/.test(sel) || sel.includes('javascript=')) {
+      throw new Error('Invalid characters or patterns in selector');
+    }
+    return sel;
   }
 
   private matchesAllowlist(host: string, patterns: string[]): boolean {

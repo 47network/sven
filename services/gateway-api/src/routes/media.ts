@@ -210,18 +210,29 @@ export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
   }, async (request: any, reply) => {
     const { message_id, media_ids } = request.body as { message_id: string; media_ids: string[] };
 
-    for (let i = 0; i < media_ids.length; i++) {
+    if (media_ids.length > 0) {
+      const insertValues: string[] = [];
+      const insertParams: any[] = [];
+      let paramIndex = 1;
+
+      for (let i = 0; i < media_ids.length; i++) {
+        insertValues.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
+        insertParams.push(uuidv7(), message_id, media_ids[i], i);
+      }
+
       await pool.query(
         `INSERT INTO message_attachments (id, message_id, media_upload_id, sort_order)
-         VALUES ($1, $2, $3, $4)
+         VALUES ${insertValues.join(', ')}
          ON CONFLICT (message_id, media_upload_id) DO NOTHING`,
-        [uuidv7(), message_id, media_ids[i], i],
+        insertParams,
       );
 
       // Link media to message
+      const updateParams = [message_id, ...media_ids];
+      const placeholders = media_ids.map((_, i) => `$${i + 2}`).join(', ');
       await pool.query(
-        `UPDATE media_uploads SET message_id = $1 WHERE id = $2`,
-        [message_id, media_ids[i]],
+        `UPDATE media_uploads SET message_id = $1 WHERE id IN (${placeholders})`,
+        updateParams,
       );
     }
 

@@ -18,7 +18,30 @@ export async function buildCodebaseContext(): Promise<string> {
 
   sections.push('### Sven Monorepo (thesven_v0.1.0)\n');
 
-  // Check which services exist
+  sections.push(...(await getServicesSection(root)));
+  sections.push(...(await getAppsSection(root)));
+  sections.push(...(await getPackagesSection(root)));
+  sections.push(...getInfrastructureSection());
+  sections.push(...getKeyFilesSection());
+
+  return sections.join('\n');
+}
+
+async function listDir(root: vscode.Uri, subdir: string): Promise<string[]> {
+  try {
+    const dirUri = vscode.Uri.joinPath(root, subdir);
+    const entries = await vscode.workspace.fs.readDirectory(dirUri);
+    return entries
+      .filter(([, type]) => type === vscode.FileType.Directory)
+      .map(([name]) => name)
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
+async function getServicesSection(root: vscode.Uri): Promise<string[]> {
+  const sections: string[] = [];
   const services = await listDir(root, 'services');
   if (services.length > 0) {
     sections.push('**Services:**');
@@ -49,8 +72,11 @@ export async function buildCodebaseContext(): Promise<string> {
     }
     sections.push('');
   }
+  return sections;
+}
 
-  // Check apps
+async function getAppsSection(root: vscode.Uri): Promise<string[]> {
+  const sections: string[] = [];
   const apps = await listDir(root, 'apps');
   if (apps.length > 0) {
     sections.push('**Apps:**');
@@ -68,8 +94,11 @@ export async function buildCodebaseContext(): Promise<string> {
     }
     sections.push('');
   }
+  return sections;
+}
 
-  // Packages
+async function getPackagesSection(root: vscode.Uri): Promise<string[]> {
+  const sections: string[] = [];
   const packages = await listDir(root, 'packages');
   if (packages.length > 0) {
     sections.push('**Packages:**');
@@ -82,16 +111,22 @@ export async function buildCodebaseContext(): Promise<string> {
     }
     sections.push('');
   }
+  return sections;
+}
 
-  // Infrastructure
+function getInfrastructureSection(): string[] {
+  const sections: string[] = [];
   sections.push('**Infrastructure:**');
   sections.push('- `deploy/multi-vm/` — Multi-VM deployment (VM4 Platform, VM5/9 AI, VM6 Data, VM7 Adapters, VM12 Matrix, VM13 GPU)');
   sections.push('- `config/` — Prometheus, Grafana, OTEL, Loki, Promtail, Caddy, Nginx, PM2, Traefik');
   sections.push('- `contracts/grpc/` — gRPC protocol definitions');
   sections.push('- `scripts/` — 100+ operational scripts');
   sections.push('');
+  return sections;
+}
 
-  // Key files in scope
+function getKeyFilesSection(): string[] {
+  const sections: string[] = [];
   sections.push('**Key Files (most frequently modified):**');
   sections.push('- `services/gateway-api/src/routes/` — API route handlers');
   sections.push('- `services/gateway-api/src/db/seed.ts` — DB seed including soul content');
@@ -100,19 +135,5 @@ export async function buildCodebaseContext(): Promise<string> {
   sections.push('- `apps/companion-user-flutter/lib/` — Flutter companion app');
   sections.push('- `apps/admin-ui/src/app/` — Admin dashboard pages');
   sections.push('');
-
-  return sections.join('\n');
-}
-
-async function listDir(root: vscode.Uri, subdir: string): Promise<string[]> {
-  try {
-    const dirUri = vscode.Uri.joinPath(root, subdir);
-    const entries = await vscode.workspace.fs.readDirectory(dirUri);
-    return entries
-      .filter(([, type]) => type === vscode.FileType.Directory)
-      .map(([name]) => name)
-      .sort();
-  } catch {
-    return [];
-  }
+  return sections;
 }

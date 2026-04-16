@@ -124,22 +124,19 @@ export async function getAllScenarios(
       conditions.push('is_active = TRUE');
     }
     if (organizationId) {
-      conditions.push('organization_id = $' + (params.length + 1));
       params.push(organizationId);
+      conditions.push(`organization_id = $${params.length}`);
     }
 
     if (category) {
-      conditions.push('category = $' + (params.length + 1));
       params.push(category);
+      conditions.push(`category = $${params.length}`);
     }
 
-    if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
-    }
+    const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '';
+    const finalQuery = `${query}${whereClause} ORDER BY priority DESC, name`;
 
-    query += ' ORDER BY priority DESC, name';
-
-    const result = await pool.query(query, params);
+    const result = await pool.query(finalQuery, params);
 
     return result.rows.map((r) => ({
       id: r.id,
@@ -167,17 +164,18 @@ export async function getAllScenarios(
  */
 export async function getScenarioById(scenarioId: string, organizationId?: string): Promise<Scenario | null> {
   try {
-    let query = `SELECT id, name, description, category, chat_id, organization_id, user_message,
+    const query = `SELECT id, name, description, category, chat_id, organization_id, user_message,
               expected_assistant_response, expected_tool_calls,
               expected_approvals_required, tags, priority, is_active
        FROM scenarios WHERE id = $1`;
     const params: any[] = [scenarioId];
+    const orgClause = organizationId ? ' AND organization_id = $2' : '';
     if (organizationId) {
-      query += ' AND organization_id = $2';
       params.push(organizationId);
     }
+    const finalQuery = `${query}${orgClause}`;
     const result = await pool.query(
-      query,
+      finalQuery,
       params
     );
 
@@ -240,14 +238,15 @@ export async function updateScenario(
 
     sets.push(`updated_at = CURRENT_TIMESTAMP`);
     params.push(scenarioId);
-    let query = `UPDATE scenarios SET ${sets.join(', ')} WHERE id = $${paramIndex}`;
+    const query = `UPDATE scenarios SET ${sets.join(', ')} WHERE id = $${paramIndex}`;
+    let orgClause = '';
     if (organizationId) {
       params.push(organizationId);
-      query += ` AND organization_id = $${paramIndex + 1}`;
+      orgClause = ` AND organization_id = $${paramIndex + 1}`;
     }
-    query += ' RETURNING id';
+    const finalQuery = `${query}${orgClause} RETURNING id`;
 
-    const result = await pool.query(query, params);
+    const result = await pool.query(finalQuery, params);
 
     if (result.rows.length > 0) {
       await logReplayAction('scenario_updated', 'scenario', scenarioId, actorUserId || '', updates);
@@ -266,14 +265,14 @@ export async function updateScenario(
  */
 export async function deleteScenario(scenarioId: string, organizationId?: string, actorUserId?: string): Promise<boolean> {
   try {
-    let query = `DELETE FROM scenarios WHERE id = $1`;
+    const query = `DELETE FROM scenarios WHERE id = $1`;
     const params: any[] = [scenarioId];
+    const orgClause = organizationId ? ' AND organization_id = $2' : '';
     if (organizationId) {
-      query += ' AND organization_id = $2';
       params.push(organizationId);
     }
-    query += ' RETURNING id';
-    const result = await pool.query(query, params);
+    const finalQuery = `${query}${orgClause} RETURNING id`;
+    const result = await pool.query(finalQuery, params);
 
     if (result.rows.length > 0) {
       await logReplayAction('scenario_deleted', 'scenario', scenarioId, actorUserId || '', {});
