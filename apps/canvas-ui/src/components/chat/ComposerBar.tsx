@@ -50,7 +50,7 @@ export default function ComposerBar({
             return;
         }
         createVideo.mutate(
-            { prompt },
+            { description: prompt },
             {
                 onSuccess: () => {
                     toast.success('Video generation started');

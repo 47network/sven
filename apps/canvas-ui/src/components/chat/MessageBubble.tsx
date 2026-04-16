@@ -177,7 +177,7 @@ export default function MessageBubble({
                                 const content = copyPayload || message.text;
                                 if (!content) return;
                                 createMemory.mutate(
-                                    { content, scope: 'chat', chat_id: message.chat_id, metadata: { message_id: message.id, source: 'user_action' } },
+                                    { key: `msg-${message.id}`, value: content, scope: 'chat', chat_id: message.chat_id },
                                     {
                                         onSuccess: (data: { id?: string }) => {
                                             setRememberedId(data?.id ?? 'saved');

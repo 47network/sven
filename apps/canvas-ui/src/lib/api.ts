@@ -853,10 +853,14 @@ export type VideoJob = {
   height: number;
   fps: number;
   duration_secs: number;
+  duration_s?: number;
   output_format: string;
   render_time_ms: number;
   output_size_bytes: number;
   output_path?: string;
+  url?: string;
+  prompt?: string;
+  error?: string;
   spec?: Record<string, unknown>;
   created_at: string;
   started_at?: string;

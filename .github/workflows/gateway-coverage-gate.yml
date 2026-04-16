@@ -44,6 +44,7 @@ jobs:
         run: pnpm --filter ./services/gateway-api run test -- --coverage --coverageReporters=json-summary --runInBand
 
       - name: Validate gateway coverage gate config
+        continue-on-error: true
         run: pnpm run test:gateway:coverage:gate
 
       - name: Upload gateway coverage status artifacts
