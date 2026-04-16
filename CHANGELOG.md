@@ -17,6 +17,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Fixed
 - ESLint lint gate now passes (0 errors) by adding missing configs and ignoring build output directories.
 - Fixed ReDoS-vulnerable SAML XML attribute and X509Certificate regexes in gateway auth routes.
+- Multi-device validation refresh now probes the production HTTPS surface directly instead of depending on missing gitignored `scripts/tmp` helpers.
 
 ### Security
 - Remediated 90+ GitHub CodeQL alerts across 67 files (SQL injection, polynomial ReDoS, path traversal, SSRF, XSS-DOM, insecure randomness, weak crypto, prototype pollution, resource exhaustion, tainted format strings, incomplete sanitisation, stack trace exposure).

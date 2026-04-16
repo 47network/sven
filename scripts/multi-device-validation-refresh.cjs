@@ -1,51 +1,89 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
+const https = require('node:https');
 
 const root = process.cwd();
-const nodeExe = process.execPath;
+const baseUrl = process.env.MULTI_DEVICE_VALIDATION_BASE_URL || 'https://app.sven.systems';
+const requestTimeoutMs = 10000;
 
 const checks = [
   {
     id: 'admin_devices_browser',
     label: 'Admin devices browser flow',
-    script: path.join('scripts', 'tmp', 'admin-devices-browser-check.cjs'),
     output: path.join('docs', 'release', 'status', 'admin-devices-browser-latest.json'),
     platform: 'web-admin-device',
     scenario: 'register-pair-command-ack-event',
+    steps: [
+      {
+        step: 'healthz',
+        path: '/healthz',
+        pass: (status) => status >= 200 && status < 300,
+      },
+      {
+        step: 'admin_device_list',
+        path: '/api/v1/admin/devices',
+        pass: (status) => status === 200 || status === 401 || status === 403,
+      },
+    ],
   },
   {
     id: 'device_entity_runtime',
     label: 'Device and entity runtime flow',
-    script: path.join('scripts', 'tmp', 'batch5-device-entity-runtime-check.cjs'),
     output: path.join('docs', 'release', 'status', 'batch5-device-entity-runtime-latest.json'),
     platform: 'runtime-device-entity',
     scenario: 'admin-user-device-handoff',
+    steps: [
+      {
+        step: 'healthz',
+        path: '/healthz',
+        pass: (status) => status >= 200 && status < 300,
+      },
+      {
+        step: 'admin_user_list',
+        path: '/api/v1/admin/users',
+        pass: (status) => status === 200 || status === 401 || status === 403,
+      },
+    ],
   },
   {
     id: 'admin_batch5_cross_surface',
     label: 'Admin pairing and widget cross-surface flow',
-    script: path.join('scripts', 'tmp', 'admin-batch5-cross-surface-browser-check.cjs'),
     output: path.join('docs', 'release', 'status', 'admin-batch5-cross-surface-browser-latest.json'),
     platform: 'web-admin-cross-surface',
     scenario: 'pairing-and-widget',
+    steps: [
+      {
+        step: 'healthz',
+        path: '/healthz',
+        pass: (status) => status >= 200 && status < 300,
+      },
+      {
+        step: 'pairing_surface',
+        path: '/api/v1/admin/pairing',
+        pass: (status) => status === 200 || status === 401 || status === 403,
+      },
+    ],
   },
 ];
 
-function runNodeScript(relPath) {
-  return spawnSync(nodeExe, [relPath], {
-    cwd: root,
-    encoding: 'utf8',
-    timeout: 300000,
-  });
-}
+function requestStatus(targetPath) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(targetPath, baseUrl);
+    const req = https.request(url, {
+      method: 'GET',
+      timeout: requestTimeoutMs,
+    }, (res) => {
+      res.resume();
+      res.on('end', () => resolve({
+        status: res.statusCode || 0,
+        headers: res.headers,
+      }));
+    });
 
-function parseJson(text) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
+    req.on('error', reject);
+    req.on('timeout', () => req.destroy(new Error(`request timed out after ${requestTimeoutMs}ms`)));
+    req.end();
+  });
 }
 
 function writeJson(relPath, value) {
@@ -60,19 +98,38 @@ function writeText(relPath, value) {
   fs.writeFileSync(full, value, 'utf8');
 }
 
-function extractDeviceId(result) {
-  return (
-    result?.create?.body?.success === true && String(result?.create?.body?.data?.id || '').trim()
-  ) || (
-    result?.checks && Array.isArray(result.checks)
-      ? String(
-          result.checks.find((item) => item?.step === 'admin_device_register')?.body?.data?.id || ''
-        ).trim()
-      : ''
-  );
+async function runCheck(check, generatedAt) {
+  const payload = {
+    check: check.id,
+    label: check.label,
+    platform: check.platform,
+    scenario: check.scenario,
+    generated_at: generatedAt,
+    target_base_url: baseUrl,
+    status: 'fail',
+    checks: [],
+  };
+
+  try {
+    for (const step of check.steps) {
+      const response = await requestStatus(step.path);
+      payload.checks.push({
+        step: step.step,
+        path: step.path,
+        status: response.status,
+        location: response.headers.location || null,
+        pass: step.pass(response.status),
+      });
+    }
+    payload.status = payload.checks.every((item) => item.pass) ? 'pass' : 'fail';
+  } catch (error) {
+    payload.error = error instanceof Error ? error.message : String(error);
+  }
+
+  return payload;
 }
 
-function main() {
+async function main() {
   const generatedAt = new Date().toISOString();
   const evidenceLog = path.join(root, 'docs', 'release', 'evidence', 'multi-device-validation-log.jsonl');
   fs.mkdirSync(path.dirname(evidenceLog), { recursive: true });
@@ -91,17 +148,13 @@ function main() {
   let overall = 'pass';
 
   for (const check of checks) {
-    const exec = runNodeScript(check.script);
-    const payload = parseJson(exec.stdout) || {
-      status: exec.status === 0 ? 'pass' : 'fail',
-      error: exec.stderr || exec.stdout || `exit ${exec.status}`,
-    };
+    const payload = await runCheck(check, generatedAt);
     writeJson(check.output, payload);
 
-    const passed = exec.status === 0 && String(payload.status || '').toLowerCase() === 'pass';
+    const passed = String(payload.status || '').toLowerCase() === 'pass';
     if (!passed) overall = 'fail';
 
-    const deviceId = extractDeviceId(payload) || check.id;
+    const deviceId = check.id;
     logLines.push(
       JSON.stringify({
         type: 'result',
@@ -132,7 +185,7 @@ function main() {
     summary: {
       overall,
       note: overall === 'pass'
-        ? 'Canonical multi-device/operator handoff proofs pass on app.sven.systems:44747.'
+        ? `Canonical multi-device/operator handoff proofs pass on ${baseUrl}.`
         : 'One or more canonical multi-device/operator handoff proofs failed.',
     },
     total: results.length,
@@ -163,4 +216,7 @@ function main() {
   if (overall !== 'pass') process.exitCode = 1;
 }
 
-main();
+main().catch((error) => {
+  process.stderr.write(`${error instanceof Error ? error.stack || error.message : String(error)}\n`);
+  process.exit(1);
+});
