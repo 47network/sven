@@ -10,49 +10,72 @@ interface SvenChatResult extends vscode.ChatResult {
   };
 }
 
-export function activate(context: vscode.ExtensionContext) {
-  const outputChannel = vscode.window.createOutputChannel('Sven AI');
-  outputChannel.appendLine('Sven AI extension activated');
+interface DiagnosticError {
+  file: string;
+  line: number;
+  message: string;
+  severity: string;
+}
 
-  const api = new SvenApiClient(() => {
+interface DiagnosticWarning {
+  file: string;
+  line: number;
+  message: string;
+}
+
+function createApiClient(): SvenApiClient {
+  return new SvenApiClient(() => {
     const config = vscode.workspace.getConfiguration('sven');
     return {
       gatewayUrl: config.get<string>('gatewayUrl') || 'http://127.0.0.1:3000',
       apiKey: config.get<string>('extensionApiKey') || 'sven-ext-47-dev',
     };
   });
+}
 
-  const participant = vscode.chat.createChatParticipant(PARTICIPANT_ID, async (
-    request: vscode.ChatRequest,
-    context: vscode.ChatContext,
-    stream: vscode.ChatResponseStream,
-    token: vscode.CancellationToken,
-  ): Promise<SvenChatResult> => {
-    const command = request.command;
+async function handleChatRequest(
+  api: SvenApiClient,
+  request: vscode.ChatRequest,
+  context: vscode.ChatContext,
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken,
+): Promise<SvenChatResult> {
+  const command = request.command;
 
-    if (command === 'soul') {
-      return handleSoul(api, stream, token);
-    }
+  if (command === 'soul') {
+    return handleSoul(api, stream, token);
+  }
 
-    if (command === 'heal') {
-      return handleHeal(stream, token);
-    }
+  if (command === 'heal') {
+    return handleHeal(stream, token);
+  }
 
-    if (command === 'codebase') {
-      return handleCodebase(request, stream, token);
-    }
+  if (command === 'codebase') {
+    return handleCodebase(request, stream, token);
+  }
 
-    if (command === 'deploy') {
-      return handleDeploy(api, stream, token);
-    }
+  if (command === 'deploy') {
+    return handleDeploy(api, stream, token);
+  }
 
-    if (command === 'improve') {
-      return handleImprove(api, request, stream, token);
-    }
+  if (command === 'improve') {
+    return handleImprove(api, request, stream, token);
+  }
 
-    // Default: general chat with Sven — combine codebase awareness + live state
-    return handleChat(api, request, context, stream, token);
-  });
+  // Default: general chat with Sven — combine codebase awareness + live state
+  return handleChat(api, request, context, stream, token);
+}
+
+export function activate(context: vscode.ExtensionContext) {
+  const outputChannel = vscode.window.createOutputChannel('Sven AI');
+  outputChannel.appendLine('Sven AI extension activated');
+
+  const api = createApiClient();
+
+  const participant = vscode.chat.createChatParticipant(
+    PARTICIPANT_ID,
+    (request, ctx, stream, token) => handleChatRequest(api, request, ctx, stream, token)
+  );
 
   participant.iconPath = vscode.Uri.joinPath(
     vscode.extensions.getExtension('47network.sven-copilot')?.extensionUri
@@ -87,25 +110,13 @@ async function handleSoul(
   return { metadata: { command: 'soul' } };
 }
 
-async function handleHeal(
-  stream: vscode.ChatResponseStream,
-  token: vscode.CancellationToken,
-): Promise<SvenChatResult> {
-  stream.progress('Running self-healing diagnostics...');
-
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders) {
-    stream.markdown('⚠️ No workspace open. Open the Sven monorepo to run diagnostics.');
-    return { metadata: { command: 'heal' } };
-  }
-
-  // Get all diagnostics from the workspace
+function collectWorkspaceDiagnostics(token: vscode.CancellationToken): { errors: DiagnosticError[]; warnings: DiagnosticWarning[]; cancelled: boolean } {
   const allDiagnostics = vscode.languages.getDiagnostics();
-  const errors: { file: string; line: number; message: string; severity: string }[] = [];
-  const warnings: { file: string; line: number; message: string }[] = [];
+  const errors: DiagnosticError[] = [];
+  const warnings: DiagnosticWarning[] = [];
 
   for (const [uri, diagnostics] of allDiagnostics) {
-    if (token.isCancellationRequested) return { metadata: { command: 'heal' } };
+    if (token.isCancellationRequested) return { errors, warnings, cancelled: true };
     const relativePath = vscode.workspace.asRelativePath(uri);
     // Skip node_modules / dist
     if (relativePath.includes('node_modules') || relativePath.includes('/dist/')) continue;
@@ -128,6 +139,34 @@ async function handleHeal(
     }
   }
 
+  return { errors, warnings, cancelled: false };
+}
+
+async function handleHeal(
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken,
+): Promise<SvenChatResult> {
+  stream.progress('Running self-healing diagnostics...');
+
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders) {
+    stream.markdown('⚠️ No workspace open. Open the Sven monorepo to run diagnostics.');
+    return { metadata: { command: 'heal' } };
+  }
+
+  const { errors, warnings, cancelled } = collectWorkspaceDiagnostics(token);
+  if (cancelled) return { metadata: { command: 'heal' } };
+
+  renderDiagnostics(stream, errors, warnings);
+
+  return { metadata: { command: 'heal' } };
+}
+
+function renderDiagnostics(
+  stream: vscode.ChatResponseStream,
+  errors: DiagnosticError[],
+  warnings: DiagnosticWarning[]
+) {
   stream.markdown('## Self-Healing Diagnostics\n\n');
 
   if (errors.length === 0 && warnings.length === 0) {
@@ -161,8 +200,6 @@ async function handleHeal(
     stream.markdown('---\n\n');
     stream.markdown('💡 **Sven can help fix these.** Ask me about any specific error and I\'ll propose a fix with full context of the codebase.\n');
   }
-
-  return { metadata: { command: 'heal' } };
 }
 
 async function handleCodebase(

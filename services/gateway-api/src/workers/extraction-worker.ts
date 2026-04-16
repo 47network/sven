@@ -74,6 +74,33 @@ async function processPendingJobs(): Promise<void> {
        RETURNING j.*`
     );
 
+    // Batch fetch missing text content to prevent N+1 queries in processJob
+    const jobsNeedingContent = result.rows.filter((job) => !job.text_content && job.message_id);
+    if (jobsNeedingContent.length > 0) {
+      const messageIds = jobsNeedingContent.map((job) => job.message_id);
+      try {
+        const msgResult = await pool.query(
+          `SELECT id, content FROM messages WHERE id = ANY($1::text[])`,
+          [messageIds]
+        );
+        const contentMap = new Map<string, string>();
+        for (const row of msgResult.rows) {
+          if (row.content) {
+            contentMap.set(String(row.id), row.content);
+          }
+        }
+        for (const job of jobsNeedingContent) {
+          const content = contentMap.get(String(job.message_id));
+          if (content) {
+            job.text_content = content;
+          }
+        }
+      } catch (error) {
+        console.error('Failed to batch fetch message contents:', error);
+        // Fallback to individual queries in processJob if this fails
+      }
+    }
+
     for (let index = 0; index < result.rows.length; index += 1) {
       if (!isRunning) {
         const remainingIds = result.rows.slice(index).map((row) => String(row.id));

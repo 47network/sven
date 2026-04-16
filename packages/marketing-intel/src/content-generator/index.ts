@@ -143,6 +143,44 @@ export interface ContentAnalysis {
   suggestions: string[];
 }
 
+function calculateReadabilityGrade(words: string[], wordCount: number, body: string): ContentAnalysis['readabilityGrade'] {
+  if (wordCount === 0) return 'moderate';
+  const avgWordLen = words.reduce((s, w) => s + w.length, 0) / words.length;
+  const sentenceCount = (body.match(/[.!?]+/g) ?? []).length || 1;
+  const avgSentLen = wordCount / sentenceCount;
+  if (avgWordLen < 5 && avgSentLen < 15) return 'easy';
+  if (avgWordLen > 6 || avgSentLen > 25) return 'advanced';
+  return 'moderate';
+}
+
+function generateSuggestions(
+  brief: ContentBrief,
+  metrics: { wordCount: number; withinWordTarget: boolean; headingCount: number; imageRefs: number; readabilityGrade: ContentAnalysis['readabilityGrade'] }
+): string[] {
+  const suggestions: string[] = [];
+  if (!metrics.withinWordTarget) {
+    if (metrics.wordCount < brief.wordCountTarget.min) {
+      suggestions.push(
+        `Content is ${brief.wordCountTarget.min - metrics.wordCount} words short of minimum target`,
+      );
+    } else {
+      suggestions.push(
+        `Content exceeds max target by ${metrics.wordCount - brief.wordCountTarget.max} words`,
+      );
+    }
+  }
+  if (brief.contentType === 'blog_post' && metrics.headingCount < 3) {
+    suggestions.push('Add more headings for better scannability');
+  }
+  if (brief.contentType === 'blog_post' && metrics.imageRefs === 0) {
+    suggestions.push('Consider adding images or diagrams');
+  }
+  if (metrics.readabilityGrade === 'advanced' && brief.contentType !== 'documentation') {
+    suggestions.push('Simplify language for broader audience reach');
+  }
+  return suggestions;
+}
+
 export function analyzeContent(
   body: string,
   brief: ContentBrief,
@@ -158,35 +196,15 @@ export function analyzeContent(
   const withinWordTarget =
     wordCount >= brief.wordCountTarget.min && wordCount <= brief.wordCountTarget.max;
 
-  // Simple readability estimation
-  const avgWordLen = words.reduce((s, w) => s + w.length, 0) / words.length;
-  const sentenceCount = (body.match(/[.!?]+/g) ?? []).length || 1;
-  const avgSentLen = wordCount / sentenceCount;
-  let readabilityGrade: ContentAnalysis['readabilityGrade'] = 'moderate';
-  if (avgWordLen < 5 && avgSentLen < 15) readabilityGrade = 'easy';
-  else if (avgWordLen > 6 || avgSentLen > 25) readabilityGrade = 'advanced';
+  const readabilityGrade = calculateReadabilityGrade(words, wordCount, body);
 
-  const suggestions: string[] = [];
-  if (!withinWordTarget) {
-    if (wordCount < brief.wordCountTarget.min) {
-      suggestions.push(
-        `Content is ${brief.wordCountTarget.min - wordCount} words short of minimum target`,
-      );
-    } else {
-      suggestions.push(
-        `Content exceeds max target by ${wordCount - brief.wordCountTarget.max} words`,
-      );
-    }
-  }
-  if (brief.contentType === 'blog_post' && headingCount < 3) {
-    suggestions.push('Add more headings for better scannability');
-  }
-  if (brief.contentType === 'blog_post' && imageRefs === 0) {
-    suggestions.push('Consider adding images or diagrams');
-  }
-  if (readabilityGrade === 'advanced' && brief.contentType !== 'documentation') {
-    suggestions.push('Simplify language for broader audience reach');
-  }
+  const suggestions = generateSuggestions(brief, {
+    wordCount,
+    withinWordTarget,
+    headingCount,
+    imageRefs,
+    readabilityGrade,
+  });
 
   return {
     wordCount,

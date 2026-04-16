@@ -108,14 +108,37 @@ export function checkBrandVoice(
   content: string,
   profile: BrandProfile = DEFAULT_47NETWORK_BRAND,
 ): BrandCheckResult {
-  const violations: BrandViolation[] = [];
   const lower = content.toLowerCase();
-  const words = lower.split(/\s+/);
 
-  // Check prohibited words/phrases
-  for (const phrase of profile.voice.avoid) {
+  const violations: BrandViolation[] = [
+    ...getProhibitedWordViolations(lower, profile.voice.avoid),
+    ...getCtaViolations(lower, content.length),
+    ...getJargonViolations(lower),
+  ];
+
+  const toneAnalysis = getToneAnalysis(content, profile.voice.tone);
+  const keyMessageCoverage = getKeyMessageCoverage(lower, profile.keyMessages);
+
+  const score = calculateBrandScore(toneAnalysis, keyMessageCoverage, violations);
+  const suggestions = generateBrandSuggestions(toneAnalysis, keyMessageCoverage);
+
+  return {
+    score,
+    grade: scoreToGrade(score),
+    violations,
+    suggestions,
+    toneAnalysis,
+    keyMessageCoverage,
+  };
+}
+
+/* --------------------------------------------------------- helper functions */
+
+function getProhibitedWordViolations(lowerContent: string, avoidPhrases: string[]): BrandViolation[] {
+  const violations: BrandViolation[] = [];
+  for (const phrase of avoidPhrases) {
     const pl = phrase.toLowerCase();
-    const idx = lower.indexOf(pl);
+    const idx = lowerContent.indexOf(pl);
     if (idx >= 0) {
       violations.push({
         type: 'prohibited_word',
@@ -126,47 +149,54 @@ export function checkBrandVoice(
       });
     }
   }
+  return violations;
+}
 
-  // Tone analysis
-  const toneAnalysis: ToneScore[] = profile.voice.tone.map((tone) => {
+function getToneAnalysis(content: string, tones: string[]): ToneScore[] {
+  return tones.map((tone) => {
     const score = estimateTone(content, tone);
     return { tone, score, present: score > 0.3 };
   });
+}
 
-  // Key message coverage
-  const keyMessageCoverage: KeyMessageHit[] = profile.keyMessages.map((msg) => {
+function getKeyMessageCoverage(lowerContent: string, keyMessages: string[]): KeyMessageHit[] {
+  return keyMessages.map((msg) => {
     const msgWords = msg.toLowerCase().split(/\s+/);
-    const matchedWords = msgWords.filter((w) => lower.includes(w));
+    const matchedWords = msgWords.filter((w) => lowerContent.includes(w));
     const ratio = matchedWords.length / msgWords.length;
     let matchStrength: KeyMessageHit['matchStrength'] = 'absent';
     if (ratio >= 0.7) matchStrength = 'strong';
     else if (ratio >= 0.4) matchStrength = 'weak';
     return { message: msg, found: matchStrength !== 'absent', matchStrength };
   });
+}
 
-  // Check for CTA presence
+function getCtaViolations(lowerContent: string, contentLength: number): BrandViolation[] {
   const ctaPatterns = [
     'get started', 'try', 'sign up', 'learn more', 'start', 'deploy',
     'install', 'contact', 'schedule', 'book', 'download', 'explore',
   ];
-  const hasCta = ctaPatterns.some((p) => lower.includes(p));
-  if (!hasCta && content.length > 200) {
-    violations.push({
+  const hasCta = ctaPatterns.some((p) => lowerContent.includes(p));
+  if (!hasCta && contentLength > 200) {
+    return [{
       type: 'missing_cta',
       severity: 'low',
       location: 'end',
       description: 'No call-to-action detected in content',
       suggestion: 'Add a clear CTA aligned with campaign goals',
-    });
+    }];
   }
+  return [];
+}
 
-  // Check for excessive jargon
+function getJargonViolations(lowerContent: string): BrandViolation[] {
+  const violations: BrandViolation[] = [];
   const jargonTerms = [
     'utilize', 'solutionize', 'ideate', 'actionable insights',
     'thought leadership', 'holistic approach', 'end-to-end',
   ];
   for (const term of jargonTerms) {
-    if (lower.includes(term)) {
+    if (lowerContent.includes(term)) {
       violations.push({
         type: 'tone_mismatch',
         severity: 'low',
@@ -176,20 +206,22 @@ export function checkBrandVoice(
       });
     }
   }
+  return violations;
+}
 
-  // Score calculation
-  const toneScore = toneAnalysis.reduce((s, t) => s + t.score, 0) / toneAnalysis.length;
-  const messageScore =
-    keyMessageCoverage.filter((k) => k.found).length / keyMessageCoverage.length;
-  const violationPenalty =
-    violations.reduce(
-      (s, v) => s + (v.severity === 'high' ? 15 : v.severity === 'medium' ? 8 : 3),
-      0,
-    );
+function calculateBrandScore(toneAnalysis: ToneScore[], keyMessageCoverage: KeyMessageHit[], violations: BrandViolation[]): number {
+  const toneScore = toneAnalysis.reduce((s, t) => s + t.score, 0) / (toneAnalysis.length || 1);
+  const messageScore = keyMessageCoverage.filter((k) => k.found).length / (keyMessageCoverage.length || 1);
+  const violationPenalty = violations.reduce(
+    (s, v) => s + (v.severity === 'high' ? 15 : v.severity === 'medium' ? 8 : 3),
+    0,
+  );
 
   const raw = Math.round(toneScore * 50 + messageScore * 30 + 20 - violationPenalty);
-  const score = Math.max(0, Math.min(100, raw));
+  return Math.max(0, Math.min(100, raw));
+}
 
+function generateBrandSuggestions(toneAnalysis: ToneScore[], keyMessageCoverage: KeyMessageHit[]): string[] {
   const suggestions: string[] = [];
   const missingTones = toneAnalysis.filter((t) => !t.present);
   if (missingTones.length > 0) {
@@ -203,15 +235,7 @@ export function checkBrandVoice(
       `Incorporate key messages: ${missingMessages.map((k) => `"${k.message}"`).join(', ')}`,
     );
   }
-
-  return {
-    score,
-    grade: scoreToGrade(score),
-    violations,
-    suggestions,
-    toneAnalysis,
-    keyMessageCoverage,
-  };
+  return suggestions;
 }
 
 /* --------------------------------------------------------- tone estimation */

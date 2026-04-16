@@ -201,46 +201,12 @@ export function analyzeConversationTurn(
   const lower = message.toLowerCase();
   const wordCount = message.split(/\s+/).length;
 
-  // Check for active language
-  const activeVerbs = ['believe', 'recommend', 'propose', 'suggest', 'expect', 'commit', 'deliver'];
-  if (activeVerbs.some((v) => lower.includes(v))) {
-    strengths.push('Uses active, confident language');
-  }
-
-  // Check for passive/hedging
-  const hedgeWords = ['maybe', 'perhaps', 'sort of', 'kind of', 'i think', 'i guess', 'hopefully'];
-  const hedges = hedgeWords.filter((h) => lower.includes(h));
-  if (hedges.length > 0) {
-    weaknesses.push(`Hedging language detected: ${hedges.join(', ')}`);
-    suggestions.push('Replace hedging phrases with direct statements');
-  }
-
-  // Check for specificity
-  const hasNumbers = /\d+/.test(message);
-  if (hasNumbers) {
-    strengths.push('Includes specific numbers or data points');
-  } else if (scenario.role === 'raise_negotiation') {
-    suggestions.push('Include specific numbers to strengthen your position');
-  }
-
-  // Check for empathy markers
-  const empathyMarkers = ['understand', 'appreciate', 'recognize', 'acknowledge', 'respect'];
-  if (empathyMarkers.some((e) => lower.includes(e))) {
-    strengths.push('Shows empathy and acknowledgment');
-  }
-
-  // Check conciseness
-  if (wordCount > 150) {
-    weaknesses.push('Response is verbose — may lose the listener');
-    suggestions.push('Aim for 50-100 words per turn for maximum impact');
-  } else if (wordCount < 10) {
-    weaknesses.push('Response too brief — may appear disengaged');
-  }
-
-  // Check for questions (good for dialogue)
-  if (message.includes('?')) {
-    strengths.push('Asks questions — keeps dialogue collaborative');
-  }
+  checkActiveLanguage(lower, strengths);
+  checkHedging(lower, weaknesses, suggestions);
+  checkSpecificity(message, scenario.role, strengths, suggestions);
+  checkEmpathy(lower, strengths);
+  checkConciseness(wordCount, weaknesses, suggestions);
+  checkQuestions(message, strengths);
 
   const positives = strengths.length * 20;
   const negatives = weaknesses.length * 15;
@@ -347,7 +313,25 @@ export function analyzeLanguageLevel(
     f.examples.some((ex) => lower.includes(ex)),
   );
 
-  // Vocabulary patterns
+  const vocabularyPatterns = analyzeVocabularyPatterns(lower);
+  const communicationStructure = analyzeCommunicationStructure(lower);
+  const decisionLanguage = analyzeDecisionLanguage(lower);
+  const recommendedAdoptions = generateLanguageRecommendations(
+    frameworks,
+    vocabularyPatterns,
+  );
+
+  return {
+    level: targetLevel,
+    frameworks,
+    vocabularyPatterns,
+    communicationStructure,
+    decisionLanguage,
+    recommendedAdoptions,
+  };
+}
+
+function analyzeVocabularyPatterns(lower: string): VocabularyPattern[] {
   const vocabCategories: VocabularyPattern[] = [];
 
   const strategicTerms = [
@@ -386,7 +370,10 @@ export function analyzeLanguageLevel(
     });
   }
 
-  // Communication structure
+  return vocabCategories;
+}
+
+function analyzeCommunicationStructure(lower: string): StructurePattern[] {
   const structures: StructurePattern[] = [];
   if (lower.includes('problem') && lower.includes('solution')) {
     structures.push({
@@ -409,15 +396,22 @@ export function analyzeLanguageLevel(
       example: 'My recommendation is...',
     });
   }
+  return structures;
+}
 
-  // Decision language
-  const decisionLanguage = [
+function analyzeDecisionLanguage(lower: string): string[] {
+  return [
     'decision', 'decide', 'chose', 'opt', 'go with', 'commit to',
     'rule out', 'prioritise', 'deprioritise',
   ].filter((t) => lower.includes(t));
+}
 
-  // Generate recommendations
+function generateLanguageRecommendations(
+  frameworks: FrameworkPattern[],
+  vocabularyPatterns: VocabularyPattern[],
+): string[] {
   const recommendedAdoptions: string[] = [];
+
   const missingFrameworks = LEADERSHIP_FRAMEWORKS.filter(
     (f) => !frameworks.some((found) => found.name === f.name),
   );
@@ -426,25 +420,23 @@ export function analyzeLanguageLevel(
       `Adopt frameworks: ${missingFrameworks.slice(0, 3).map((f) => f.name).join(', ')}`,
     );
   }
-  if (strategicTerms.length < 3) {
+
+  const strategicPattern = vocabularyPatterns.find((p) => p.category === 'Strategic Thinking');
+  const strategicTermsLength = strategicPattern ? strategicPattern.terms.length : 0;
+  if (strategicTermsLength < 3) {
     recommendedAdoptions.push(
       'Increase use of strategic vocabulary to signal higher-level thinking',
     );
   }
-  if (influenceTerms.length === 0) {
+
+  const influencePattern = vocabularyPatterns.find((p) => p.category === 'Influence & Navigation');
+  if (!influencePattern || influencePattern.terms.length === 0) {
     recommendedAdoptions.push(
       'Add influence/alignment language to demonstrate organisational awareness',
     );
   }
 
-  return {
-    level: targetLevel,
-    frameworks,
-    vocabularyPatterns: vocabCategories,
-    communicationStructure: structures,
-    decisionLanguage,
-    recommendedAdoptions,
-  };
+  return recommendedAdoptions;
 }
 
 /* ------------------------------------------------ communication auditor */
@@ -639,4 +631,51 @@ function inferStyle(analyses: TurnAnalysis[]): string {
   if (avgScore >= 60) return 'Balanced and collaborative';
   if (avgScore >= 40) return 'Cautious and measured';
   return 'Tentative — needs more assertiveness';
+}
+
+function checkActiveLanguage(lower: string, strengths: string[]) {
+  const activeVerbs = ['believe', 'recommend', 'propose', 'suggest', 'expect', 'commit', 'deliver'];
+  if (activeVerbs.some((v) => lower.includes(v))) {
+    strengths.push('Uses active, confident language');
+  }
+}
+
+function checkHedging(lower: string, weaknesses: string[], suggestions: string[]) {
+  const hedgeWords = ['maybe', 'perhaps', 'sort of', 'kind of', 'i think', 'i guess', 'hopefully'];
+  const hedges = hedgeWords.filter((h) => lower.includes(h));
+  if (hedges.length > 0) {
+    weaknesses.push(`Hedging language detected: ${hedges.join(', ')}`);
+    suggestions.push('Replace hedging phrases with direct statements');
+  }
+}
+
+function checkSpecificity(message: string, role: string, strengths: string[], suggestions: string[]) {
+  const hasNumbers = /\d+/.test(message);
+  if (hasNumbers) {
+    strengths.push('Includes specific numbers or data points');
+  } else if (role === 'raise_negotiation') {
+    suggestions.push('Include specific numbers to strengthen your position');
+  }
+}
+
+function checkEmpathy(lower: string, strengths: string[]) {
+  const empathyMarkers = ['understand', 'appreciate', 'recognize', 'acknowledge', 'respect'];
+  if (empathyMarkers.some((e) => lower.includes(e))) {
+    strengths.push('Shows empathy and acknowledgment');
+  }
+}
+
+function checkConciseness(wordCount: number, weaknesses: string[], suggestions: string[]) {
+  if (wordCount > 150) {
+    weaknesses.push('Response is verbose — may lose the listener');
+    suggestions.push('Aim for 50-100 words per turn for maximum impact');
+  } else if (wordCount < 10) {
+    weaknesses.push('Response too brief — may appear disengaged');
+  }
+}
+
+function checkQuestions(message: string, strengths: string[]) {
+  if (message.includes('?')) {
+    strengths.push('Asks questions — keeps dialogue collaborative');
+  }
 }

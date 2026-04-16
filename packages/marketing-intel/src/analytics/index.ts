@@ -183,22 +183,17 @@ function pctChange(current: number, previous: number): number {
 
 /* ------------------------------------------------------ report generation */
 
-export function generateMarketingReport(
-  metrics: MarketingMetrics,
-  topContent: ContentRanking[] = [],
-): MarketingReport {
+function generateRecommendations(metrics: MarketingMetrics, channelList: ChannelMetrics[]): string[] {
   const recommendations: string[] = [];
 
-  // Channel performance insights
-  const channelList = Object.values(metrics.channels);
-  const bestChannel = channelList.sort((a, b) => b.conversionRate - a.conversionRate)[0];
+  const bestChannel = [...channelList].sort((a, b) => b.conversionRate - a.conversionRate)[0];
   if (bestChannel) {
     recommendations.push(
       `Top converting channel: ${bestChannel.channel} (${(bestChannel.conversionRate * 100).toFixed(1)}% CVR) — consider increasing investment`,
     );
   }
 
-  const worstChannel = channelList.sort((a, b) => a.conversionRate - b.conversionRate)[0];
+  const worstChannel = [...channelList].sort((a, b) => a.conversionRate - b.conversionRate)[0];
   if (worstChannel && channelList.length > 1) {
     recommendations.push(
       `Lowest converting channel: ${worstChannel.channel} (${(worstChannel.conversionRate * 100).toFixed(1)}% CVR) — review targeting and creative`,
@@ -215,7 +210,15 @@ export function generateMarketingReport(
     );
   }
 
-  // Generate markdown
+  return recommendations;
+}
+
+function generateMarkdown(
+  metrics: MarketingMetrics,
+  topContent: ContentRanking[],
+  recommendations: string[],
+  channelList: ChannelMetrics[],
+): string {
   const md = [
     `# Marketing Report — ${metrics.period}`,
     '',
@@ -263,6 +266,18 @@ export function generateMarketingReport(
     for (const r of recommendations) md.push(`- ${r}`);
   }
 
+  return md.join('\n');
+}
+
+export function generateMarketingReport(
+  metrics: MarketingMetrics,
+  topContent: ContentRanking[] = [],
+): MarketingReport {
+  const channelList = Object.values(metrics.channels);
+
+  const recommendations = generateRecommendations(metrics, channelList);
+  const markdown = generateMarkdown(metrics, topContent, recommendations, channelList);
+
   return {
     id: crypto.randomUUID(),
     title: `Marketing Report — ${metrics.period} (${metrics.startDate})`,
@@ -271,6 +286,6 @@ export function generateMarketingReport(
     metrics,
     topContent,
     recommendations,
-    markdown: md.join('\n'),
+    markdown,
   };
 }

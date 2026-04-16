@@ -191,10 +191,10 @@ export function diffSignals(
 
 /* -------------------------------------------------------- report generation */
 
-export function generateWeeklyReport(
+function extractKeyFindings(
   profiles: CompetitorProfile[],
   signals: CompetitorSignal[],
-): CompetitiveReport {
+): CompetitiveFinding[] {
   const findings: CompetitiveFinding[] = [];
 
   for (const profile of profiles) {
@@ -217,12 +217,20 @@ export function generateWeeklyReport(
   }
 
   findings.sort((a, b) => b.impactLevel - a.impactLevel);
+  return findings;
+}
 
+function generateReportMarkdown(
+  profiles: CompetitorProfile[],
+  signals: CompetitorSignal[],
+  findings: CompetitiveFinding[],
+  reportDateIso: string,
+): string {
   const executives = findings.slice(0, 3).map((f) => `${f.competitorName}: ${f.summary}`);
-  const content = [
+  return [
     '# Weekly Competitive Intelligence Report',
     '',
-    `**Period**: Week of ${new Date().toISOString().slice(0, 10)}`,
+    `**Period**: Week of ${reportDateIso.slice(0, 10)}`,
     `**Competitors tracked**: ${profiles.length}`,
     `**New signals**: ${signals.length}`,
     '',
@@ -246,12 +254,21 @@ export function generateWeeklyReport(
           `- \`${f.competitorName}\`: ${f.recommendedAction ?? 'Review and assess strategic response'}`,
       ),
   ].join('\n');
+}
+
+export function generateWeeklyReport(
+  profiles: CompetitorProfile[],
+  signals: CompetitorSignal[],
+): CompetitiveReport {
+  const findings = extractKeyFindings(profiles, signals);
+  const reportDate = new Date().toISOString();
+  const content = generateReportMarkdown(profiles, signals, findings, reportDate);
 
   return {
     id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
+    createdAt: reportDate,
     reportType: 'weekly_summary',
-    title: `Competitive Report — ${new Date().toISOString().slice(0, 10)}`,
+    title: `Competitive Report — ${reportDate.slice(0, 10)}`,
     content,
     competitorIds: profiles.map((p) => p.id),
     keyFindings: findings,
