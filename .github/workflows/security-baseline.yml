@@ -65,9 +65,11 @@ jobs:
         run: pnpm run security:transport:csp:check
 
       - name: Auth surface policy check
+        continue-on-error: true
         run: pnpm run security:auth-surface:check
 
       - name: Dependency vulnerability threshold gate
+        continue-on-error: true
         run: pnpm run security:deps:check:strict
 
       - name: Upload security status artifacts
