@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-04-16T03:40:58.268Z",
-  "source_branch": "fix-pdf-pages-object-3353478434749715775",
-  "source_head_sha": "c35da846f76450b016ee695c770cf3ba199e7a92",
+  "generated_at": "2026-04-16T03:44:39.380Z",
+  "source_branch": "main",
+  "source_head_sha": "9da2261877bce87edea14027af84b127bd320f82",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-16T03:40:57.921Z",
-    "branch": "fix-pdf-pages-object-3353478434749715775",
-    "total_runs": 6
+    "captured_at": "2026-04-16T03:44:25.176Z",
+    "branch": "main",
+    "total_runs": 655
   },
   "final_dod_ci": false,
-  "parity_e2e_ci": true,
+  "parity_e2e_ci": false,
   "parity_checklist_verify_ci": false,
   "agent_zero_parity_verify_ci": false,
   "websocket_contract_ci": false,
@@ -18,7 +18,7 @@
   "multi_device_validation_ci": false,
   "d9_keycloak_interop_ci": true,
   "release_ops_drill_ci": false,
-  "mobile_auth_session_smoke_ci": true,
+  "mobile_auth_session_smoke_ci": false,
   "mobile_release_readiness_ci": false,
   "backup_restore_api_ci": false,
   "flutter_user_app_device_farm_ci": true,
@@ -26,7 +26,7 @@
   "ui_e2e_ci": false,
   "mobile_coverage_gate_ci": false,
   "csrf_auth_e2e_ci": false,
-  "client_env_governance_ci": true,
+  "client_env_governance_ci": false,
   "backend_capability_e2e_ci": false,
   "security_privacy_governance_ci": false,
   "privacy_admin_e2e_ci": false,
@@ -39,7 +39,7 @@
     "final_dod_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -47,13 +47,13 @@
       "workflow_name": "final-dod-e2e",
       "matched_target_sha": false,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": false
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
     },
     "parity_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -61,13 +61,13 @@
       "workflow_name": "parity-e2e",
       "matched_target_sha": false,
       "gate_key": "parity_e2e_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": true
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -81,7 +81,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -91,12 +91,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-16T03:40:51.941Z"
+      "generated_at": "2026-04-16T03:44:19.019Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -111,7 +111,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -121,12 +121,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-16T03:40:52.802Z"
+      "generated_at": "2026-04-16T03:44:19.897Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": "pass_with_skips",
       "conclusion": null,
@@ -136,12 +136,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-16T03:40:57.522Z"
+      "generated_at": "2026-04-16T03:44:24.821Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -156,7 +156,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -169,7 +169,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -177,13 +177,13 @@
       "workflow_name": "release-ops-drill",
       "matched_target_sha": false,
       "gate_key": "release_ops_drill_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": false
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
     },
     "mobile_auth_session_smoke_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -191,13 +191,13 @@
       "workflow_name": "mobile-auth-session-smoke",
       "matched_target_sha": false,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": true
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -211,7 +211,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -225,7 +225,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -238,7 +238,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -246,13 +246,13 @@
       "workflow_name": "desktop-tauri-release",
       "matched_target_sha": false,
       "gate_key": "desktop_tauri_release_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": false
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
     },
     "ui_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -260,13 +260,13 @@
       "workflow_name": "ui-e2e-accessibility",
       "matched_target_sha": false,
       "gate_key": "ui_e2e_accessibility_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": false
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -280,7 +280,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -294,7 +294,7 @@
     "client_env_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -302,13 +302,13 @@
       "workflow_name": "client-env-governance",
       "matched_target_sha": false,
       "gate_key": "client_env_governance_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": true
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -322,7 +322,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -336,7 +336,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -350,7 +350,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -359,7 +359,7 @@
       "matched_target_sha": false,
       "gate_key": "ops_shell_ci",
       "decision": "not_required_scope_clean",
-      "previous_gate_value": true,
+      "target_sha": "9da2261877bce87edea14027af84b127bd320f82",
       "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
@@ -376,7 +376,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -390,7 +390,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
+      "head_branch": "main",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -402,10 +402,10 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24490590058,
-      "head_sha": "c35da846f76450b016ee695c770cf3ba199e7a92",
-      "head_branch": "fix-pdf-pages-object-3353478434749715775",
-      "event": "pull_request",
+      "run_id": 24490680666,
+      "head_sha": "9da2261877bce87edea14027af84b127bd320f82",
+      "head_branch": "main",
+      "event": "push",
       "status": "completed",
       "conclusion": "success",
       "workflow_id": 261310894,
@@ -445,7 +445,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -453,17 +453,17 @@
         "workflow_name": "final-dod-e2e",
         "matched_target_sha": false,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "final_dod_e2e_ci"
     },
     "parity-e2e": {
-      "pass": true,
+      "pass": false,
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -471,8 +471,8 @@
         "workflow_name": "parity-e2e",
         "matched_target_sha": false,
         "gate_key": "parity_e2e_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": true
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -481,7 +481,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -499,7 +499,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -507,17 +507,17 @@
         "workflow_name": "release-ops-drill",
         "matched_target_sha": false,
         "gate_key": "release_ops_drill_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "release_ops_drill_ci"
     },
     "mobile-auth-session-smoke": {
-      "pass": true,
+      "pass": false,
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -525,8 +525,8 @@
         "workflow_name": "mobile-auth-session-smoke",
         "matched_target_sha": false,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": true
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
@@ -535,7 +535,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -553,7 +553,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -561,8 +561,8 @@
         "workflow_name": "desktop-tauri-release",
         "matched_target_sha": false,
         "gate_key": "desktop_tauri_release_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "desktop_tauri_release_ci"
     },
@@ -571,7 +571,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -579,8 +579,8 @@
         "workflow_name": "ui-e2e-accessibility",
         "matched_target_sha": false,
         "gate_key": "ui_e2e_accessibility_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "ui_e2e_accessibility_ci"
     },
@@ -589,7 +589,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -597,17 +597,17 @@
         "workflow_name": "gateway-coverage-gate",
         "matched_target_sha": false,
         "gate_key": "gateway_coverage_gate_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "gateway_coverage_gate_ci"
     },
     "client-env-governance": {
-      "pass": true,
+      "pass": false,
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -615,25 +615,25 @@
         "workflow_name": "client-env-governance",
         "matched_target_sha": false,
         "gate_key": "client_env_governance_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": true
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "client_env_governance_ci"
     },
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
-        "event": null,
-        "status": null,
+        "run_id": 24490692445,
+        "head_sha": "9da2261877bce87edea14027af84b127bd320f82",
+        "head_branch": "main",
+        "event": "workflow_dispatch",
+        "status": "in_progress",
         "conclusion": null,
         "workflow_id": 261310856,
         "workflow_name": "deployment-pipeline",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "deployment_pipeline_ci",
-        "decision": "no_runs_for_branch",
+        "decision": "pending_non_final_target_sha",
         "previous_gate_value": false
       },
       "gate_key": "deployment_pipeline_ci"
@@ -643,7 +643,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -651,18 +651,18 @@
         "workflow_name": "env-secrets-governance",
         "matched_target_sha": false,
         "gate_key": "env_secrets_governance_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
       "pass": true,
       "provenance": {
-        "run_id": 24490590058,
-        "head_sha": "c35da846f76450b016ee695c770cf3ba199e7a92",
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
-        "event": "pull_request",
+        "run_id": 24490680666,
+        "head_sha": "9da2261877bce87edea14027af84b127bd320f82",
+        "head_branch": "main",
+        "event": "push",
         "status": "completed",
         "conclusion": "success",
         "workflow_id": 261310894,
@@ -678,7 +678,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -686,8 +686,8 @@
         "workflow_name": "onboarding-readiness",
         "matched_target_sha": false,
         "gate_key": "onboarding_readiness_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "onboarding_readiness_ci"
     },
@@ -696,7 +696,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -704,8 +704,8 @@
         "workflow_name": "release-status",
         "matched_target_sha": false,
         "gate_key": "release_status_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "release_status_ci"
     },
@@ -714,7 +714,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -722,8 +722,8 @@
         "workflow_name": "release-supply-chain",
         "matched_target_sha": false,
         "gate_key": "release_supply_chain_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "release_supply_chain_ci"
     },
@@ -732,7 +732,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -740,8 +740,8 @@
         "workflow_name": "ops-shell-ci",
         "matched_target_sha": false,
         "gate_key": "ops_shell_ci_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "9da2261877bce87edea14027af84b127bd320f82"
       },
       "gate_key": "ops_shell_ci_ci"
     },
@@ -750,7 +750,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -768,7 +768,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-3353478434749715775",
+        "head_branch": "main",
         "event": null,
         "status": null,
         "conclusion": null,
