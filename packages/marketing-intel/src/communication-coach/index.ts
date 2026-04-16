@@ -347,7 +347,25 @@ export function analyzeLanguageLevel(
     f.examples.some((ex) => lower.includes(ex)),
   );
 
-  // Vocabulary patterns
+  const vocabularyPatterns = analyzeVocabularyPatterns(lower);
+  const communicationStructure = analyzeCommunicationStructure(lower);
+  const decisionLanguage = analyzeDecisionLanguage(lower);
+  const recommendedAdoptions = generateLanguageRecommendations(
+    frameworks,
+    vocabularyPatterns,
+  );
+
+  return {
+    level: targetLevel,
+    frameworks,
+    vocabularyPatterns,
+    communicationStructure,
+    decisionLanguage,
+    recommendedAdoptions,
+  };
+}
+
+function analyzeVocabularyPatterns(lower: string): VocabularyPattern[] {
   const vocabCategories: VocabularyPattern[] = [];
 
   const strategicTerms = [
@@ -386,7 +404,10 @@ export function analyzeLanguageLevel(
     });
   }
 
-  // Communication structure
+  return vocabCategories;
+}
+
+function analyzeCommunicationStructure(lower: string): StructurePattern[] {
   const structures: StructurePattern[] = [];
   if (lower.includes('problem') && lower.includes('solution')) {
     structures.push({
@@ -409,15 +430,22 @@ export function analyzeLanguageLevel(
       example: 'My recommendation is...',
     });
   }
+  return structures;
+}
 
-  // Decision language
-  const decisionLanguage = [
+function analyzeDecisionLanguage(lower: string): string[] {
+  return [
     'decision', 'decide', 'chose', 'opt', 'go with', 'commit to',
     'rule out', 'prioritise', 'deprioritise',
   ].filter((t) => lower.includes(t));
+}
 
-  // Generate recommendations
+function generateLanguageRecommendations(
+  frameworks: FrameworkPattern[],
+  vocabularyPatterns: VocabularyPattern[],
+): string[] {
   const recommendedAdoptions: string[] = [];
+
   const missingFrameworks = LEADERSHIP_FRAMEWORKS.filter(
     (f) => !frameworks.some((found) => found.name === f.name),
   );
@@ -426,25 +454,23 @@ export function analyzeLanguageLevel(
       `Adopt frameworks: ${missingFrameworks.slice(0, 3).map((f) => f.name).join(', ')}`,
     );
   }
-  if (strategicTerms.length < 3) {
+
+  const strategicPattern = vocabularyPatterns.find((p) => p.category === 'Strategic Thinking');
+  const strategicTermsLength = strategicPattern ? strategicPattern.terms.length : 0;
+  if (strategicTermsLength < 3) {
     recommendedAdoptions.push(
       'Increase use of strategic vocabulary to signal higher-level thinking',
     );
   }
-  if (influenceTerms.length === 0) {
+
+  const influencePattern = vocabularyPatterns.find((p) => p.category === 'Influence & Navigation');
+  if (!influencePattern || influencePattern.terms.length === 0) {
     recommendedAdoptions.push(
       'Add influence/alignment language to demonstrate organisational awareness',
     );
   }
 
-  return {
-    level: targetLevel,
-    frameworks,
-    vocabularyPatterns: vocabCategories,
-    communicationStructure: structures,
-    decisionLanguage,
-    recommendedAdoptions,
-  };
+  return recommendedAdoptions;
 }
 
 /* ------------------------------------------------ communication auditor */
