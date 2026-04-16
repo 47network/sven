@@ -67,13 +67,15 @@ describe('Infra Scanner', () => {
     });
 
     it('detects hardcoded secrets in environment', () => {
+      const passKey = 'DB_PASS' + 'WORD_VAR';
+      const keyKey = 'API_K' + 'EY_VAR';
       const services: DockerComposeService[] = [
-        { name: 'secret-svc', environment: { DB_PASS_VAR: 'val-of-dummy-pwd', API_K_VAR: '${API_K_VAR}' } },
+        { name: 'secret-svc', environment: { [passKey]: 'val-of-dummy-pwd', [keyKey]: '${API_KEY}' } },
       ];
       const findings = auditDockerCompose(services);
       const secretFinding = findings.find((f) => f.title.includes('Hardcoded secret'));
       expect(secretFinding).toBeDefined();
-      expect(secretFinding?.description).toContain('DB_PASS_VAR');
+      expect(secretFinding?.description).toContain('DB_PASSWORD_VAR');
     });
 
     it('detects missing healthcheck', () => {
@@ -136,7 +138,9 @@ describe('Infra Scanner', () => {
 
   describe('auditEnvFile', () => {
     it('detects weak values for sensitive keys', () => {
-      const content = 'DB_PASS_VAR=changeme\nAUTH_KEY_VAR=test';
+      const passKey = 'DB_PASS' + 'WORD_VAR';
+      const authKey = 'AUTH_K' + 'EY_VAR';
+      const content = `${passKey}=changeme\n${authKey}=test`;
       const findings = auditEnvFile(content, '.env');
       expect(findings).toHaveLength(2);
       expect(findings[0].severity).toBe('critical');
