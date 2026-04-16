@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-16T03:07:25.164Z",
-  "source_branch": "perf-optimize-quantum-io-13575033785958457709",
-  "source_head_sha": "7b15d79ec14faf47462f771c844257e866f2257a",
+  "generated_at": "2026-04-16T03:09:07.975Z",
+  "source_branch": "testing-infra-scanner-2695409468724782212",
+  "source_head_sha": "5bef453879e08bb964614aedb9ff7afbd081e537",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-16T03:07:24.770Z",
-    "branch": "perf-optimize-quantum-io-13575033785958457709",
+    "captured_at": "2026-04-16T03:09:07.568Z",
+    "branch": "testing-infra-scanner-2695409468724782212",
     "total_runs": 10
   },
   "final_dod_ci": false,
@@ -34,12 +34,12 @@
   "ops_shell_ci": true,
   "skill_quarantine_scan_ci": false,
   "security_audit_unified_ci": false,
-  "security_baseline_ci": true,
+  "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -53,7 +53,7 @@
     "parity_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -67,7 +67,7 @@
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -81,7 +81,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -91,12 +91,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-16T03:07:18.821Z"
+      "generated_at": "2026-04-16T03:09:01.373Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -111,7 +111,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -121,12 +121,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-16T03:07:19.684Z"
+      "generated_at": "2026-04-16T03:09:02.304Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": "pass_with_skips",
       "conclusion": null,
@@ -136,12 +136,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-16T03:07:24.481Z"
+      "generated_at": "2026-04-16T03:09:07.227Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -156,7 +156,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -169,7 +169,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -183,7 +183,7 @@
     "mobile_auth_session_smoke_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -197,7 +197,7 @@
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -211,7 +211,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -225,7 +225,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -238,7 +238,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -252,7 +252,7 @@
     "ui_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -266,7 +266,7 @@
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -280,7 +280,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -292,22 +292,23 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24489629533,
-      "head_sha": "7b15d79ec14faf47462f771c844257e866f2257a",
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "run_id": null,
+      "head_sha": null,
+      "head_branch": "testing-infra-scanner-2695409468724782212",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310854,
       "workflow_name": "client-env-governance",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "client_env_governance_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": true
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -321,7 +322,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -335,7 +336,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -349,7 +350,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -375,7 +376,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -389,7 +390,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -401,12 +402,12 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24489631797,
-      "head_sha": "7b15d79ec14faf47462f771c844257e866f2257a",
-      "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+      "run_id": 24489842647,
+      "head_sha": "5bef453879e08bb964614aedb9ff7afbd081e537",
+      "head_branch": "testing-infra-scanner-2695409468724782212",
       "event": "pull_request",
       "status": "completed",
-      "conclusion": "success",
+      "conclusion": "failure",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
@@ -444,7 +445,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -462,7 +463,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -480,7 +481,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -498,7 +499,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -516,7 +517,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -534,7 +535,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -552,7 +553,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -570,7 +571,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -588,7 +589,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -604,26 +605,27 @@
     "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24489629533,
-        "head_sha": "7b15d79ec14faf47462f771c844257e866f2257a",
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "testing-infra-scanner-2695409468724782212",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310854,
         "workflow_name": "client-env-governance",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "client_env_governance_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": true
       },
       "gate_key": "client_env_governance_ci"
     },
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24489629531,
-        "head_sha": "7b15d79ec14faf47462f771c844257e866f2257a",
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "run_id": 24489840888,
+        "head_sha": "5bef453879e08bb964614aedb9ff7afbd081e537",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": "push",
         "status": "in_progress",
         "conclusion": null,
@@ -637,32 +639,31 @@
       "gate_key": "deployment_pipeline_ci"
     },
     "env-secrets-governance": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24489840880,
+        "head_sha": "5bef453879e08bb964614aedb9ff7afbd081e537",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310862,
         "workflow_name": "env-secrets-governance",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "env_secrets_governance_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "7b15d79ec14faf47462f771c844257e866f2257a"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24489631797,
-        "head_sha": "7b15d79ec14faf47462f771c844257e866f2257a",
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "run_id": 24489842647,
+        "head_sha": "5bef453879e08bb964614aedb9ff7afbd081e537",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": "pull_request",
         "status": "completed",
-        "conclusion": "success",
+        "conclusion": "failure",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
@@ -676,7 +677,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -694,7 +695,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -712,7 +713,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -730,7 +731,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -748,7 +749,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -766,7 +767,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf-optimize-quantum-io-13575033785958457709",
+        "head_branch": "testing-infra-scanner-2695409468724782212",
         "event": null,
         "status": null,
         "conclusion": null,
