@@ -1,6 +1,7 @@
 module.exports = {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
@@ -31,15 +32,11 @@ module.exports = {
     '^@sven/shared/(.*)$': '<rootDir>/../../packages/shared/src/$1',
   },
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.jest.json' }],
-  },
-  globals: {
-    'ts-jest': {
+    '^.+\\.[tj]sx?$': ['ts-jest', {
       tsconfig: 'tsconfig.jest.json',
+      useESM: true,
       diagnostics: false,
-      isolatedModules: false,
-      useESM: false,
-    },
+    }],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transformIgnorePatterns: ['/node_modules/'],
