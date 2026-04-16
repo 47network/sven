@@ -3,6 +3,8 @@
 > **Goal:** A companion AI app that is better than ChatGPT, Gemini, and Claude.
 > Not a clone — a personal AI companion with personality, presence, and polish.
 
+> **Checklist Authority:** This is a primary checklist. The parity checklist is `reference_only` per `checklist-authority.json`.
+
 **Current Snapshot**
 - Production-readiness is tracked through generated artifacts and CI outputs, not static headline numbers in this document.
 - Source-of-truth dependency versions: `apps/companion-user-flutter/pubspec.yaml`

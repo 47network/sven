@@ -54,6 +54,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - release: Created `release-evidence-manifest.json` with security-baseline, api-contract, and migration-rollback evidence classes.
 - release: Added `env://`/`file://` policy-gated wording to Sven Master Checklist for secret-ref-policy gate.
 - tests: Added quarantine-isolation-contract test (10 assertions covering trust level, web egress guard, write-scope denial, file quarantine threshold).
+- release: Updated traceability matrix to reference local bridge integration files (private-deployment refs replaced with gateway-api bridge routes, gRPC proto, and contract tests).
+- release: Created PR template with DoR/DoD evidence fields, PR DoR metadata workflow, checklist-authority config, and scope map for third-checklist-integration gate.
+- release: Added checklist authority `reference_only` notes to Sven Master Checklist and Sven App Checklist.
 
 ---
 

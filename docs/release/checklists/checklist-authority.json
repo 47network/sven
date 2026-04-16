@@ -1,0 +1,25 @@
+{
+  "authority_model": "sven_primary_plus_reference",
+  "primary_checklists": [
+    {
+      "id": "sven_master",
+      "path": "docs/Sven_Master_Checklist.md",
+      "authority": "authoritative"
+    },
+    {
+      "id": "sven_app",
+      "path": "docs/SVEN_APP_CHECKLIST.md",
+      "authority": "authoritative"
+    }
+  ],
+  "third_checklist": {
+    "authority": "reference_only",
+    "path": "docs/parity/Sven_Parity_Checklist.md",
+    "scope_map_path": "docs/release/checklists/third-checklist-scope-map.json",
+    "required_scope_labels": [
+      "in_scope_now",
+      "planned_later",
+      "out_of_scope"
+    ]
+  }
+}

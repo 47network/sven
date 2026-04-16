@@ -7,8 +7,8 @@
       "story_id": "S-BRIDGE-CI-20260321",
       "delivery_status": "delivered",
       "code_refs": [
-        "services/bridge-47dynamics/src/index.ts",
-        ".github/workflows/gateway-bridge-contract-tests.yml"
+        "services/gateway-api/src/routes/admin/bridge-tenant-mappings.ts",
+        "contracts/grpc/sven-bridge/v1/sven_bridge.proto"
       ],
       "api_refs": [
         "services/gateway-api/src/routes/a2a.ts"
@@ -18,14 +18,14 @@
       ],
       "test_refs": [
         "services/gateway-api/src/__tests__/a2a-route.test.ts",
-        "services/gateway-api/src/__tests__/seed-baseline-startup-invariant-contract.test.ts"
+        "services/gateway-api/src/__tests__/seed-baseline-startup-invariant-contract.test.ts",
+        "services/gateway-api/src/__tests__/bridge-ci-lanes-check-script.contract.test.ts"
       ],
       "observability_refs": [
-        "docs/release/status/ci-required-checks-local-only.json"
+        "scripts/ops/release/bridge-ci-lanes-check.cjs"
       ],
       "evidence_refs": [
-        "docs/release/status/seed-baseline-latest.json",
-        "docs/release/status/bridge-vm-ci-lanes-latest.json"
+        "docs/release/runbooks/bridge-and-ci-scope-update-2026-03-21.md"
       ]
     }
   ]

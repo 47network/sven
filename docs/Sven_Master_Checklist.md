@@ -3,6 +3,8 @@
 > Granular checkbox plan derived from `SPEC-1-Sven-UNIFIED-v5.md`.  
 > Use this as the day-to-day tracker. Mark items as you implement/verify them.
 
+> **Checklist Authority:** This is a primary checklist. The parity checklist is `reference_only` per `checklist-authority.json`.
+
 ---
 
 ## Project Status (Evidence-Gated)

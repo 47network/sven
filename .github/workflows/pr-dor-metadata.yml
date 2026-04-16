@@ -1,0 +1,30 @@
+name: pr-dor-metadata
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  dor-metadata-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate PR DoR metadata
+        run: npm run release:pr:dor:metadata:check -- --strict
+      - name: Upload DoR status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-dor-metadata-status
+          path: |
+            docs/release/status/pr-dor-metadata-latest.json
+            docs/release/status/pr-dor-metadata-latest.md
