@@ -1011,40 +1011,4 @@ export async function registerMemoryRoutes(app: FastifyInstance, pool: pg.Pool) 
       reply.send({ success: true, data: { events: [], summaries: {}, compression_by_level: [] } });
     }
   });
-
-  // ─── C.3.2 — User memory export ────────────────────────────────────
-  app.get('/memories/export', async (request, reply) => {
-    const orgId = requireOrgId(request, reply);
-    if (!orgId) return;
-
-    const query = request.query as { user_id?: string; format?: string };
-    if (!query.user_id) {
-      return reply.status(400).send({ success: false, error: { code: 'VALIDATION', message: 'user_id required' } });
-    }
-    const validUser = await validateUserInOrg(orgId, query.user_id);
-    if (!validUser) {
-      return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND', message: 'User not in organization' } });
-    }
-
-    const res = await pool.query(
-      `SELECT id, key, value, visibility, source, importance, access_count,
-              compression_level, created_at, updated_at, last_accessed_at
-       FROM memories
-       WHERE user_id = $1 AND organization_id = $2 AND archived_at IS NULL
-       ORDER BY importance DESC, updated_at DESC`,
-      [query.user_id, orgId],
-    );
-
-    if (query.format === 'csv') {
-      const header = 'id,key,value,visibility,source,importance,access_count,compression_level,created_at';
-      const rows = res.rows.map((r: any) =>
-        [r.id, r.key, toCsvCell(r.value), r.visibility, r.source, r.importance, r.access_count, r.compression_level ?? 0, r.created_at].join(','),
-      );
-      reply.header('Content-Type', 'text/csv');
-      reply.header('Content-Disposition', `attachment; filename="memories-${query.user_id}.csv"`);
-      return reply.send([header, ...rows].join('\n'));
-    }
-
-    reply.send({ success: true, data: res.rows });
-  });
 }
