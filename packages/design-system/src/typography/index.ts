@@ -209,67 +209,130 @@ export interface ReadabilityInput {
   letterSpacingEm: number;
 }
 
-/** Analyze text readability against typographic best practices. */
-export function analyzeReadability(input: ReadabilityInput): ReadabilityAnalysis {
+interface CheckResult {
+  ok: boolean;
+  penalty: number;
+  issues: string[];
+  suggestions: string[];
+}
+
+function checkFontSize(fontSizePx: number): CheckResult {
+  const ok = fontSizePx >= 16;
   const issues: string[] = [];
   const suggestions: string[] = [];
-  let score = 100;
+  let penalty = 0;
 
-  // Font size check: body text should be ≥ 16px
-  const fontSizeOk = input.fontSizePx >= 16;
-  if (!fontSizeOk) {
-    score -= 25;
-    issues.push(`Font size ${input.fontSizePx}px is below minimum 16px for body text`);
+  if (!ok) {
+    penalty = 25;
+    issues.push(`Font size ${fontSizePx}px is below minimum 16px for body text`);
     suggestions.push(`Increase font size to at least 16px for comfortable reading`);
   }
 
-  // Line height check: should be 1.4-1.8 for body text
-  const lineHeightOk = input.lineHeight >= 1.4 && input.lineHeight <= 1.8;
-  if (!lineHeightOk) {
-    score -= 20;
-    if (input.lineHeight < 1.4) {
-      issues.push(`Line height ${input.lineHeight} is too tight (< 1.4)`);
+  return { ok, penalty, issues, suggestions };
+}
+
+function checkLineHeight(lineHeight: number): CheckResult {
+  const ok = lineHeight >= 1.4 && lineHeight <= 1.8;
+  const issues: string[] = [];
+  const suggestions: string[] = [];
+  let penalty = 0;
+
+  if (!ok) {
+    penalty = 20;
+    if (lineHeight < 1.4) {
+      issues.push(`Line height ${lineHeight} is too tight (< 1.4)`);
       suggestions.push('Increase line-height to at least 1.5 for body text');
     } else {
-      issues.push(`Line height ${input.lineHeight} is too loose (> 1.8)`);
+      issues.push(`Line height ${lineHeight} is too loose (> 1.8)`);
       suggestions.push('Decrease line-height to maximum 1.8 for body text');
     }
   }
 
-  // Line width check: 45-75 characters per line
-  const lineLengthOk = input.lineWidthChars >= 45 && input.lineWidthChars <= 75;
-  if (!lineLengthOk) {
-    score -= 20;
-    if (input.lineWidthChars < 45) {
-      issues.push(`Line length ${input.lineWidthChars} chars is too narrow (< 45)`);
+  return { ok, penalty, issues, suggestions };
+}
+
+function checkLineWidth(lineWidthChars: number): CheckResult {
+  const ok = lineWidthChars >= 45 && lineWidthChars <= 75;
+  const issues: string[] = [];
+  const suggestions: string[] = [];
+  let penalty = 0;
+
+  if (!ok) {
+    penalty = 20;
+    if (lineWidthChars < 45) {
+      issues.push(`Line length ${lineWidthChars} chars is too narrow (< 45)`);
       suggestions.push('Increase container width or decrease font size for longer lines');
     } else {
-      issues.push(`Line length ${input.lineWidthChars} chars is too wide (> 75)`);
+      issues.push(`Line length ${lineWidthChars} chars is too wide (> 75)`);
       suggestions.push('Set max-width on the text container (e.g., max-width: 65ch)');
     }
   }
 
-  // Letter spacing: should be near 0 for body, slightly positive for small text
-  const letterSpacingOk = input.letterSpacingEm >= -0.01 && input.letterSpacingEm <= 0.05;
-  if (!letterSpacingOk) {
-    score -= 15;
-    issues.push(`Letter spacing ${input.letterSpacingEm}em is outside recommended range`);
+  return { ok, penalty, issues, suggestions };
+}
+
+function checkLetterSpacing(letterSpacingEm: number): CheckResult {
+  const ok = letterSpacingEm >= -0.01 && letterSpacingEm <= 0.05;
+  const issues: string[] = [];
+  const suggestions: string[] = [];
+  let penalty = 0;
+
+  if (!ok) {
+    penalty = 15;
+    issues.push(`Letter spacing ${letterSpacingEm}em is outside recommended range`);
     suggestions.push('Use 0 to 0.025em letter-spacing for body text');
   }
 
+  return { ok, penalty, issues, suggestions };
+}
+
+/** Analyze text readability against typographic best practices. */
+export function analyzeReadability(input: ReadabilityInput): ReadabilityAnalysis {
+  let score = 100;
+
+  const fontSizeResult = checkFontSize(input.fontSizePx);
+  const lineHeightResult = checkLineHeight(input.lineHeight);
+  const lineLengthResult = checkLineWidth(input.lineWidthChars);
+  const letterSpacingResult = checkLetterSpacing(input.letterSpacingEm);
+
+  const allIssues = [
+    ...fontSizeResult.issues,
+    ...lineHeightResult.issues,
+    ...lineLengthResult.issues,
+    ...letterSpacingResult.issues,
+  ];
+
+  const allSuggestions = [
+    ...fontSizeResult.suggestions,
+    ...lineHeightResult.suggestions,
+    ...lineLengthResult.suggestions,
+    ...letterSpacingResult.suggestions,
+  ];
+
+  score -= fontSizeResult.penalty;
+  score -= lineHeightResult.penalty;
+  score -= lineLengthResult.penalty;
+  score -= letterSpacingResult.penalty;
+
   // Bonus: optimal reading zone
-  if (fontSizeOk && lineHeightOk && lineLengthOk && input.lineWidthChars >= 55 && input.lineWidthChars <= 65) {
+  if (
+    fontSizeResult.ok &&
+    lineHeightResult.ok &&
+    lineLengthResult.ok &&
+    input.lineWidthChars >= 55 &&
+    input.lineWidthChars <= 65
+  ) {
     score = Math.min(100, score + 5); // Bonus for sweet spot
   }
 
   return {
     score: Math.max(0, score),
-    lineHeightOk,
-    lineLengthOk,
-    fontSizeOk,
-    letterSpacingOk,
-    issues,
-    suggestions,
+    lineHeightOk: lineHeightResult.ok,
+    lineLengthOk: lineLengthResult.ok,
+    fontSizeOk: fontSizeResult.ok,
+    letterSpacingOk: letterSpacingResult.ok,
+    issues: allIssues,
+    suggestions: allSuggestions,
   };
 }
 

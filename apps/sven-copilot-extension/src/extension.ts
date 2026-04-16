@@ -311,7 +311,20 @@ async function handleChat(
   // ── Step 1: Stream the real Sven brain (GPU + soul) ──
   stream.progress('Connecting to Sven\'s brain...');
 
-  // Build conversation history from chat context
+  const history = buildConversationHistory(chatContext);
+
+  const streamResult = await streamSvenBrain(api, request.prompt, history, stream, token);
+  const svenBrainResponse = streamResult?.response || '';
+
+  if (token.isCancellationRequested) return {};
+
+  // ── Step 3: Copilot follow-up — code-aware analysis ──
+  await performCopilotCodeAnalysis(api, request, chatContext, svenBrainResponse, stream, token);
+
+  return {};
+}
+
+function buildConversationHistory(chatContext: vscode.ChatContext): Array<{ role: string; content: string }> {
   const history: Array<{ role: string; content: string }> = [];
   for (const turn of chatContext.history) {
     if (turn instanceof vscode.ChatRequestTurn) {
@@ -328,12 +341,16 @@ async function handleChat(
       }
     }
   }
+  return history;
+}
 
-  let svenBrainResponse = '';
-  let svenModel = '';
-  let svenNode = '';
-
-  // Stream tokens from Sven's brain
+async function streamSvenBrain(
+  api: SvenApiClient,
+  prompt: string,
+  history: Array<{ role: string; content: string }>,
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken
+): Promise<{ response: string; model: string; node: string } | null> {
   try {
     const streamResult = await new Promise<{ response: string; model: string; node: string }>((resolve, reject) => {
       let headerSent = false;
@@ -341,7 +358,7 @@ async function handleChat(
       let meta = { model: '', node: '' };
 
       const handle = api.chatStream(
-        request.prompt,
+        prompt,
         (tkn) => {
           if (token.isCancellationRequested) {
             handle.abort();
@@ -374,37 +391,44 @@ async function handleChat(
       token.onCancellationRequested(() => { handle.abort(); });
     });
 
-    svenBrainResponse = streamResult.response;
-    svenModel = streamResult.model;
-    svenNode = streamResult.node;
-
     // Add model/node info after stream completes
-    stream.markdown(`\n\n_— ${svenModel} on ${svenNode}_\n\n`);
+    stream.markdown(`\n\n_— ${streamResult.model} on ${streamResult.node}_\n\n`);
+    return streamResult;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     stream.markdown(`> _Sven\'s brain is offline: ${message}_\n\n`);
+    return null;
   }
+}
 
-  if (token.isCancellationRequested) return {};
-
-  // ── Step 3: Copilot follow-up — code-aware analysis ──
+async function performCopilotCodeAnalysis(
+  api: SvenApiClient,
+  request: vscode.ChatRequest,
+  chatContext: vscode.ChatContext,
+  svenBrainResponse: string,
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken
+) {
   const isCodeQuestion = /code|fix|bug|error|implement|refactor|function|class|import|route|endpoint|service|docker|build|test|deploy|file|line|type|schema|migration/i.test(request.prompt);
 
-  if (isCodeQuestion) {
-    stream.progress('Running code analysis...');
+  if (!isCodeQuestion) {
+    return;
+  }
 
-    const codebaseCtx = await buildCodebaseContext();
+  stream.progress('Running code analysis...');
 
-    let liveState = '';
-    try {
-      const ctx = await api.getContext();
-      const s = ctx.status;
-      liveState = `\n\n## Live State\n- State: ${s.state}\n- Loop: ${s.loopRunning ? 'ACTIVE' : 'STOPPED'} (iteration #${s.loopIterations})\n`;
-    } catch {
-      // no live state — ok
-    }
+  const codebaseCtx = await buildCodebaseContext();
 
-    const systemContext = `You are Copilot, GitHub's AI coding assistant. You are working alongside Sven, the AI assistant for 47Network. The user is Hantz, Sven's creator. Sven has already responded above — you provide complementary code-level analysis.
+  let liveState = '';
+  try {
+    const ctx = await api.getContext();
+    const s = ctx.status;
+    liveState = `\n\n## Live State\n- State: ${s.state}\n- Loop: ${s.loopRunning ? 'ACTIVE' : 'STOPPED'} (iteration #${s.loopIterations})\n`;
+  } catch {
+    // no live state — ok
+  }
+
+  const systemContext = `You are Copilot, GitHub's AI coding assistant. You are working alongside Sven, the AI assistant for 47Network. The user is Hantz, Sven's creator. Sven has already responded above — you provide complementary code-level analysis.
 
 ${codebaseCtx}
 ${liveState}
@@ -414,50 +438,47 @@ When helping with code:
 - Consider the self-healing pipeline implications
 - Be direct and precise — no fluff`;
 
-    const models = await vscode.lm.selectChatModels({ family: 'gpt-4o' });
-    const model = models[0];
+  const models = await vscode.lm.selectChatModels({ family: 'gpt-4o' });
+  const model = models[0];
 
-    if (model) {
-      const messages = [
-        vscode.LanguageModelChatMessage.User(systemContext),
-      ];
+  if (model) {
+    const messages = [
+      vscode.LanguageModelChatMessage.User(systemContext),
+    ];
 
-      // Add previous turns for context
-      for (const turn of chatContext.history) {
-        if (turn instanceof vscode.ChatResponseTurn) {
-          let responseText = '';
-          for (const part of turn.response) {
-            if (part instanceof vscode.ChatResponseMarkdownPart) {
-              responseText += part.value.value;
-            }
+    // Add previous turns for context
+    for (const turn of chatContext.history) {
+      if (turn instanceof vscode.ChatResponseTurn) {
+        let responseText = '';
+        for (const part of turn.response) {
+          if (part instanceof vscode.ChatResponseMarkdownPart) {
+            responseText += part.value.value;
           }
-          if (responseText) {
-            messages.push(vscode.LanguageModelChatMessage.Assistant(responseText));
-          }
-        } else if (turn instanceof vscode.ChatRequestTurn) {
-          messages.push(vscode.LanguageModelChatMessage.User(turn.prompt));
         }
-      }
-
-      messages.push(vscode.LanguageModelChatMessage.User(
-        svenBrainResponse
-          ? `The user asked: "${request.prompt}"\n\nSven's brain responded:\n${svenBrainResponse}\n\nProvide complementary code-level analysis if helpful. Be brief — Sven already answered.`
-          : request.prompt
-      ));
-
-      if (svenBrainResponse) {
-        stream.markdown('---\n\n**💻 Copilot** _(code analysis)_\n\n');
-      }
-
-      const response = await model.sendRequest(messages, {}, token);
-      for await (const chunk of response.text) {
-        if (token.isCancellationRequested) break;
-        stream.markdown(chunk);
+        if (responseText) {
+          messages.push(vscode.LanguageModelChatMessage.Assistant(responseText));
+        }
+      } else if (turn instanceof vscode.ChatRequestTurn) {
+        messages.push(vscode.LanguageModelChatMessage.User(turn.prompt));
       }
     }
-  }
 
-  return {};
+    messages.push(vscode.LanguageModelChatMessage.User(
+      svenBrainResponse
+        ? `The user asked: "${request.prompt}"\n\nSven's brain responded:\n${svenBrainResponse}\n\nProvide complementary code-level analysis if helpful. Be brief — Sven already answered.`
+        : request.prompt
+    ));
+
+    if (svenBrainResponse) {
+      stream.markdown('---\n\n**💻 Copilot** _(code analysis)_\n\n');
+    }
+
+    const response = await model.sendRequest(messages, {}, token);
+    for await (const chunk of response.text) {
+      if (token.isCancellationRequested) break;
+      stream.markdown(chunk);
+    }
+  }
 }
 
 function groupBy<T>(items: T[], keyFn: (item: T) => string): Record<string, T[]> {

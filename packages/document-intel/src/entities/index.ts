@@ -74,10 +74,8 @@ export interface InvoiceData {
 let entityCounter = 0;
 function nextEntityId(): string { return `ent-${++entityCounter}`; }
 
-export function extractNamedEntities(text: string): Entity[] {
+function extractPersons(text: string): Entity[] {
   const entities: Entity[] = [];
-
-  // Person names (simple heuristic: capitalized word pairs)
   const namePattern = /\b([A-Z][a-z]+)\s([A-Z][a-z]+(?: [A-Z][a-z]+)?)\b/g;
   let match: RegExpExecArray | null;
   while ((match = namePattern.exec(text)) !== null) {
@@ -93,9 +91,13 @@ export function extractNamedEntities(text: string): Entity[] {
       isPii: true,
     });
   }
+  return entities;
+}
 
-  // Emails
+function extractEmails(text: string): Entity[] {
+  const entities: Entity[] = [];
   const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  let match: RegExpExecArray | null;
   while ((match = emailPattern.exec(text)) !== null) {
     entities.push({
       id: nextEntityId(),
@@ -109,9 +111,13 @@ export function extractNamedEntities(text: string): Entity[] {
       isPii: true,
     });
   }
+  return entities;
+}
 
-  // URLs
+function extractUrls(text: string): Entity[] {
+  const entities: Entity[] = [];
   const urlPattern = /https?:\/\/[^\s<>"']+/g;
+  let match: RegExpExecArray | null;
   while ((match = urlPattern.exec(text)) !== null) {
     entities.push({
       id: nextEntityId(),
@@ -125,9 +131,13 @@ export function extractNamedEntities(text: string): Entity[] {
       isPii: false,
     });
   }
+  return entities;
+}
 
-  // Currency amounts
+function extractCurrencies(text: string): Entity[] {
+  const entities: Entity[] = [];
   const currencyPattern = /(?:[$€£¥])\s?\d[\d,]*\.?\d*/g;
+  let match: RegExpExecArray | null;
   while ((match = currencyPattern.exec(text)) !== null) {
     entities.push({
       id: nextEntityId(),
@@ -141,8 +151,16 @@ export function extractNamedEntities(text: string): Entity[] {
       isPii: false,
     });
   }
-
   return entities;
+}
+
+export function extractNamedEntities(text: string): Entity[] {
+  return [
+    ...extractPersons(text),
+    ...extractEmails(text),
+    ...extractUrls(text),
+    ...extractCurrencies(text),
+  ];
 }
 
 export function extractReceiptData(text: string): ReceiptData {
