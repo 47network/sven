@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-16T01:07:51.019Z",
+  "generated_at": "2026-04-16T01:15:34.374Z",
   "source_branch": "main",
-  "source_head_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd",
+  "source_head_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-16T01:07:40.333Z",
+    "captured_at": "2026-04-16T01:15:24.062Z",
     "branch": "main",
-    "total_runs": 440
+    "total_runs": 443
   },
   "final_dod_ci": false,
   "parity_e2e_ci": false,
@@ -34,7 +34,7 @@
   "ops_shell_ci": true,
   "skill_quarantine_scan_ci": false,
   "security_audit_unified_ci": false,
-  "security_baseline_ci": true,
+  "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
       "run_id": null,
@@ -48,7 +48,7 @@
       "matched_target_sha": false,
       "gate_key": "final_dod_e2e_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+      "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
     },
     "parity_e2e_ci": {
       "run_id": null,
@@ -62,7 +62,7 @@
       "matched_target_sha": false,
       "gate_key": "parity_e2e_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+      "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -91,7 +91,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-16T01:07:34.481Z"
+      "generated_at": "2026-04-16T01:15:18.344Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +121,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-16T01:07:35.344Z"
+      "generated_at": "2026-04-16T01:15:19.171Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +136,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-16T01:07:40.044Z"
+      "generated_at": "2026-04-16T01:15:23.769Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -178,7 +178,7 @@
       "matched_target_sha": false,
       "gate_key": "release_ops_drill_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+      "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
     },
     "mobile_auth_session_smoke_ci": {
       "run_id": null,
@@ -192,7 +192,7 @@
       "matched_target_sha": false,
       "gate_key": "mobile_auth_session_smoke_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+      "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
@@ -247,7 +247,7 @@
       "matched_target_sha": false,
       "gate_key": "desktop_tauri_release_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+      "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
     },
     "ui_e2e_ci": {
       "run_id": null,
@@ -261,7 +261,7 @@
       "matched_target_sha": false,
       "gate_key": "ui_e2e_accessibility_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+      "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
@@ -303,7 +303,7 @@
       "matched_target_sha": false,
       "gate_key": "client_env_governance_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+      "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
@@ -359,7 +359,7 @@
       "matched_target_sha": false,
       "gate_key": "ops_shell_ci",
       "decision": "not_required_scope_clean",
-      "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd",
+      "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889",
       "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
@@ -402,12 +402,12 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24486271496,
-      "head_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd",
+      "run_id": 24486407289,
+      "head_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889",
       "head_branch": "main",
       "event": "push",
       "status": "completed",
-      "conclusion": "success",
+      "conclusion": "failure",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
@@ -454,7 +454,7 @@
         "matched_target_sha": false,
         "gate_key": "final_dod_e2e_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "final_dod_e2e_ci"
     },
@@ -472,7 +472,7 @@
         "matched_target_sha": false,
         "gate_key": "parity_e2e_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -508,7 +508,7 @@
         "matched_target_sha": false,
         "gate_key": "release_ops_drill_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "release_ops_drill_ci"
     },
@@ -526,7 +526,7 @@
         "matched_target_sha": false,
         "gate_key": "mobile_auth_session_smoke_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
@@ -562,7 +562,7 @@
         "matched_target_sha": false,
         "gate_key": "desktop_tauri_release_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "desktop_tauri_release_ci"
     },
@@ -580,7 +580,7 @@
         "matched_target_sha": false,
         "gate_key": "ui_e2e_accessibility_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "ui_e2e_accessibility_ci"
     },
@@ -598,7 +598,7 @@
         "matched_target_sha": false,
         "gate_key": "gateway_coverage_gate_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "gateway_coverage_gate_ci"
     },
@@ -616,7 +616,7 @@
         "matched_target_sha": false,
         "gate_key": "client_env_governance_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "client_env_governance_ci"
     },
@@ -634,7 +634,7 @@
         "matched_target_sha": false,
         "gate_key": "deployment_pipeline_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "deployment_pipeline_ci"
     },
@@ -652,19 +652,19 @@
         "matched_target_sha": false,
         "gate_key": "env_secrets_governance_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24486271496,
-        "head_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd",
+        "run_id": 24486407289,
+        "head_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889",
         "head_branch": "main",
         "event": "push",
         "status": "completed",
-        "conclusion": "success",
+        "conclusion": "failure",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
@@ -687,7 +687,7 @@
         "matched_target_sha": false,
         "gate_key": "onboarding_readiness_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "onboarding_readiness_ci"
     },
@@ -705,15 +705,15 @@
         "matched_target_sha": false,
         "gate_key": "release_status_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "release_status_ci"
     },
     "release-supply-chain": {
       "pass": false,
       "provenance": {
-        "run_id": 24486271480,
-        "head_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd",
+        "run_id": 24486407290,
+        "head_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889",
         "head_branch": "main",
         "event": "push",
         "status": "completed",
@@ -740,7 +740,7 @@
         "matched_target_sha": false,
         "gate_key": "ops_shell_ci_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "115ce93df4d3f4510dd556e037ec23f65dbe49bd"
+        "target_sha": "b19b58b5c0f5625e5bffd2e1a9907018c8a60889"
       },
       "gate_key": "ops_shell_ci_ci"
     },
