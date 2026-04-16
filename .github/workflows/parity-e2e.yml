@@ -48,6 +48,7 @@ jobs:
       NATS_URL: nats://localhost:4222
       GATEWAY_PORT: '3001'
       GATEWAY_HOST: '127.0.0.1'
+      COOKIE_SECRET: ci-cookie-secret-2026-parity-e2e-very-strong
       SVEN_MIGRATION_ID_MODE: text
       API_URL: http://127.0.0.1:3001
       RUN_LIVE_GATEWAY_E2E: 'true'
