@@ -7,6 +7,8 @@ import { createWriteStream, existsSync, mkdirSync } from 'fs';
 import { pipeline } from 'stream/promises';
 import path from 'path';
 
+const STORAGE_USER_SEGMENT_PATTERN = /^[a-zA-Z0-9_-]{1,128}$/;
+
 function resolveStoragePath(baseDir: string, storageKey: unknown): string | null {
   const baseDirValue = String(baseDir || '').trim();
   if (!baseDirValue) return null;
@@ -23,9 +25,8 @@ function resolveStoragePath(baseDir: string, storageKey: unknown): string | null
 
 function toSafeStorageUserSegment(value: unknown): string | null {
   const trimmed = String(value || '').trim();
-  const normalized = trimmed.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 128);
-  if (!normalized) return null;
-  return normalized;
+  if (!STORAGE_USER_SEGMENT_PATTERN.test(trimmed)) return null;
+  return trimmed;
 }
 
 export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
