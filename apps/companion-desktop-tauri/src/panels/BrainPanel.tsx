@@ -131,7 +131,7 @@ export function BrainPanel({ token, apiBase }: BrainPanelProps) {
                   <div key={i} className="card">
                     <strong>{String(r.topic ?? 'Untitled')}</strong>
                     <p>Choice: {String(r.choice ?? 'N/A')}</p>
-                    {r.reasoning && <p className="sub">{String(r.reasoning)}</p>}
+                    {r.reasoning ? <p className="sub">{String(r.reasoning)}</p> : null}
                   </div>
                 ))
               )}

@@ -67,6 +67,9 @@ jobs:
       - name: Build shared + gateway migration tool
         run: |
           pnpm --filter ./packages/shared run build
+          for pkg in compute-mesh model-router security-toolkit document-intel marketing-intel proactive-notifier quantum-sim design-system; do
+            pnpm --filter ./packages/$pkg run build
+          done
           pnpm --filter ./services/gateway-api run build
 
       - name: Apply migrations on baseline DB

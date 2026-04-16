@@ -7,13 +7,12 @@ const { spawnSync } = require('node:child_process');
 const root = process.cwd();
 const outDir = path.join(root, 'docs', 'release', 'status');
 const strict = process.argv.includes('--strict');
-const jestBin = path.join(root, 'node_modules', 'jest', 'bin', 'jest.js');
+const jestBin = path.join(root, 'node_modules', '.bin', 'jest');
 
 function runJestSkillRunner(testPath) {
   const result = spawnSync(
-    process.execPath,
+    jestBin,
     [
-      jestBin,
       '--config',
       path.join('services', 'skill-runner', 'jest.config.cjs'),
       '--runInBand',

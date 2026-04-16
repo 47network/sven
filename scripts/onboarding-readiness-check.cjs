@@ -35,7 +35,7 @@ function cmdPreview(result) {
 }
 
 function run() {
-  const quickstartPath = 'docs/guides/onboarding/client-quickstart-2026.md';
+  const quickstartPath = 'docs/onboarding/client-quickstart-2026.md';
   const troubleshootingPath = 'docs/ops/troubleshooting-tree-2026.md';
   const quickstart = read(quickstartPath);
   const troubleshooting = read(troubleshootingPath);
@@ -55,11 +55,11 @@ function run() {
     detail: npmVersion.ok ? `npm=${npmVersion.out.trim()}` : cmdPreview(npmVersion),
   });
 
-  const ciDryRun = runCmd('npm', ['ci', '--ignore-scripts', '--dry-run']);
+  const ciDryRun = runCmd('pnpm', ['install', '--frozen-lockfile', '--ignore-scripts', '--lockfile-only']);
   smoke.push({
     id: 'smoke_bootstrap_npm_ci_dry_run',
     pass: ciDryRun.ok,
-    detail: ciDryRun.ok ? 'npm ci --dry-run succeeded' : cmdPreview(ciDryRun),
+    detail: ciDryRun.ok ? 'pnpm install --lockfile-only succeeded' : cmdPreview(ciDryRun),
   });
 
   const releaseStatus = runCmd(process.execPath, ['scripts/release-status.js']);

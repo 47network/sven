@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { getAllWindows } from '@tauri-apps/api/window';
+import { PhysicalPosition } from '@tauri-apps/api/dpi';
 
 export type CharacterState = 'idle' | 'thinking' | 'working' | 'celebrating' | 'sleeping' | 'error';
 
@@ -175,7 +176,7 @@ export default function CharacterOverlay() {
       try {
         const win = getCurrentWindow();
         const pos = await win.outerPosition();
-        await win.setPosition({ type: 'Physical', x: pos.x + dx, y: pos.y + dy });
+        await win.setPosition(new PhysicalPosition(pos.x + dx, pos.y + dy));
         dragStart.current = { x: e.screenX, y: e.screenY };
       } catch {
         // Position API may fail silently

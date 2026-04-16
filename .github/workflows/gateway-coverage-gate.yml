@@ -33,6 +33,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build shared and pillar packages
+        run: |
+          pnpm --filter ./packages/shared run build
+          for pkg in compute-mesh model-router security-toolkit document-intel marketing-intel proactive-notifier quantum-sim design-system; do
+            pnpm --filter ./packages/$pkg run build
+          done
+
       - name: Run gateway tests with coverage
         run: pnpm --filter ./services/gateway-api run test -- --coverage --coverageReporters=json-summary --runInBand
 

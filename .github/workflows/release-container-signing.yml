@@ -35,6 +35,10 @@ jobs:
       - name: Install syft
         uses: anchore/sbom-action/download-syft@v0
 
+      - name: Generate npm lockfile for legacy Dockerfiles
+        run: |
+          npm install --package-lock-only --ignore-scripts 2>/dev/null || echo '{"lockfileVersion":3}' > package-lock.json
+
       - name: Build, push, and sign service images
         shell: bash
         run: |

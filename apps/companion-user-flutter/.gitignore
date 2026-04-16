@@ -40,3 +40,6 @@ login_ui.xml
 device_screen.png
 hs_err_pid*.log
 **/hs_err_pid*.log
+
+# Patrol generated test bundle (machine-specific paths)
+patrol_test/

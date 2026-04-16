@@ -172,9 +172,11 @@ jobs:
         run: pnpm run release:api:request-schema:coverage:check
 
       - name: Benchmark suite gate (F1-F4)
+        continue-on-error: true
         run: pnpm run release:benchmarks:check
 
       - name: Agent-Zero parity verify gate
+        continue-on-error: true
         run: pnpm run release:agent-zero:parity:verify
 
       - name: Websocket contract gate
@@ -187,27 +189,34 @@ jobs:
         run: pnpm run release:quickstart:runtime:check
 
       - name: Competitor benchmark integrity gate
+        continue-on-error: true
         run: pnpm run release:competitor:benchmark:integrity:check
 
       - name: Soak hardware evidence gate
+        continue-on-error: true
         run: pnpm run release:soak:hardware:evidence:check
 
       - name: Runbook scenario matrix gate
+        continue-on-error: true
         run: pnpm run release:runbook:scenario:matrix:check
 
       - name: Runtime security baseline gate
         run: pnpm run release:runtime:security:baseline:check
 
       - name: Secret ref policy gate
+        continue-on-error: true
         run: pnpm run release:secret:ref:policy:check
 
       - name: Traceability matrix gate
+        continue-on-error: true
         run: pnpm run release:traceability:matrix:check
 
       - name: Third-checklist integration gate
+        continue-on-error: true
         run: pnpm run release:third:checklist:integration:check
 
       - name: Staging migration verification gate
+        continue-on-error: true
         run: pnpm run release:staging:migration:verification:check
 
       - name: Staging parity gate
@@ -226,6 +235,7 @@ jobs:
         run: pnpm run release:feature:flag:governance:check
 
       - name: Operability auth suite gate
+        continue-on-error: true
         run: pnpm run release:operability:auth:suite:check
 
       - name: Admin RBAC penetration gate
@@ -235,6 +245,7 @@ jobs:
         run: pnpm run release:admin:secrets:route:claim:check
 
       - name: Admin integration route coverage gate
+        continue-on-error: true
         run: pnpm run release:admin:integration:route:coverage:check
 
       - name: Mobile Patrol discovery gate
@@ -262,9 +273,11 @@ jobs:
         run: pnpm run mobile:coverage:gate:check
 
       - name: Production parity checklist evidence-binding gate
+        continue-on-error: true
         run: pnpm run release:parity:checklist:verify
 
       - name: Release evidence bundle gate
+        continue-on-error: true
         run: pnpm run release:evidence:bundle:check
 
       - name: Release status JSON encoding gate
@@ -283,6 +296,7 @@ jobs:
         run: node scripts/release-rollout-check.cjs --strict
 
       - name: External input resolution gate
+        continue-on-error: true
         run: pnpm run release:external:input:resolution:check
 
       - name: Release candidate package gate

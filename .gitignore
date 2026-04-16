@@ -98,3 +98,9 @@ coverage/
 .npmrc
 deploy/quickstart/download/*.apk
 deploy/quickstart/download/*.aab
+
+# ─── Build/cache artifacts ─────────────────────────────────────
+.npm_cache/
+.venv-1/
+.node20/
+onboarding-health-mock.log

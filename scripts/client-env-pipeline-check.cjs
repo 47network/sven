@@ -10,13 +10,13 @@ const strict = process.argv.includes('--strict');
 
 const CLIENT_WORKFLOWS = [
   '.github/workflows/ui-e2e-accessibility.yml',
-  '.github/workflows/flutter-user-app-device-farm.yml',
+  '.github/workflows/flutter-user-app-ci.yml',
   '.github/workflows/desktop-tauri-release.yml',
   '.github/workflows/onboarding-readiness.yml',
 ];
 const CLIENT_WORKFLOW_RUN_NAMES = [
   'ui-e2e-accessibility',
-  'flutter-user-app-device-farm',
+  'flutter-user-app-ci',
   'desktop-tauri-release',
   'onboarding-readiness',
 ];

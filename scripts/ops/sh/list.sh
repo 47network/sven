@@ -2,4 +2,4 @@
 set -eu
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-ls -1 "$DIR"/*.sh | sed 's#.*/##' | sort
+find "$DIR" -maxdepth 1 -name '*.sh' -exec basename {} \; | sort

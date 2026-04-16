@@ -76,6 +76,12 @@ jobs:
       - name: Build shared package
         run: pnpm --filter ./packages/shared run build
 
+      - name: Build pillar packages
+        run: |
+          for pkg in compute-mesh model-router security-toolkit document-intel marketing-intel proactive-notifier quantum-sim design-system; do
+            pnpm --filter ./packages/$pkg run build
+          done
+
       - name: Build gateway
         run: pnpm --filter ./services/gateway-api run build
 

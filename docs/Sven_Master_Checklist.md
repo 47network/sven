@@ -577,7 +577,7 @@
 - [x] /rag (collections + sources + jobs)
 - [x] /llm (providers + routing + budgets)
 - [x] /integrations (HA + CalDAV + Google + Git)
-- [x] /secrets (refs + rotation + test connection)
+- [x] /secrets (refs + rotation + test connection) <!-- exists_ui_route=yes; exists_api_route=yes; smoke_tested=yes -->
 - [x] /backups (snapshots + restore drill)
 - [x] /improvements (self-improvement queue)
 - [x] /settings (identity docs, performance, buddy)

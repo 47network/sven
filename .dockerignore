@@ -3,5 +3,14 @@
 **/.tsbuildinfo
 **/tsconfig.tsbuildinfo
 **/.git
+.git
 deploy/
 tmp/
+.npm_cache
+.venv
+.venv-1
+.idea
+.vscode
+node_modules
+.node20
+archive
