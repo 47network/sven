@@ -117,15 +117,10 @@ function buildPdf(title: string, author: string, sections: Section[], dims: { w:
 
   // Build PDF objects
   const objects: string[] = [];
-  const offsets: number[] = [];
-  let content = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n';
 
   const addObj = (obj: string) => {
-    offsets.push(content.length);
     const num = objects.length + 1;
-    const full = `${num} 0 obj\n${obj}\nendobj\n`;
-    objects.push(full);
-    content += full;
+    objects.push(obj);
     return num;
   };
 
@@ -133,7 +128,7 @@ function buildPdf(title: string, author: string, sections: Section[], dims: { w:
   const catalogNum = addObj('<< /Type /Catalog /Pages 2 0 R >>');
 
   // 2 — Pages (placeholder — we'll fix ref later)
-  const pagesPlaceholder = objects.length;
+  const pagesObjIndex = objects.length;
   addObj('PLACEHOLDER');
 
   // 3 — Font (Helvetica)
@@ -174,22 +169,14 @@ function buildPdf(title: string, author: string, sections: Section[], dims: { w:
 
   // Fix Pages object
   const kids = pageObjNums.map((n) => `${n} 0 R`).join(' ');
-  const pagesObj = `<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`;
-  const pagesObjFull = `2 0 obj\n${pagesObj}\nendobj\n`;
+  objects[pagesObjIndex] = `<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`;
 
-  // Rebuild content with corrected Pages object
-  content = content.replace('2 0 obj\nPLACEHOLDER\nendobj\n', pagesObjFull);
-
-  // Recalculate offsets (simplified — rebuild from scratch)
+  // Final assembly
   let rebuilt = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n';
   const newOffsets: number[] = [];
-  // Re-emit all objects
-  const allObjs = content.slice(rebuilt.length).split(/(?=\d+ 0 obj\n)/);
-  for (const obj of allObjs) {
-    if (obj.trim()) {
-      newOffsets.push(rebuilt.length);
-      rebuilt += obj;
-    }
+  for (let i = 0; i < objects.length; i++) {
+    newOffsets.push(rebuilt.length);
+    rebuilt += `${i + 1} 0 obj\n${objects[i]}\nendobj\n`;
   }
 
   // Cross-reference table

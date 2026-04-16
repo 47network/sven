@@ -758,19 +758,24 @@ export async function getRetentionAudit(
            )
          )`;
     const params: any[] = [orgId];
+    const conditions: string[] = [];
 
     if (userId) {
-      query += ' AND target_user_id = $' + (params.length + 1);
       params.push(userId);
+      conditions.push(`target_user_id = $${params.length}`);
     }
 
     if (chatId) {
-      query += ' AND target_chat_id = $' + (params.length + 1);
       params.push(chatId);
+      conditions.push(`target_chat_id = $${params.length}`);
     }
 
-    query += ` ORDER BY created_at DESC LIMIT $${params.length + 1}`;
+    if (conditions.length > 0) {
+      query += ' AND ' + conditions.join(' AND ');
+    }
+
     params.push(limit);
+    query += ` ORDER BY created_at DESC LIMIT $${params.length}`;
 
     const result = await pool.query(query, params);
 

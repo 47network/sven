@@ -151,8 +151,9 @@ class MediaService {
     final response = await _client.get(
       Uri.parse('$base/v1/chats/$chatId/media?$qs'),
     );
-    if (response.statusCode != 200)
+    if (response.statusCode != 200) {
       return const MediaGallery(items: [], total: 0);
+    }
     final body = jsonDecode(response.body)['data'] as Map<String, dynamic>;
     return MediaGallery.fromJson(body);
   }

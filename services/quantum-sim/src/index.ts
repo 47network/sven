@@ -362,8 +362,8 @@ app.delete('/v1/quantum/cache', async () => {
 
 async function start(): Promise<void> {
   // Run migrations
-  const migrationSql = await import('node:fs').then((fs) =>
-    fs.readFileSync(new URL('../migrations/001_create_quantum_jobs.sql', import.meta.url), 'utf8'),
+  const migrationSql = await import('node:fs/promises').then((fsp) =>
+    fsp.readFile(new URL('../migrations/001_create_quantum_jobs.sql', import.meta.url), 'utf8'),
   );
   await pool.query(migrationSql);
   engineLogger.info('Migrations applied');

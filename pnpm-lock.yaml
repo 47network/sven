@@ -796,28 +796,28 @@ importers:
         specifier: ^10.3.0
         version: 10.3.0
       '@sven/compute-mesh':
-        specifier: file:../../packages/compute-mesh
+        specifier: workspace:*
         version: link:../../packages/compute-mesh
       '@sven/design-system':
-        specifier: file:../../packages/design-system
+        specifier: workspace:*
         version: link:../../packages/design-system
       '@sven/document-intel':
-        specifier: file:../../packages/document-intel
+        specifier: workspace:*
         version: link:../../packages/document-intel
       '@sven/marketing-intel':
-        specifier: file:../../packages/marketing-intel
+        specifier: workspace:*
         version: link:../../packages/marketing-intel
       '@sven/model-router':
-        specifier: file:../../packages/model-router
+        specifier: workspace:*
         version: link:../../packages/model-router
       '@sven/quantum-sim':
-        specifier: file:../../packages/quantum-sim
+        specifier: workspace:*
         version: link:../../packages/quantum-sim
       '@sven/security-toolkit':
-        specifier: file:../../packages/security-toolkit
+        specifier: workspace:*
         version: link:../../packages/security-toolkit
       '@sven/shared':
-        specifier: file:../../packages/shared
+        specifier: workspace:*
         version: link:../../packages/shared
       bcrypt:
         specifier: ^6.0.0
