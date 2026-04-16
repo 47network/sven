@@ -44,7 +44,7 @@ dependencies:
   dynamic_color: ^1.7.0
   firebase_analytics: ^11.3.3
   retry: ^3.1.2
-  share_plus: ^10.1.4
+  share_plus: ^13.0.0
   timezone: ^0.9.4
   google_fonts: ^6.2.1
   webview_flutter: ^4.10.0
