@@ -45,6 +45,33 @@ function evaluateObjective(solution: number[], problem: QAOAProblem): number {
   return cost;
 }
 
+function buildQAOACircuit(n: number, layers: number, gamma: number, beta: number, problem: QAOAProblem): QuantumCircuit {
+  let circuit = createCircuit(n);
+
+  // Initial superposition
+  for (let q = 0; q < n; q++) {
+    circuit = addGate(circuit, H, [q]);
+  }
+
+  // QAOA layers
+  for (let l = 0; l < layers; l++) {
+    // Problem unitary: apply Rz based on objective terms (simplified)
+    for (const term of problem.objective) {
+      for (const v of term.variables) {
+        if (v < n) {
+          circuit = addGate(circuit, Rz(gamma * term.weight), [v]);
+        }
+      }
+    }
+    // Mixer unitary: Rx on all qubits
+    for (let q = 0; q < n; q++) {
+      circuit = addGate(circuit, Rx(beta), [q]);
+    }
+  }
+
+  return circuit;
+}
+
 /**
  * Run QAOA for combinatorial optimization.
  * Uses variational approach: alternating problem and mixer unitaries.
@@ -63,28 +90,7 @@ export function runQAOA(problem: QAOAProblem, layers = 3, shots = 1024): QAOARes
     for (let bi = 0; bi < steps; bi++) {
       const beta = (bi / steps) * Math.PI;
 
-      let circuit = createCircuit(n);
-
-      // Initial superposition
-      for (let q = 0; q < n; q++) {
-        circuit = addGate(circuit, H, [q]);
-      }
-
-      // QAOA layers
-      for (let l = 0; l < layers; l++) {
-        // Problem unitary: apply Rz based on objective terms (simplified)
-        for (const term of problem.objective) {
-          for (const v of term.variables) {
-            if (v < n) {
-              circuit = addGate(circuit, Rz(gamma * term.weight), [v]);
-            }
-          }
-        }
-        // Mixer unitary: Rx on all qubits
-        for (let q = 0; q < n; q++) {
-          circuit = addGate(circuit, Rx(beta), [q]);
-        }
-      }
+      const circuit = buildQAOACircuit(n, layers, gamma, beta, problem);
 
       const result = simulate(circuit);
       const counts = measureMultiple(result, shots);
