@@ -1,12 +1,12 @@
 'use client';
 
-import { Bot, BookmarkPlus, BookmarkX, Copy, Reply, ThumbsDown, ThumbsUp, User, Wand2 } from 'lucide-react';
+import { Bot, BookmarkPlus, BookmarkX, Check, Copy, Reply, ThumbsDown, ThumbsUp, User, Wand2 } from 'lucide-react';
 import { cn, formatDate, relativeTime } from '@/lib/utils';
 import { BlockRenderer, type CanvasBlock } from '@/components/blocks';
 import { MarkdownBlock } from '@/components/blocks/MarkdownBlock';
 import { useCreateMemory, useDeleteMemory } from '@/lib/hooks';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 export type ChatMessage = {
     id: string;
@@ -60,7 +60,7 @@ function getCopyPayload(message: ChatMessage): string {
     return lines.join('\n\n').trim();
 }
 
-export default function MessageBubble({
+export const MessageBubble = memo(function MessageBubble({
     message,
     isMe,
     isNew,
@@ -79,6 +79,13 @@ export default function MessageBubble({
     const createMemory = useCreateMemory();
     const deleteMemory = useDeleteMemory();
     const [rememberedId, setRememberedId] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        await onCopy(copyPayload);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     if (isSystem) {
         return (
@@ -144,15 +151,17 @@ export default function MessageBubble({
                     <button
                         type="button"
                         className="rounded-md p-1 text-[var(--fg-muted)] hover:bg-slate-200/70 dark:hover:bg-slate-700/60"
-                        title="Copy"
-                        onClick={() => void onCopy(copyPayload)}
+                        title={copied ? 'Copied' : 'Copy'}
+                        aria-label={copied ? 'Message copied' : 'Copy message'}
+                        onClick={() => void handleCopy()}
                     >
-                        <Copy className="h-3.5 w-3.5" />
+                        {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                     </button>
                     <button
                         type="button"
                         className="rounded-md p-1 text-[var(--fg-muted)] hover:bg-slate-200/70 dark:hover:bg-slate-700/60"
                         title="Reply"
+                        aria-label="Reply to message"
                         onClick={() => onReply(message)}
                     >
                         <Reply className="h-3.5 w-3.5" />
@@ -162,6 +171,7 @@ export default function MessageBubble({
                             type="button"
                             className="rounded-md p-1 text-[var(--fg-muted)] hover:bg-slate-200/70 dark:hover:bg-slate-700/60"
                             title="Remix prompt from this response"
+                            aria-label="Remix prompt"
                             onClick={() => onRemix(message)}
                         >
                             <Wand2 className="h-3.5 w-3.5" />
@@ -172,6 +182,7 @@ export default function MessageBubble({
                             type="button"
                             className="rounded-md p-1 text-[var(--fg-muted)] hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-600 dark:hover:text-violet-400"
                             title="Remember this response"
+                            aria-label="Remember response"
                             disabled={createMemory.isPending}
                             onClick={() => {
                                 const content = copyPayload || message.text;
@@ -196,6 +207,7 @@ export default function MessageBubble({
                             type="button"
                             className="rounded-md p-1 text-violet-600 dark:text-violet-400 hover:bg-violet-100/70 dark:hover:bg-violet-900/30"
                             title="Forget this memory"
+                            aria-label="Forget memory"
                             disabled={deleteMemory.isPending}
                             onClick={() => {
                                 if (rememberedId === 'saved') { setRememberedId(null); return; }
@@ -219,6 +231,7 @@ export default function MessageBubble({
                                         : 'text-[var(--fg-muted)]',
                                 )}
                                 title="Thumbs up"
+                                aria-label="Thumbs up"
                                 onClick={() => onFeedback(message, 'up')}
                             >
                                 <ThumbsUp className="h-3.5 w-3.5" />
@@ -232,6 +245,7 @@ export default function MessageBubble({
                                         : 'text-[var(--fg-muted)]',
                                 )}
                                 title="Thumbs down"
+                                aria-label="Thumbs down"
                                 onClick={() => onFeedback(message, 'down')}
                             >
                                 <ThumbsDown className="h-3.5 w-3.5" />
@@ -279,4 +293,6 @@ export default function MessageBubble({
             </div>
         </div>
     );
-}
+});
+
+export default MessageBubble;

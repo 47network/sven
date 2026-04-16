@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import AppShell from '@/components/AppShell';
@@ -78,17 +78,35 @@ function sanitizeA2uiHtml(input: string): string {
   if (!input || typeof window === 'undefined' || typeof DOMParser === 'undefined') return '';
   const parser = new DOMParser();
   const doc = parser.parseFromString(input, 'text/html');
-  doc.querySelectorAll('script, style, iframe, object, embed, link, meta, base').forEach((el) => el.remove());
-  const allowedDataAttrs = new Set(['data-a2ui-action', 'data-a2ui-payload']);
-  doc.querySelectorAll('*').forEach((el) => {
+  const allowedTags = new Set([
+    'p', 'br', 'b', 'i', 'strong', 'em', 'ul', 'ol', 'li', 'table', 'thead', 'tbody',
+    'tr', 'th', 'td', 'div', 'span', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'pre', 'code', 'blockquote', 'hr', 'details', 'summary',
+  ]);
+  const allowedAttrs = new Set(['class', 'href', 'src', 'alt', 'title', 'target', 'rel', 'data-a2ui-action', 'data-a2ui-payload']);
+
+  const allElements = Array.from(doc.body.querySelectorAll('*'));
+  for (const el of allElements) {
+    const tag = el.tagName.toLowerCase();
+    if (!allowedTags.has(tag)) {
+      el.remove();
+      continue;
+    }
     for (const attr of Array.from(el.attributes)) {
       const name = attr.name.toLowerCase();
       const value = attr.value.trim().toLowerCase();
-      if (name.startsWith('on') || name === 'style') { el.removeAttribute(attr.name); continue; }
-      if ((name === 'href' || name === 'src') && !/^(https?:|mailto:|tel:|#|\/)/i.test(value)) { el.removeAttribute(attr.name); continue; }
-      if (name.startsWith('data-') && !allowedDataAttrs.has(name)) el.removeAttribute(attr.name);
+      if (!allowedAttrs.has(name)) {
+        el.removeAttribute(attr.name);
+        continue;
+      }
+      if ((name === 'href' || name === 'src') && !/^(https?:|mailto:|tel:|#|\/)/i.test(value)) {
+        el.removeAttribute(attr.name);
+      }
     }
-  });
+    if (tag === 'a' && el.getAttribute('target')) {
+      el.setAttribute('rel', 'noopener noreferrer');
+    }
+  }
   return doc.body.innerHTML;
 }
 
@@ -463,30 +481,30 @@ export default function ChatTimelinePage() {
     inputRef.current?.focus();
   }
 
-  function nextSearchMatch() {
+  const nextSearchMatch = useCallback(() => {
     if (filteredMessages.length === 0) return;
     setSearchCursor((prev) => (prev + 1) % filteredMessages.length);
-  }
+  }, [filteredMessages.length]);
 
-  function prevSearchMatch() {
+  const prevSearchMatch = useCallback(() => {
     if (filteredMessages.length === 0) return;
     setSearchCursor((prev) => (prev - 1 + filteredMessages.length) % filteredMessages.length);
-  }
+  }, [filteredMessages.length]);
 
-  function insertTemplate(text: string) {
+  const insertTemplate = useCallback((text: string) => {
     setInput((prev) => `${prev ? `${prev}\n` : ''}${text}`);
     inputRef.current?.focus();
-  }
+  }, []);
 
-  function handleReplyTo(message: ChatMessage) {
+  const handleReplyTo = useCallback((message: ChatMessage) => {
     const preview = message.text?.trim() || '[non-text message]';
     const quoted = preview.length > 140 ? `${preview.slice(0, 140)}...` : preview;
     setReplyDraft(`Replying to ${message.sender_name || (message.role === 'assistant' ? 'Sven' : 'User')}: "${quoted}"`);
     setInput((prev) => `${prev ? `${prev}\n` : ''}> ${quoted}\n`);
     inputRef.current?.focus();
-  }
+  }, []);
 
-  async function handleCopy(text: string) {
+  const handleCopy = useCallback(async (text: string) => {
     if (!text.trim()) {
       toast.error('Nothing to copy');
       return;
@@ -497,15 +515,15 @@ export default function ChatTimelinePage() {
     } catch {
       toast.error('Copy failed');
     }
-  }
+  }, []);
 
-  function handleRemixFrom(message: ChatMessage) {
+  const handleRemixFrom = useCallback((message: ChatMessage) => {
     setInput(`/rewrite based_on: """${(message.text?.trim() ?? '').slice(0, 240)}"""`);
     setReplyDraft('');
     inputRef.current?.focus();
-  }
+  }, []);
 
-  function handleFeedback(message: ChatMessage, feedback: FeedbackValue) {
+  const handleFeedback = useCallback((message: ChatMessage, feedback: FeedbackValue) => {
     const previous = feedbackByMessage[message.id] ?? null;
     const nextFeedback = previous === feedback ? null : feedback;
 
@@ -536,9 +554,9 @@ export default function ChatTimelinePage() {
         },
       },
     );
-  }
+  }, [feedbackByMessage, feedbackMutation]);
 
-  function handleCancelQueued(message: ChatMessage) {
+  const handleCancelQueued = useCallback((message: ChatMessage) => {
     const queueId = String(message.queue_id || message.id || '').trim();
     if (!queueId) return;
     cancelQueuedMutation.mutate(queueId, {
@@ -550,7 +568,7 @@ export default function ChatTimelinePage() {
         toast.error(extractApiErrorMessage(error, 'Queue cancel failed'));
       },
     });
-  }
+  }, [cancelQueuedMutation]);
 
   function handleShareChat() {
     setShareDialogOpen(true);
