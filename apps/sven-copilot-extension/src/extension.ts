@@ -10,49 +10,59 @@ interface SvenChatResult extends vscode.ChatResult {
   };
 }
 
-export function activate(context: vscode.ExtensionContext) {
-  const outputChannel = vscode.window.createOutputChannel('Sven AI');
-  outputChannel.appendLine('Sven AI extension activated');
-
-  const api = new SvenApiClient(() => {
+function createApiClient(): SvenApiClient {
+  return new SvenApiClient(() => {
     const config = vscode.workspace.getConfiguration('sven');
     return {
       gatewayUrl: config.get<string>('gatewayUrl') || 'http://127.0.0.1:3000',
       apiKey: config.get<string>('extensionApiKey') || 'sven-ext-47-dev',
     };
   });
+}
 
-  const participant = vscode.chat.createChatParticipant(PARTICIPANT_ID, async (
-    request: vscode.ChatRequest,
-    context: vscode.ChatContext,
-    stream: vscode.ChatResponseStream,
-    token: vscode.CancellationToken,
-  ): Promise<SvenChatResult> => {
-    const command = request.command;
+async function handleChatRequest(
+  api: SvenApiClient,
+  request: vscode.ChatRequest,
+  context: vscode.ChatContext,
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken,
+): Promise<SvenChatResult> {
+  const command = request.command;
 
-    if (command === 'soul') {
-      return handleSoul(api, stream, token);
-    }
+  if (command === 'soul') {
+    return handleSoul(api, stream, token);
+  }
 
-    if (command === 'heal') {
-      return handleHeal(stream, token);
-    }
+  if (command === 'heal') {
+    return handleHeal(stream, token);
+  }
 
-    if (command === 'codebase') {
-      return handleCodebase(request, stream, token);
-    }
+  if (command === 'codebase') {
+    return handleCodebase(request, stream, token);
+  }
 
-    if (command === 'deploy') {
-      return handleDeploy(api, stream, token);
-    }
+  if (command === 'deploy') {
+    return handleDeploy(api, stream, token);
+  }
 
-    if (command === 'improve') {
-      return handleImprove(api, request, stream, token);
-    }
+  if (command === 'improve') {
+    return handleImprove(api, request, stream, token);
+  }
 
-    // Default: general chat with Sven — combine codebase awareness + live state
-    return handleChat(api, request, context, stream, token);
-  });
+  // Default: general chat with Sven — combine codebase awareness + live state
+  return handleChat(api, request, context, stream, token);
+}
+
+export function activate(context: vscode.ExtensionContext) {
+  const outputChannel = vscode.window.createOutputChannel('Sven AI');
+  outputChannel.appendLine('Sven AI extension activated');
+
+  const api = createApiClient();
+
+  const participant = vscode.chat.createChatParticipant(
+    PARTICIPANT_ID,
+    (request, ctx, stream, token) => handleChatRequest(api, request, ctx, stream, token)
+  );
 
   participant.iconPath = vscode.Uri.joinPath(
     vscode.extensions.getExtension('47network.sven-copilot')?.extensionUri
