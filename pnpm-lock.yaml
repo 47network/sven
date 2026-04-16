@@ -10202,7 +10202,7 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 30.3.0
       '@jest/types': 30.3.0
-      '@types/node': 25.6.0
+      '@types/node': 20.19.39
       jest-mock: 30.3.0
 
   '@jest/expect-utils@29.7.0':
@@ -10240,7 +10240,7 @@ snapshots:
     dependencies:
       '@jest/types': 30.3.0
       '@sinonjs/fake-timers': 15.3.2
-      '@types/node': 25.6.0
+      '@types/node': 20.19.39
       jest-message-util: 30.3.0
       jest-mock: 30.3.0
       jest-util: 30.3.0
@@ -13908,7 +13908,7 @@ snapshots:
       '@jest/expect': 30.3.0
       '@jest/test-result': 30.3.0
       '@jest/types': 30.3.0
-      '@types/node': 25.6.0
+      '@types/node': 20.19.39
       chalk: 4.1.2
       co: 4.6.0
       dedent: 1.7.2
@@ -14081,7 +14081,7 @@ snapshots:
       '@jest/environment': 30.3.0
       '@jest/fake-timers': 30.3.0
       '@jest/types': 30.3.0
-      '@types/node': 25.6.0
+      '@types/node': 20.19.39
       jest-mock: 30.3.0
       jest-util: 30.3.0
       jest-validate: 30.3.0
@@ -14389,7 +14389,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 25.6.0
+      '@types/node': 20.19.39
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
