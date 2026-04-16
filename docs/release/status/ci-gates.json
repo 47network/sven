@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-04-16T08:45:04.185Z",
+  "generated_at": "2026-04-16T09:10:49.852Z",
   "source_branch": "main",
-  "source_head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+  "source_head_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-16T08:44:31.858Z",
+    "captured_at": "2026-04-16T09:10:22.277Z",
     "branch": "main",
     "total_runs": 1000
   },
-  "final_dod_ci": true,
-  "parity_e2e_ci": true,
+  "final_dod_ci": false,
+  "parity_e2e_ci": false,
   "parity_checklist_verify_ci": false,
   "agent_zero_parity_verify_ci": true,
   "websocket_contract_ci": false,
@@ -18,15 +18,15 @@
   "multi_device_validation_ci": false,
   "d9_keycloak_interop_ci": true,
   "release_ops_drill_ci": false,
-  "mobile_auth_session_smoke_ci": true,
+  "mobile_auth_session_smoke_ci": false,
   "mobile_release_readiness_ci": false,
   "backup_restore_api_ci": false,
   "flutter_user_app_device_farm_ci": true,
   "desktop_release_ci": false,
-  "ui_e2e_ci": false,
+  "ui_e2e_ci": true,
   "mobile_coverage_gate_ci": false,
   "csrf_auth_e2e_ci": false,
-  "client_env_governance_ci": false,
+  "client_env_governance_ci": true,
   "backend_capability_e2e_ci": false,
   "security_privacy_governance_ci": false,
   "privacy_admin_e2e_ci": false,
@@ -37,30 +37,32 @@
   "security_baseline_ci": true,
   "gate_provenance": {
     "final_dod_ci": {
-      "run_id": 24500012535,
-      "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+      "run_id": null,
+      "head_sha": null,
       "head_branch": "main",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
     },
     "parity_e2e_ci": {
-      "run_id": 24500012569,
-      "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+      "run_id": null,
+      "head_sha": null,
       "head_branch": "main",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "parity_e2e_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -89,7 +91,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-16T08:44:25.691Z"
+      "generated_at": "2026-04-16T09:10:16.452Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -119,7 +121,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-16T08:44:26.559Z"
+      "generated_at": "2026-04-16T09:10:17.295Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -134,7 +136,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-16T08:44:31.428Z"
+      "generated_at": "2026-04-16T09:10:21.878Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -176,20 +178,21 @@
       "matched_target_sha": false,
       "gate_key": "release_ops_drill_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+      "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
     },
     "mobile_auth_session_smoke_ci": {
-      "run_id": 24500012530,
-      "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+      "run_id": null,
+      "head_sha": null,
       "head_branch": "main",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310875,
       "workflow_name": "mobile-auth-session-smoke",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
@@ -244,21 +247,20 @@
       "matched_target_sha": false,
       "gate_key": "desktop_tauri_release_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+      "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
     },
     "ui_e2e_ci": {
-      "run_id": null,
-      "head_sha": null,
+      "run_id": 24501643327,
+      "head_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
       "head_branch": "main",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310896,
       "workflow_name": "ui-e2e-accessibility",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "ui_e2e_accessibility_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+      "decision": "target_sha_completed_run"
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
@@ -289,18 +291,17 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": null,
-      "head_sha": null,
+      "run_id": 24501643352,
+      "head_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
       "head_branch": "main",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310854,
       "workflow_name": "client-env-governance",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "client_env_governance_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+      "decision": "target_sha_completed_run"
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
@@ -356,7 +357,7 @@
       "matched_target_sha": false,
       "gate_key": "ops_shell_ci",
       "decision": "not_required_scope_clean",
-      "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+      "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
       "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
@@ -399,8 +400,8 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24500012533,
-      "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+      "run_id": 24501643334,
+      "head_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
       "head_branch": "main",
       "event": "push",
       "status": "completed",
@@ -438,36 +439,38 @@
   },
   "required_workflow_gates": {
     "final-dod-e2e": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24500012535,
-        "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+        "run_id": null,
+        "head_sha": null,
         "head_branch": "main",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
       "gate_key": "final_dod_e2e_ci"
     },
     "parity-e2e": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24500012569,
-        "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+        "run_id": null,
+        "head_sha": null,
         "head_branch": "main",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "parity_e2e_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -503,24 +506,25 @@
         "matched_target_sha": false,
         "gate_key": "release_ops_drill_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
       "gate_key": "release_ops_drill_ci"
     },
     "mobile-auth-session-smoke": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24500012530,
-        "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+        "run_id": null,
+        "head_sha": null,
         "head_branch": "main",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310875,
         "workflow_name": "mobile-auth-session-smoke",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
@@ -556,46 +560,28 @@
         "matched_target_sha": false,
         "gate_key": "desktop_tauri_release_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
       "gate_key": "desktop_tauri_release_ci"
     },
     "ui-e2e-accessibility": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
+        "run_id": 24501643327,
+        "head_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
         "head_branch": "main",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310896,
         "workflow_name": "ui-e2e-accessibility",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "ui_e2e_accessibility_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "ui_e2e_accessibility_ci"
     },
     "gateway-coverage-gate": {
-      "pass": true,
-      "provenance": {
-        "run_id": 24500012532,
-        "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
-        "head_branch": "main",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
-        "workflow_id": 261310871,
-        "workflow_name": "gateway-coverage-gate",
-        "matched_target_sha": true,
-        "gate_key": "gateway_coverage_gate_ci",
-        "decision": "target_sha_completed_run"
-      },
-      "gate_key": "gateway_coverage_gate_ci"
-    },
-    "client-env-governance": {
       "pass": false,
       "provenance": {
         "run_id": null,
@@ -604,37 +590,55 @@
         "event": null,
         "status": null,
         "conclusion": null,
-        "workflow_id": 261310854,
-        "workflow_name": "client-env-governance",
+        "workflow_id": 261310871,
+        "workflow_name": "gateway-coverage-gate",
         "matched_target_sha": false,
-        "gate_key": "client_env_governance_ci",
+        "gate_key": "gateway_coverage_gate_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
-      "gate_key": "client_env_governance_ci"
+      "gate_key": "gateway_coverage_gate_ci"
     },
-    "deployment-pipeline": {
+    "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24500012525,
-        "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+        "run_id": 24501643352,
+        "head_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
         "head_branch": "main",
         "event": "push",
         "status": "completed",
         "conclusion": "success",
+        "workflow_id": 261310854,
+        "workflow_name": "client-env-governance",
+        "matched_target_sha": true,
+        "gate_key": "client_env_governance_ci",
+        "decision": "target_sha_completed_run"
+      },
+      "gate_key": "client_env_governance_ci"
+    },
+    "deployment-pipeline": {
+      "pass": false,
+      "provenance": {
+        "run_id": 24501643292,
+        "head_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
+        "head_branch": "main",
+        "event": "push",
+        "status": "in_progress",
+        "conclusion": null,
         "workflow_id": 261310856,
         "workflow_name": "deployment-pipeline",
         "matched_target_sha": true,
         "gate_key": "deployment_pipeline_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "pending_non_final_target_sha",
+        "previous_gate_value": false
       },
       "gate_key": "deployment_pipeline_ci"
     },
     "env-secrets-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24500012552,
-        "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+        "run_id": 24501643293,
+        "head_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
         "head_branch": "main",
         "event": "push",
         "status": "completed",
@@ -650,8 +654,8 @@
     "security-baseline": {
       "pass": true,
       "provenance": {
-        "run_id": 24500012533,
-        "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+        "run_id": 24501643334,
+        "head_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42",
         "head_branch": "main",
         "event": "push",
         "status": "completed",
@@ -678,7 +682,7 @@
         "matched_target_sha": false,
         "gate_key": "onboarding_readiness_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
       "gate_key": "onboarding_readiness_ci"
     },
@@ -696,24 +700,25 @@
         "matched_target_sha": false,
         "gate_key": "release_status_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
       "gate_key": "release_status_ci"
     },
     "release-supply-chain": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24500012571,
-        "head_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf",
+        "run_id": null,
+        "head_sha": null,
         "head_branch": "main",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310893,
         "workflow_name": "release-supply-chain",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "release_supply_chain_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
       "gate_key": "release_supply_chain_ci"
     },
@@ -731,7 +736,7 @@
         "matched_target_sha": false,
         "gate_key": "ops_shell_ci_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "b282b96fcc71d4e95edfc39e2a6c4f2d0b423daf"
+        "target_sha": "60860a04ca39f486be9566fdbf1de1ec5ba39a42"
       },
       "gate_key": "ops_shell_ci_ci"
     },
