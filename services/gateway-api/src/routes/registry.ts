@@ -114,6 +114,33 @@ async function getCachedRegistryMarketplaceEmbedding(pool: pg.Pool, cacheKey: st
   }
 }
 
+async function getCachedRegistryMarketplaceEmbeddings(pool: pg.Pool, cacheKeys: string[]): Promise<Map<string, number[]>> {
+  const result = new Map<string, number[]>();
+  if (cacheKeys.length === 0) return result;
+
+  try {
+    const queryRes = await pool.query(
+      `SELECT cache_key, cached_output
+         FROM tool_cache
+        WHERE tool_name = $1
+          AND cache_key = ANY($2)
+          AND expires_at > CURRENT_TIMESTAMP`,
+      [REGISTRY_MARKETPLACE_EMBEDDING_TOOL_NAME, cacheKeys],
+    );
+    for (const row of queryRes.rows) {
+      try {
+        const parsed = JSON.parse(String(row.cached_output || 'null'));
+        if (Array.isArray(parsed) && !parsed.some((value) => !Number.isFinite(Number(value)))) {
+          result.set(row.cache_key, parsed.map((value) => Number(value)));
+        }
+      } catch {
+      }
+    }
+  } catch {
+  }
+  return result;
+}
+
 async function cacheRegistryMarketplaceEmbedding(pool: pg.Pool, cacheKey: string, embedding: number[]): Promise<void> {
   try {
     await pool.query(
@@ -418,13 +445,44 @@ export async function registerRegistryRoutes(app: FastifyInstance, pool: pg.Pool
         EMBEDDINGS_CACHE_ENABLED: 'false',
       } as NodeJS.ProcessEnv);
 
+      const semanticMap = new Map<string, { semanticText: string; cacheKey: string }>();
+      const cacheKeysToFetch: string[] = [];
+
+      if (queryEmbedding) {
+        for (const row of rows.rows) {
+          const entryId = String(row.id || '');
+          const semanticText = buildRegistryMarketplaceSemanticText(row as Record<string, unknown>);
+          if (semanticText) {
+            const cacheKey = generateRegistryMarketplaceEmbeddingCacheKey(entryId, semanticText);
+            semanticMap.set(entryId, { semanticText, cacheKey });
+            cacheKeysToFetch.push(cacheKey);
+          }
+        }
+      }
+
+      const cachedEmbeddings = await getCachedRegistryMarketplaceEmbeddings(pool, cacheKeysToFetch);
+
       const scoredRows = await Promise.all(
         rows.rows.map(async (row) => {
-          const semanticText = buildRegistryMarketplaceSemanticText(row as Record<string, unknown>);
-          const documentEmbedding =
-            queryEmbedding && semanticText
-              ? await getRegistryMarketplaceEmbedding(pool, String(row.id || ''), semanticText)
-              : null;
+          let documentEmbedding: number[] | null = null;
+          const entryId = String(row.id || '');
+          const semanticInfo = semanticMap.get(entryId);
+
+          if (queryEmbedding && semanticInfo) {
+            const cached = cachedEmbeddings.get(semanticInfo.cacheKey);
+            if (cached) {
+              documentEmbedding = cached;
+            } else {
+              const embedding = await embedTextFromEnv(semanticInfo.semanticText, {
+                ...process.env,
+                EMBEDDINGS_CACHE_ENABLED: 'false',
+              } as NodeJS.ProcessEnv);
+              if (embedding && embedding.length > 0) {
+                await cacheRegistryMarketplaceEmbedding(pool, semanticInfo.cacheKey, embedding);
+              }
+              documentEmbedding = embedding;
+            }
+          }
           const semanticScore =
             queryEmbedding && documentEmbedding
               ? cosineSimilarity(queryEmbedding, documentEmbedding)
