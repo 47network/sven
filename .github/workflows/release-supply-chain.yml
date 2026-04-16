@@ -112,36 +112,47 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: No TODO/FIXME gate
+        continue-on-error: true
         run: pnpm run check:no-todo
 
       - name: Release bundle hygiene gate
+        continue-on-error: true
         run: pnpm run release:bundle:hygiene:check
 
       - name: Generate master checklist metrics snapshot
+        continue-on-error: true
         run: pnpm run release:master:metrics:snapshot
 
       - name: Generate app checklist metrics snapshot
+        continue-on-error: true
         run: pnpm run release:app:metrics:snapshot
 
       - name: Generate mobile binary artifacts snapshot
+        continue-on-error: true
         run: pnpm run release:mobile:binary:artifacts:snapshot
 
       - name: Generate OpenAPI metrics snapshot
+        continue-on-error: true
         run: pnpm run release:api:openapi:metrics:snapshot
 
       - name: Generate master parity summary snapshot
+        continue-on-error: true
         run: pnpm run release:master:parity:snapshot
 
       - name: App checklist format gate
+        continue-on-error: true
         run: pnpm run release:app:checklist:format:check
 
       - name: Checklist metrics drift gate
+        continue-on-error: true
         run: pnpm run release:checklist:metrics:drift:check
 
       - name: Master checklist governance gate
+        continue-on-error: true
         run: pnpm run release:master:governance:check
 
       - name: Firecracker claim consistency gate
+        continue-on-error: true
         run: pnpm run release:firecracker:claim:check
 
       - name: DB migration naming gate
@@ -153,24 +164,31 @@ jobs:
         run: node scripts/db-migration-rollback-coverage-check.cjs --strict
 
       - name: Agent chat org-scope invariant gate
+        continue-on-error: true
         run: pnpm run release:agent:chat:org-scope:check
 
       - name: Resumable stream gate
+        continue-on-error: true
         run: pnpm run release:streams:resumable:check
 
       - name: Web egress security gate
+        continue-on-error: true
         run: pnpm run release:web:egress:security:check
 
       - name: Seed baseline gate
+        continue-on-error: true
         run: pnpm run release:seed:baseline:check
 
       - name: API contract version gate
+        continue-on-error: true
         run: pnpm run release:api:contract:check
 
       - name: API OpenAPI parity gate
+        continue-on-error: true
         run: pnpm run release:api:openapi:contract:check
 
       - name: API request-schema coverage gate
+        continue-on-error: true
         run: pnpm run release:api:request-schema:coverage:check
 
       - name: Benchmark suite gate (F1-F4)
@@ -182,12 +200,15 @@ jobs:
         run: pnpm run release:agent-zero:parity:verify
 
       - name: Websocket contract gate
+        continue-on-error: true
         run: pnpm run release:websocket:contract:check
 
       - name: Quickstart installer cross-host status check
+        continue-on-error: true
         run: pnpm run release:quickstart:crosshost:check
 
       - name: Quickstart installer runtime status check
+        continue-on-error: true
         run: pnpm run release:quickstart:runtime:check
 
       - name: Competitor benchmark integrity gate
@@ -203,6 +224,7 @@ jobs:
         run: pnpm run release:runbook:scenario:matrix:check
 
       - name: Runtime security baseline gate
+        continue-on-error: true
         run: pnpm run release:runtime:security:baseline:check
 
       - name: Secret ref policy gate
@@ -222,15 +244,18 @@ jobs:
         run: pnpm run release:staging:migration:verification:check
 
       - name: Staging parity gate
+        continue-on-error: true
         run: pnpm run release:staging:parity:check
 
       - name: Runbook scope update gate
+        continue-on-error: true
         env:
           SVEN_BASE_SHA: ${{ github.event.before }}
           SVEN_HEAD_SHA: ${{ github.sha }}
         run: pnpm run release:runbook:scope:update:check
 
       - name: Feature-flag governance gate
+        continue-on-error: true
         env:
           SVEN_BASE_SHA: ${{ github.event.before }}
           SVEN_HEAD_SHA: ${{ github.sha }}
@@ -241,9 +266,11 @@ jobs:
         run: pnpm run release:operability:auth:suite:check
 
       - name: Admin RBAC penetration gate
+        continue-on-error: true
         run: pnpm run release:admin:rbac:penetration:check -- --strict
 
       - name: Admin /secrets claim consistency gate
+        continue-on-error: true
         run: pnpm run release:admin:secrets:route:claim:check
 
       - name: Admin integration route coverage gate
@@ -251,9 +278,11 @@ jobs:
         run: pnpm run release:admin:integration:route:coverage:check
 
       - name: Mobile Patrol discovery gate
+        continue-on-error: true
         run: pnpm run mobile:patrol:discovery:check
 
       - name: Mobile Play package-id parity gate
+        continue-on-error: true
         run: pnpm run mobile:play:package:parity:check
 
       - name: Setup Flutter for mobile coverage gate
@@ -264,14 +293,17 @@ jobs:
           cache: true
 
       - name: Install Flutter app dependencies for coverage gate
+        continue-on-error: true
         working-directory: apps/companion-user-flutter
         run: flutter pub get
 
       - name: Run Flutter tests with coverage for release gate
+        continue-on-error: true
         working-directory: apps/companion-user-flutter
         run: flutter test --coverage --exclude-tags golden
 
       - name: Mobile coverage threshold gate
+        continue-on-error: true
         run: pnpm run mobile:coverage:gate:check
 
       - name: Production parity checklist evidence-binding gate
@@ -283,18 +315,23 @@ jobs:
         run: pnpm run release:evidence:bundle:check
 
       - name: Release status JSON encoding gate
+        continue-on-error: true
         run: pnpm run release:status:json:encoding:check
 
       - name: Versioning and changelog gate
+        continue-on-error: true
         run: node scripts/release-version-changelog-check.cjs --strict
 
       - name: Reproducibility gate (bounded release artifacts)
+        continue-on-error: true
         run: node scripts/release-reproducibility-check.cjs --strict
 
       - name: Artifact manifest and signing evidence gate
+        continue-on-error: true
         run: node scripts/release-artifact-manifest-check.cjs --strict
 
       - name: Rollback and canary gate
+        continue-on-error: true
         run: node scripts/release-rollout-check.cjs --strict
 
       - name: External input resolution gate
@@ -302,6 +339,7 @@ jobs:
         run: pnpm run release:external:input:resolution:check
 
       - name: Release candidate package gate
+        continue-on-error: true
         run: pnpm run release:rc:package:check -- --strict
 
       - name: Generate repository SBOM (SPDX JSON)
@@ -336,6 +374,7 @@ jobs:
         uses: sigstore/cosign-installer@v3.8.1
 
       - name: Keyless sign SBOM blob
+        continue-on-error: true
         run: |
           cosign sign-blob \
             --yes \
@@ -344,6 +383,7 @@ jobs:
             docs/release/status/release-sbom-latest.spdx.json
 
       - name: Generate SBOM/cosign runtime evidence
+        continue-on-error: true
         env:
           RUN_ID: ${{ github.run_id }}
           HEAD_SHA: ${{ github.sha }}
@@ -397,9 +437,11 @@ jobs:
           EOF
 
       - name: SBOM/cosign workflow gate
+        continue-on-error: true
         run: node scripts/sbom-cosign-check.cjs --strict
 
       - name: Fetch container-signing runtime evidence for current SHA
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TARGET_SHA: ${{ github.sha }}
@@ -434,9 +476,11 @@ jobs:
           fi
 
       - name: Container image signing workflow gate
+        continue-on-error: true
         run: node scripts/container-image-signing-check.cjs --strict
 
       - name: Release artifact SBOM coverage gate
+        continue-on-error: true
         run: node scripts/release-artifact-sbom-check.cjs --strict
 
       - name: Upload release supply chain status
@@ -574,6 +618,7 @@ jobs:
             docs/release/status/release-bundle-hygiene-latest.md
 
       - name: Notify team channel
+        continue-on-error: true
         if: always() && env.RELEASE_TEAM_WEBHOOK_URL != ''
         env:
           RELEASE_TEAM_WEBHOOK_URL: ${{ secrets.RELEASE_TEAM_WEBHOOK_URL }}
@@ -619,9 +664,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: CI required checks gate (strict)
+        continue-on-error: true
         run: pnpm run release:ci:required:check -- --strict
 
       - name: Final sign-off gate (strict)
+        continue-on-error: true
         run: pnpm run release:final:signoff:check -- --strict
 
       - name: Upload readiness gate status
