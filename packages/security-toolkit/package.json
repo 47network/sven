@@ -46,5 +46,7 @@
     "build": "tsc",
     "dev": "tsc --watch"
   },
-  "dependencies": {}
+  "devDependencies": {
+    "@jest/globals": "^30.3.0"
+  }
 }
