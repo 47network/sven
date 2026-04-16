@@ -1,0 +1,42 @@
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    '!src/**/__tests__/**',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 35,
+      functions: 40,
+      lines: 45,
+      statements: 45,
+    },
+  },
+  testMatch: [
+    '**/__tests__/**/*.test.ts',
+    '**/__tests__/**/*.test.js',
+    '**/__tests__/**/*.e2e.ts',
+    '**/__tests__/**/*.e2e.test.js',
+  ],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^@sven/shared$': '<rootDir>/../../packages/shared/src/index.ts',
+    '^@sven/shared/(.*)\\.js$': '<rootDir>/../../packages/shared/src/$1.ts',
+    '^@sven/shared/(.*)$': '<rootDir>/../../packages/shared/src/$1',
+  },
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.jest.json' }],
+  },
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.jest.json',
+      diagnostics: false,
+      isolatedModules: false,
+      useESM: false,
+    },
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  transformIgnorePatterns: ['/node_modules/'],
+};
