@@ -18,6 +18,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Removed unused @fastify/static dependency from wake-word service.
 - Updated all Cargo dependencies via `cargo update` (bumps quinn-proto, glib, rustls-webpki, time, rand, wasm-bindgen, and 100+ transitive deps).
 - Ran `pnpm update --recursive` to patch all semver-compatible transitive dependency vulnerabilities.
+- Upgraded vite from v5 to v6.4.2 and @vitejs/plugin-react from v4 to v5.2.0 in companion-desktop-tauri (resolves CVE-2025-30346).
+- Upgraded matrix-js-sdk from v37 to v38.4.0 in adapter-matrix (resolves CVE-2025-45313, CVE-2025-26411).
+- Added pnpm.overrides for minimatch ≥9.0.0 <9.0.7 → ≥9.0.9 to resolve CVE-2025-1609.
 
 ### Changed
 - `@types/react` and `@types/react-dom` bumped to v19 across all React apps.
