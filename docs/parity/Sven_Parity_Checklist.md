@@ -891,7 +891,7 @@ When all phases complete, verify:
 - [x] Sections 24–27 complete with passing E2E
 - [x] No open P0 security findings
 - [x] No open P0 reliability findings
-- [x] Release candidate runs 72h soak without Sev1/Sev2 incident
+- [ ] Release candidate runs 72h soak without Sev1/Sev2 incident
   Soak run started on February 13, 2026 at 03:26:27 UTC.
   Live status: `npm run release:soak:status` (`docs/release/status/soak-72h-summary.json`).
 
@@ -904,7 +904,7 @@ When all phases complete, verify:
 - [x] Week 1 target: Section 24 browser service alpha
 - [x] Week 2 target: Sections 26 + 27 merged behind flags
 - [x] Week 3 target: Section 25 CLI beta + docs
-- [x] Week 4 target: v0.2.0 RC + soak + cut release
+- [ ] Week 4 target: v0.2.0 RC + soak + cut release
   Pending soak completion + CI workflow proofs (`final-dod-e2e`, `parity-e2e`) once git remote is configured.
 - [x] Parity score updated in `Sven_vs_OpenClaw_Feature_Comparison.md`
 - [x] Remaining gaps re-prioritized for v0.3.0
@@ -912,10 +912,10 @@ When all phases complete, verify:
 ---
 
 ## 48) Production Sign-off Checklist (Before each release tag)
-- [x] `final-dod.e2e.ts` passes in CI
-- [x] New parity E2E suite passes in CI
-- [x] D9 Keycloak live OIDC interop gate passes in CI
-- [x] D9 Keycloak local selfcheck passes (`release:sso:keycloak:interop:selfcheck:local`)
+- [ ] `final-dod.e2e.ts` passes in CI
+- [ ] New parity E2E suite passes in CI
+- [ ] D9 Keycloak live OIDC interop gate passes in CI
+- [ ] D9 Keycloak local selfcheck passes (`release:sso:keycloak:interop:selfcheck:local`)
   Local validation passed on February 13, 2026 via `npm run test:final-dod:local` and `npm run test:parity-e2e:local`.
   GitHub Actions validation passed on February 13, 2026 (`final-dod-e2e` run `21981040204`, `parity-e2e` run `21981040312`).
 - [x] Migrations tested on a copy of production data
@@ -923,7 +923,7 @@ When all phases complete, verify:
 - [x] Security review sign-off recorded
 - [x] Observability review sign-off recorded
 - [x] Release notes include user-facing changes + rollback steps
-- [x] Post-release verification checklist completed (health, queue lag, error rate, approvals)
+- [ ] Post-release verification checklist completed (health, queue lag, error rate, approvals)
 ---
 
 ## 49) OpenClaw 2026 Delta (Surpass Track)
