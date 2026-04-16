@@ -1,0 +1,5 @@
+{
+  "scope": "android-only",
+  "deferred_platforms": ["ios"],
+  "reason": "No macOS build host available for iOS builds; iOS release deferred to CI pipeline"
+}
