@@ -12,7 +12,7 @@ import Fastify from 'fastify';
 import pg from 'pg';
 import { connect, type NatsConnection } from 'nats';
 import { createLogger, buildHealthStatus } from '@sven/shared';
-import { rateLimiterHook } from '@sven/shared';
+import { rateLimiterHook, corsHook } from '@sven/shared';
 import { EidolonRepository } from './repo.js';
 import { EidolonEventBus } from './event-bus.js';
 import { registerSnapshotRoute } from './routes/snapshot.js';
@@ -49,6 +49,9 @@ async function main(): Promise<void> {
 
   const app = Fastify({ logger: false });
 
+  // CORS — allow eidolon-ui browser requests
+  app.addHook('onRequest', corsHook());
+
   // Rate limiting — 100 req/min for API, 10 req/min for SSE events endpoint
   app.addHook('onRequest', rateLimiterHook({ max: 100, windowMs: 60_000 }));
 
@@ -84,6 +87,12 @@ async function main(): Promise<void> {
 
   const shutdown = async (sig: string) => {
     logger.info('shutdown', { signal: sig });
+    // Force exit after 30s if graceful shutdown hangs
+    const forceTimer = setTimeout(() => {
+      logger.error('shutdown timeout — forcing exit');
+      process.exit(1);
+    }, 30_000);
+    forceTimer.unref();
     try { await bus.stop(); } catch { /* ignore */ }
     try { await app.close(); } catch { /* ignore */ }
     try { await nc?.drain(); } catch { /* ignore */ }

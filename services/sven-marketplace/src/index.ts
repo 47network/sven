@@ -10,7 +10,7 @@ import Fastify from 'fastify';
 import pg from 'pg';
 import { connect } from 'nats';
 import { createLogger } from '@sven/shared';
-import { rateLimiterHook } from '@sven/shared';
+import { rateLimiterHook, corsHook } from '@sven/shared';
 import { Ledger } from '@sven/treasury';
 import { MarketplaceRepository } from './repo.js';
 import { registerPublicRoutes } from './routes/public.js';
@@ -48,6 +48,9 @@ async function main() {
     trustProxy: true,
     bodyLimit: 1_000_000,
   });
+
+  // CORS — allow marketplace-ui and admin-ui browser requests
+  app.addHook('onRequest', corsHook());
 
   // Rate limiting — 100 req/min per IP, health/readyz exempt
   app.addHook('onRequest', rateLimiterHook({ max: 100, windowMs: 60_000 }));
@@ -96,6 +99,12 @@ async function main() {
 
   const shutdown = async (sig: string) => {
     logger.info(`${sig} received, shutting down`);
+    // Force exit after 30s if graceful shutdown hangs
+    const forceTimer = setTimeout(() => {
+      logger.error('shutdown timeout — forcing exit');
+      process.exit(1);
+    }, 30_000);
+    forceTimer.unref();
     try { await app.close(); } catch {}
     try { await nc?.drain(); } catch {}
     try { await pool.end(); } catch {}

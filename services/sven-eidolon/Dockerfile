@@ -49,4 +49,5 @@ RUN rm -rf node_modules/@sven && mkdir -p node_modules/@sven \
   && ln -s ../../packages/shared node_modules/@sven/shared
 
 USER node
+EXPOSE 9479
 CMD ["node", "services/sven-eidolon/dist/index.js"]

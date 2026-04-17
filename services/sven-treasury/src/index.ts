@@ -19,7 +19,7 @@ import {
   EnvSecretResolver,
 } from '@sven/treasury';
 import { BaseL2Client } from '@sven/treasury/providers/base-l2';
-import { rateLimiterHook } from '@sven/shared';
+import { rateLimiterHook, corsHook } from '@sven/shared';
 import { registerAccountRoutes } from './routes/accounts.js';
 import { registerTransactionRoutes } from './routes/transactions.js';
 import { registerLimitRoutes } from './routes/limits.js';
@@ -68,6 +68,9 @@ async function main() {
     reply.code(500).send({ error: 'internal_error', message: 'An unexpected error occurred' });
   });
 
+  // CORS — allow marketplace-ui and admin-ui browser requests
+  app.addHook('onRequest', corsHook());
+
   // Rate limiting — 100 req/min per IP, health/readyz exempt
   app.addHook('onRequest', rateLimiterHook({ max: 100, windowMs: 60_000 }));
 
@@ -102,6 +105,12 @@ async function main() {
 
   const shutdown = async (sig: string) => {
     logger.info('shutdown', { signal: sig });
+    // Force exit after 30s if graceful shutdown hangs
+    const forceTimer = setTimeout(() => {
+      logger.error('shutdown timeout — forcing exit');
+      process.exit(1);
+    }, 30_000);
+    forceTimer.unref();
     try { await app.close(); } catch { /* ignore */ }
     try { await nc?.drain(); } catch { /* ignore */ }
     try { await pool.end(); } catch { /* ignore */ }

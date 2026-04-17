@@ -55,4 +55,5 @@ RUN rm -rf node_modules/@sven && mkdir -p node_modules/@sven \
   && ln -s ../../packages/treasury node_modules/@sven/treasury
 
 USER node
+EXPOSE 9477
 CMD ["node", "services/sven-treasury/dist/index.js"]

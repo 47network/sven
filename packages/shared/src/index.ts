@@ -37,3 +37,4 @@ export * from './background-session.js';
 export * from './personality-engine.js';
 export * from './visual-companion.js';
 export * from './rate-limiter.js';
+export * from './cors.js';
