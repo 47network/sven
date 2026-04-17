@@ -17,10 +17,10 @@ import 'dart:io';
 import 'package:home_widget/home_widget.dart';
 
 /// iOS widget group identifier (WidgetKit App Group).
-const _kIosAppGroupId = 'group.com.fortyseven.thesven.widget';
+const _kIosAppGroupId = 'group.com.sven.companion.user.widget';
 
 /// Android widget provider class path.
-const _kAndroidWidgetProvider = 'com.fortyseven.thesven.SvenWidgetProvider';
+const _kAndroidWidgetProvider = 'com.sven.companion.user.SvenWidgetProvider';
 
 /// Key names mirrored in the native layouts.
 const _kKeyLastMessage = 'sven_last_message';

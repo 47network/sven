@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
   );
   static const _iosProdBundleId = String.fromEnvironment(
     'SVEN_FIREBASE_IOS_PROD_BUNDLE_ID',
-    defaultValue: 'com.fortyseven.thesven',
+    defaultValue: 'com.sven.companion.user',
   );
 
   static const _iosDevApiKey = String.fromEnvironment(
@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
   );
   static const _iosDevBundleId = String.fromEnvironment(
     'SVEN_FIREBASE_IOS_DEV_BUNDLE_ID',
-    defaultValue: 'com.fortyseven.thesven.dev',
+    defaultValue: 'com.sven.companion.user.dev',
   );
 
   static const _iosStagingApiKey = String.fromEnvironment(
@@ -77,7 +77,7 @@ class DefaultFirebaseOptions {
   );
   static const _iosStagingBundleId = String.fromEnvironment(
     'SVEN_FIREBASE_IOS_STAGING_BUNDLE_ID',
-    defaultValue: 'com.fortyseven.thesven.staging',
+    defaultValue: 'com.sven.companion.user.staging',
   );
 
   static const _webApiKey = String.fromEnvironment(

@@ -19,9 +19,9 @@ class WakeWordAudioWindow {
 
 class AndroidWakeWordService {
   static const _methodChannel =
-      MethodChannel('com.fortyseven.thesven/wake_word_control');
+      MethodChannel('com.sven.companion.user/wake_word_control');
   static const _eventChannel =
-      EventChannel('com.fortyseven.thesven/wake_word_events');
+      EventChannel('com.sven.companion.user/wake_word_events');
 
   final _matchesController = StreamController<WakeWordMatch>.broadcast();
   final _audioWindowsController =

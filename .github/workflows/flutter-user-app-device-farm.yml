@@ -56,7 +56,7 @@ jobs:
             bash ../../scripts/ops/mobile/maestro-cloud-run.sh \
               "$MAESTRO_CLOUD_API_KEY" \
               android \
-              build/app/outputs/flutter-apk/app-debug.apk \
+              build/app/outputs/flutter-apk/app-prod-debug.apk \
               .maestro/flows/android-smoke.yaml
           else
             echo "⚠ Maestro Cloud not configured — skipping device-farm smoke"
@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
-          path: apps/companion-user-flutter/build/app/outputs/flutter-apk/app-debug.apk
+          path: apps/companion-user-flutter/build/app/outputs/flutter-apk/app-prod-debug.apk
 
   ios-maestro-cloud:
     runs-on: macos-latest
