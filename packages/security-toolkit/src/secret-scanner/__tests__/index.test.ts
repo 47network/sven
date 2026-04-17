@@ -124,7 +124,11 @@ describe('secret-scanner', () => {
     });
 
     it('uses the full match when no capturing group is present', () => {
-      const source = `const key = "-----BEGIN PRIVATE KEY-----";`;
+      // Split the string across lines or concatenate to prevent the secret scanner itself
+      // from picking it up in this file, but still providing a valid mock match string
+      // for the test subject (scanFileForSecrets).
+      const mockKey = ['-----BEGIN PRIVATE KEY', '-----'].join('');
+      const source = `const key = "${mockKey}";`;
       const findings = scanFileForSecrets(source, 'test.ts');
 
       expect(findings).toHaveLength(1);
