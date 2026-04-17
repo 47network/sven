@@ -376,8 +376,7 @@ async function cacheRegistryMarketplaceEmbeddings(
        VALUES ${values.join(', ')}
        ON CONFLICT (tool_name, cache_key) DO UPDATE
        SET cached_output = EXCLUDED.cached_output,
-           expires_at = CURRENT_TIMESTAMP + INTERVAL '7 days',
-           updated_at = CURRENT_TIMESTAMP`,
+           expires_at = EXCLUDED.expires_at`,
       params,
     );
   } catch {
