@@ -167,9 +167,9 @@ function buildPdf(title: string, author: string, sections: Section[], dims: { w:
     pageObjNums.push(pageNum);
   }
 
-  // Fix Pages object
+  // Update Pages object
   const kids = pageObjNums.map((n) => `${n} 0 R`).join(' ');
-  objects[pagesObjIndex] = `<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`;
+  objects[pagesObjIndex] = `<< /Type /Pages /Kids [${kids}] /Count ${pageObjNums.length} >>`;
 
   // Final assembly
   let rebuilt = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n';
