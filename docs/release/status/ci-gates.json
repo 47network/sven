@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-17T18:18:11.904Z",
+  "generated_at": "2026-04-17T18:19:31.431Z",
   "source_branch": "fix/secret-scanner-coverage-10371587610474996080",
-  "source_head_sha": "7ab1a4422befae35eda0ef2c17cffc408315c4ef",
+  "source_head_sha": "7b5c06703a10f1af538b0c798da47230411cc1b2",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T18:18:11.420Z",
+    "captured_at": "2026-04-17T18:19:31.001Z",
     "branch": "fix/secret-scanner-coverage-10371587610474996080",
     "total_runs": 10
   },
@@ -91,7 +91,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T18:18:01.706Z"
+      "generated_at": "2026-04-17T18:19:21.088Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +121,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T18:18:06.375Z"
+      "generated_at": "2026-04-17T18:19:25.875Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +136,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T18:18:11.028Z"
+      "generated_at": "2026-04-17T18:19:30.545Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -402,8 +402,8 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24580079520,
-      "head_sha": "7ab1a4422befae35eda0ef2c17cffc408315c4ef",
+      "run_id": 24580145879,
+      "head_sha": "7b5c06703a10f1af538b0c798da47230411cc1b2",
       "head_branch": "fix/secret-scanner-coverage-10371587610474996080",
       "event": "pull_request",
       "status": "completed",
@@ -623,43 +623,44 @@
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24580077630,
-        "head_sha": "7ab1a4422befae35eda0ef2c17cffc408315c4ef",
+        "run_id": null,
+        "head_sha": null,
         "head_branch": "fix/secret-scanner-coverage-10371587610474996080",
-        "event": "push",
-        "status": "in_progress",
+        "event": null,
+        "status": null,
         "conclusion": null,
         "workflow_id": 261310856,
         "workflow_name": "deployment-pipeline",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "deployment_pipeline_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "7b5c06703a10f1af538b0c798da47230411cc1b2"
       },
       "gate_key": "deployment_pipeline_ci"
     },
     "env-secrets-governance": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24580077603,
-        "head_sha": "7ab1a4422befae35eda0ef2c17cffc408315c4ef",
+        "run_id": null,
+        "head_sha": null,
         "head_branch": "fix/secret-scanner-coverage-10371587610474996080",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310862,
         "workflow_name": "env-secrets-governance",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "env_secrets_governance_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "7b5c06703a10f1af538b0c798da47230411cc1b2"
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
       "pass": false,
       "provenance": {
-        "run_id": 24580079520,
-        "head_sha": "7ab1a4422befae35eda0ef2c17cffc408315c4ef",
+        "run_id": 24580145879,
+        "head_sha": "7b5c06703a10f1af538b0c798da47230411cc1b2",
         "head_branch": "fix/secret-scanner-coverage-10371587610474996080",
         "event": "pull_request",
         "status": "completed",
