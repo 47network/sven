@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-04-17T23:30:28.001Z",
+  "generated_at": "2026-04-17T23:33:01.102Z",
   "source_branch": "bolt-chat-render-optimization-10816456320566348853",
   "source_head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T23:30:26.778Z",
+    "captured_at": "2026-04-17T23:32:59.836Z",
     "branch": "bolt-chat-render-optimization-10816456320566348853",
     "total_runs": 52
   },
   "final_dod_ci": false,
-  "parity_e2e_ci": false,
+  "parity_e2e_ci": true,
   "parity_checklist_verify_ci": false,
   "agent_zero_parity_verify_ci": false,
   "websocket_contract_ci": false,
@@ -54,14 +54,13 @@
       "head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
       "head_branch": "bolt-chat-render-optimization-10816456320566348853",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
       "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -90,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T23:30:16.872Z"
+      "generated_at": "2026-04-17T23:32:50.471Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -120,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T23:30:21.596Z"
+      "generated_at": "2026-04-17T23:32:54.974Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -135,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T23:30:26.401Z"
+      "generated_at": "2026-04-17T23:32:59.472Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -453,20 +452,19 @@
       "gate_key": "final_dod_e2e_ci"
     },
     "parity-e2e": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": 24591098361,
         "head_sha": "3f5572bcb346eee91540994a381c7b9359259d54",
         "head_branch": "bolt-chat-render-optimization-10816456320566348853",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
         "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "parity_e2e_ci"
     },
