@@ -26,17 +26,34 @@ describe('secret-scanner', () => {
       const high = shannonEntropy('a1b2c3d4e5f6');
       expect(high).toBeGreaterThan(low);
     });
+
+    it('returns consistent entropy for very long repeating strings', () => {
+      const entropy1 = shannonEntropy('a'.repeat(100));
+      const entropy2 = shannonEntropy('a'.repeat(1000));
+      expect(entropy1).toBe(0);
+      expect(entropy2).toBe(0);
+    });
+
+    it('handles strings with spaces and special characters', () => {
+      const entropy = shannonEntropy('!@#$%^&*()_+');
+      expect(entropy).toBeGreaterThan(3);
+    });
   });
 
   describe('redactSecret', () => {
     it('redacts the entire secret with *** if length <= 8', () => {
       expect(redactSecret('12345678')).toBe('***');
       expect(redactSecret('123')).toBe('***');
+      expect(redactSecret('')).toBe('***');
     });
 
     it('redacts middle characters if length > 8', () => {
       expect(redactSecret('1234567890')).toBe('1***0');
       expect(redactSecret('123456789012345678901234567890')).toBe('1234***7890');
+    });
+
+    it('handles edge case length of exactly 9 characters', () => {
+      expect(redactSecret('123456789')).toBe('1***9');
     });
   });
 
@@ -104,6 +121,15 @@ describe('secret-scanner', () => {
       const source = `const key = process.env.AWS_ACCESS_KEY_ID;`;
       const findings = scanFileForSecrets(source, 'test.ts');
       expect(findings).toHaveLength(0);
+    });
+
+    it('uses the full match when no capturing group is present', () => {
+      const source = `const key = "-----BEGIN PRIVATE KEY-----";`;
+      const findings = scanFileForSecrets(source, 'test.ts');
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].type).toBe('private-key');
+      expect(findings[0].matchedText).toBe('-----BEGIN PRIVATE KEY-----');
     });
   });
 
