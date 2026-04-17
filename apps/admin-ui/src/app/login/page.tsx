@@ -10,9 +10,11 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [totpCode, setTotpCode] = useState('');
-  const [step, setStep] = useState<'creds' | 'totp'>('creds');
+  const [step, setStep] = useState<'creds' | 'totp' | 'totp-enroll' | 'totp-confirm'>('creds');
   const [preSessionId, setPreSessionId] = useState('');
   const [preSessionIssuedAt, setPreSessionIssuedAt] = useState<number | null>(null);
+  const [totpSecret, setTotpSecret] = useState('');
+  const [otpAuthUrl, setOtpAuthUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const adminBasePath = '/admin47';
   const defaultRedirect = '/overview';
@@ -52,15 +54,17 @@ export default function LoginPage() {
     setPreSessionId('');
     setPreSessionIssuedAt(null);
     setTotpCode('');
+    setTotpSecret('');
+    setOtpAuthUrl('');
   }
 
   function isPreSessionExpired(): boolean {
-    if (step !== 'totp' || !preSessionIssuedAt) return false;
+    if ((step !== 'totp' && step !== 'totp-enroll' && step !== 'totp-confirm') || !preSessionIssuedAt) return false;
     return Date.now() - preSessionIssuedAt >= PRESESSION_TTL_MS;
   }
 
   useEffect(() => {
-    if (!preSessionId || step !== 'totp') return;
+    if (!preSessionId || step === 'creds') return;
     const handle = window.setInterval(() => {
       if (preSessionIssuedAt && Date.now() - preSessionIssuedAt >= PRESESSION_TTL_MS) {
         resetToCreds();
@@ -85,6 +89,23 @@ export default function LoginPage() {
         setPreSessionIssuedAt(Date.now());
         setTotpCode('');
         setStep('totp');
+      } else if (res?.data?.requires_totp_enrollment) {
+        const nextPreSessionId = String(res.data.pre_session_id || '').trim();
+        if (!nextPreSessionId) {
+          toast.error('Login session could not be started. Retry sign-in.');
+          return;
+        }
+        setPreSessionId(nextPreSessionId);
+        setPreSessionIssuedAt(Date.now());
+        setStep('totp-enroll');
+        try {
+          const setupRes = await api.auth.setupTotp(nextPreSessionId);
+          setTotpSecret(setupRes.data.secret);
+          setOtpAuthUrl(setupRes.data.otp_auth_url);
+        } catch {
+          toast.error('Failed to initialize TOTP setup. Please retry.');
+          resetToCreds();
+        }
       } else {
         navigateTo(safeRedirectTarget());
       }
@@ -92,8 +113,6 @@ export default function LoginPage() {
       const code = apiErrorCode(err);
       if (code === 'LOCAL_AUTH_DISABLED') {
         toast.error('Local auth is disabled for this account. Use SSO to continue.');
-      } else if (code === 'ADMIN_TOTP_REQUIRED') {
-        toast.error('Admin TOTP enrollment is required before login.');
       } else if (err instanceof ApiError && err.status === 401) {
         toast.error('Invalid credentials');
       } else {
@@ -130,11 +149,6 @@ export default function LoginPage() {
         toast.error('Login session expired. Sign in again for a fresh code window.');
         return;
       }
-      if (code === 'ADMIN_TOTP_REQUIRED') {
-        resetToCreds();
-        toast.error('Admin TOTP enrollment is required before login.');
-        return;
-      }
       if (code === 'LOCAL_AUTH_DISABLED') {
         resetToCreds();
         toast.error('Local auth is disabled for this account. Use SSO to continue.');
@@ -147,6 +161,35 @@ export default function LoginPage() {
       toast.error('Verification failed');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleTotpConfirm(e: React.FormEvent) {
+    e.preventDefault();
+    if (!preSessionId || isPreSessionExpired()) {
+      toast.error('Session expired, please sign in again');
+      resetToCreds();
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.auth.confirmTotpSetup(preSessionId, totpCode);
+      navigateTo(safeRedirectTarget());
+    } catch (err) {
+      const code = apiErrorCode(err);
+      if (code === 'INVALID_TOTP') {
+        toast.error('Invalid TOTP code — check the code and try again');
+      } else if (code === 'INVALID_SESSION') {
+        resetToCreds();
+        toast.error('Session expired. Sign in again.');
+      } else if (err instanceof ApiError && err.status === 429) {
+        toast.error('Too many attempts. Wait briefly and try again.');
+      } else {
+        toast.error('Confirmation failed');
+      }
+    } finally {
+      setLoading(false);
+      setTotpCode('');
     }
   }
 
@@ -199,7 +242,7 @@ export default function LoginPage() {
                 {loading ? 'Signing in…' : 'Sign In'}
               </button>
             </form>
-          ) : (
+          ) : step === 'totp' ? (
             <form onSubmit={handleTotp} className="space-y-4">
               <p className="text-sm text-slate-400">
                 Enter the 6-digit code from your authenticator app.
@@ -234,6 +277,79 @@ export default function LoginPage() {
                 }}
               >
                 Back to login
+              </button>
+            </form>
+          ) : step === 'totp-enroll' ? (
+            <div className="space-y-4">
+              <p className="text-sm font-medium text-amber-400">
+                Two-factor authentication required
+              </p>
+              <p className="text-xs text-slate-400">
+                Scan the QR code or enter the secret key in your authenticator app (Google Authenticator, Authy, 1Password, etc.)
+              </p>
+              {otpAuthUrl && (
+                <div className="flex justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(otpAuthUrl)}`}
+                    alt="TOTP QR Code"
+                    className="rounded-lg border border-slate-700"
+                    width={200}
+                    height={200}
+                  />
+                </div>
+              )}
+              {totpSecret && (
+                <div>
+                  <p className="mb-1 text-xs text-slate-500">Manual entry key:</p>
+                  <code className="block rounded bg-slate-800 px-3 py-2 text-xs font-mono text-cyan-300 select-all break-all">
+                    {totpSecret}
+                  </code>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => { setStep('totp-confirm'); setTotpCode(''); }}
+                className="btn-primary w-full"
+                disabled={!totpSecret}
+              >
+                I&apos;ve added the key
+              </button>
+              <button
+                type="button"
+                className="btn-ghost w-full text-sm"
+                onClick={() => resetToCreds()}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleTotpConfirm} className="space-y-4">
+              <p className="text-sm text-slate-400">
+                Enter the 6-digit code from your authenticator app to confirm setup.
+              </p>
+              <div>
+                <label htmlFor="totp-confirm" className="mb-1 block text-sm font-medium text-slate-200">Verification Code</label>
+                <input
+                  id="totp-confirm"
+                  type="text"
+                  className="input w-full text-center text-lg tracking-[0.3em]"
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  maxLength={6}
+                  autoFocus
+                  required
+                />
+              </div>
+              <button type="submit" className="btn-primary w-full" disabled={loading || totpCode.length !== 6}>
+                {loading ? 'Confirming…' : 'Confirm & Sign In'}
+              </button>
+              <button
+                type="button"
+                className="btn-ghost w-full text-sm"
+                onClick={() => { setStep('totp-enroll'); setTotpCode(''); }}
+              >
+                Back to QR code
               </button>
             </form>
           )}
