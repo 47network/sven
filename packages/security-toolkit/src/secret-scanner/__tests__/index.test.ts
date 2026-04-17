@@ -105,6 +105,23 @@ describe('secret-scanner', () => {
       const findings = scanFileForSecrets(source, 'test.ts');
       expect(findings).toHaveLength(0);
     });
+
+    it('falls back to match[0] if pattern has no capture groups', () => {
+      const source = `const myKey = "NO_CAPTURE_GROUP_SECRET";`;
+      const customPatterns = [
+        {
+          id: 'TEST-001',
+          type: 'generic-password' as any,
+          title: 'Test Pattern No Capture',
+          pattern: /NO_CAPTURE_GROUP_SECRET/, // No capture groups
+          severity: 'high' as const,
+        },
+      ];
+
+      const findings = scanFileForSecrets(source, 'test.ts', customPatterns);
+      expect(findings).toHaveLength(1);
+      expect(findings[0].matchedText).toBe('NO_CAPTURE_GROUP_SECRET');
+    });
   });
 
   describe('scanForSecrets', () => {
