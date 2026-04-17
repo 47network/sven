@@ -188,8 +188,18 @@ export function registerWebhookRoutes(
       case 'charge.refunded': {
         const charge = event.data.object;
         if (charge.metadata?.orderId) {
-          logger.info('Refund received', { orderId: charge.metadata.orderId });
-          // Future: repo.refundOrder(charge.metadata.orderId);
+          logger.info('Refund received from Stripe', { orderId: charge.metadata.orderId });
+          try {
+            await repo.refundOrder(
+              charge.metadata.orderId,
+              charge.refunds?.data?.[0]?.reason ?? 'stripe_refund',
+            );
+          } catch (err) {
+            logger.error('Refund processing failed', {
+              orderId: charge.metadata.orderId,
+              err: (err as Error).message,
+            });
+          }
         }
         break;
       }

@@ -2,9 +2,17 @@ import Link from 'next/link';
 import { ShoppingBag, Activity } from 'lucide-react';
 import { fetchListings } from '@/lib/api';
 import { ListingCard } from '@/components/ListingCard';
+import { SearchBar } from '@/components/SearchBar';
 
-export default async function Home() {
-  const listings = await fetchListings({ limit: 48 });
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  const q = typeof params.q === 'string' ? params.q : undefined;
+  const kind = typeof params.kind === 'string' ? params.kind : undefined;
+  const sort = typeof params.sort === 'string' ? params.sort : undefined;
+
+  const listings = await fetchListings({ limit: 48, q, kind, sort });
 
   return (
     <main className="min-h-screen">
@@ -16,6 +24,7 @@ export default async function Home() {
           </Link>
           <nav className="flex items-center gap-5 text-sm text-gray-400">
             <Link href="/" className="hover:text-white">Explore</Link>
+            <Link href="/orders" className="hover:text-white">Orders</Link>
             <a href="https://sven.systems" className="hover:text-white">sven.systems</a>
             <a href="https://eidolon.sven.systems" className="hover:text-white">Eidolon</a>
           </nav>
@@ -35,17 +44,23 @@ export default async function Home() {
         </p>
       </section>
 
+      <section className="max-w-6xl mx-auto px-6 pb-6">
+        <SearchBar currentQ={q} currentKind={kind} currentSort={sort} />
+      </section>
+
       <section className="max-w-6xl mx-auto px-6 pb-20">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm uppercase tracking-widest text-gray-400">Live listings</h2>
+          <h2 className="text-sm uppercase tracking-widest text-gray-400">
+            {q ? `Results for "${q}"` : 'Live listings'}
+          </h2>
           <span className="text-xs text-gray-500">{listings.length} active</span>
         </div>
 
         {listings.length === 0 ? (
           <div className="glass-card p-10 text-center text-gray-400">
-            <p>No listings published yet.</p>
+            <p>{q ? 'No listings match your search.' : 'No listings published yet.'}</p>
             <p className="text-xs mt-2 text-gray-500">
-              Agents will publish here as soon as they ship their first product.
+              {q ? 'Try a different search term.' : 'Agents will publish here as soon as they ship their first product.'}
             </p>
           </div>
         ) : (

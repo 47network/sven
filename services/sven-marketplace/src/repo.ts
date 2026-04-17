@@ -184,18 +184,50 @@ export class MarketplaceRepository {
     return res.rows[0] ? toListing(res.rows[0]) : null;
   }
 
-  async listPublishedListings(opts: { kind?: ListingKind; limit?: number } = {}): Promise<Listing[]> {
+  async listPublishedListings(opts: {
+    kind?: ListingKind;
+    limit?: number;
+    q?: string;
+    sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular';
+    minPrice?: number;
+    maxPrice?: number;
+  } = {}): Promise<Listing[]> {
     const lim = bounded(opts.limit, 50);
     const values: unknown[] = [];
     let where = `status = 'published'`;
     if (opts.kind) { values.push(opts.kind); where += ` AND kind = $${values.length}`; }
+    if (opts.q) {
+      values.push(`%${opts.q}%`);
+      where += ` AND (title ILIKE $${values.length} OR description ILIKE $${values.length} OR $${values.length} = ANY(tags))`;
+    }
+    if (opts.minPrice !== undefined) { values.push(opts.minPrice); where += ` AND unit_price >= $${values.length}`; }
+    if (opts.maxPrice !== undefined) { values.push(opts.maxPrice); where += ` AND unit_price <= $${values.length}`; }
+
+    const orderBy =
+      opts.sort === 'price_asc' ? 'unit_price ASC' :
+      opts.sort === 'price_desc' ? 'unit_price DESC' :
+      opts.sort === 'popular' ? 'total_sales DESC' :
+      'published_at DESC NULLS LAST, created_at DESC';
+
     values.push(lim);
     const res = await this.pool.query<ListingRow>(
       `SELECT * FROM marketplace_listings
        WHERE ${where}
-       ORDER BY published_at DESC NULLS LAST, created_at DESC
+       ORDER BY ${orderBy}
        LIMIT $${values.length}`,
       values,
+    );
+    return res.rows.map(toListing);
+  }
+
+  async listSellerListings(agentId: string, opts: { limit?: number } = {}): Promise<Listing[]> {
+    const lim = bounded(opts.limit, 100);
+    const res = await this.pool.query<ListingRow>(
+      `SELECT * FROM marketplace_listings
+       WHERE seller_agent_id = $1
+       ORDER BY total_revenue DESC, created_at DESC
+       LIMIT $2`,
+      [agentId, lim],
     );
     return res.rows.map(toListing);
   }
@@ -396,6 +428,86 @@ export class MarketplaceRepository {
         currency: paidOrder.currency, paymentMethod: paidOrder.paymentMethod,
       });
       return paidOrder;
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  async refundOrder(orderId: string, reason?: string): Promise<Order> {
+    const client: PoolClient = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const lockRes = await client.query<OrderRow>(
+        `SELECT * FROM marketplace_orders WHERE id = $1 FOR UPDATE`, [orderId]);
+      const row = lockRes.rows[0];
+      if (!row) throw new Error(`Order ${orderId} not found`);
+      const existing = toOrder(row);
+
+      if (existing.status === 'refunded') {
+        await client.query('COMMIT');
+        return existing;
+      }
+      if (existing.status !== 'paid' && existing.status !== 'fulfilled') {
+        throw new Error(`Order ${orderId} is ${existing.status}; cannot refund`);
+      }
+
+      const listingRes = await client.query<ListingRow>(
+        `SELECT * FROM marketplace_listings WHERE id = $1`, [existing.listingId]);
+      const listing = listingRes.rows[0] ? toListing(listingRes.rows[0]) : null;
+
+      const up = await client.query<OrderRow>(
+        `UPDATE marketplace_orders
+           SET status='refunded', updated_at=NOW()
+         WHERE id=$1 RETURNING *`,
+        [orderId],
+      );
+
+      // Reverse listing sales/revenue counters
+      if (listing) {
+        await client.query(
+          `UPDATE marketplace_listings
+             SET total_sales = GREATEST(total_sales - $2, 0),
+                 total_revenue = GREATEST(total_revenue - $3, 0),
+                 updated_at = NOW()
+           WHERE id = $1`,
+          [listing.id, existing.quantity, existing.subtotal],
+        );
+      }
+
+      await client.query('COMMIT');
+
+      // Treasury debit outside txn (mirrors markOrderPaid pattern)
+      if (listing?.payoutAccountId) {
+        try {
+          await this.ledger.debit({
+            orgId: listing.orgId,
+            accountId: listing.payoutAccountId,
+            amount: existing.netToSeller,
+            currency: existing.currency,
+            source: 'marketplace:refund',
+            sourceRef: orderId,
+            kind: 'refund',
+            description: `Refund for order ${orderId}${reason ? ` — ${reason}` : ''}`,
+            metadata: { listingId: listing.id, orderId, originalNet: existing.netToSeller },
+          });
+        } catch (err) {
+          logger.error('Treasury debit failed for refund', {
+            orderId, err: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+
+      logger.info('Order refunded', { orderId, net: existing.netToSeller, reason });
+      const refundedOrder = toOrder(up.rows[0]);
+      this.publishNats('sven.market.refunded', {
+        orderId: refundedOrder.id, listingId: refundedOrder.listingId,
+        subtotal: refundedOrder.subtotal, netToSeller: refundedOrder.netToSeller,
+        currency: refundedOrder.currency, reason: reason ?? null,
+      });
+      return refundedOrder;
     } catch (err) {
       await client.query('ROLLBACK').catch(() => {});
       throw err;

@@ -20,10 +20,21 @@ const API =
   process.env.NEXT_PUBLIC_MARKETPLACE_API ||
   (typeof window === 'undefined' ? 'http://127.0.0.1:9478' : '');
 
-export async function fetchListings(opts: { kind?: string; limit?: number } = {}): Promise<Listing[]> {
+export async function fetchListings(opts: {
+  kind?: string;
+  limit?: number;
+  q?: string;
+  sort?: string;
+  minPrice?: number;
+  maxPrice?: number;
+} = {}): Promise<Listing[]> {
   const params = new URLSearchParams();
   if (opts.kind) params.set('kind', opts.kind);
   if (opts.limit) params.set('limit', String(opts.limit));
+  if (opts.q) params.set('q', opts.q);
+  if (opts.sort) params.set('sort', opts.sort);
+  if (opts.minPrice !== undefined) params.set('minPrice', String(opts.minPrice));
+  if (opts.maxPrice !== undefined) params.set('maxPrice', String(opts.maxPrice));
   const qs = params.toString() ? `?${params}` : '';
   try {
     const res = await fetch(`${API}/v1/market/listings${qs}`, { cache: 'no-store' });
@@ -98,4 +109,34 @@ export function formatPrice(l: Pick<Listing, 'unitPrice' | 'currency' | 'pricing
     l.pricingModel === 'usage_based' ? ' / unit' : '';
   const amount = l.unitPrice === 0 ? 'Free' : `${l.currency} ${l.unitPrice.toFixed(2)}`;
   return `${amount}${suffix}`;
+}
+
+export async function fetchOrders(buyerId: string): Promise<Order[]> {
+  try {
+    const res = await fetch(`${API}/v1/market/orders?buyerId=${encodeURIComponent(buyerId)}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const body = await res.json();
+    return body?.data?.orders ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export interface SellerStats {
+  agentId: string;
+  listingCount: number;
+  totalRevenue: number;
+  totalSales: number;
+  listings: Listing[];
+}
+
+export async function fetchSellerStats(agentId: string): Promise<SellerStats | null> {
+  try {
+    const res = await fetch(`${API}/v1/market/seller/${encodeURIComponent(agentId)}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const body = await res.json();
+    return body?.data ?? null;
+  } catch {
+    return null;
+  }
 }
