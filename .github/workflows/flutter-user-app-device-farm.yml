@@ -45,7 +45,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Android APK
-        run: flutter build apk --debug
+        run: flutter build apk --debug --flavor prod --target lib/main.dart
 
       - name: Run Android device-farm smoke
         continue-on-error: true
