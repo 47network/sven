@@ -225,6 +225,7 @@ interface AutomatonRow {
 }
 
 function rowToRecord(row: AutomatonRow): AutomatonRecord {
+  const meta = row.metadata || {};
   return {
     id: row.id,
     orgId: row.org_id,
@@ -238,7 +239,9 @@ function rowToRecord(row: AutomatonRow): AutomatonRecord {
     diedAt: row.died_at ? row.died_at.toISOString() : null,
     pipelineIds: Array.isArray(row.pipeline_ids) ? row.pipeline_ids : [],
     metrics: row.metrics,
-    metadata: row.metadata || {},
+    metadata: meta,
+    agentArchetype: typeof meta.agentArchetype === 'string' ? meta.agentArchetype : undefined,
+    agentId: typeof meta.agentId === 'string' ? meta.agentId : undefined,
   };
 }
 
@@ -361,6 +364,58 @@ export function makeCloneSimple(): ClonePort {
  * brand-new pipeline rows bound to the parent's treasury account, so the child
  * inherits earning capacity without cannibalising the parent's history.
  */
+// ─── Agent NATS Events ─────────────────────────────────────────────
+// Publishes sven.agent.spawned / sven.agent.retired so Eidolon and other
+// consumers can react in real-time to agent lifecycle changes.
+
+export interface NatsLike {
+  publish(subject: string, payload?: Uint8Array): void;
+}
+
+function publishAgentNats(
+  nc: NatsLike | null,
+  subject: string,
+  payload: Record<string, unknown>,
+): void {
+  if (!nc) return;
+  try {
+    nc.publish(subject, Buffer.from(JSON.stringify(payload)));
+  } catch (err) {
+    logger.warn('agent NATS publish failed', { subject, err: (err as Error).message });
+  }
+}
+
+/** Fire-and-forget agent event helper — call after birth/retire completes. */
+export function publishAgentSpawned(
+  nc: NatsLike | null,
+  record: AutomatonRecord,
+): void {
+  publishAgentNats(nc, 'sven.agent.spawned', {
+    automatonId: record.id,
+    agentId: record.agentId ?? null,
+    archetype: record.agentArchetype ?? 'custom',
+    parentId: record.parentId,
+    generation: record.generation,
+    orgId: record.orgId,
+    ts: record.bornAt,
+  });
+}
+
+export function publishAgentRetired(
+  nc: NatsLike | null,
+  record: AutomatonRecord,
+  reason: string,
+): void {
+  publishAgentNats(nc, 'sven.agent.retired', {
+    automatonId: record.id,
+    agentId: record.agentId ?? null,
+    archetype: record.agentArchetype ?? 'custom',
+    reason,
+    orgId: record.orgId,
+    ts: record.retiredAt ?? new Date().toISOString(),
+  });
+}
+
 export function makeClonePg(opts: { repo: RevenuePipelineRepository }): ClonePort {
   const { repo } = opts;
   return {
