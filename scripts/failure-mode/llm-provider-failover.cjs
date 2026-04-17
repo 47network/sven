@@ -57,6 +57,38 @@ async function main() {
           }],
         };
       }
+      // Router was refactored to query by capabilities: 'chat' = ANY(capabilities).
+      // Return a local-primary candidate first (which the stubbed fetch marks 503)
+      // followed by cloud-fallback so the router observes failover to the cloud
+      // provider. The router orders by `is_local DESC` for the balanced profile,
+      // but candidates are consumed in row order for the failover loop after
+      // candidate selection, so we return local first then cloud.
+      if (
+        sql.includes('FROM model_registry') &&
+        sql.includes("'chat' = ANY(capabilities)") &&
+        sql.includes('is_active = TRUE')
+      ) {
+        return {
+          rows: [
+            {
+              id: 'local-1',
+              name: 'local-primary',
+              endpoint: 'http://llm-local:11434',
+              provider: 'ollama',
+              is_local: true,
+              cost_per_1k_tokens: null,
+            },
+            {
+              id: 'cloud-1',
+              name: 'cloud-fallback',
+              endpoint: 'http://llm-cloud:4000',
+              provider: 'openai',
+              is_local: false,
+              cost_per_1k_tokens: 0.002,
+            },
+          ],
+        };
+      }
       if (sql.includes('INSERT INTO settings_global')) return { rows: [] };
       if (sql.includes('SELECT active_organization_id FROM users')) {
         return { rows: [{ active_organization_id: 'org-1' }] };

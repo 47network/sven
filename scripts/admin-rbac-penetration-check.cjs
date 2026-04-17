@@ -6,7 +6,7 @@ const path = require('node:path');
 const root = process.cwd();
 const outDir = path.join(root, 'docs', 'release', 'status');
 const strict = process.argv.includes('--strict');
-const API_BASE = process.env.API_URL || process.env.SVEN_APP_HOST || 'https://app.sven.systems:44747';
+const API_BASE = process.env.API_URL || process.env.SVEN_APP_HOST || 'https://app.sven.systems';
 
 const TARGETS = [
   '/v1/admin/approvals?status=pending&per_page=5',

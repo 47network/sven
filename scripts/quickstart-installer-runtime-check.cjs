@@ -69,7 +69,10 @@ function httpGet(url, timeoutMs = 4000) {
   });
 }
 
-async function waitForHttpHealthy(url, attempts = 20, sleepMs = 1500) {
+async function waitForHttpHealthy(url, attempts = 60, sleepMs = 2000) {
+  // 60 * 2s = 120s ceiling. First-run quickstart includes full postgres init +
+  // gateway schema migrations, which can exceed the previous 30s budget on
+  // slower hosts (CI runners, cold Docker cache). Extend to accommodate.
   for (let i = 0; i < attempts; i += 1) {
     const res = await httpGet(url, 3000);
     if (res.ok && res.status === 200) {
@@ -232,9 +235,30 @@ async function run() {
     }
   );
   const gatewayBaseUrl = `http://127.0.0.1:${composeEnv.GATEWAY_PORT}`;
-  const cachedGatewayImage = inspectDockerImage('sven_v010-gateway-api:latest');
+  // Probe multiple candidate image tags that may exist locally depending on how
+  // the repo was built (docker-compose auto-generated tag, legacy short tag, or
+  // the canonical published tag). First present tag wins.
+  const cachedGatewayImageCandidates = [
+    'thesven_v010-gateway-api:latest',
+    'sven_v010-gateway-api:latest',
+    'sven-gateway-api:latest',
+  ];
+  let cachedGatewayImage = { present: false };
+  let cachedGatewayImageTag = '';
+  for (const tag of cachedGatewayImageCandidates) {
+    const probe = inspectDockerImage(tag);
+    if (probe.present) {
+      cachedGatewayImage = probe;
+      cachedGatewayImageTag = tag;
+      break;
+    }
+  }
   if (cachedGatewayImage.present) {
     const overridePath = path.join(tmp, 'quickstart-runtime.override.yml');
+    // Redefine named volumes to project-local (non-"name:"-pinned) volumes so the
+    // quickstart stack gets a fresh postgres data directory and does not collide
+    // with credentials/schema from any co-hosted main stack that reused the same
+    // sven-pgdata volume with a different POSTGRES_PASSWORD / POSTGRES_DB.
     fs.writeFileSync(
       overridePath,
       [
@@ -244,8 +268,15 @@ async function run() {
         '  nats:',
         '    ports: []',
         '  gateway-api:',
-        '    image: sven_v010-gateway-api:latest',
+        `    image: ${cachedGatewayImageTag}`,
         '    pull_policy: never',
+        'volumes:',
+        '  pgdata:',
+        `    name: ${composeProject}-pgdata`,
+        '  pgwalarchive:',
+        `    name: ${composeProject}-pgwalarchive`,
+        '  natsdata:',
+        `    name: ${composeProject}-natsdata`,
         '',
       ].join('\n'),
       'utf8'
@@ -313,7 +344,9 @@ async function run() {
       });
     }
 
-    runCmd('docker', ['compose', ...composeArgs, 'down', '--remove-orphans'], { env: composeEnv });
+    // Use -v so project-scoped quickstart volumes created via the override do not
+    // accumulate between runs (named volumes are re-scoped to the ephemeral project).
+    runCmd('docker', ['compose', ...composeArgs, 'down', '--remove-orphans', '-v'], { env: composeEnv });
   }
 
   requiredCheckIds.push('quickstart_runtime_stack_healthz_operable', 'quickstart_runtime_auth_surface_operable');
