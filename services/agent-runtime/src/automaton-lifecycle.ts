@@ -150,6 +150,12 @@ export interface AutomatonLifecycleOptions {
     treasuryAccountId: string;
     walletId: string | null;
   }) => Promise<{ pipelineIds?: string[]; metadata?: Record<string, unknown> } | null | void>;
+  /**
+   * Optional hook invoked after evaluate() to adjust the decision. Use it to
+   * incorporate evolution signals or other external factors into the ROI decision.
+   * Return the original decision or a modified copy.
+   */
+  onDecision?: (automaton: AutomatonRecord, decision: LifecycleDecision) => LifecycleDecision;
 }
 
 /** Decision produced by evaluate() — persisted back onto the record. */
@@ -403,9 +409,13 @@ export class AutomatonLifecycle {
       }
       const d = await this.evaluate(rec.id);
       if (!d) continue;
-      decisions.push(d);
-      if (d.nextStatus === 'cloning' || d.nextStatus === 'dead') {
-        await this.applyDecision(d);
+      // Apply optional decision adjustment hook (e.g. evolution bridge)
+      const adjusted = this.opts.onDecision
+        ? this.opts.onDecision(rec, d)
+        : d;
+      decisions.push(adjusted);
+      if (adjusted.nextStatus === 'cloning' || adjusted.nextStatus === 'dead') {
+        await this.applyDecision(adjusted);
       }
     }
     return decisions;

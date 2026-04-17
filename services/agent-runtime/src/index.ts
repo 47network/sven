@@ -41,6 +41,9 @@ import {
 } from './automaton-adapters.js';
 import { RevenuePipelineRepository } from './revenue-pipeline-repo.js';
 import { SeedPipelineProvisioner } from './seed-pipeline-provisioner.js';
+import { buildEconomyContextPrompt } from './economy-context-prompt.js';
+import { startDigestScheduler, stopDigestScheduler } from './economy-digest.js';
+import { adjustDecisionWithEvolution } from './evolution-automaton-bridge.js';
 import { Ledger } from '@sven/treasury';
 import { basename } from 'path';
 
@@ -379,6 +382,7 @@ async function main() {
             return null;
           }
         },
+        onDecision: (automaton, decision) => adjustDecisionWithEvolution(automaton, decision),
       });
       const stopLifecycle = startLifecycleScheduler({
         lifecycle,
@@ -395,6 +399,12 @@ async function main() {
         orgId: lifecycleOrgId,
         intervalMs: lifecycleIntervalMs,
       });
+
+      // Start the daily economy digest publisher alongside the lifecycle scheduler
+      startDigestScheduler(pool, nc, { orgId: lifecycleOrgId });
+      const shutdownDigest = () => { try { stopDigestScheduler(); } catch { /* ignore */ } };
+      process.once('SIGTERM', shutdownDigest);
+      process.once('SIGINT', shutdownDigest);
     } catch (err) {
       logger.error('Failed to start automaton lifecycle scheduler', { err: String(err) });
     }
@@ -681,6 +691,10 @@ async function main() {
       const voiceLanguageHint = await buildVoiceLanguageHint(pool, event);
       if (voiceLanguageHint) {
         systemPrompt = `${systemPrompt}\n\n${voiceLanguageHint}`;
+      }
+      const economyContext = await buildEconomyContextPrompt(pool);
+      if (economyContext) {
+        systemPrompt = `${systemPrompt}\n\n${economyContext}`;
       }
       // Cap system prompt length to prevent unbounded memory growth from concatenated context
       const MAX_SYSTEM_PROMPT_LENGTH = 500_000;
