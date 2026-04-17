@@ -185,7 +185,12 @@ export type AuthLoginResult =
     pre_session_id: string;
   }
   | {
+    requires_totp_enrollment: true;
+    pre_session_id: string;
+  }
+  | {
     requires_totp?: false;
+    requires_totp_enrollment?: false;
     user_id: string;
     username: string;
     role: string;
@@ -194,6 +199,22 @@ export type AuthLoginResult =
     token_type: string;
     expires_in: number;
   };
+
+export type AuthTotpSetupResult = {
+  otp_auth_url: string;
+  secret: string;
+};
+
+export type AuthTotpConfirmSetupResult = {
+  user_id: string;
+  username: string;
+  role: string;
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+  totp_enrolled: boolean;
+};
 
 export type AuthTotpVerifyResult = {
   user_id: string;
@@ -549,6 +570,10 @@ export const auth = {
     request<{ success: boolean; data: AuthLoginResult }>('POST', '/auth/login', { username, password }),
   verifyTotp: (pre_session_id: string, code: string) =>
     request<{ success: boolean; data: AuthTotpVerifyResult }>('POST', '/auth/totp/verify', { pre_session_id, code }),
+  setupTotp: (pre_session_id: string) =>
+    request<{ success: boolean; data: AuthTotpSetupResult }>('POST', '/auth/totp/setup', { pre_session_id }),
+  confirmTotpSetup: (pre_session_id: string, code: string) =>
+    request<{ success: boolean; data: AuthTotpConfirmSetupResult }>('POST', '/auth/totp/confirm-setup', { pre_session_id, code }),
   logout: () => request<void>('POST', '/auth/logout'),
   logoutAll: () => request<{ success: boolean; data: { sessions_revoked: number } }>('POST', '/auth/logout-all'),
 };

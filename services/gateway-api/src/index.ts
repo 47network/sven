@@ -70,8 +70,8 @@ import { runMigrations } from './db/migrate.js';
 const logger = createLogger('gateway-api');
 
 const DEFAULT_ALLOWED_ORIGINS = [
-  /^https:\/\/([a-z0-9-]+\.)*47matrix\.online$/i,
-  /^https:\/\/([a-z0-9-]+\.)*sven\.systems$/i,
+  /^https:\/\/([a-z0-9-]+\.)*47matrix\.online(:\d+)?$/i,
+  /^https:\/\/([a-z0-9-]+\.)*sven\.systems(:\d+)?$/i,
   /^http:\/\/localhost(:\d+)?$/i,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/i,
 ];
