@@ -105,6 +105,15 @@ describe('secret-scanner', () => {
       const findings = scanFileForSecrets(source, 'test.ts');
       expect(findings).toHaveLength(0);
     });
+
+    it('finds secrets without capture groups (e.g. private keys) using match[0]', () => {
+      const source = `const key = "-----BEGIN PRIVATE KEY-----";`;
+      const findings = scanFileForSecrets(source, 'test.ts');
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].type).toBe('private-key');
+      expect(findings[0].matchedText).toBe('-----BEGIN PRIVATE KEY-----');
+    });
   });
 
   describe('scanForSecrets', () => {
