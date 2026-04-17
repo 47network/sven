@@ -2370,6 +2370,31 @@ export const trading = {
   brokerHealth: () => request<Record<string, boolean>>('GET', '/v1/trading/broker/health'),
 };
 
+// ── Automatons (Batch 5: Autonomous Economy) ──
+export const automatons = {
+  list: (params?: { status?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.limit) q.set('limit', String(params.limit));
+    const qs = q.toString();
+    return request<{
+      success: boolean;
+      data: { automatons: Array<Record<string, unknown>> };
+    }>('GET', `/admin/automatons${qs ? '?' + qs : ''}`);
+  },
+  summary: () =>
+    request<{
+      success: boolean;
+      data: {
+        counts: Record<string, number>;
+        totalRevenueUsd: number;
+        totalCostUsd: number;
+      };
+    }>('GET', '/admin/automatons/summary'),
+  get: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('GET', `/admin/automatons/${id}`),
+};
+
 export const api = {
   auth,
   users,
@@ -2428,4 +2453,5 @@ export const api = {
   federation,
   analyticsOverview,
   trading,
+  automatons,
 };

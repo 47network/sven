@@ -60,6 +60,7 @@ import { registerGlobalSearchRoutes } from './global-search.js';
 import { registerBrainRoutes } from './brain.js';
 import { registerRevenueRoutes } from './revenue.js';
 import { registerInfraRoutes } from './infra.js';
+import { registerAutomatonRoutes } from './automatons.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
 import { registerAgentTypeRoutes } from './agent-types.js';
 import { registerFederationRoutes } from './federation.js';
@@ -375,6 +376,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerTradingDashboardRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerRevenueRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerInfraRoutes(scopedApp, pool));
+      await mountAdminRoutes((scopedApp) => registerAutomatonRoutes(scopedApp, pool));
     },
     { prefix: '/v1/admin' },
   );

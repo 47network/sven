@@ -31,6 +31,14 @@ import { normalizeToolRunId } from './tool-run-id.js';
 import { normalizeToolCalls } from './tool-calls.js';
 import { mapApprovalVoteErrorToUserMessage } from './approval-errors.js';
 import { isMissingChatQueueDispatchError } from './queue-dispatch.js';
+import { AutomatonLifecycle, startLifecycleScheduler } from './automaton-lifecycle.js';
+import {
+  makeTreasuryHttp,
+  makeRevenueHttp,
+  makeInfraHttp,
+  makeAutomatonStorePg,
+  makeCloneSimple,
+} from './automaton-adapters.js';
 import { basename } from 'path';
 
 const logger = createLogger('agent-runtime');
@@ -333,6 +341,42 @@ async function main() {
       }
     }
   })();
+
+  // ─── Automaton lifecycle scheduler (opt-in) ─────────────────────
+  // When SVEN_LIFECYCLE_ENABLED=1 the agent-runtime will own the
+  // scheduler loop that drives birth/clone/retire/die for the
+  // autonomous-economy subsystem. See automaton-lifecycle.ts.
+  if (String(process.env.SVEN_LIFECYCLE_ENABLED || '').trim() === '1') {
+    try {
+      const lifecycleOrgId = String(process.env.SVEN_LIFECYCLE_ORG_ID || 'default').trim() || 'default';
+      const lifecycleIntervalMs = Number(process.env.SVEN_LIFECYCLE_INTERVAL_MS || 600_000);
+      const automatonStore = makeAutomatonStorePg(pool);
+      const lifecycle = new AutomatonLifecycle({
+        treasury: makeTreasuryHttp(),
+        revenue: makeRevenueHttp({ orgId: lifecycleOrgId, store: automatonStore }),
+        infra: makeInfraHttp(),
+        store: automatonStore,
+        clone: makeCloneSimple(),
+      });
+      const stopLifecycle = startLifecycleScheduler({
+        lifecycle,
+        orgId: lifecycleOrgId,
+        intervalMs: lifecycleIntervalMs,
+        onError: (err) => logger.error('Lifecycle tick failed', { err: String(err) }),
+      });
+      const shutdownLifecycle = () => {
+        try { stopLifecycle(); } catch { /* ignore */ }
+      };
+      process.once('SIGTERM', shutdownLifecycle);
+      process.once('SIGINT', shutdownLifecycle);
+      logger.info('Automaton lifecycle scheduler started', {
+        orgId: lifecycleOrgId,
+        intervalMs: lifecycleIntervalMs,
+      });
+    } catch (err) {
+      logger.error('Failed to start automaton lifecycle scheduler', { err: String(err) });
+    }
+  }
 
   logger.info('Subscribed to inbound messages, processing...');
 
