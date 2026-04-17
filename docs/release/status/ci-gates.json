@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-17T06:21:18.972Z",
+  "generated_at": "2026-04-17T06:22:35.932Z",
   "source_branch": "palette/sidebar-a11y-8701239138151963969",
   "source_head_sha": "9e1e94fa35fd8c4daadb2ae02786d80e8e72883f",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T06:21:16.731Z",
+    "captured_at": "2026-04-17T06:22:33.707Z",
     "branch": "palette/sidebar-a11y-8701239138151963969",
     "total_runs": 74
   },
@@ -34,7 +34,7 @@
   "ops_shell_ci": true,
   "skill_quarantine_scan_ci": false,
   "security_audit_unified_ci": false,
-  "security_baseline_ci": false,
+  "security_baseline_ci": true,
   "gate_provenance": {
     "final_dod_ci": {
       "run_id": 24550843489,
@@ -89,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T06:21:06.677Z"
+      "generated_at": "2026-04-17T06:22:23.702Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -119,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T06:21:11.602Z"
+      "generated_at": "2026-04-17T06:22:28.457Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -134,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T06:21:16.250Z"
+      "generated_at": "2026-04-17T06:22:33.226Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -400,14 +400,13 @@
       "head_sha": "9e1e94fa35fd8c4daadb2ae02786d80e8e72883f",
       "head_branch": "palette/sidebar-a11y-8701239138151963969",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     }
   },
   "required_workflow_manifest": {
@@ -646,20 +645,19 @@
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": 24550843459,
         "head_sha": "9e1e94fa35fd8c4daadb2ae02786d80e8e72883f",
         "head_branch": "palette/sidebar-a11y-8701239138151963969",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "security_baseline_ci"
     },
