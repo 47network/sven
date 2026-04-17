@@ -23,5 +23,7 @@
       "stdout": "[sso:keycloak] starting smoke interop\n[sso:keycloak] api=http://127.0.0.1:3001\n[sso:keycloak] keycloak=http://127.0.0.1:8081 realm=sven\n[sso:keycloak] acquired admin bearer\n[sso:keycloak] created account 019c899d-3196-755f-a96f-df5bb71d3eb4\n[sso:keycloak] tenant SSO config applied\n[sso:keycloak] oidc/start succeeded\n[sso:keycloak] keycloak login produced authorization code\n[sso:keycloak] oidc/callback succeeded\n[sso:keycloak] success: live keycloak OIDC interop validated end-to-end\n",
       "stderr": ""
     }
-  ]
+  ],
+  "status": "pass",
+  "timestamp": "2026-02-23T08:28:49.061Z"
 }
