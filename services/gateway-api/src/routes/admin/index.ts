@@ -68,6 +68,7 @@ import { registerProactiveNotificationRoutes } from './proactive-notifications.j
 import { registerCouncilRoutes } from './council.js';
 import { registerRevenueRoutes } from './revenue.js';
 import { registerInfraRoutes } from './infra.js';
+import { registerInviteRoutes } from './invites.js';
 
 export async function registerAdminRoutes(
   app: FastifyInstance,
@@ -375,6 +376,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes(async (scopedApp) => { registerCouncilRoutes(scopedApp, pool); });
       await mountAdminRoutes(async (scopedApp) => { registerRevenueRoutes(scopedApp, pool); });
       await mountAdminRoutes(async (scopedApp) => { registerInfraRoutes(scopedApp, pool); });
+      await mountAdminRoutes((scopedApp) => registerInviteRoutes(scopedApp, pool));
     },
     { prefix: '/v1/admin' },
   );

@@ -122,6 +122,30 @@ async function ensureAuthSupportTables(pool: pg.Pool): Promise<void> {
     `CREATE INDEX IF NOT EXISTS idx_oidc_auth_states_expires_at
        ON oidc_auth_states (expires_at)`,
   );
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS invite_tokens (
+       id            TEXT PRIMARY KEY,
+       token         TEXT NOT NULL UNIQUE,
+       created_by    TEXT NOT NULL,
+       organization_id TEXT,
+       role          TEXT NOT NULL DEFAULT 'user',
+       max_uses      INTEGER NOT NULL DEFAULT 1,
+       use_count     INTEGER NOT NULL DEFAULT 0,
+       expires_at    TIMESTAMPTZ NOT NULL,
+       revoked_at    TIMESTAMPTZ,
+       created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`,
+  );
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS invite_redemptions (
+       id            TEXT PRIMARY KEY,
+       invite_id     TEXT NOT NULL,
+       user_id       TEXT NOT NULL,
+       created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       UNIQUE (invite_id, user_id)
+     )`,
+  );
 }
 
 function parseBool(value: unknown, defaultValue = false): boolean {
@@ -2347,6 +2371,197 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
     logger.info('Tailscale bootstrap session issued', { user_id: user.userId, username: user.username });
     return reply.redirect(redirectPath);
+  });
+
+  // ─── POST /v1/auth/register ───
+  // Invite-based registration: public endpoint for new user self-registration
+  // using a valid, unexpired invite token created by an admin.
+  app.post('/v1/auth/register', {
+    config: { rateLimit: { max: 5, timeWindow: 60_000 } },
+    schema: {
+      body: {
+        type: 'object',
+        required: ['invite_token', 'username', 'password'],
+        additionalProperties: false,
+        properties: {
+          invite_token: { type: 'string', minLength: 1 },
+          username: { type: 'string', minLength: 2, maxLength: 64 },
+          password: { type: 'string', minLength: 8, maxLength: 128 },
+          display_name: { type: 'string', maxLength: 256 },
+        },
+      },
+    },
+  }, async (request, reply) => {
+    const { invite_token, username, password, display_name } = request.body as {
+      invite_token: string;
+      username: string;
+      password: string;
+      display_name?: string;
+    };
+
+    // Validate username format: alphanumeric, underscores, hyphens
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'Username may only contain letters, numbers, underscores, and hyphens' },
+      });
+    }
+
+    // Look up the invite token
+    const inviteRes = await pool.query(
+      `SELECT id, organization_id, role, max_uses, use_count, expires_at, revoked_at, created_by
+       FROM invite_tokens
+       WHERE token = $1`,
+      [invite_token],
+    );
+
+    if (inviteRes.rows.length === 0) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVALID_INVITE', message: 'Invalid invite token' },
+      });
+    }
+
+    const invite = inviteRes.rows[0];
+
+    if (invite.revoked_at) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVITE_REVOKED', message: 'This invite has been revoked' },
+      });
+    }
+
+    if (new Date(invite.expires_at) < new Date()) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVITE_EXPIRED', message: 'This invite has expired' },
+      });
+    }
+
+    if (invite.use_count >= invite.max_uses) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVITE_EXHAUSTED', message: 'This invite has reached its maximum number of uses' },
+      });
+    }
+
+    // Check username uniqueness
+    const dupCheck = await pool.query(
+      `SELECT 1 FROM users WHERE username = $1`,
+      [username],
+    );
+    if (dupCheck.rows.length > 0) {
+      return reply.status(409).send({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Username already exists' },
+      });
+    }
+
+    const userId = uuidv7();
+    const passwordHash = await bcrypt.hash(password, 12);
+    const effectiveDisplayName = String(display_name || username).trim().slice(0, 256);
+    const orgId = invite.organization_id;
+    const role = invite.role || 'user';
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Re-check invite atomically inside transaction
+      const inviteLock = await client.query(
+        `SELECT use_count, max_uses
+         FROM invite_tokens
+         WHERE id = $1
+         FOR UPDATE`,
+        [invite.id],
+      );
+      if (!inviteLock.rows[0] || inviteLock.rows[0].use_count >= inviteLock.rows[0].max_uses) {
+        await client.query('ROLLBACK');
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'INVITE_EXHAUSTED', message: 'This invite has reached its maximum number of uses' },
+        });
+      }
+
+      // Re-check username uniqueness inside transaction
+      const dupLock = await client.query(
+        `SELECT 1 FROM users WHERE username = $1`,
+        [username],
+      );
+      if (dupLock.rows.length > 0) {
+        await client.query('ROLLBACK');
+        return reply.status(409).send({
+          success: false,
+          error: { code: 'CONFLICT', message: 'Username already exists' },
+        });
+      }
+
+      // Create user
+      await client.query(
+        `INSERT INTO users (id, username, display_name, role, password_hash, active_organization_id, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+        [userId, username, effectiveDisplayName, role, passwordHash, orgId],
+      );
+
+      // Add organization membership
+      if (orgId) {
+        await client.query(
+          `INSERT INTO organization_memberships (id, organization_id, user_id, role, status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, 'active', NOW(), NOW())`,
+          [uuidv7(), orgId, userId, role === 'admin' ? 'admin' : 'member'],
+        );
+      }
+
+      // Increment invite use count
+      await client.query(
+        `UPDATE invite_tokens SET use_count = use_count + 1, updated_at = NOW() WHERE id = $1`,
+        [invite.id],
+      );
+
+      // Record redemption
+      await client.query(
+        `INSERT INTO invite_redemptions (id, invite_id, user_id, created_at)
+         VALUES ($1, $2, $3, NOW())`,
+        [uuidv7(), invite.id, userId],
+      );
+
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw err;
+    } finally {
+      client.release();
+    }
+
+    // Create session for immediate login
+    const sessionId = await createAccessSession(pool, userId);
+    const refreshToken = await createRefreshSession(pool, userId);
+
+    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
+
+    logger.info('User registered via invite', {
+      user_id: userId,
+      username,
+      role,
+      invite_id: invite.id,
+      organization_id: orgId,
+    });
+
+    reply.status(201).send({
+      success: true,
+      data: {
+        user_id: userId,
+        username,
+        display_name: effectiveDisplayName,
+        role,
+        organization_id: orgId,
+        access_token: sessionId,
+        refresh_token: refreshToken,
+        token_type: 'bearer',
+        expires_in: ACCESS_TOKEN_MAX_AGE,
+      },
+    });
   });
 
   // ─── POST /v1/auth/login ───

@@ -806,6 +806,20 @@ export const users = {
     request<void>('DELETE', `/admin/users/${userId}/identity-links/${linkId}`),
 };
 
+// ── Invites ──
+export const invites = {
+  list: (includeExpired = false) =>
+    request<{ success: boolean; data: Array<Record<string, unknown>> }>(
+      'GET',
+      `/admin/invites${includeExpired ? '?include_expired=true' : ''}`,
+    ),
+  get: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('GET', `/admin/invites/${id}`),
+  create: (data: { role?: string; max_uses?: number; expires_in_hours?: number }) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/admin/invites', data),
+  revoke: (id: string) => request<void>('DELETE', `/admin/invites/${id}`),
+};
+
 // ── Chats ──
 export const chats = {
   list: () => requestRowsSoft('/admin/chats') as Promise<{ rows: ChatRecord[] }>,
