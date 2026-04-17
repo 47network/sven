@@ -6,7 +6,7 @@ import {
   parseDependencies,
   PackageDep,
   KnownVulnerability
-} from '../dependency-audit/index';
+} from '../../dependency-audit/index.js';
 
 describe('Dependency Audit', () => {
   describe('classifyLicense', () => {
@@ -121,6 +121,39 @@ describe('Dependency Audit', () => {
   });
 
   describe('auditDependencies', () => {
+    it('should adjust risk level if a typosquat suspect was none or low risk', () => {
+      const deps = [
+        { name: 'reac', version: '1.0.0', isDev: false, integrity: 'sha512-abc' }
+      ];
+      // By default with no issues, risk level starts at none. Typosquat sets it to medium.
+      const report = auditDependencies(deps);
+      expect(report.findings[0].riskLevel).toBe('medium');
+    });
+
+    it('should keep riskLevel as high if typosquat suspect already has high risk due to vulnerability', () => {
+      const deps = [
+        { name: 'reac', version: '1.0.0', isDev: false, integrity: 'sha512-abc' }
+      ];
+      const vulns = [
+        { id: 'VULN-2', package: 'reac', affectedVersions: '<2.0.0', severity: 'high', title: 'Test', description: 'Test' }
+      ];
+      const report = auditDependencies(deps, vulns);
+      expect(report.findings[0].riskLevel).toBe('high');
+    });
+
+    it('should use maximum severity of matched vulnerabilities', () => {
+      const deps = [
+        { name: 'vuln-pkg', version: '1.0.0', isDev: false, integrity: 'sha512-abc' }
+      ];
+      const vulns = [
+        { id: 'VULN-LOW', package: 'vuln-pkg', affectedVersions: '<2.0.0', severity: 'low', title: 'Low Vuln', description: 'Low' },
+        { id: 'VULN-CRITICAL', package: 'vuln-pkg', affectedVersions: '<2.0.0', severity: 'critical', title: 'Critical Vuln', description: 'Critical' },
+        { id: 'VULN-MEDIUM', package: 'vuln-pkg', affectedVersions: '<2.0.0', severity: 'medium', title: 'Medium Vuln', description: 'Medium' }
+      ];
+      const report = auditDependencies(deps, vulns);
+      expect(report.findings[0].riskLevel).toBe('critical');
+    });
+
     it('should generate a clean report for safe dependencies', () => {
       const deps: PackageDep[] = [
         { name: 'safe-pkg', version: '1.0.0', isDev: false, integrity: 'sha512-abc' }
@@ -193,6 +226,11 @@ describe('Dependency Audit', () => {
   });
 
   describe('parseDependencies', () => {
+    it('should handle undefined values correctly in parseDependencies', () => {
+      const deps = parseDependencies(undefined, undefined);
+      expect(deps).toEqual([]);
+    });
+
     it('should parse dependency and devDependency maps', () => {
       const dependencies = {
         react: '^18.2.0',
