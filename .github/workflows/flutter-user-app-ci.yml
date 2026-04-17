@@ -84,22 +84,11 @@ jobs:
             "SENTRY_DSN": "$SENTRY_DSN"
           }
           EOF
-      - run: >
+      - run: |
           if [ -f config/env/mobile-dart-defines.ci.release.json ]; then
-            flutter build apk
-            --release
-            --flavor prod
-            --target lib/main.dart
-            --build-number ${{ github.run_number }}
-            --dart-define-from-file=config/env/mobile-dart-defines.ci.release.json;
+            flutter build apk --release --flavor prod --target lib/main.dart --build-number ${{ github.run_number }} --dart-define-from-file=config/env/mobile-dart-defines.ci.release.json;
           else
-            flutter build apk
-            --release
-            --flavor prod
-            --target lib/main.dart
-            --build-number ${{ github.run_number }}
-            --dart-define=SVEN_FLAVOR=prod
-            --dart-define=SVEN_ENV=production;
+            flutter build apk --release --flavor prod --target lib/main.dart --build-number ${{ github.run_number }} --dart-define=SVEN_FLAVOR=prod --dart-define=SVEN_ENV=production;
           fi
       - name: Mobile release readiness gates (strict, main/tag only)
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/flutter-user-v')
