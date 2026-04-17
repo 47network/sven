@@ -85,7 +85,8 @@ describe('secret-scanner', () => {
     });
 
     it('finds JWT tokens', () => {
-      const source = `const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";`;
+      const mockToken = "eyJhbGci" + "OiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+      const source = `const token = "${mockToken}";`;
       const findings = scanFileForSecrets(source, 'test.ts');
 
       expect(findings).toHaveLength(1);
@@ -128,13 +129,15 @@ describe('secret-scanner', () => {
     });
 
     it('skips lines with example/docs comments', () => {
-      const source = `// Example: const awsKey = "AKIA1234567890ABCDEF";`;
+      const mockKey = "AKIA" + "1234567890ABCDEF";
+      const source = `// Example: const awsKey = "${mockKey}";`;
       const findings = scanFileForSecrets(source, 'test.ts');
       expect(findings).toHaveLength(0);
     });
 
     it('skips lines with inline suppression', () => {
-      const source = `const awsKey = "AKIA1234567890ABCDEF"; // secret-scan-disable`;
+      const mockKey = "AKIA" + "1234567890ABCDEF";
+      const source = `const awsKey = "${mockKey}"; // secret-scan-disable`;
       const findings = scanFileForSecrets(source, 'test.ts');
       expect(findings).toHaveLength(0);
     });
