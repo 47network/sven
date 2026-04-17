@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-17T21:09:28.853Z",
+  "generated_at": "2026-04-17T21:12:37.250Z",
   "source_branch": "palette-a11y-buttons-6598417343887047930",
   "source_head_sha": "1cdb9f662b4acadeb6b033984423155717e1b4b6",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T21:09:27.535Z",
+    "captured_at": "2026-04-17T21:12:35.713Z",
     "branch": "palette-a11y-buttons-6598417343887047930",
     "total_runs": 45
   },
@@ -91,7 +91,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T21:09:17.715Z"
+      "generated_at": "2026-04-17T21:12:25.785Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +121,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T21:09:22.613Z"
+      "generated_at": "2026-04-17T21:12:30.554Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +136,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T21:09:27.183Z"
+      "generated_at": "2026-04-17T21:12:35.353Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -404,14 +404,13 @@
       "head_sha": "1cdb9f662b4acadeb6b033984423155717e1b4b6",
       "head_branch": "palette-a11y-buttons-6598417343887047930",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     }
   },
   "required_workflow_manifest": {
@@ -660,14 +659,13 @@
         "head_sha": "1cdb9f662b4acadeb6b033984423155717e1b4b6",
         "head_branch": "palette-a11y-buttons-6598417343887047930",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "security_baseline_ci"
     },
