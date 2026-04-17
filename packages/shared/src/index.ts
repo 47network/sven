@@ -38,3 +38,7 @@ export * from './personality-engine.js';
 export * from './visual-companion.js';
 export * from './rate-limiter.js';
 export * from './cors.js';
+export * from './api-auth.js';
+export * from './correlation-id.js';
+export * from './retry.js';
+export * from './metrics.js';

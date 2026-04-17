@@ -1834,6 +1834,8 @@ services:
       - TREASURY_CHAIN_NETWORK=${TREASURY_CHAIN_NETWORK:-base-sepolia}
       - BASE_RPC_URL=${BASE_RPC_URL:-https://sepolia.base.org}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - ECONOMY_API_TOKEN=${ECONOMY_API_TOKEN}
+      - ECONOMY_ADMIN_TOKEN=${ECONOMY_ADMIN_TOKEN}
       - CORS_ORIGIN=${CORS_ORIGIN:-https://market.sven.systems,https://eidolon.sven.systems}
       - NODE_ENV=${NODE_ENV:-production}
     ports:
@@ -1867,6 +1869,8 @@ services:
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
       - MARKETPLACE_CHECKOUT_SUCCESS_URL=${MARKETPLACE_CHECKOUT_SUCCESS_URL:-https://market.sven.systems/checkout/success}
       - MARKETPLACE_CHECKOUT_CANCEL_URL=${MARKETPLACE_CHECKOUT_CANCEL_URL:-https://market.sven.systems/checkout/cancel}
+      - ECONOMY_API_TOKEN=${ECONOMY_API_TOKEN}
+      - ECONOMY_ADMIN_TOKEN=${ECONOMY_ADMIN_TOKEN}
       - CORS_ORIGIN=${CORS_ORIGIN:-https://market.sven.systems,https://eidolon.sven.systems}
       - NODE_ENV=${NODE_ENV:-production}
     ports:
@@ -1896,6 +1900,8 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - NATS_URL=${NATS_URL}
       - EIDOLON_PORT=9479
+      - ECONOMY_API_TOKEN=${ECONOMY_API_TOKEN}
+      - ECONOMY_ADMIN_TOKEN=${ECONOMY_ADMIN_TOKEN}
       - CORS_ORIGIN=${CORS_ORIGIN:-https://market.sven.systems,https://eidolon.sven.systems}
       - NODE_ENV=${NODE_ENV:-production}
     ports:

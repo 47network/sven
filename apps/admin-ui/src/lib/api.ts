@@ -2515,5 +2515,30 @@ export const api = {
     topListings: () =>
       fetch(`${process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:9478'}/economy/top-listings`)
         .then(r => r.json()).catch(() => []),
+    adminOrders: (opts?: { limit?: number; offset?: number }) => {
+      const qs = new URLSearchParams();
+      if (opts?.limit) qs.set('limit', String(opts.limit));
+      if (opts?.offset) qs.set('offset', String(opts.offset));
+      const headers: Record<string, string> = {};
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('economy_admin_token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+      }
+      return fetch(
+        `${process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:9478'}/v1/market/admin/orders?${qs}`,
+        { headers },
+      ).then(r => r.json()).catch(() => ({ data: { orders: [] } }));
+    },
+    adminRefundOrder: (orderId: string, reason?: string) => {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('economy_admin_token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+      }
+      return fetch(
+        `${process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:9478'}/v1/market/admin/orders/${orderId}/refund`,
+        { method: 'POST', headers, body: JSON.stringify({ reason: reason || 'Admin refund' }) },
+      ).then(r => r.json()).catch(() => ({ error: 'Refund request failed' }));
+    },
   },
 };

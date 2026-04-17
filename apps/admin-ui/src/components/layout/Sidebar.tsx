@@ -51,6 +51,7 @@ import {
   Server,
   Wallet,
   DollarSign,
+  ShoppingBag,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import SidebarBrand from './sidebar/SidebarBrand';
@@ -126,6 +127,7 @@ const NAV_GROUPS: NavGroup[] = [
     roles: ['admin', 'operator'],
     items: [
       { href: '/revenue-analytics', label: 'Revenue Analytics', icon: DollarSign, roles: ['admin', 'operator'] },
+      { href: '/orders', label: 'Order Management', icon: ShoppingBag, roles: ['admin', 'operator'] },
       { href: '/automatons', label: 'Automatons', icon: Bot, roles: ['admin', 'operator'] },
     ],
   },
