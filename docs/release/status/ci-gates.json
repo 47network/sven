@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-17T09:28:20.104Z",
-  "source_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-  "source_head_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf",
+  "generated_at": "2026-04-17T09:30:08.218Z",
+  "source_branch": "fix-pdf-pages-object-15225039809587380290",
+  "source_head_sha": "e3bf8aff5588b2b9050ac1423692317067a0c141",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T09:28:19.116Z",
-    "branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-    "total_runs": 26
+    "captured_at": "2026-04-17T09:30:07.334Z",
+    "branch": "fix-pdf-pages-object-15225039809587380290",
+    "total_runs": 22
   },
   "final_dod_ci": false,
   "parity_e2e_ci": true,
@@ -23,7 +23,7 @@
   "backup_restore_api_ci": false,
   "flutter_user_app_device_farm_ci": true,
   "desktop_release_ci": false,
-  "ui_e2e_ci": true,
+  "ui_e2e_ci": false,
   "mobile_coverage_gate_ci": false,
   "csrf_auth_e2e_ci": false,
   "client_env_governance_ci": true,
@@ -34,12 +34,12 @@
   "ops_shell_ci": true,
   "skill_quarantine_scan_ci": false,
   "security_audit_unified_ci": false,
-  "security_baseline_ci": false,
+  "security_baseline_ci": true,
   "gate_provenance": {
     "final_dod_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -53,7 +53,7 @@
     "parity_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -67,7 +67,7 @@
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -81,7 +81,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -91,12 +91,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T09:28:09.557Z"
+      "generated_at": "2026-04-17T09:29:57.691Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -111,7 +111,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -121,12 +121,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T09:28:14.145Z"
+      "generated_at": "2026-04-17T09:30:02.310Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -136,12 +136,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T09:28:18.778Z"
+      "generated_at": "2026-04-17T09:30:06.908Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -156,7 +156,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -169,7 +169,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -183,7 +183,7 @@
     "mobile_auth_session_smoke_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -197,7 +197,7 @@
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -211,7 +211,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -225,7 +225,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -238,7 +238,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -250,22 +250,23 @@
       "previous_gate_value": false
     },
     "ui_e2e_ci": {
-      "run_id": 24557931636,
-      "head_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf",
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-      "event": "pull_request",
-      "status": "completed",
-      "conclusion": "success",
+      "run_id": null,
+      "head_sha": null,
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310896,
       "workflow_name": "ui-e2e-accessibility",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "ui_e2e_accessibility_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -279,7 +280,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -291,9 +292,9 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24557929301,
-      "head_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf",
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "run_id": 24557851836,
+      "head_sha": "e3bf8aff5588b2b9050ac1423692317067a0c141",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": "push",
       "status": "completed",
       "conclusion": "success",
@@ -306,7 +307,7 @@
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -320,7 +321,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -334,7 +335,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -348,7 +349,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -374,7 +375,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -388,7 +389,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -400,12 +401,12 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24557931597,
-      "head_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf",
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "run_id": 24557854953,
+      "head_sha": "e3bf8aff5588b2b9050ac1423692317067a0c141",
+      "head_branch": "fix-pdf-pages-object-15225039809587380290",
       "event": "pull_request",
       "status": "completed",
-      "conclusion": "failure",
+      "conclusion": "success",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
@@ -443,7 +444,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -461,7 +462,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -479,7 +480,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -497,7 +498,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -515,7 +516,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -529,19 +530,20 @@
       "gate_key": "mobile_auth_session_smoke_ci"
     },
     "flutter-user-app-device-farm": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": 24557931592,
-        "head_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf",
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "run_id": 24557854933,
+        "head_sha": "e3bf8aff5588b2b9050ac1423692317067a0c141",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": "pull_request",
-        "status": "completed",
-        "conclusion": "failure",
+        "status": "in_progress",
+        "conclusion": null,
         "workflow_id": 261310866,
         "workflow_name": "flutter-user-app-device-farm",
         "matched_target_sha": true,
         "gate_key": "flutter_user_app_device_farm_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "preserved_previous_pass_non_final_target_sha",
+        "previous_gate_value": true
       },
       "gate_key": "flutter_user_app_device_farm_ci"
     },
@@ -550,7 +552,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -564,19 +566,20 @@
       "gate_key": "desktop_tauri_release_ci"
     },
     "ui-e2e-accessibility": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24557931636,
-        "head_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf",
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": "pull_request",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310896,
         "workflow_name": "ui-e2e-accessibility",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "ui_e2e_accessibility_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "ui_e2e_accessibility_ci"
     },
@@ -585,7 +588,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -601,9 +604,9 @@
     "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24557929301,
-        "head_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf",
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "run_id": 24557851836,
+        "head_sha": "e3bf8aff5588b2b9050ac1423692317067a0c141",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": "push",
         "status": "completed",
         "conclusion": "success",
@@ -618,9 +621,9 @@
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24557929189,
-        "head_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf",
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "run_id": 24557851838,
+        "head_sha": "e3bf8aff5588b2b9050ac1423692317067a0c141",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": "push",
         "status": "in_progress",
         "conclusion": null,
@@ -638,7 +641,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -652,14 +655,14 @@
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": 24557931597,
-        "head_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf",
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "run_id": 24557854953,
+        "head_sha": "e3bf8aff5588b2b9050ac1423692317067a0c141",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": "pull_request",
         "status": "completed",
-        "conclusion": "failure",
+        "conclusion": "success",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
@@ -673,7 +676,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -691,7 +694,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -709,7 +712,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -717,8 +720,8 @@
         "workflow_name": "release-supply-chain",
         "matched_target_sha": false,
         "gate_key": "release_supply_chain_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "10aed66dcf2e82233a04e0a0e8f1e1a6a5183bbf"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "release_supply_chain_ci"
     },
@@ -727,7 +730,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -745,7 +748,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -763,7 +766,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "fix-pdf-pages-object-15225039809587380290",
         "event": null,
         "status": null,
         "conclusion": null,
