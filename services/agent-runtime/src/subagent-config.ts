@@ -6,11 +6,6 @@ export type ResolvedAgentConfig = {
   profile_name?: string;
   policy_scope?: string[]; // undefined => no restriction configured, [] => explicit deny-all
   resolution_error?: string;
-  council_mode?: boolean;
-  council_models?: string[];
-  council_chairman?: string;
-  council_strategy?: string;
-  council_rounds?: number;
 };
 
 function toStringArray(value: unknown): string[] {
@@ -109,13 +104,6 @@ export async function resolveSubagentConfig(
           || '',
       ).trim() || undefined,
       policy_scope: hasExplicitPolicyScope ? mergedScope : undefined,
-      council_mode: childSettings.council_mode === true || parentSettings.council_mode === true || undefined,
-      council_models: toStringArray(childSettings.council_models).length > 0
-        ? toStringArray(childSettings.council_models) : toStringArray(parentSettings.council_models).length > 0
-        ? toStringArray(parentSettings.council_models) : undefined,
-      council_chairman: String(childSettings.council_chairman || parentSettings.council_chairman || '').trim() || undefined,
-      council_strategy: String(childSettings.council_strategy || parentSettings.council_strategy || '').trim() || undefined,
-      council_rounds: Number(childSettings.council_rounds || parentSettings.council_rounds || 0) || undefined,
     };
 
     if (
@@ -123,7 +111,6 @@ export async function resolveSubagentConfig(
       && !resolved.model_name
       && !resolved.profile_name
       && resolved.policy_scope === undefined
-      && !resolved.council_mode
     ) {
       return null;
     }

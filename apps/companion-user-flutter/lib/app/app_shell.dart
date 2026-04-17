@@ -74,6 +74,8 @@ class _AppShellState extends ConsumerState<AppShell> {
     final tooltipService = ref.read(featureTooltipServiceProvider);
     final promptTemplatesService = ref.read(promptTemplatesServiceProvider);
     final deviceService = ref.read(deviceServiceProvider);
+    final tradingService = ref.read(tradingServiceProvider);
+    final tradingSseService = ref.read(tradingSseServiceProvider);
 
     final tokens = SvenTokens.forMode(state.visualMode);
     final cinematic = state.visualMode == VisualMode.cinematic;
@@ -156,6 +158,8 @@ class _AppShellState extends ConsumerState<AppShell> {
                             prefill,
                           ),
                           syncService: ref.read(syncServiceProvider),
+                          tradingService: tradingService,
+                          tradingSseService: tradingSseService,
                         ),
                       ),
                     ),

@@ -137,23 +137,6 @@ export async function inferenceGenerate(req: InferenceRequest): Promise<Inferenc
   return invoke('inference_generate', { req });
 }
 
-// ── Overlay & tray control ────────────────────────────────────────────
-
-/** Toggle the character overlay window visibility. Returns new visibility state. */
-export async function toggleOverlay(): Promise<boolean> {
-  return invoke('toggle_overlay');
-}
-
-/** Show the mini-terminal quick command popup. */
-export async function showMiniTerminal(): Promise<void> {
-  await invoke('show_mini_terminal');
-}
-
-/** Position the overlay at the default location (bottom-right above taskbar). */
-export async function positionOverlayDefault(): Promise<void> {
-  await invoke('position_overlay_default');
-}
-
 // ── Multi-account management ──────────────────────────────────────────
 
 export type SavedAccount = {

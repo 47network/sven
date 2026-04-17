@@ -4,12 +4,12 @@ VS Code extension that adds **@sven** as a GitHub Copilot Chat participant.
 
 ## Features
 
-- **@sven** — Chat with Sven with full codebase awareness
+- **@sven** — Chat with Sven with full codebase awareness + live trading state
+- **@sven /status** — Live trading status (balance, positions, P&L, loop state)
 - **@sven /soul** — View Sven's active soul content
 - **@sven /heal** — Self-healing diagnostics (scan workspace for errors)
 - **@sven /codebase** — Sven's codebase overview
 - **@sven /deploy** — Deployment guide and status
-- **@sven /improve** — Sven analyzes his own code and proposes improvements
 
 ## Setup
 

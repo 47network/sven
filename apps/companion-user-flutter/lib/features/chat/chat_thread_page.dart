@@ -17,7 +17,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'mermaid_block.dart';
-import 'council_block.dart';
 
 import 'chat_composer.dart';
 import 'chat_models.dart';
@@ -28,7 +27,6 @@ import 'prompt_templates_service.dart';
 import 'voice_service.dart';
 import 'sync_service.dart';
 import '../approvals/approvals_service.dart';
-import '../ai/council_service.dart';
 import '../memory/memory_service.dart';
 import '../onboarding/tutorial_service.dart';
 import '../home/streak_service.dart';
@@ -40,6 +38,7 @@ import '../../app/sven_tokens.dart';
 
 part 'chat_thread_bubble.dart';
 part 'chat_thread_helpers.dart';
+
 
 class ChatThreadPage extends StatefulWidget {
   const ChatThreadPage({
@@ -123,7 +122,6 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
   bool _loadingMore = false;
   String? _loadError;
   String? _pendingText;
-
   /// Real server-assigned chat ID once a `new-{timestamp}` thread is persisted.
   String? _resolvedChatId;
   final List<String> _offlineQueue = [];
@@ -166,11 +164,6 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
   String _searchQuery = '';
   final _searchController = TextEditingController();
   int _searchCursor = 0; // index within _computeSearchMatches() results
-
-  // ── Council mode (A.5.1) ──
-  bool _councilEnabled = false;
-  bool _councilLoading = false;
-  CouncilService? _councilService;
 
   // ── Request deduplication ──
   String? _lastSentText;
@@ -355,7 +348,6 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     _loadMessages();
     _loadAgentState();
     _loadPinnedIds();
-    _loadCouncilConfig();
     _startSse();
     _scrollController.addListener(_onScroll);
     // Preload adjacent conversations so switching is instant.
@@ -413,45 +405,6 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     // Auto-summarize conversation for cross-conversation context
     _autoSummarize();
     super.dispose();
-  }
-
-  // ── A.5.1 — Council mode toggle ──
-
-  Future<void> _loadCouncilConfig() async {
-    try {
-      _councilService ??= CouncilService(widget.chatService.authClient);
-      final config = await _councilService!.getConfig();
-      if (mounted) setState(() => _councilEnabled = config.councilMode);
-    } catch (_) {
-      // Council API may not be available — leave toggle off.
-    }
-  }
-
-  Future<void> _toggleCouncilMode() async {
-    if (_councilLoading) return;
-    final newValue = !_councilEnabled;
-    // Optimistic update
-    setState(() {
-      _councilEnabled = newValue;
-      _councilLoading = true;
-    });
-    try {
-      _councilService ??= CouncilService(widget.chatService.authClient);
-      await _councilService!.setEnabled(newValue);
-    } catch (_) {
-      // Rollback on failure
-      if (mounted) {
-        setState(() => _councilEnabled = !newValue);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to toggle council mode'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _councilLoading = false);
-    }
   }
 
   /// Extract a summary of this conversation and store it in MemoryService.
@@ -640,9 +593,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
       if (m.role == 'assistant') lastAssistant = m.timestamp;
     }
     if (lastUser == null) return false;
-    if (lastAssistant != null && !lastAssistant.isBefore(lastUser)) {
-      return false;
-    }
+    if (lastAssistant != null && !lastAssistant.isBefore(lastUser)) return false;
     return DateTime.now().difference(lastUser).inSeconds > 30;
   }
 
@@ -1736,8 +1687,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                 ),
                 Text('React',
                     style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
+                        .textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 16),
                 Row(
@@ -1794,10 +1744,10 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     unawaited(
       widget.chatService
           .setMessageFeedback(
-        widget.thread.id,
-        messageId,
-        feedback: _encodeMessageFeedback(next),
-      )
+            widget.thread.id,
+            messageId,
+            feedback: _encodeMessageFeedback(next),
+          )
           .catchError((_) {
         if (!mounted) return;
         setState(() {
@@ -2060,111 +2010,113 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                                       )
                                     : null,
                                 child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (showDateSep)
-                                      _DateSeparator(
-                                        date: message.timestamp,
-                                        visualMode: widget.visualMode,
-                                      ),
-                                    _AnimatedMessageEntry(
-                                      key: ValueKey(message.id),
-                                      child: RepaintBoundary(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              message.role == 'user'
-                                                  ? CrossAxisAlignment.end
-                                                  : CrossAxisAlignment.start,
-                                          children: [
-                                            _MessageBubble(
-                                              message: message,
-                                              localImages:
-                                                  _messageImages[message.id] ??
-                                                      const [],
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (showDateSep)
+                                            _DateSeparator(
+                                              date: message.timestamp,
                                               visualMode: widget.visualMode,
-                                              isStreaming: message.status ==
-                                                  ChatMessageStatus.streaming,
-                                              showCursor: _showCursor &&
-                                                  message.status ==
-                                                      ChatMessageStatus
-                                                          .streaming,
-                                              onCopy: () =>
-                                                  _copyMessage(message),
-                                              onRegenerate: message.role ==
-                                                          'assistant' &&
-                                                      message.status ==
-                                                          ChatMessageStatus.sent
-                                                  ? () => _regenerateMessage(
-                                                      message)
-                                                  : null,
-                                              feedback: _feedback[message.id],
-                                              onThumbsUp: message.role ==
-                                                          'assistant' &&
-                                                      message.status ==
-                                                          ChatMessageStatus.sent
-                                                  ? () => _toggleFeedback(
-                                                      message.id,
-                                                      MessageFeedback.up)
-                                                  : null,
-                                              onThumbsDown: message.role ==
-                                                          'assistant' &&
-                                                      message.status ==
-                                                          ChatMessageStatus.sent
-                                                  ? () => _toggleFeedback(
-                                                      message.id,
-                                                      MessageFeedback.down)
-                                                  : null,
-                                              onReadAloud: message.role ==
-                                                          'assistant' &&
-                                                      message.status ==
-                                                          ChatMessageStatus
-                                                              .sent &&
-                                                      widget.voiceService !=
-                                                          null
-                                                  ? () =>
-                                                      _toggleReadAloud(message)
-                                                  : null,
-                                              isReadingAloud: widget
-                                                      .voiceService
-                                                      ?.speakingMessageId ==
-                                                  message.id,
-                                              actionButtons: actionButtons,
-                                              isActionDisabled: (id) =>
-                                                  _isActionDisabledFor(
-                                                      message.id, id),
-                                              onActionTap: (button) =>
-                                                  _handleActionButton(
-                                                      message, button),
-                                              onLongPress: message.status !=
-                                                          ChatMessageStatus
-                                                              .sending &&
-                                                      message.status !=
-                                                          ChatMessageStatus
-                                                              .streaming
-                                                  ? () => _showMessageMenu(
-                                                      context, message)
-                                                  : null,
-                                              onRunCode:
-                                                  message.role == 'assistant'
-                                                      ? (code, lang) {
-                                                          final prompt =
-                                                              'Run this $lang code and show the output:\n```$lang\n$code\n```';
-                                                          _handleSend(prompt);
-                                                        }
-                                                      : null,
-                                              onRetry: message.status ==
-                                                          ChatMessageStatus
-                                                              .failed &&
-                                                      message.role == 'user'
-                                                  ? _handleRetry
-                                                  : null,
-                                              onCancelQueued: message.status ==
-                                                      ChatMessageStatus.queued
-                                                  ? () => _handleCancelQueued(
-                                                      message)
-                                                  : null,
                                             ),
+                                          _AnimatedMessageEntry(
+                                            key: ValueKey(message.id),
+                                            child: RepaintBoundary(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    message.role == 'user'
+                                                        ? CrossAxisAlignment.end
+                                                        : CrossAxisAlignment.start,
+                                                children: [
+                                                  _MessageBubble(
+                                                    message: message,
+                                                    localImages:
+                                                        _messageImages[message.id] ??
+                                                            const [],
+                                                    visualMode: widget.visualMode,
+                                                    isStreaming: message.status ==
+                                                        ChatMessageStatus.streaming,
+                                                    showCursor: _showCursor &&
+                                                        message.status ==
+                                                            ChatMessageStatus
+                                                                .streaming,
+                                                    onCopy: () =>
+                                                        _copyMessage(message),
+                                                    onRegenerate: message.role ==
+                                                                'assistant' &&
+                                                            message.status ==
+                                                                ChatMessageStatus.sent
+                                                        ? () => _regenerateMessage(
+                                                            message)
+                                                        : null,
+                                                    feedback: _feedback[message.id],
+                                                    onThumbsUp: message.role ==
+                                                                'assistant' &&
+                                                            message.status ==
+                                                                ChatMessageStatus.sent
+                                                        ? () => _toggleFeedback(
+                                                            message.id,
+                                                            MessageFeedback.up)
+                                                        : null,
+                                                    onThumbsDown: message.role ==
+                                                                'assistant' &&
+                                                            message.status ==
+                                                                ChatMessageStatus.sent
+                                                        ? () => _toggleFeedback(
+                                                            message.id,
+                                                            MessageFeedback.down)
+                                                        : null,
+                                                    onReadAloud: message.role ==
+                                                                'assistant' &&
+                                                            message.status ==
+                                                                ChatMessageStatus
+                                                                    .sent &&
+                                                            widget.voiceService !=
+                                                                null
+                                                        ? () =>
+                                                            _toggleReadAloud(message)
+                                                        : null,
+                                                    isReadingAloud: widget
+                                                            .voiceService
+                                                            ?.speakingMessageId ==
+                                                        message.id,
+                                                    actionButtons: actionButtons,
+                                                    isActionDisabled: (id) =>
+                                                        _isActionDisabledFor(
+                                                            message.id, id),
+                                                    onActionTap: (button) =>
+                                                        _handleActionButton(
+                                                            message, button),
+                                                    onLongPress: message.status !=
+                                                                ChatMessageStatus
+                                                                    .sending &&
+                                                            message.status !=
+                                                                ChatMessageStatus
+                                                                    .streaming
+                                                        ? () => _showMessageMenu(
+                                                            context, message)
+                                                        : null,
+                                                    onRunCode:
+                                                        message.role == 'assistant'
+                                                            ? (code, lang) {
+                                                                final prompt =
+                                                                    'Run this $lang code and show the output:\n```$lang\n$code\n```';
+                                                                _handleSend(prompt);
+                                                              }
+                                                            : null,
+                                                    onRetry: message.status ==
+                                                                ChatMessageStatus
+                                                                    .failed &&
+                                                            message.role == 'user'
+                                                        ? _handleRetry
+                                                        : null,
+                                                    onCancelQueued: message.status ==
+                                                                ChatMessageStatus
+                                                                    .queued
+                                                            ? () =>
+                                                                _handleCancelQueued(
+                                                                    message)
+                                                            : null,
+                                                  ),
                                             // ── Token speed badge (shown while streaming) ──
                                             if (message.status ==
                                                     ChatMessageStatus
@@ -2447,20 +2399,6 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ),
-                      // A.5.1 — Council mode toggle
-                      IconButton(
-                        tooltip: _councilEnabled
-                            ? 'Council mode ON'
-                            : 'Council mode OFF',
-                        icon: Icon(
-                          Icons.groups_rounded,
-                          size: 20,
-                          color: _councilEnabled
-                              ? Theme.of(context).colorScheme.primary
-                              : null,
-                        ),
-                        onPressed: _councilLoading ? null : _toggleCouncilMode,
-                      ),
                       IconButton(
                         tooltip: _agentPaused ? 'Resume agent' : 'Pause agent',
                         icon: Icon(
@@ -2473,7 +2411,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                             ? null
                             : () {
                                 _toggleAgentPause();
-                              },
+                            },
                       ),
                       if (_isStuckForNudge)
                         IconButton(
@@ -2543,7 +2481,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
                     ),
                   ],
                 ),
-                child: const Center(
+              child: const Center(
                   child: SvenAppIcon(size: 56, borderRadius: 22),
                 ),
               ),
@@ -2629,3 +2567,4 @@ class _ChatThreadPageState extends State<ChatThreadPage> {
     );
   }
 }
+

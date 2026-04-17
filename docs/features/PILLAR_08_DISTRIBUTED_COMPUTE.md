@@ -36,6 +36,9 @@ Build a distributed compute mesh that allows Sven to scatter processing workload
 ### The Problem
 
 Sven runs heavy workloads that benefit from parallelization:
+- MiroFish simulations with 100,000+ agents
+- Backtesting across years of data and multiple strategies
+- Kronos inference on 50+ symbols in parallel
 - Competitive intelligence scraping across dozens of targets
 - Batch document OCR processing
 - Large model inference (70B+ parameter models)
@@ -372,23 +375,23 @@ Federated Instance → WireGuard Mesh → NATS Federation → Work Queue → Exe
 |----------|----------|-------------|
 | **MapReduce** | Backtesting, batch OCR, scraping | Split data into chunks → map function per chunk → reduce results |
 | **Pipeline** | Model inference, data processing chains | Each stage runs on a different device sequentially |
-| **Scatter-Gather** | Simulation, parameter search | Spawn N independent tasks → gather all results |
-| **MapReduce** | Batch OCR, scraping | Split data into chunks → map function per chunk → reduce results |
+| **Scatter-Gather** | MiroFish simulation, parameter search | Spawn N independent tasks → gather all results |
+| **Layer-Split** | Large model inference (AirLLM-style) | Assign model layers to different devices → chain activations |
 
-### 5.2 MapReduce Example: Distributed Batch OCR
+### 5.2 MapReduce Example: Distributed Backtesting
 
 ```
-Job: Process 500 scanned documents through OCR pipeline
+Job: Backtest strategy X on 5 years of 1-minute data for 50 symbols
 
 Decompose:
-  Unit 1: Process documents 1-10
-  Unit 2: Process documents 11-20
-  Unit 3: Process documents 21-30
+  Unit 1: Backtest BTCUSDT 2021-01-01 to 2021-06-30
+  Unit 2: Backtest BTCUSDT 2021-07-01 to 2021-12-31
+  Unit 3: Backtest BTCUSDT 2022-01-01 to 2022-06-30
   ...
-  Unit N: Process documents 491-500
+  Unit N: Backtest ETHUSDT 2025-07-01 to 2025-12-31
 
 Assign: Units distributed across all available workers
-Aggregate: Combine per-document extracted text into unified results
+Aggregate: Combine per-unit equity curves and metrics into global result
 ```
 
 ### 5.3 Layer-Split Example: 70B Model Inference
@@ -397,11 +400,12 @@ Aggregate: Combine per-document extracted text into unified results
 Job: Run 70B parameter model inference
 
 Decompose (AirLLM-style):
-  Device A (VM5, 28GB VRAM — RX 9070 XT + RX 6750 XT): Layers 0-25 → pass activations to B
-  Device B (VM13, 12GB VRAM — RTX 3060): Layers 26-40 → pass activations to C
-  Device C (S24 Ultra, TFLite): Layers 41-50 → final output
+  Device A (VM5, 8GB VRAM): Layers 0-15 → pass activations to B
+  Device B (VM13, 4GB VRAM): Layers 16-25 → pass activations to C
+  Device C (S24 Ultra, TFLite): Layers 26-35 → pass activations to D
+  Device D (Desktop, 6GB VRAM): Layers 36-50 → final output
 
-Pipeline: A → B → C → Result
+Pipeline: A → B → C → D → Result
 ```
 
 ### 5.4 Scheduling Algorithm
@@ -611,6 +615,9 @@ CREATE TABLE mesh_compute_ledger (
 
 | Use Case | Pillar | Job Type | Decomposition | Workers |
 |----------|--------|----------|---------------|---------|
+| Backtest 50 symbols × 5 years | Pillar 6 (Trading) | MapReduce | Per-symbol-per-period chunks | All VMs + desktops |
+| MiroFish 100K agent sim | Pillar 6 (Trading) | Scatter-Gather | Agent batches of 10K | VMs + GPU devices |
+| Kronos batch prediction | Pillar 6 (Trading) | MapReduce | Per-symbol batches | GPU devices |
 | Competitive intel scraping | Pillar 7 (Marketing) | Scatter-Gather | Per-competitor | All devices |
 | Batch OCR processing | Pillar 3 (OCR) | MapReduce | Per-document | All devices with GPU |
 | Large model inference (70B+) | Pillar 2 (Multi-Model) | Layer-Split | Per-layer pipeline | Multi-device chain |
@@ -722,6 +729,7 @@ interface ResultMessage {
 - [ ] Layer-split distributed inference across devices
 - [ ] Pipeline decomposition for multi-stage jobs
 - [ ] Admin dashboard: mesh topology, device status, job monitoring
+- [ ] Automated job distribution for Pillar 6 (trading) workloads
 
 ---
 
@@ -828,5 +836,6 @@ interface ResultMessage {
 - **Pillar 2** (Multi-Model): Large model inference distributed across mesh
 - **Pillar 3** (OCR): Batch OCR processing distributed
 - **Pillar 5** (Security): Security scan distribution
+- **Pillar 6** (Trading): Backtesting and simulation distributed
 - **Pillar 7** (Marketing): Competitive scraping distributed
 - **Master Plan**: `docs/features/EXPANSION_MASTER_PLAN.md`

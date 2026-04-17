@@ -53,10 +53,10 @@ Origin Pilot is a quantum operating system from China (Origin Quantum) that:
 **What**: Implement quantum algorithms that solve subproblems faster, running on the simulator (upgradeable to real hardware later).
 
 **Algorithms**:
-- [ ] **QAOA** (Quantum Approximate Optimization) — combinatorial optimization
+- [ ] **QAOA** (Quantum Approximate Optimization) — portfolio optimization for Pillar 6
 - [ ] **VQE** (Variational Quantum Eigensolver) — chemistry/material simulation baseline
 - [ ] **Grover's Search** — unstructured search speedup (database scanning)
-- [ ] **Quantum Monte Carlo** — enhanced simulation and sampling
+- [ ] **Quantum Monte Carlo** — enhanced prediction simulation for Pillar 6
 - [ ] **Shor's Algorithm** (educational/awareness) — understand cryptographic impact
 - [ ] **Quantum Random Number Generation** — true randomness for security (Pillar 5)
 - [ ] **Quantum Annealing Emulation** — optimization problems (scheduling, routing)
@@ -106,7 +106,7 @@ Origin Pilot is a quantum operating system from China (Origin Quantum) that:
 - [ ] Benchmark: 20-qubit circuit simulation time
 
 ### Algorithms (4.2)
-- [ ] Implement QAOA for combinatorial optimization
+- [ ] Implement QAOA for portfolio optimization
 - [ ] Implement Grover's Search
 - [ ] Implement Quantum Monte Carlo
 - [ ] Implement quantum random number generator
@@ -128,7 +128,7 @@ Origin Pilot is a quantum operating system from China (Origin Quantum) that:
 ## Success Criteria
 
 1. Quantum circuit simulator runs up to 20 qubits reliably
-2. QAOA produces valid optimization results on test case
+2. QAOA produces valid optimization results on portfolio test case
 3. Quantum random number generation passes NIST randomness tests
 4. Architecture can swap simulator for cloud quantum backend without code changes
 5. Sven can explain quantum concepts when asked

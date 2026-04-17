@@ -49,6 +49,8 @@ import '../features/ai/brain_admin_service.dart';
 import '../features/ai/community_agents_service.dart';
 import '../features/ai/calibration_service.dart';
 import '../features/ai/federation_service.dart';
+import '../features/trading/trading_service.dart';
+import '../features/trading/trading_sse_service.dart';
 import 'app_state.dart';
 import 'authenticated_client.dart';
 import 'feature_flag_service.dart';
@@ -217,8 +219,7 @@ final brainServiceProvider = ChangeNotifierProvider<BrainService>(
 /// The [OnDeviceInferenceService] (local Gemma 4 inference).
 ///
 /// Overridden in [_SvenUserAppState] with the live `_inferenceService` instance.
-final inferenceServiceProvider =
-    ChangeNotifierProvider<OnDeviceInferenceService>(
+final inferenceServiceProvider = ChangeNotifierProvider<OnDeviceInferenceService>(
   (ref) => throw StateError(
     'inferenceServiceProvider must be overridden by the root ProviderScope.',
   ),
@@ -275,4 +276,18 @@ final calibrationServiceProvider = Provider<CalibrationService>(
 final federationServiceProvider = Provider<FederationService>(
   (ref) => sl<FederationService>(),
   name: 'federationServiceProvider',
+);
+
+// ── Trading providers ────────────────────────────────────────────────────
+
+/// The [TradingService] (API client for trading.sven.systems).
+final tradingServiceProvider = Provider<TradingService>(
+  (ref) => sl<TradingService>(),
+  name: 'tradingServiceProvider',
+);
+
+/// The [TradingSseService] (live SSE stream from trading events).
+final tradingSseServiceProvider = Provider<TradingSseService>(
+  (ref) => sl<TradingSseService>(),
+  name: 'tradingSseServiceProvider',
 );

@@ -2,23 +2,6 @@ export default async function handler(input: Record<string, unknown>): Promise<R
   const action = input.action as string;
 
   switch (action) {
-    case 'describe_identity': {
-      return {
-        result: {
-          name: 'Sven',
-          version: '0.1.0',
-          website: 'sven.systems',
-          repository: 'github.com/47network/sven',
-          organisation: 'The 47 Network (github.com/47network)',
-          license: 'MIT',
-          description: 'A self-hosted, open-source AI platform with 47+ microservices, 20 messaging adapters, native mobile and desktop apps, and enterprise multi-tenancy.',
-          stack: 'TypeScript, Fastify, PostgreSQL + pgvector, NATS JetStream, OpenSearch, LiteLLM, Docker, Kubernetes',
-          presence: 'Live and running 24/7 at sven.systems. Available on WhatsApp, Telegram, Discord, Signal, Matrix, Slack, and 14+ more channels. Flutter mobile app, Tauri desktop app, React web UIs.',
-          philosophy: 'Not a chatbot. Not a wrapper around an API. A full-scale AI platform with persistent memory, self-healing, autonomous trading, 60+ skills, community agents, and a public codebase anyone can read, contribute to, or self-host.',
-        },
-      };
-    }
-
     case 'describe_architecture': {
       return {
         result: {
@@ -33,7 +16,7 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             'Self-healing — production v9 pipeline with 33 safety features: file quarantine, circuit breaker, git checkpoints, build/test verification, auto-rollback.',
           ],
           infrastructure: {
-            deployment: 'Multi-VM on Proxmox with WireGuard mesh (7 VMs)',
+            deployment: 'Multi-VM on Proxmox with WireGuard mesh (6 VMs)',
             orchestration: 'Docker Compose with profile-based service activation',
             database: 'PostgreSQL 16 + pgvector',
             eventBus: 'NATS JetStream',
@@ -49,7 +32,6 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             { name: 'VM7 (sven-adapters)', role: 'Channel adapters — 20+ messaging adapters (WhatsApp, Discord, Slack, Telegram, etc.)' },
             { name: 'VM12', role: 'Matrix/Synapse federation' },
             { name: 'VM13 (kaldorei)', role: 'GPU fallback — Ollama with qwen2.5:7b for fast trading inference' },
-            { name: 'VM14 (daedalus)', role: 'Public web — the47network.com static site, plate.the47network.com, TLS terminated at VM1' },
           ],
         },
       };
@@ -108,8 +90,6 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             { name: 'prometheus', host: 'VM6', role: 'Metrics storage (30d retention)', port: 9090 },
             { name: 'grafana', host: 'VM6', role: 'Dashboards', port: 9091 },
             { name: 'ollama', host: 'VM13', role: 'GPU fallback (qwen2.5:7b fast inference)', port: 11434 },
-            { name: 'nginx (the47network.com)', host: 'VM14', role: 'Static website for the47network.com', port: 80 },
-            { name: 'nginx (plate)', host: 'VM14', role: 'Static website for plate.the47network.com', port: 8080 },
           ],
           adapterCount: '20+ messaging adapters on VM7',
           totalContainers: '40+',
@@ -153,27 +133,12 @@ export default async function handler(input: Record<string, unknown>): Promise<R
             'services/registry-worker/': 'Skill registry scanning, signature verification (cosign)',
             'services/rag-*/': '4 RAG services: indexer, git-ingestor, nas-ingestor, notes-ingestor',
             'services/adapter-*/': '20+ channel adapters (discord, slack, telegram, whatsapp, matrix, signal, teams, irc, twitch, etc.)',
-            'services/compute-mesh/': 'Distributed workload orchestration across device fleets (port 9470)',
-            'services/model-router/': 'LLM inference routing, GPU fleet health, VRAM management, benchmarks (port 9471)',
-            'services/security-toolkit/': 'SAST, secret scanning, dependency CVE audit, infra audit, pen-test (port 9472)',
-            'services/document-intel/': 'OCR, entity extraction, summarisation, PII detection pipeline (port 9473)',
-            'services/marketing-intel/': 'Competitive intelligence, brand voice, content scoring, campaigns (port 9474)',
-            'services/proactive-notifier/': 'Autonomous notification engine with triggers, quiet hours, rate limiting (port 9475)',
-            'services/quantum-sim/': 'Quantum circuit simulation, algorithms (QAOA, Grover), job management (port 9476)',
             'services/sso/': 'Single sign-on identity provider',
             'services/litellm/': 'LiteLLM OpenAI-compatible proxy config',
             'services/faster-whisper/': 'Speech-to-text server',
             'services/piper/': 'Text-to-speech server',
             'packages/shared/': 'Shared TypeScript types, utilities, contracts (skill-loader, tool-executor, personality-engine, stealth-commit)',
             'packages/cli/': 'Sven CLI tool',
-            'packages/compute-mesh/': 'Distributed compute mesh library',
-            'packages/model-router/': 'Model routing & fleet management library',
-            'packages/security-toolkit/': 'Security scanning & audit library',
-            'packages/document-intel/': 'Document processing & OCR library',
-            'packages/marketing-intel/': 'Marketing intelligence & analytics library',
-            'packages/proactive-notifier/': 'Proactive notification engine library',
-            'packages/quantum-sim/': 'Quantum gates, simulator, algorithms, hardware backends',
-            'packages/design-system/': 'React UI component library (tokens, themes, typography, motion)',
             'contracts/grpc/': 'gRPC protocol definitions',
             'apps/admin-ui/': 'Next.js admin dashboard (souls, users, orgs, settings, integrations)',
             'apps/canvas-ui/': 'Canvas-based UI',

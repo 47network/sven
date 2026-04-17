@@ -28,16 +28,13 @@ class $AssetsImagesGen {
   const $AssetsImagesGen();
 
   /// File path: assets/images/onboarding_features.svg
-  SvgGenImage get onboardingFeatures =>
-      const SvgGenImage('assets/images/onboarding_features.svg');
+  SvgGenImage get onboardingFeatures => const SvgGenImage('assets/images/onboarding_features.svg');
 
   /// File path: assets/images/onboarding_voice.svg
-  SvgGenImage get onboardingVoice =>
-      const SvgGenImage('assets/images/onboarding_voice.svg');
+  SvgGenImage get onboardingVoice => const SvgGenImage('assets/images/onboarding_voice.svg');
 
   /// File path: assets/images/onboarding_welcome.svg
-  SvgGenImage get onboardingWelcome =>
-      const SvgGenImage('assets/images/onboarding_welcome.svg');
+  SvgGenImage get onboardingWelcome => const SvgGenImage('assets/images/onboarding_welcome.svg');
 
   /// File path: assets/images/sven_logo.svg
   SvgGenImage get svenLogo => const SvgGenImage('assets/images/sven_logo.svg');
@@ -50,9 +47,6 @@ class $AssetsImagesGen {
 class $AssetsLottieGen {
   const $AssetsLottieGen();
 
-  /// File path: assets/lottie/sven_celebrating.json
-  String get svenCelebrating => 'assets/lottie/sven_celebrating.json';
-
   /// File path: assets/lottie/sven_happy.json
   String get svenHappy => 'assets/lottie/sven_happy.json';
 
@@ -62,33 +56,14 @@ class $AssetsLottieGen {
   /// File path: assets/lottie/sven_listening.json
   String get svenListening => 'assets/lottie/sven_listening.json';
 
-  /// File path: assets/lottie/sven_sleeping.json
-  String get svenSleeping => 'assets/lottie/sven_sleeping.json';
-
   /// File path: assets/lottie/sven_speaking.json
   String get svenSpeaking => 'assets/lottie/sven_speaking.json';
 
   /// File path: assets/lottie/sven_thinking.json
   String get svenThinking => 'assets/lottie/sven_thinking.json';
 
-  /// File path: assets/lottie/sven_thought_bubble.json
-  String get svenThoughtBubble => 'assets/lottie/sven_thought_bubble.json';
-
-  /// File path: assets/lottie/sven_working.json
-  String get svenWorking => 'assets/lottie/sven_working.json';
-
   /// List of all assets
-  List<String> get values => [
-        svenCelebrating,
-        svenHappy,
-        svenIdle,
-        svenListening,
-        svenSleeping,
-        svenSpeaking,
-        svenThinking,
-        svenThoughtBubble,
-        svenWorking,
-      ];
+  List<String> get values => [svenHappy, svenIdle, svenListening, svenSpeaking, svenThinking];
 }
 
 class $AssetsTrayGen {
@@ -98,8 +73,7 @@ class $AssetsTrayGen {
   String get trayIconIco => 'assets/tray/tray_icon.ico';
 
   /// File path: assets/tray/tray_icon.png
-  AssetGenImage get trayIconPng =>
-      const AssetGenImage('assets/tray/tray_icon.png');
+  AssetGenImage get trayIconPng => const AssetGenImage('assets/tray/tray_icon.png');
 
   /// List of all assets
   List<dynamic> get values => [trayIconIco, trayIconPng];
@@ -276,8 +250,7 @@ class SvgGenImage {
       placeholderBuilder: placeholderBuilder,
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
-      colorFilter: colorFilter ??
-          (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
+      colorFilter: colorFilter ?? (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,
     );

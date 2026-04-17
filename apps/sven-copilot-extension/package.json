@@ -1,7 +1,7 @@
 {
   "name": "sven-copilot",
   "displayName": "Sven AI – Copilot Chat Participant",
-  "description": "Sven AI assistant as a GitHub Copilot Chat participant. Sven helps code himself, provides codebase awareness, and tests self-healing.",
+  "description": "Sven AI assistant as a GitHub Copilot Chat participant. Sven helps code himself, provides live trading context, and tests self-healing.",
   "version": "0.3.0",
   "publisher": "47network",
   "license": "MIT",
@@ -19,9 +19,13 @@
         "id": "sven.chat",
         "fullName": "Sven",
         "name": "sven",
-        "description": "Sven AI assistant — knows his own codebase and can help code himself.",
+        "description": "Sven AI assistant — knows his own codebase, live trading state, and can help code himself.",
         "isSticky": true,
         "commands": [
+          {
+            "name": "status",
+            "description": "Show Sven's live trading status — balance, positions, P&L, loop state."
+          },
           {
             "name": "soul",
             "description": "Show Sven's current active soul content."
@@ -37,6 +41,18 @@
           {
             "name": "deploy",
             "description": "Show deployment status and guide through deploying changes."
+          },
+          {
+            "name": "trade",
+            "description": "Show live trading dashboard — paper/live mode, positions, P&L, confidence thresholds."
+          },
+          {
+            "name": "positions",
+            "description": "Show all open positions with entry price, side, and unrealized P&L."
+          },
+          {
+            "name": "execute",
+            "description": "Trigger a paper trade analysis for a specific symbol (e.g. /execute BTCUSDT)."
           },
           {
             "name": "improve",
@@ -68,8 +84,8 @@
     "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
-    "@types/vscode": "^1.116.0",
-    "esbuild": "^0.25.12",
-    "typescript": "^5.9.3"
+    "@types/vscode": "^1.100.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.8.0"
   }
 }

@@ -776,9 +776,9 @@ function isLikelyAdResult(url: string, title: string, snippet: string): boolean 
     const parsed = new URL(url);
     const host = parsed.hostname.toLowerCase();
     if (
-      host === 'doubleclick.net' || host.endsWith('.doubleclick.net') ||
-      host === 'googlesyndication.com' || host.endsWith('.googlesyndication.com') ||
-      host === 'adservice.google.com' || host.startsWith('adservice.')
+      host.includes('doubleclick.net') ||
+      host.includes('googlesyndication.com') ||
+      host.startsWith('adservice.')
     ) {
       return true;
     }
@@ -9444,14 +9444,12 @@ end tell
         outputs: {
           topology: {
             vms: [
-              { name: 'VM1 — Edge Proxy (47d-platform)', ip: '10.47.47.5', wg: 'N/A', role: 'L4/L7 nginx reverse proxy, SNI routing, TLS termination (Let\'s Encrypt), routes the47network.com→VM14, sven.systems→VM4' },
               { name: 'VM4 — Platform', ip: '10.47.47.8', wg: '10.47.0.6', role: 'Core services: postgres, nats, gateway-api, agent-runtime, skill-runner, registry-worker, notification-service, workflow-executor, nginx' },
               { name: 'VM5 — AI & Voice', ip: '10.47.47.9', wg: '10.47.0.7', role: 'LLM inference: ollama (RX 9070 XT + RX 6750 XT), litellm, faster-whisper, piper, openwakeword, wake-word, llama-server (systemd)' },
               { name: 'VM6 — Data & Observability', ip: '10.47.47.10', wg: '10.47.0.8', role: 'opensearch, RAG pipeline (indexer, nas-ingestor, git-ingestor, notes-ingestor), searxng, egress-proxy, otel-collector, prometheus, grafana, loki, uptime-kuma' },
               { name: 'VM7 — Adapters', ip: '10.47.47.11', wg: '10.47.0.9', role: '22 channel adapters (discord, slack, telegram, matrix, teams, whatsapp, signal, imessage, webchat, google-chat, zalo, feishu, mattermost, voice-call, line, irc, nostr, tlon, nextcloud-talk, twitch, whatsapp-personal, zalo-personal), cloudflared tunnel' },
               { name: 'VM12 — External', ip: '10.47.47.12', wg: 'N/A', role: 'Rocket.Chat (talk.sven.systems)' },
               { name: 'VM13 — GPU Fallback (Kaldorei)', ip: '10.47.47.13', wg: 'N/A', role: 'Ollama fallback (RTX 3060)' },
-              { name: 'VM14 — Public Web (Daedalus)', ip: '10.47.47.14', wg: 'N/A', role: 'the47network.com + plate.the47network.com static sites, nginx, TLS terminated at VM1' },
             ],
             cross_vm_connectivity: {
               'VM7→VM4': 'Gateway API :3000',
@@ -9463,7 +9461,6 @@ end tell
               'VM4→VM5': 'Ollama :11434, LiteLLM :4000',
               'VM4→VM6': 'OpenSearch :9200, OTEL :4318, Egress :3128',
               'VM4→VM13': 'Ollama :11434 (fallback)',
-              'VM1→VM14': 'Nginx :80 (reverse proxy for the47network.com)',
             },
           },
           running_containers: containerLines,
@@ -9502,7 +9499,7 @@ end tell
       );
       const db = dbStats.rows[0] as { active_connections: number; total_connections: number; db_size_bytes: string };
 
-      const queueDepths: Record<string, number> = {};
+      let queueDepths: Record<string, number> = {};
       try {
         const qRes = await pool.query(
           `SELECT tool_name, count(*)::int AS pending FROM tool_runs WHERE status = 'running' GROUP BY tool_name ORDER BY pending DESC LIMIT 20`,
@@ -9510,7 +9507,7 @@ end tell
         for (const r of qRes.rows) queueDepths[(r as any).tool_name] = (r as any).pending;
       } catch { /* tool_runs may not exist yet */ }
 
-      const errors24h: { total: number; by_status: Record<string, number> } = { total: 0, by_status: {} };
+      let errors24h: { total: number; by_status: Record<string, number> } = { total: 0, by_status: {} };
       try {
         const errRes = await pool.query(
           `SELECT status, count(*)::int AS cnt FROM tool_runs WHERE status IN ('error','timeout','denied') AND created_at >= NOW() - INTERVAL '24 hours' GROUP BY status`,

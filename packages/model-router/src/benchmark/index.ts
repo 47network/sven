@@ -179,79 +179,6 @@ const REASONING_SUITE: BenchmarkSuite = {
   ],
 };
 
-const LOCAL_VS_CLOUD_SUITE: BenchmarkSuite = {
-  id: 'local-vs-cloud',
-  name: 'Local vs Cloud Comparison',
-  description: 'Compares local GPU inference against cloud API models on latency, quality, and cost.',
-  createdAt: new Date().toISOString(),
-  tasks: [
-    {
-      id: 'lvc-code-1',
-      prompt: 'Write a TypeScript function that debounces an async function with proper types and cancellation support.',
-      taskType: 'coding',
-      difficulty: 'medium',
-      maxTokens: 1024,
-      evaluationCriteria: [
-        { name: 'correctness', weight: 0.4, type: 'code_correctness' },
-        { name: 'latency', weight: 0.35, type: 'latency', threshold: 10000 },
-        { name: 'cost', weight: 0.25, type: 'cost', threshold: 0.01 },
-      ],
-    },
-    {
-      id: 'lvc-reason-1',
-      prompt: 'A farmer has 17 sheep. All but 9 die. How many are left? Explain your reasoning step by step.',
-      expectedOutput: '9',
-      taskType: 'reasoning',
-      difficulty: 'easy',
-      maxTokens: 256,
-      evaluationCriteria: [
-        { name: 'answer', weight: 0.5, type: 'contains' },
-        { name: 'latency', weight: 0.3, type: 'latency', threshold: 3000 },
-        { name: 'cost', weight: 0.2, type: 'cost', threshold: 0.005 },
-      ],
-    },
-    {
-      id: 'lvc-chat-1',
-      prompt: 'Explain the differences between TCP and UDP in a way a junior developer would understand. Include when to use each.',
-      taskType: 'chat',
-      difficulty: 'easy',
-      maxTokens: 512,
-      evaluationCriteria: [
-        { name: 'quality', weight: 0.5, type: 'semantic_similarity' },
-        { name: 'latency', weight: 0.3, type: 'latency', threshold: 5000 },
-        { name: 'cost', weight: 0.2, type: 'cost', threshold: 0.005 },
-      ],
-    },
-    {
-      id: 'lvc-summary-1',
-      prompt: 'Summarize the key principles of the SOLID design patterns in 5 bullet points, each with a concrete example.',
-      taskType: 'summarization',
-      difficulty: 'medium',
-      maxTokens: 512,
-      evaluationCriteria: [
-        { name: 'quality', weight: 0.5, type: 'semantic_similarity' },
-        { name: 'latency', weight: 0.3, type: 'latency', threshold: 8000 },
-        { name: 'cost', weight: 0.2, type: 'cost', threshold: 0.01 },
-      ],
-    },
-  ],
-};
-
-/* -------------------------------------------------------- comparison result */
-
-export interface ModelComparisonResult {
-  localModelId: string;
-  cloudModelId: string;
-  suiteId: string;
-  localAggregate: AggregateMetrics | null;
-  cloudAggregate: AggregateMetrics | null;
-  winner: 'local' | 'cloud' | 'tie';
-  qualityDelta: number;
-  latencyDeltaMs: number;
-  costSavingsUsd: number;
-  recommendation: string;
-}
-
 /* ---------------------------------------------------- benchmark engine */
 
 export class BenchmarkEngine {
@@ -259,12 +186,10 @@ export class BenchmarkEngine {
   private runs: BenchmarkRun[] = [];
   private eloRatings = new Map<string, EloRating>();
   private abResults: ABTestResult[] = [];
-  private comparisons: ModelComparisonResult[] = [];
 
   constructor() {
     this.suites.set(CODING_SUITE.id, CODING_SUITE);
     this.suites.set(REASONING_SUITE.id, REASONING_SUITE);
-    this.suites.set(LOCAL_VS_CLOUD_SUITE.id, LOCAL_VS_CLOUD_SUITE);
   }
 
   /* ----------- suites ----------- */
@@ -442,81 +367,5 @@ export class BenchmarkEngine {
     }
 
     return lines.join('\n');
-  }
-
-  /* ----------- local vs cloud comparison ----------- */
-
-  /**
-   * Record the results of running the same benchmark suite against a local
-   * and a cloud model, producing a comparison with winner, quality delta,
-   * latency delta, and cost savings.
-   */
-  recordComparison(
-    localRunId: string,
-    cloudRunId: string,
-    localModelId: string,
-    cloudModelId: string,
-    cloudCostPer1kTokens = 0.03,
-  ): ModelComparisonResult | null {
-    const localRun = this.getRun(localRunId);
-    const cloudRun = this.getRun(cloudRunId);
-    if (!localRun || !cloudRun) return null;
-    if (localRun.status !== 'completed' || cloudRun.status !== 'completed') return null;
-
-    const la = localRun.aggregate;
-    const ca = cloudRun.aggregate;
-    if (!la || !ca) return null;
-
-    const qualityDelta = la.overallScore - ca.overallScore;
-    const latencyDeltaMs = la.avgLatencyMs - ca.avgLatencyMs;
-
-    // Local inference cost is effectively $0 (electricity only).
-    // Cloud cost = tokens × rate.
-    const cloudCostUsd = (ca.totalTokensUsed / 1000) * cloudCostPer1kTokens;
-    const costSavingsUsd = cloudCostUsd;
-
-    let winner: 'local' | 'cloud' | 'tie';
-    if (qualityDelta >= 5) {
-      winner = 'local';
-    } else if (qualityDelta <= -5) {
-      winner = 'cloud';
-    } else {
-      // Within 5 points — pick on latency and cost
-      winner = latencyDeltaMs <= 0 ? 'local' : costSavingsUsd > 0.01 ? 'local' : 'tie';
-    }
-
-    let recommendation: string;
-    if (winner === 'local') {
-      recommendation = latencyDeltaMs <= 0
-        ? `Local model is faster and cheaper — use for all ${localRun.suiteId} tasks`
-        : `Local model has better quality (+${qualityDelta} pts) and saves $${costSavingsUsd.toFixed(4)}/request — acceptable latency trade-off`;
-    } else if (winner === 'cloud') {
-      recommendation = `Cloud model scores ${-qualityDelta} points higher — use local only as fallback or for cost-sensitive tasks`;
-    } else {
-      recommendation = `Models are comparable — prefer local for cost savings ($${costSavingsUsd.toFixed(4)}/request)`;
-    }
-
-    const comparison: ModelComparisonResult = {
-      localModelId,
-      cloudModelId,
-      suiteId: localRun.suiteId,
-      localAggregate: la,
-      cloudAggregate: ca,
-      winner,
-      qualityDelta,
-      latencyDeltaMs,
-      costSavingsUsd,
-      recommendation,
-    };
-
-    this.comparisons.push(comparison);
-    return comparison;
-  }
-
-  getComparisons(modelId?: string): ModelComparisonResult[] {
-    if (!modelId) return [...this.comparisons];
-    return this.comparisons.filter(
-      (c) => c.localModelId === modelId || c.cloudModelId === modelId,
-    );
   }
 }

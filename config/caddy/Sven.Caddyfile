@@ -10,6 +10,8 @@
 # - gateway-api: 127.0.0.1:3000
 # - admin-ui:    127.0.0.1:3100
 # - canvas-ui:   127.0.0.1:3200
+# - trading-ui:  127.0.0.1:3300
+# - trading-ui:  127.0.0.1:3300
 
 sven.glyph.47matrix.online {
 	encode gzip zstd
@@ -63,3 +65,33 @@ sven.glyph.47matrix.online {
 	}
 }
 
+# ── trading.sven.systems — Live Trading Dashboard ──────────
+trading.sven.systems {
+	encode gzip zstd
+
+	# WebSocket passthrough for Binance live streams (proxied by Next.js)
+	@ws_upgrade {
+		header Connection *Upgrade*
+		header Upgrade    websocket
+	}
+	handle @ws_upgrade {
+		reverse_proxy 127.0.0.1:3300
+	}
+
+	# API proxy: trading-ui's internal /api/* routes
+	@trading_api path /api/*
+	handle @trading_api {
+		reverse_proxy 127.0.0.1:3300
+	}
+
+	# Gateway API passthrough for /v1/trading/* endpoints
+	@gateway_api path /v1/*
+	handle @gateway_api {
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	# Everything else → Next.js trading-ui
+	handle {
+		reverse_proxy 127.0.0.1:3300
+	}
+}

@@ -100,31 +100,14 @@ function shouldAttemptRefresh(path: string): boolean {
   const p = String(path || '').toLowerCase();
   if (!p) return true;
   if (p.startsWith('/auth/login')) return false;
-  if (p.startsWith('/auth/totp/')) return false;
+  if (p.startsWith('/auth/totp/verify')) return false;
   if (p.startsWith('/auth/logout')) return false;
   return true;
 }
 
 type LoginResponseData = {
   requires_totp?: boolean;
-  requires_totp_enrollment?: boolean;
   pre_session_id?: string;
-};
-
-type TotpSetupResponseData = {
-  otp_auth_url: string;
-  secret: string;
-};
-
-type TotpConfirmSetupResponseData = {
-  user_id: string;
-  username: string;
-  role: string;
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-  expires_in: number;
-  totp_enrolled: boolean;
 };
 
 type AccountRow = {
@@ -776,10 +759,6 @@ export const auth = {
     request<{ success: boolean; data: LoginResponseData }>('POST', '/auth/login', { username, password }),
   verifyTotp: (pre_session_id: string, code: string) =>
     request<{ success: boolean; data: LoginResponseData }>('POST', '/auth/totp/verify', { pre_session_id, code }),
-  setupTotp: (pre_session_id: string) =>
-    request<{ success: boolean; data: TotpSetupResponseData }>('POST', '/auth/totp/setup', { pre_session_id }),
-  confirmTotpSetup: (pre_session_id: string, code: string) =>
-    request<{ success: boolean; data: TotpConfirmSetupResponseData }>('POST', '/auth/totp/confirm-setup', { pre_session_id, code }),
   logout: () => request<void>('POST', '/auth/logout'),
   logoutAll: () => request<{ success: boolean; data: { sessions_revoked: number } }>('POST', '/auth/logout-all'),
   me: async () => {
@@ -825,20 +804,6 @@ export const users = {
     request<{ success: boolean; data: Record<string, unknown> }>('POST', `/admin/users/${userId}/identity-links/${linkId}/verify`, { code }),
   deleteIdentityLink: (userId: string, linkId: string) =>
     request<void>('DELETE', `/admin/users/${userId}/identity-links/${linkId}`),
-};
-
-// ── Invites ──
-export const invites = {
-  list: (includeExpired = false) =>
-    request<{ success: boolean; data: Array<Record<string, unknown>> }>(
-      'GET',
-      `/admin/invites${includeExpired ? '?include_expired=true' : ''}`,
-    ),
-  get: (id: string) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('GET', `/admin/invites/${id}`),
-  create: (data: { role?: string; max_uses?: number; expires_in_hours?: number }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/admin/invites', data),
-  revoke: (id: string) => request<void>('DELETE', `/admin/invites/${id}`),
 };
 
 // ── Chats ──
@@ -2390,183 +2355,19 @@ export type AnalyticsOverviewData = {
   daily_activity: Array<{ day: string; messages: number; active_users: number }>;
 };
 
-// ── GPU Fleet & Model Deploy ──
-export const gpuFleet = {
-  status: () =>
-    request<{ success: boolean; data: Record<string, unknown> }>('GET', '/model-router/fleet/status'),
-  probe: () =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/model-router/fleet/probe'),
-  nodes: () =>
-    request<{ success: boolean; data: Array<Record<string, unknown>> }>('GET', '/model-router/fleet/nodes'),
-  nodeStatus: (nodeId: string) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('GET', `/model-router/fleet/nodes/${encodeURIComponent(nodeId)}`),
-  probeNode: (nodeId: string) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', `/model-router/fleet/nodes/${encodeURIComponent(nodeId)}/probe`),
-  loadModel: (nodeId: string, model: string) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', `/model-router/fleet/nodes/${encodeURIComponent(nodeId)}/load`, { model }),
-  unloadModel: (nodeId: string, model: string) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', `/model-router/fleet/nodes/${encodeURIComponent(nodeId)}/unload`, { model }),
-  downloadModel: (body: { model_name: string; target: string; node_endpoint: string; force?: boolean }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/model-router/deploy/download', body),
-  quantRecommend: (body: { model_name: string; parameter_count_b: number; available_vram_mb: number }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/model-router/deploy/quantize-recommend', body),
-  healthCheck: (body: { model_name: string; node_endpoint: string; target: string }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/model-router/deploy/health-check', body),
-  profileModel: (body: { model_name: string; node_endpoint: string; target: string }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/model-router/deploy/profile', body),
-  deployPipeline: (body: {
-    model_name: string; target: string; node_endpoint: string;
-    parameter_count_b?: number; available_vram_mb?: number;
-    skip_download?: boolean; skip_profile?: boolean; force?: boolean;
-  }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/model-router/deploy/pipeline', body),
-  comparisons: (modelId?: string) =>
-    request<{ success: boolean; data: Array<Record<string, unknown>> }>('GET', `/model-router/models/benchmark/comparisons${modelId ? `?model_id=${encodeURIComponent(modelId)}` : ''}`),
-};
-
-// ── Council (Epic A) ──
-export const council = {
-  config: () =>
-    request<{ config: Record<string, unknown> }>('GET', '/admin/council/config'),
-  updateConfig: (body: { models?: string[]; chairman?: string; strategy?: string; rounds?: number; enabled?: boolean }) =>
-    request<{ updated: boolean; config: Record<string, unknown> }>('PUT', '/admin/council/config', body),
-  deliberate: (body: { query: string; models?: string[]; chairman?: string; strategy?: string; rounds?: number; anonymize?: boolean }) =>
-    request<{ sessionId: string; status: string; config: Record<string, unknown>; message: string }>('POST', '/admin/council/deliberate', body),
-  sessions: (params?: { limit?: number; offset?: number }) =>
-    request<{ sessions: Array<Record<string, unknown>>; total: number; limit: number; offset: number }>(
-      'GET', `/admin/council/sessions?limit=${params?.limit ?? 20}&offset=${params?.offset ?? 0}`),
-  session: (id: string) =>
-    request<Record<string, unknown>>('GET', `/admin/council/sessions/${encodeURIComponent(id)}`),
-};
-
-// ── Evolution (Epic B) ──
-export const evolution = {
-  runs: (params?: { limit?: number; status?: string }) => {
-    const qs = new URLSearchParams();
-    if (params?.limit) qs.set('limit', String(params.limit));
-    if (params?.status) qs.set('status', params.status);
-    const q = qs.toString();
-    return request<{ runs: Array<Record<string, unknown>>; total: number }>('GET', `/admin/evolution/runs${q ? `?${q}` : ''}`);
-  },
-  run: (id: string) =>
-    request<{ run: Record<string, unknown>; nodes: Array<Record<string, unknown>>; cognition: Array<Record<string, unknown>>; node_count: number; cognition_count: number }>(
-      'GET', `/admin/evolution/runs/${encodeURIComponent(id)}`),
-  create: (body: { domain?: string; experiment?: Record<string, unknown>; config?: Record<string, unknown> }) =>
-    request<{ run_id: string; status: string }>('POST', '/admin/evolution/runs', body),
-  stop: (id: string) =>
-    request<{ run_id: string; status: string }>('POST', `/admin/evolution/runs/${encodeURIComponent(id)}/stop`),
-  best: (id: string) =>
-    request<{ best: Record<string, unknown> }>('GET', `/admin/evolution/runs/${encodeURIComponent(id)}/best`),
-  injectKnowledge: (id: string, body: { title: string; content: string }) =>
-    request<{ id: string; message: string }>('POST', `/admin/evolution/runs/${encodeURIComponent(id)}/knowledge`, body),
-  templates: () =>
-    request<{ templates: Array<Record<string, unknown>> }>('GET', '/admin/evolution/templates'),
-  stats: () =>
-    request<{ stats: Record<string, unknown> }>('GET', '/admin/evolution/stats'),
-};
-
-// ── Revenue (Epic I) ──
-export const revenue = {
-  pipelines: (params?: { type?: string; status?: string }) => {
-    const qs = new URLSearchParams();
-    if (params?.type) qs.set('type', params.type);
-    if (params?.status) qs.set('status', params.status);
-    const q = qs.toString();
-    return request<{ success: boolean; data: { pipelines: Array<Record<string, unknown>> } }>('GET', `/admin/revenue/pipelines${q ? `?${q}` : ''}`);
-  },
-  createPipeline: (body: { name: string; type: string; config?: Record<string, unknown> }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/admin/revenue/pipelines', body),
-  activatePipeline: (id: string) =>
-    request<{ success: boolean; data: { id: string; status: string } }>('PATCH', `/admin/revenue/pipelines/${encodeURIComponent(id)}/activate`),
-  pausePipeline: (id: string) =>
-    request<{ success: boolean; data: { id: string; status: string } }>('PATCH', `/admin/revenue/pipelines/${encodeURIComponent(id)}/pause`),
-  events: (params?: { pipeline_id?: string; limit?: number; offset?: number }) => {
-    const qs = new URLSearchParams();
-    if (params?.pipeline_id) qs.set('pipeline_id', params.pipeline_id);
-    if (params?.limit) qs.set('limit', String(params.limit));
-    if (params?.offset) qs.set('offset', String(params.offset));
-    const q = qs.toString();
-    return request<{ success: boolean; data: { events: Array<Record<string, unknown>>; limit: number; offset: number } }>('GET', `/admin/revenue/events${q ? `?${q}` : ''}`);
-  },
-  services: () =>
-    request<{ success: boolean; data: { services: Array<Record<string, unknown>> } }>('GET', '/admin/revenue/services'),
-  createService: (body: { pipeline_id: string; skill_name: string; path: string; price_per_call?: number; rate_limit?: number; description?: string }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/admin/revenue/services', body),
-  products: () =>
-    request<{ success: boolean; data: { products: Array<Record<string, unknown>> } }>('GET', '/admin/revenue/products'),
-  stats: () =>
-    request<{ success: boolean; data: { pipelinesByType: Array<Record<string, unknown>>; totalRevenue: number; totalFees: number; totalNet: number; eventCount: number; merchSold: number; merchRevenue: number } }>('GET', '/admin/revenue/stats'),
-};
-
-// ── Infrastructure (Epic I) ──
-export const infra = {
-  nodes: (params?: { status?: string }) => {
-    const qs = new URLSearchParams();
-    if (params?.status) qs.set('status', params.status);
-    const q = qs.toString();
-    return request<{ success: boolean; data: { nodes: Array<Record<string, unknown>> } }>('GET', `/admin/infra/nodes${q ? `?${q}` : ''}`);
-  },
-  createNode: (body: { hostname: string; domain: string; provider: string; region?: string; resources?: Record<string, unknown>; costs?: Record<string, unknown>; services?: string[]; tags?: string[] }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/admin/infra/nodes', body),
-  updateNodeStatus: (id: string, status: string) =>
-    request<{ success: boolean; data: { id: string; status: string } }>('PATCH', `/admin/infra/nodes/${encodeURIComponent(id)}/status`, { status }),
-  nodeHealth: (id: string, limit?: number) =>
-    request<{ success: boolean; data: { checks: Array<Record<string, unknown>> } }>('GET', `/admin/infra/nodes/${encodeURIComponent(id)}/health${limit ? `?limit=${limit}` : ''}`),
-  proposals: (params?: { status?: string }) => {
-    const qs = new URLSearchParams();
-    if (params?.status) qs.set('status', params.status);
-    const q = qs.toString();
-    return request<{ success: boolean; data: { proposals: Array<Record<string, unknown>> } }>('GET', `/admin/infra/proposals${q ? `?${q}` : ''}`);
-  },
-  createProposal: (body: { title: string; description?: string; node_id?: string; proposal_type: string; current_cost?: number; proposed_cost?: number; expected_benefit?: string; risk_level?: string }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/admin/infra/proposals', body),
-  approveProposal: (id: string) =>
-    request<{ success: boolean; data: { id: string; status: string } }>('POST', `/admin/infra/proposals/${encodeURIComponent(id)}/approve`),
-  deployments: (params?: { node_id?: string; status?: string }) => {
-    const qs = new URLSearchParams();
-    if (params?.node_id) qs.set('node_id', params.node_id);
-    if (params?.status) qs.set('status', params.status);
-    const q = qs.toString();
-    return request<{ success: boolean; data: { deployments: Array<Record<string, unknown>> } }>('GET', `/admin/infra/deployments${q ? `?${q}` : ''}`);
-  },
-  goals: (params?: { type?: string; status?: string }) => {
-    const qs = new URLSearchParams();
-    if (params?.type) qs.set('type', params.type);
-    if (params?.status) qs.set('status', params.status);
-    const q = qs.toString();
-    return request<{ success: boolean; data: { goals: Array<Record<string, unknown>> } }>('GET', `/admin/infra/goals${q ? `?${q}` : ''}`);
-  },
-  createGoal: (body: { title: string; type?: string; description?: string; target_value: number; unit?: string; deadline: string; milestones?: Array<Record<string, unknown>> }) =>
-    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/admin/infra/goals', body),
-  updateGoalProgress: (id: string, currentValue: number) =>
-    request<{ success: boolean; data: { id: string; current_value: number; status: string } }>('PATCH', `/admin/infra/goals/${encodeURIComponent(id)}/progress`, { current_value: currentValue }),
-  costs: () =>
-    request<{ success: boolean; data: { totalMonthlyCost: number; byNode: Array<{ nodeId: string; hostname: string; cost: number }> } }>('GET', '/admin/infra/costs'),
-  stats: () =>
-    request<{ success: boolean; data: { nodes: Array<Record<string, unknown>>; deployments: Array<Record<string, unknown>>; proposals: Array<Record<string, unknown>>; goals: Array<Record<string, unknown>> } }>('GET', '/admin/infra/stats'),
-};
-
-// ── Video (Epic E) ──
-export const video = {
-  jobs: (params?: { limit?: number; status?: string }) => {
-    const qs = new URLSearchParams();
-    if (params?.limit) qs.set('limit', String(params.limit));
-    if (params?.status) qs.set('status', params.status);
-    const q = qs.toString();
-    return request<{ jobs: Array<Record<string, unknown>>; total: number }>('GET', `/admin/video/jobs${q ? `?${q}` : ''}`);
-  },
-  job: (id: string) =>
-    request<Record<string, unknown>>('GET', `/admin/video/jobs/${encodeURIComponent(id)}`),
-  createJob: (body: { title?: string; description?: string; template?: string; spec: Record<string, unknown> }) =>
-    request<{ id: string; status: string; created_at: string }>('POST', '/admin/video/jobs', body),
-  cancelJob: (id: string) =>
-    request<{ id: string; status: string }>('POST', `/admin/video/jobs/${encodeURIComponent(id)}/cancel`),
-  templates: () =>
-    request<{ templates: Array<Record<string, unknown>>; total: number }>('GET', '/admin/video/templates'),
-  createTemplate: (body: { name: string; description?: string; aspect_ratio?: string; spec: Record<string, unknown> }) =>
-    request<{ id: string; name: string; created_at: string }>('POST', '/admin/video/templates', body),
-  stats: () =>
-    request<{ total_jobs: number; completed: number; failed: number; rendering: number; pending: number; avg_render_time_ms: number; total_output_bytes: number; total_video_secs: number }>('GET', '/admin/video/stats'),
+// ── Trading ──
+export const trading = {
+  dashboard: () => request<{ success: boolean; data: Record<string, unknown> }>('GET', '/admin/trading/dashboard'),
+  correlationMatrix: () => request<{ success: boolean; data: Record<string, unknown> }>('GET', '/admin/trading/correlation-matrix'),
+  executionQuality: () => request<{ success: boolean; data: Record<string, unknown> }>('GET', '/admin/trading/execution-quality'),
+  pnlChart: () => request<{ success: boolean; data: Array<{ date: string; equity: number }> }>('GET', '/admin/trading/pnl-chart'),
+  credentials: () => requestRowsSoft('/admin/trading/exchange-credentials'),
+  addCredential: (body: { broker: string; apiKey: string; apiSecret: string; isPaper: boolean; label?: string }) =>
+    request<{ success: boolean }>('POST', '/admin/trading/exchange-credentials', body),
+  revokeCredential: (id: string) =>
+    request<{ success: boolean }>('DELETE', `/admin/trading/exchange-credentials/${id}`),
+  brokers: () => requestRowsSoft('/v1/trading/broker/list'),
+  brokerHealth: () => request<Record<string, boolean>>('GET', '/v1/trading/broker/health'),
 };
 
 export const api = {
@@ -2626,10 +2427,5 @@ export const api = {
   communityAgents,
   federation,
   analyticsOverview,
-  gpuFleet,
-  council,
-  evolution,
-  revenue,
-  infra,
-  video,
+  trading,
 };

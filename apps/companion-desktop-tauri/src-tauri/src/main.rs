@@ -5,8 +5,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{fs, path::PathBuf, time::Duration};
 use tauri::{AppHandle, Manager};
-use tauri::menu::{MenuBuilder, MenuItemBuilder};
-use tauri::tray::TrayIconBuilder;
 use url::Url;
 
 const SERVICE: &str = "sven-companion-desktop";
@@ -501,9 +499,8 @@ async fn inference_delete_model(model_name: String) -> Result<(), String> {
     .map_err(|e| format!("ollama delete failed: {e}"))?;
 
   if !res.status().is_success() {
-    let status = res.status();
     let body = res.text().await.unwrap_or_default();
-    return Err(format!("ollama delete http {}: {}", status, body));
+    return Err(format!("ollama delete http {}: {}", res.status(), body));
   }
   Ok(())
 }
@@ -577,10 +574,6 @@ async fn inference_generate(req: InferenceRequest) -> Result<InferenceResponse, 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
-    .setup(|app| {
-      setup_tray(app.handle())?;
-      Ok(())
-    })
     .invoke_handler(tauri::generate_handler![
       load_config,
       save_config,
@@ -598,10 +591,7 @@ pub fn run() {
       inference_list_models,
       inference_pull_model,
       inference_delete_model,
-      inference_generate,
-      toggle_overlay,
-      show_mini_terminal,
-      position_overlay_default
+      inference_generate
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
@@ -609,113 +599,4 @@ pub fn run() {
 
 fn main() {
   run();
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// D.2.6 — System tray menu
-// ═══════════════════════════════════════════════════════════════════════════
-
-fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-  let show_main = MenuItemBuilder::with_id("show_main", "Show Sven").build(app)?;
-  let toggle_char = MenuItemBuilder::with_id("toggle_overlay", "Toggle Character").build(app)?;
-  let quick_cmd = MenuItemBuilder::with_id("quick_command", "Quick Command").build(app)?;
-  let quit = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
-
-  let menu = MenuBuilder::new(app)
-    .item(&show_main)
-    .item(&toggle_char)
-    .item(&quick_cmd)
-    .separator()
-    .item(&quit)
-    .build()?;
-
-  let _tray = TrayIconBuilder::new()
-    .tooltip("Sven Companion")
-    .menu(&menu)
-    .on_menu_event(|app, event| {
-      match event.id().as_ref() {
-        "show_main" => {
-          if let Some(win) = app.get_webview_window("main") {
-            let _ = win.show();
-            let _ = win.set_focus();
-          }
-        }
-        "toggle_overlay" => {
-          if let Some(win) = app.get_webview_window("overlay") {
-            if win.is_visible().unwrap_or(false) {
-              let _ = win.hide();
-            } else {
-              let _ = win.show();
-              let _ = win.set_focus();
-            }
-          }
-        }
-        "quick_command" => {
-          if let Some(win) = app.get_webview_window("mini-terminal") {
-            let _ = win.show();
-            let _ = win.set_focus();
-            let _ = win.center();
-          }
-        }
-        "quit" => {
-          std::process::exit(0);
-        }
-        _ => {}
-      }
-    })
-    .build(app)?;
-
-  Ok(())
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// D.2.1/D.2.7 — Overlay and mini-terminal window control commands
-// ═══════════════════════════════════════════════════════════════════════════
-
-#[tauri::command]
-fn toggle_overlay(app: AppHandle) -> Result<bool, String> {
-  let win = app
-    .get_webview_window("overlay")
-    .ok_or_else(|| "overlay window not found".to_string())?;
-  let visible = win.is_visible().map_err(|e| format!("visibility check: {e}"))?;
-  if visible {
-    win.hide().map_err(|e| format!("hide overlay: {e}"))?;
-  } else {
-    win.show().map_err(|e| format!("show overlay: {e}"))?;
-  }
-  Ok(!visible)
-}
-
-#[tauri::command]
-fn show_mini_terminal(app: AppHandle) -> Result<(), String> {
-  let win = app
-    .get_webview_window("mini-terminal")
-    .ok_or_else(|| "mini-terminal window not found".to_string())?;
-  win.show().map_err(|e| format!("show mini-terminal: {e}"))?;
-  win.center().map_err(|e| format!("center mini-terminal: {e}"))?;
-  win.set_focus().map_err(|e| format!("focus mini-terminal: {e}"))?;
-  Ok(())
-}
-
-// D.3.1-D.3.4 — Cross-platform overlay positioning
-#[tauri::command]
-fn position_overlay_default(app: AppHandle) -> Result<(), String> {
-  let win = app
-    .get_webview_window("overlay")
-    .ok_or_else(|| "overlay window not found".to_string())?;
-
-  // Get primary monitor to position overlay at bottom-right above taskbar
-  let monitor = win.primary_monitor().map_err(|e| format!("monitor: {e}"))?;
-  if let Some(mon) = monitor {
-    let size = mon.size();
-    let pos = mon.position();
-    // Position 20px from right edge, 80px from bottom (above taskbar/dock/panel)
-    let x = pos.x as i32 + size.width as i32 - 140; // 120px window + 20px margin
-    let y = pos.y as i32 + size.height as i32 - 240; // 160px window + 80px taskbar
-    win
-      .set_position(tauri::PhysicalPosition::new(x, y))
-      .map_err(|e| format!("position overlay: {e}"))?;
-  }
-  win.show().map_err(|e| format!("show overlay: {e}"))?;
-  Ok(())
 }

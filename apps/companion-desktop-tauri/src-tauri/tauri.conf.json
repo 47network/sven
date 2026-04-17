@@ -18,32 +18,6 @@
         "height": 860,
         "resizable": true,
         "fullscreen": false
-      },
-      {
-        "label": "overlay",
-        "title": "Sven Overlay",
-        "width": 120,
-        "height": 160,
-        "resizable": false,
-        "decorations": false,
-        "transparent": true,
-        "alwaysOnTop": true,
-        "skipTaskbar": true,
-        "visible": false,
-        "x": 100,
-        "y": 100
-      },
-      {
-        "label": "mini-terminal",
-        "title": "Sven Quick Command",
-        "width": 480,
-        "height": 200,
-        "resizable": true,
-        "decorations": false,
-        "transparent": true,
-        "alwaysOnTop": true,
-        "skipTaskbar": true,
-        "visible": false
       }
     ],
     "security": {
@@ -52,7 +26,6 @@
   },
   "bundle": {
     "active": true,
-    "icon": ["icons/icon.png", "icons/icon.ico"],
     "targets": ["msi", "deb", "appimage"],
     "createUpdaterArtifacts": false
   }

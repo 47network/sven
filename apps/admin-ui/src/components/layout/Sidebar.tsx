@@ -47,11 +47,8 @@ import {
   Bot,
   Shield,
   BarChart3,
+  TrendingUp,
   Server,
-  Gauge,
-  Dna,
-  Film,
-  Video,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import SidebarBrand from './sidebar/SidebarBrand';
@@ -106,13 +103,20 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/rag', label: 'RAG', icon: Database },
       { href: '/knowledge-graph', label: 'Knowledge Graph', icon: Network },
       { href: '/llm', label: 'LLM', icon: Cpu },
-      { href: '/council', label: 'LLM Council', icon: Users, roles: ['admin'] },
-      { href: '/gpu-fleet', label: 'GPU Fleet', icon: Gauge, roles: ['admin'] },
       { href: '/agent-analytics', label: 'Agent Analytics', icon: LineChart },
       { href: '/agent-routing', label: 'Agent Routing', icon: Users },
       { href: '/ai-pipelines', label: 'AI Pipelines', icon: BrainCircuit },
       { href: '/brain', label: 'Brain Admin', icon: BrainCircuit },
       { href: '/improvements', label: 'Improvements', icon: Lightbulb },
+    ],
+  },
+  {
+    label: 'Trading',
+    roles: ['admin', 'operator'],
+    items: [
+      { href: '/trading', label: 'Trading Dashboard', icon: TrendingUp, roles: ['admin', 'operator'] },
+      { href: '/trading-credentials', label: 'Exchange Keys', icon: KeyRound, roles: ['admin'] },
+      { href: '/trading-brokers', label: 'Brokers', icon: Server, roles: ['admin', 'operator'] },
     ],
   },
   {
@@ -171,16 +175,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/cron', label: 'Cron', icon: Clock3, roles: ['admin', 'operator'] },
       { href: '/email', label: 'Email', icon: Mail, roles: ['admin', 'operator'] },
       { href: '/webhooks', label: 'Webhooks', icon: Link2, roles: ['admin', 'operator'] },
-      { href: '/infrastructure', label: 'Infrastructure', icon: Server, roles: ['admin', 'operator'] },
       { href: '/settings', label: 'Settings', icon: Settings, roles: ['admin'] },
-    ],
-  },
-  {
-    label: 'Content',
-    roles: ['admin', 'operator'],
-    items: [
-      { href: '/video-templates', label: 'Video Templates', icon: Film, roles: ['admin', 'operator'] },
-      { href: '/render-queue', label: 'Render Queue', icon: Video, roles: ['admin', 'operator'] },
     ],
   },
   {
@@ -192,7 +187,6 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/audit-verifier', label: 'Audit Verifier', icon: Link2 },
       { href: '/model-registry', label: 'Model Registry', icon: Boxes },
       { href: '/canary-rollouts', label: 'Canary Rollouts', icon: GitBranch },
-      { href: '/evolution', label: 'ASI-Evolve', icon: Dna, roles: ['admin'] },
       { href: '/workflow-builder', label: 'Workflow Builder', icon: Workflow },
       { href: '/workflow-runs', label: 'Workflow Runs', icon: ListChecks },
     ],

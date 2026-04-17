@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 
 import '../../app/app_models.dart';
 import '../../app/authenticated_client.dart';
+import '../../app/deep_link.dart';
 import '../../app/sven_tokens.dart';
 import '../../app/api_base_service.dart';
 import '../home/daily_greeting.dart';
@@ -25,6 +26,9 @@ import '../devices/device_service.dart';
 import '../memory/memory_service.dart';
 import '../memory/sven_avatar.dart';
 import '../chat/prompt_templates_service.dart';
+import '../trading/trading_dashboard_page.dart';
+import '../trading/trading_service.dart';
+import '../trading/trading_sse_service.dart';
 import 'custom_shape_spec.dart';
 import 'shape_gen_service.dart';
 import 'mirror_mode_screen.dart';
@@ -37,7 +41,8 @@ enum _HubTab {
   canvas('CANVAS', Icons.blur_on_rounded),
   form('FORM', Icons.auto_awesome_rounded),
   chat('CHAT', Icons.chat_bubble_outline_rounded),
-  devices('DEVICES', Icons.devices_rounded);
+  devices('DEVICES', Icons.devices_rounded),
+  trading('TRADING', Icons.show_chart_rounded);
 
   const _HubTab(this.label, this.icon);
   final String label;
@@ -71,6 +76,8 @@ class SvenHubPage extends StatefulWidget {
     this.deviceService,
     this.onQuickAction,
     this.syncService,
+    this.tradingService,
+    this.tradingSseService,
   });
 
   final VisualMode visualMode;
@@ -93,6 +100,8 @@ class SvenHubPage extends StatefulWidget {
   final DeviceService? deviceService;
   final QuickActionCallback? onQuickAction;
   final SyncService? syncService;
+  final TradingService? tradingService;
+  final TradingSseService? tradingSseService;
 
   @override
   State<SvenHubPage> createState() => _SvenHubPageState();
@@ -112,6 +121,11 @@ class _SvenHubPageState extends State<SvenHubPage>
   @override
   void initState() {
     super.initState();
+    // Consume pending trading deep link if set.
+    if (TradingDeepLink.pending) {
+      TradingDeepLink.pending = false;
+      _tab = _HubTab.trading;
+    }
     _pageCtrl = PageController(initialPage: _tab.index);
     // Load persisted chat streak data
     unawaited(StreakService.instance.load());
@@ -229,6 +243,16 @@ class _SvenHubPageState extends State<SvenHubPage>
                   presenceService: _presenceService,
                   deviceService: widget.deviceService,
                 ),
+
+                // ─── TAB 4: TRADING ───
+                if (widget.tradingService != null && widget.tradingSseService != null)
+                  TradingDashboardPage(
+                    tradingService: widget.tradingService!,
+                    sseService: widget.tradingSseService!,
+                    visualMode: widget.visualMode,
+                  )
+                else
+                  const Center(child: Text('Trading unavailable')),
               ],
             ),
           ),

@@ -10,72 +10,65 @@ interface SvenChatResult extends vscode.ChatResult {
   };
 }
 
-interface DiagnosticError {
-  file: string;
-  line: number;
-  message: string;
-  severity: string;
-}
+export function activate(context: vscode.ExtensionContext) {
+  const outputChannel = vscode.window.createOutputChannel('Sven AI');
+  outputChannel.appendLine('Sven AI extension activated');
 
-interface DiagnosticWarning {
-  file: string;
-  line: number;
-  message: string;
-}
-
-function createApiClient(): SvenApiClient {
-  return new SvenApiClient(() => {
+  const api = new SvenApiClient(() => {
     const config = vscode.workspace.getConfiguration('sven');
     return {
       gatewayUrl: config.get<string>('gatewayUrl') || 'http://127.0.0.1:3000',
       apiKey: config.get<string>('extensionApiKey') || 'sven-ext-47-dev',
     };
   });
-}
 
-async function handleChatRequest(
-  api: SvenApiClient,
-  request: vscode.ChatRequest,
-  context: vscode.ChatContext,
-  stream: vscode.ChatResponseStream,
-  token: vscode.CancellationToken,
-): Promise<SvenChatResult> {
-  const command = request.command;
+  const participant = vscode.chat.createChatParticipant(PARTICIPANT_ID, async (
+    request: vscode.ChatRequest,
+    context: vscode.ChatContext,
+    stream: vscode.ChatResponseStream,
+    token: vscode.CancellationToken,
+  ): Promise<SvenChatResult> => {
+    const command = request.command;
 
-  if (command === 'soul') {
-    return handleSoul(api, stream, token);
-  }
+    if (command === 'status') {
+      return handleStatus(api, stream, token);
+    }
 
-  if (command === 'heal') {
-    return handleHeal(stream, token);
-  }
+    if (command === 'soul') {
+      return handleSoul(api, stream, token);
+    }
 
-  if (command === 'codebase') {
-    return handleCodebase(request, stream, token);
-  }
+    if (command === 'heal') {
+      return handleHeal(stream, token);
+    }
 
-  if (command === 'deploy') {
-    return handleDeploy(api, stream, token);
-  }
+    if (command === 'codebase') {
+      return handleCodebase(request, stream, token);
+    }
 
-  if (command === 'improve') {
-    return handleImprove(api, request, stream, token);
-  }
+    if (command === 'deploy') {
+      return handleDeploy(api, stream, token);
+    }
 
-  // Default: general chat with Sven — combine codebase awareness + live state
-  return handleChat(api, request, context, stream, token);
-}
+    if (command === 'trade') {
+      return handleTrade(api, stream, token);
+    }
 
-export function activate(context: vscode.ExtensionContext) {
-  const outputChannel = vscode.window.createOutputChannel('Sven AI');
-  outputChannel.appendLine('Sven AI extension activated');
+    if (command === 'positions') {
+      return handlePositions(api, stream, token);
+    }
 
-  const api = createApiClient();
+    if (command === 'execute') {
+      return handleExecute(api, request, stream, token);
+    }
 
-  const participant = vscode.chat.createChatParticipant(
-    PARTICIPANT_ID,
-    (request, ctx, stream, token) => handleChatRequest(api, request, ctx, stream, token)
-  );
+    if (command === 'improve') {
+      return handleImprove(api, request, stream, token);
+    }
+
+    // Default: general chat with Sven — combine codebase awareness + live state
+    return handleChat(api, request, context, stream, token);
+  });
 
   participant.iconPath = vscode.Uri.joinPath(
     vscode.extensions.getExtension('47network.sven-copilot')?.extensionUri
@@ -85,6 +78,49 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(participant, outputChannel);
+}
+
+async function handleStatus(
+  api: SvenApiClient,
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken,
+): Promise<SvenChatResult> {
+  stream.progress('Fetching Sven\'s live trading status...');
+
+  try {
+    const status = await api.getTradingStatus();
+    if (token.isCancellationRequested) return { metadata: { command: 'status' } };
+
+    stream.markdown('## Sven Trading Status\n\n');
+    stream.markdown(`**Balance:** ${status.account?.balance?.toFixed(2) ?? 'N/A'} 47T\n\n`);
+    stream.markdown(`**Daily P&L:** ${status.dailyPnl >= 0 ? '+' : ''}${status.dailyPnl?.toFixed(2) ?? '0.00'} 47T (${status.dailyTradeCount ?? 0} trades)\n\n`);
+    stream.markdown(`**Total P&L:** ${status.totalPnl >= 0 ? '+' : ''}${status.totalPnl?.toFixed(2) ?? '0.00'} 47T\n\n`);
+    stream.markdown(`**Loop:** ${status.loopRunning ? '🟢 ACTIVE' : '🔴 STOPPED'} — iteration #${status.loopIterations ?? 0}\n\n`);
+
+    if (status.positions?.length > 0) {
+      stream.markdown('### Open Positions\n\n');
+      stream.markdown('| Symbol | Side | Entry | Unrealized P&L |\n|--------|------|-------|----------------|\n');
+      for (const pos of status.positions) {
+        stream.markdown(`| ${pos.symbol} | ${pos.side} | ${pos.entryPrice?.toFixed(4)} | ${pos.unrealizedPnl?.toFixed(2)} 47T |\n`);
+      }
+      stream.markdown('\n');
+    } else {
+      stream.markdown('**Positions:** None open\n\n');
+    }
+
+    if (status.goals?.length > 0) {
+      stream.markdown('### Goal Milestones\n\n');
+      for (const goal of status.goals) {
+        const icon = goal.achieved ? '✅' : '⬜';
+        stream.markdown(`${icon} **${goal.name}** — ${goal.achieved ? 'Achieved!' : `${goal.targetBalance?.toLocaleString()} 47T needed`}\n\n`);
+      }
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    stream.markdown(`⚠️ Could not fetch trading status: ${message}\n\nMake sure \`sven.gatewayUrl\` and \`sven.extensionApiKey\` are configured in settings.`);
+  }
+
+  return { metadata: { command: 'status' } };
 }
 
 async function handleSoul(
@@ -110,13 +146,25 @@ async function handleSoul(
   return { metadata: { command: 'soul' } };
 }
 
-function collectWorkspaceDiagnostics(token: vscode.CancellationToken): { errors: DiagnosticError[]; warnings: DiagnosticWarning[]; cancelled: boolean } {
+async function handleHeal(
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken,
+): Promise<SvenChatResult> {
+  stream.progress('Running self-healing diagnostics...');
+
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders) {
+    stream.markdown('⚠️ No workspace open. Open the Sven monorepo to run diagnostics.');
+    return { metadata: { command: 'heal' } };
+  }
+
+  // Get all diagnostics from the workspace
   const allDiagnostics = vscode.languages.getDiagnostics();
-  const errors: DiagnosticError[] = [];
-  const warnings: DiagnosticWarning[] = [];
+  const errors: { file: string; line: number; message: string; severity: string }[] = [];
+  const warnings: { file: string; line: number; message: string }[] = [];
 
   for (const [uri, diagnostics] of allDiagnostics) {
-    if (token.isCancellationRequested) return { errors, warnings, cancelled: true };
+    if (token.isCancellationRequested) return { metadata: { command: 'heal' } };
     const relativePath = vscode.workspace.asRelativePath(uri);
     // Skip node_modules / dist
     if (relativePath.includes('node_modules') || relativePath.includes('/dist/')) continue;
@@ -139,34 +187,6 @@ function collectWorkspaceDiagnostics(token: vscode.CancellationToken): { errors:
     }
   }
 
-  return { errors, warnings, cancelled: false };
-}
-
-async function handleHeal(
-  stream: vscode.ChatResponseStream,
-  token: vscode.CancellationToken,
-): Promise<SvenChatResult> {
-  stream.progress('Running self-healing diagnostics...');
-
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders) {
-    stream.markdown('⚠️ No workspace open. Open the Sven monorepo to run diagnostics.');
-    return { metadata: { command: 'heal' } };
-  }
-
-  const { errors, warnings, cancelled } = collectWorkspaceDiagnostics(token);
-  if (cancelled) return { metadata: { command: 'heal' } };
-
-  renderDiagnostics(stream, errors, warnings);
-
-  return { metadata: { command: 'heal' } };
-}
-
-function renderDiagnostics(
-  stream: vscode.ChatResponseStream,
-  errors: DiagnosticError[],
-  warnings: DiagnosticWarning[]
-) {
   stream.markdown('## Self-Healing Diagnostics\n\n');
 
   if (errors.length === 0 && warnings.length === 0) {
@@ -200,6 +220,8 @@ function renderDiagnostics(
     stream.markdown('---\n\n');
     stream.markdown('💡 **Sven can help fix these.** Ask me about any specific error and I\'ll propose a fix with full context of the codebase.\n');
   }
+
+  return { metadata: { command: 'heal' } };
 }
 
 async function handleCodebase(
@@ -227,7 +249,7 @@ async function handleCodebase(
 async function handleDeploy(
   api: SvenApiClient,
   stream: vscode.ChatResponseStream,
-  _token: vscode.CancellationToken,
+  token: vscode.CancellationToken,
 ): Promise<SvenChatResult> {
   stream.progress('Checking deployment status...');
 
@@ -253,7 +275,175 @@ async function handleDeploy(
   stream.markdown('docker compose up -d --build agent-runtime\n');
   stream.markdown('```\n\n');
 
+  try {
+    const status = await api.getTradingStatus();
+    if (token.isCancellationRequested) return { metadata: { command: 'deploy' } };
+    stream.markdown(`### Current State\n- Loop: ${status.loopRunning ? '🟢 ACTIVE' : '🔴 STOPPED'}\n- Balance: ${status.account?.balance?.toFixed(2)} 47T\n`);
+  } catch {
+    stream.markdown('_Could not fetch live status — configure `sven.gatewayUrl` and `sven.extensionApiKey`._\n');
+  }
+
   return { metadata: { command: 'deploy' } };
+}
+
+async function handleTrade(
+  api: SvenApiClient,
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken,
+): Promise<SvenChatResult> {
+  stream.progress('Loading trading dashboard...');
+
+  try {
+    const [ctxData, posData, tradeData] = await Promise.all([
+      api.getContext(),
+      api.getPositions().catch(() => ({ positions: [], paperTradeMode: false })),
+      api.getTradeHistory(10).catch(() => ({ trades: [], totalTrades: 0, paperTradeMode: false })),
+    ]);
+    if (token.isCancellationRequested) return { metadata: { command: 'trade' } };
+
+    const s = ctxData.status;
+
+    stream.markdown('## Sven Trading Dashboard\n\n');
+    stream.markdown(`**Mode:** ${s.paperTradeMode ? '📝 PAPER TRADE' : '💰 LIVE TRADING'}\n\n`);
+    stream.markdown(`**State:** ${s.state === 'trading' ? '🟢 TRADING' : s.state === 'paused' ? '🟠 PAUSED' : '🔴 MONITORING'}\n\n`);
+    stream.markdown(`**Balance:** ${s.balance.toFixed(2)} 47T\n\n`);
+    stream.markdown(`**Daily P&L:** ${s.dailyPnl >= 0 ? '+' : ''}${s.dailyPnl.toFixed(2)} 47T\n\n`);
+    stream.markdown(`**Loop:** ${s.loopRunning ? '🟢 ACTIVE' : '🔴 STOPPED'} — iteration #${s.loopIterations}\n\n`);
+    stream.markdown(`**Confidence Threshold:** ${(s.confidenceThreshold * 100).toFixed(0)}%\n\n`);
+    stream.markdown(`**Active Symbol:** ${s.activeSymbol || 'cycling...'}\n\n`);
+    stream.markdown(`**Trades Executed:** ${s.tradesExecuted}\n\n`);
+
+    // Positions
+    if (posData.positions.length > 0) {
+      stream.markdown('### Open Positions\n\n');
+      stream.markdown('| Symbol | Side | Entry | Current | P&L |\n|--------|------|-------|---------|-----|\n');
+      for (const pos of posData.positions) {
+        const pnlStr = pos.unrealizedPnl >= 0 ? `+${pos.unrealizedPnl.toFixed(2)}` : pos.unrealizedPnl.toFixed(2);
+        stream.markdown(`| ${pos.symbol} | ${pos.side} | ${pos.entryPrice.toFixed(4)} | ${pos.currentPrice.toFixed(4)} | ${pnlStr} 47T |\n`);
+      }
+      stream.markdown('\n');
+    } else {
+      stream.markdown('**Positions:** No open positions\n\n');
+    }
+
+    // Recent trades
+    if (tradeData.trades.length > 0) {
+      stream.markdown('### Recent Trades\n\n');
+      for (const t of tradeData.trades.slice(0, 5)) {
+        const icon = t.paperTrade ? '📝' : '💰';
+        const pnl = t.pnl != null ? ` — P&L: ${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}` : '';
+        stream.markdown(`${icon} **${t.symbol}** ${t.side} @ ${t.price.toFixed(4)}${pnl}\n\n`);
+      }
+    }
+
+    stream.markdown('---\n');
+    stream.markdown('_Use `/positions` for detailed positions, `/execute BTCUSDT` to analyze a symbol_\n');
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    stream.markdown(`⚠️ Could not load trading dashboard: ${message}`);
+  }
+
+  return { metadata: { command: 'trade' } };
+}
+
+async function handlePositions(
+  api: SvenApiClient,
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken,
+): Promise<SvenChatResult> {
+  stream.progress('Fetching open positions...');
+
+  try {
+    const data = await api.getPositions();
+    if (token.isCancellationRequested) return { metadata: { command: 'positions' } };
+
+    const modeLabel = data.paperTradeMode ? '📝 Paper' : '💰 Live';
+    stream.markdown(`## Open Positions (${modeLabel})\n\n`);
+
+    if (data.positions.length === 0) {
+      stream.markdown('No open positions currently.\n\n');
+      stream.markdown('_Use `/execute BTCUSDT` to run a paper trade analysis._\n');
+    } else {
+      stream.markdown('| # | Symbol | Side | Qty | Entry Price | Current | Unrealized P&L | Opened |\n');
+      stream.markdown('|---|--------|------|-----|-------------|---------|----------------|--------|\n');
+      for (let i = 0; i < data.positions.length; i++) {
+        const pos = data.positions[i];
+        const pnlStr = pos.unrealizedPnl >= 0 ? `+${pos.unrealizedPnl.toFixed(2)}` : pos.unrealizedPnl.toFixed(2);
+        const pnlIcon = pos.unrealizedPnl >= 0 ? '🟢' : '🔴';
+        const opened = new Date(pos.openedAt).toLocaleString();
+        stream.markdown(`| ${i + 1} | ${pos.symbol} | ${pos.side} | ${pos.quantity} | ${pos.entryPrice.toFixed(4)} | ${pos.currentPrice.toFixed(4)} | ${pnlIcon} ${pnlStr} 47T | ${opened} |\n`);
+      }
+      stream.markdown('\n');
+
+      // Summary
+      const totalPnl = data.positions.reduce((sum, p) => sum + p.unrealizedPnl, 0);
+      stream.markdown(`**Total Unrealized P&L:** ${totalPnl >= 0 ? '+' : ''}${totalPnl.toFixed(2)} 47T\n`);
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    stream.markdown(`⚠️ Could not fetch positions: ${message}`);
+  }
+
+  return { metadata: { command: 'positions' } };
+}
+
+async function handleExecute(
+  api: SvenApiClient,
+  request: vscode.ChatRequest,
+  stream: vscode.ChatResponseStream,
+  token: vscode.CancellationToken,
+): Promise<SvenChatResult> {
+  const symbolInput = request.prompt.trim().toUpperCase();
+  if (!symbolInput) {
+    stream.markdown('⚠️ Please provide a symbol to analyze.\n\n');
+    stream.markdown('**Usage:** `/execute BTCUSDT`\n\n');
+    stream.markdown('**Examples:**\n- `/execute BTCUSDT` — Analyze Bitcoin\n- `/execute ETHUSDT` — Analyze Ethereum\n- `/execute SOLUSDT` — Analyze Solana\n');
+    return { metadata: { command: 'execute' } };
+  }
+
+  stream.progress(`Running paper trade analysis for ${symbolInput}...`);
+
+  try {
+    const result = await api.analyzeSymbol(symbolInput);
+    if (token.isCancellationRequested) return { metadata: { command: 'execute' } };
+
+    stream.markdown(`## 📝 Paper Trade Analysis: ${result.symbol}\n\n`);
+    stream.markdown(`**Current Price:** $${result.currentPrice.toFixed(4)}\n\n`);
+
+    const decisionIcon = result.decision === 'BUY' ? '🟢' : result.decision === 'SELL' ? '🔴' : '⚪';
+    stream.markdown(`**Decision:** ${decisionIcon} **${result.decision}**\n\n`);
+    stream.markdown(`**Confidence:** ${(result.confidence * 100).toFixed(1)}%\n\n`);
+
+    if (result.reasoning) {
+      stream.markdown(`**Reasoning:** ${result.reasoning}\n\n`);
+    }
+
+    if (result.signals && result.signals.length > 0) {
+      stream.markdown('### Signal Analysis\n\n');
+      stream.markdown('| Signal | Value | Direction |\n|--------|-------|-----------|\n');
+      for (const sig of result.signals) {
+        const dirIcon = sig.direction === 'bullish' ? '🟢' : sig.direction === 'bearish' ? '🔴' : '⚪';
+        stream.markdown(`| ${sig.name} | ${typeof sig.value === 'number' ? sig.value.toFixed(4) : sig.value} | ${dirIcon} ${sig.direction} |\n`);
+      }
+      stream.markdown('\n');
+    }
+
+    if (result.events.length > 0) {
+      stream.markdown('### Events Generated\n\n');
+      for (const ev of result.events) {
+        stream.markdown(`- **${ev.type}**: ${ev.message}\n`);
+      }
+      stream.markdown('\n');
+    }
+
+    stream.markdown('---\n');
+    stream.markdown('_This was a paper trade analysis. No real funds were used._\n');
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    stream.markdown(`⚠️ Analysis failed for ${symbolInput}: ${message}`);
+  }
+
+  return { metadata: { command: 'execute' } };
 }
 
 async function handleImprove(
@@ -285,7 +475,11 @@ async function handleImprove(
 
     stream.markdown('### Current Performance Metrics\n\n');
     stream.markdown(`| Metric | Value |\n|--------|-------|\n`);
+    stream.markdown(`| Mode | ${m.paperTradeMode ? '📝 Paper' : '💰 Live'} |\n`);
     stream.markdown(`| Loop Iterations | ${m.loopIterations} |\n`);
+    stream.markdown(`| Trades Executed | ${m.tradesExecuted} |\n`);
+    stream.markdown(`| Win Rate | ${(m.winRate * 100).toFixed(1)}% |\n`);
+    stream.markdown(`| Profit Factor | ${m.profitFactor.toFixed(2)} |\n`);
     stream.markdown(`| Learning Iterations | ${m.learningIterations} |\n`);
     stream.markdown(`| Learned Patterns | ${m.learnedPatterns} |\n\n`);
 
@@ -311,20 +505,7 @@ async function handleChat(
   // ── Step 1: Stream the real Sven brain (GPU + soul) ──
   stream.progress('Connecting to Sven\'s brain...');
 
-  const history = buildConversationHistory(chatContext);
-
-  const streamResult = await streamSvenBrain(api, request.prompt, history, stream, token);
-  const svenBrainResponse = streamResult?.response || '';
-
-  if (token.isCancellationRequested) return {};
-
-  // ── Step 3: Copilot follow-up — code-aware analysis ──
-  await performCopilotCodeAnalysis(api, request, chatContext, svenBrainResponse, stream, token);
-
-  return {};
-}
-
-function buildConversationHistory(chatContext: vscode.ChatContext): Array<{ role: string; content: string }> {
+  // Build conversation history from chat context
   const history: Array<{ role: string; content: string }> = [];
   for (const turn of chatContext.history) {
     if (turn instanceof vscode.ChatRequestTurn) {
@@ -341,16 +522,12 @@ function buildConversationHistory(chatContext: vscode.ChatContext): Array<{ role
       }
     }
   }
-  return history;
-}
 
-async function streamSvenBrain(
-  api: SvenApiClient,
-  prompt: string,
-  history: Array<{ role: string; content: string }>,
-  stream: vscode.ChatResponseStream,
-  token: vscode.CancellationToken
-): Promise<{ response: string; model: string; node: string } | null> {
+  let svenBrainResponse = '';
+  let svenModel = '';
+  let svenNode = '';
+
+  // Stream tokens from Sven's brain
   try {
     const streamResult = await new Promise<{ response: string; model: string; node: string }>((resolve, reject) => {
       let headerSent = false;
@@ -358,7 +535,7 @@ async function streamSvenBrain(
       let meta = { model: '', node: '' };
 
       const handle = api.chatStream(
-        prompt,
+        request.prompt,
         (tkn) => {
           if (token.isCancellationRequested) {
             handle.abort();
@@ -391,44 +568,37 @@ async function streamSvenBrain(
       token.onCancellationRequested(() => { handle.abort(); });
     });
 
+    svenBrainResponse = streamResult.response;
+    svenModel = streamResult.model;
+    svenNode = streamResult.node;
+
     // Add model/node info after stream completes
-    stream.markdown(`\n\n_— ${streamResult.model} on ${streamResult.node}_\n\n`);
-    return streamResult;
+    stream.markdown(`\n\n_— ${svenModel} on ${svenNode}_\n\n`);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    stream.markdown(`> _Sven's brain is offline: ${message}_\n\n`);
-    return null;
+    stream.markdown(`> _Sven\'s brain is offline: ${message}_\n\n`);
   }
-}
 
-async function performCopilotCodeAnalysis(
-  api: SvenApiClient,
-  request: vscode.ChatRequest,
-  chatContext: vscode.ChatContext,
-  svenBrainResponse: string,
-  stream: vscode.ChatResponseStream,
-  token: vscode.CancellationToken
-) {
+  if (token.isCancellationRequested) return {};
+
+  // ── Step 3: Copilot follow-up — code-aware analysis ──
   const isCodeQuestion = /code|fix|bug|error|implement|refactor|function|class|import|route|endpoint|service|docker|build|test|deploy|file|line|type|schema|migration/i.test(request.prompt);
 
-  if (!isCodeQuestion) {
-    return;
-  }
+  if (isCodeQuestion) {
+    stream.progress('Running code analysis...');
 
-  stream.progress('Running code analysis...');
+    const codebaseCtx = await buildCodebaseContext();
 
-  const codebaseCtx = await buildCodebaseContext();
+    let liveState = '';
+    try {
+      const ctx = await api.getContext();
+      const s = ctx.status;
+      liveState = `\n\n## Live State\n- State: ${s.state}\n- Mode: ${s.paperTradeMode ? 'PAPER TRADE' : 'LIVE'}\n- Balance: ${s.balance.toFixed(2)} 47T\n- Daily P&L: ${s.dailyPnl.toFixed(2)} 47T\n- Loop: ${s.loopRunning ? 'ACTIVE' : 'STOPPED'} (iteration #${s.loopIterations})\n- Symbol: ${s.activeSymbol || 'none'}\n- Auto-trade: ${s.autoTradeEnabled ? 'ON' : 'OFF'}\n- Confidence threshold: ${(s.confidenceThreshold * 100).toFixed(0)}%\n- Trades executed: ${s.tradesExecuted}\n`;
+    } catch {
+      // no live state — ok
+    }
 
-  let liveState = '';
-  try {
-    const ctx = await api.getContext();
-    const s = ctx.status;
-    liveState = `\n\n## Live State\n- State: ${s.state}\n- Loop: ${s.loopRunning ? 'ACTIVE' : 'STOPPED'} (iteration #${s.loopIterations})\n`;
-  } catch {
-    // no live state — ok
-  }
-
-  const systemContext = `You are Copilot, GitHub's AI coding assistant. You are working alongside Sven, the AI assistant for 47Network. The user is Hantz, Sven's creator. Sven has already responded above — you provide complementary code-level analysis.
+    const systemContext = `You are Copilot, GitHub's AI coding assistant. You are working alongside Sven, the AI trading agent for 47Network. The user is Hantz, Sven's creator. Sven has already responded above — you provide complementary code-level analysis.
 
 ${codebaseCtx}
 ${liveState}
@@ -438,47 +608,50 @@ When helping with code:
 - Consider the self-healing pipeline implications
 - Be direct and precise — no fluff`;
 
-  const models = await vscode.lm.selectChatModels({ family: 'gpt-4o' });
-  const model = models[0];
+    const models = await vscode.lm.selectChatModels({ family: 'gpt-4o' });
+    const model = models[0];
 
-  if (model) {
-    const messages = [
-      vscode.LanguageModelChatMessage.User(systemContext),
-    ];
+    if (model) {
+      const messages = [
+        vscode.LanguageModelChatMessage.User(systemContext),
+      ];
 
-    // Add previous turns for context
-    for (const turn of chatContext.history) {
-      if (turn instanceof vscode.ChatResponseTurn) {
-        let responseText = '';
-        for (const part of turn.response) {
-          if (part instanceof vscode.ChatResponseMarkdownPart) {
-            responseText += part.value.value;
+      // Add previous turns for context
+      for (const turn of chatContext.history) {
+        if (turn instanceof vscode.ChatResponseTurn) {
+          let responseText = '';
+          for (const part of turn.response) {
+            if (part instanceof vscode.ChatResponseMarkdownPart) {
+              responseText += part.value.value;
+            }
           }
+          if (responseText) {
+            messages.push(vscode.LanguageModelChatMessage.Assistant(responseText));
+          }
+        } else if (turn instanceof vscode.ChatRequestTurn) {
+          messages.push(vscode.LanguageModelChatMessage.User(turn.prompt));
         }
-        if (responseText) {
-          messages.push(vscode.LanguageModelChatMessage.Assistant(responseText));
-        }
-      } else if (turn instanceof vscode.ChatRequestTurn) {
-        messages.push(vscode.LanguageModelChatMessage.User(turn.prompt));
+      }
+
+      messages.push(vscode.LanguageModelChatMessage.User(
+        svenBrainResponse
+          ? `The user asked: "${request.prompt}"\n\nSven's brain responded:\n${svenBrainResponse}\n\nProvide complementary code-level analysis if helpful. Be brief — Sven already answered.`
+          : request.prompt
+      ));
+
+      if (svenBrainResponse) {
+        stream.markdown('---\n\n**💻 Copilot** _(code analysis)_\n\n');
+      }
+
+      const response = await model.sendRequest(messages, {}, token);
+      for await (const chunk of response.text) {
+        if (token.isCancellationRequested) break;
+        stream.markdown(chunk);
       }
     }
-
-    messages.push(vscode.LanguageModelChatMessage.User(
-      svenBrainResponse
-        ? `The user asked: "${request.prompt}"\n\nSven's brain responded:\n${svenBrainResponse}\n\nProvide complementary code-level analysis if helpful. Be brief — Sven already answered.`
-        : request.prompt
-    ));
-
-    if (svenBrainResponse) {
-      stream.markdown('---\n\n**💻 Copilot** _(code analysis)_\n\n');
-    }
-
-    const response = await model.sendRequest(messages, {}, token);
-    for await (const chunk of response.text) {
-      if (token.isCancellationRequested) break;
-      stream.markdown(chunk);
-    }
   }
+
+  return {};
 }
 
 function groupBy<T>(items: T[], keyFn: (item: T) => string): Record<string, T[]> {

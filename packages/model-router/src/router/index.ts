@@ -23,7 +23,6 @@ export interface InferenceRequest {
   temperature?: number;
   stream?: boolean;
   preferredModel?: string;           // hint: prefer this model if available
-  preferLocal?: boolean;             // hint: boost local models in scoring
   latencyBudgetMs?: number;          // max acceptable latency
   qualityPriority?: 'speed' | 'balanced' | 'quality';
   contextData?: Record<string, unknown>;
@@ -100,7 +99,6 @@ export function scoreModel(
   task: TaskType,
   priority: 'speed' | 'balanced' | 'quality',
   latencyBudgetMs?: number,
-  preferLocal?: boolean,
 ): number {
   const weights = QUALITY_WEIGHTS[priority];
 
@@ -130,20 +128,12 @@ export function scoreModel(
   // Status bonus
   const statusBonus = model.status === 'ready' ? 0.15 : 0;
 
-  // Local-first bonus: prefer deployed local models to reduce API costs
-  // and latency. Models with a non-null endpoint are considered local.
-  const localBonus =
-    preferLocal !== false && model.endpoint !== null && model.provider === 'local'
-      ? 0.2
-      : 0;
-
   const raw =
     weights.quality * qualityScore +
     weights.speed * speedScore +
     weights.cost * costScore +
     taskAffinity +
-    statusBonus +
-    localBonus -
+    statusBonus -
     latencyPenalty;
 
   return Math.max(0, Math.min(1, raw));
@@ -157,7 +147,7 @@ export function routeRequest(
   const priority = request.qualityPriority ?? 'balanced';
 
   // Get candidate models for this task
-  const candidates = registry.listByTask(task);
+  let candidates = registry.listByTask(task);
 
   // If preferred model specified and available, prioritize it
   if (request.preferredModel) {
@@ -175,12 +165,11 @@ export function routeRequest(
     }
   }
 
-  // Score all candidates — local-first by default
-  const preferLocal = request.preferLocal !== false;
+  // Score all candidates
   const scored = candidates
     .map((m) => ({
       model: m,
-      score: scoreModel(m, task, priority, request.latencyBudgetMs, preferLocal),
+      score: scoreModel(m, task, priority, request.latencyBudgetMs),
     }))
     .sort((a, b) => b.score - a.score);
 

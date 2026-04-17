@@ -148,6 +148,21 @@ module.exports = {
       restart_delay: 2000,
       time: true,
     },
-
+    {
+      name: 'sven-trading-ui',
+      cwd: 'apps/trading-ui',
+      script: path.resolve(__dirname, '..', '..', 'node_modules', 'next', 'dist', 'bin', 'next'),
+      args: 'start --port 3300',
+      interpreter: nodeExe,
+      env: {
+        NODE_ENV: 'production',
+        PORT: '3300',
+        NEXT_PUBLIC_API_URL: webApiUrl,
+      },
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 2000,
+      time: true,
+    },
   ],
 };

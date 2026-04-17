@@ -9,6 +9,7 @@
     "paths": {
       "@sven/shared": ["../../packages/shared/src/index.ts"],
       "@sven/shared/*": ["../../packages/shared/src/*"],
+      "@sven/trading-platform/*": ["../../packages/trading-platform/src/*"],
       "@sven/compute-mesh/*": ["../../packages/compute-mesh/src/*"],
       "@sven/design-system/*": ["../../packages/design-system/src/*"],
       "@sven/document-intel/*": ["../../packages/document-intel/src/*"],
@@ -20,14 +21,5 @@
   },
   "include": ["src/**/*"],
   "exclude": ["src/__tests__/**"],
-  "references": [
-    { "path": "../../packages/shared" },
-    { "path": "../../packages/compute-mesh" },
-    { "path": "../../packages/design-system" },
-    { "path": "../../packages/document-intel" },
-    { "path": "../../packages/marketing-intel" },
-    { "path": "../../packages/model-router" },
-    { "path": "../../packages/quantum-sim" },
-    { "path": "../../packages/security-toolkit" }
-  ]
+  "references": [{ "path": "../../packages/shared" }]
 }

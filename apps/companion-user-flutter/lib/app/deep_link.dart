@@ -15,6 +15,14 @@ class DeepLinkTarget {
   static DeepLinkTarget trading() => const DeepLinkTarget._('trading');
 }
 
+/// Lightweight one-shot flag consumed by SvenHubPage to switch to the Trading
+/// tab when the app is opened via `sven://trading`.  Cleared immediately after
+/// the hub reads it.
+class TradingDeepLink {
+  TradingDeepLink._();
+  static bool pending = false;
+}
+
 DeepLinkTarget? parseDeepLink(Uri uri) {
   // Custom-scheme links like `sven://approvals` put route in `host`,
   // while links like `sven://chat/123` split host/path.
@@ -48,8 +56,7 @@ DeepLinkTarget? parseDeepLink(Uri uri) {
       segments[1] == 'connect') {
     final url = uri.queryParameters['url']?.trim() ?? '';
     final parsed = Uri.tryParse(url);
-    if (parsed != null &&
-        (parsed.isScheme('http') || parsed.isScheme('https'))) {
+    if (parsed != null && (parsed.isScheme('http') || parsed.isScheme('https'))) {
       return DeepLinkTarget.gatewayConnect(url);
     }
     return null;

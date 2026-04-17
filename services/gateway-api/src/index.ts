@@ -3,7 +3,6 @@ import fastifyCookie from '@fastify/cookie';
 import fastifyCors from '@fastify/cors';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyMultipart from '@fastify/multipart';
-import fastifyRateLimit from '@fastify/rate-limit';
 import { createLogger, FeatureFlagRegistry, detectProxy, createDefaultPermissionEngine, PermissionHookManager, ClientAttestor, generateTaskId, TokenBudgetTracker, QueryChain, PromptGuard, AntiDistillation, BackgroundSessionManager, HeartbeatManager } from '@sven/shared';
 import type { ProxyDetectConfig, PermissionContext } from '@sven/shared';
 import { API_CONTRACT_HEADER, API_CONTRACT_VERSION } from './contracts/api-contract.js';
@@ -53,6 +52,7 @@ import { registerModelRouterRoutes } from './routes/model-router.js';
 import { registerDocumentRoutes } from './routes/documents.js';
 import { registerQuantumRoutes } from './routes/quantum.js';
 import { registerSecurityToolkitRoutes } from './routes/security-toolkit.js';
+import { registerTradingRoutes } from './routes/trading.js';
 import { registerMarketingRoutes } from './routes/marketing.js';
 import { registerComputeMeshRoutes } from './routes/compute-mesh.js';
 import { TailscaleService } from './services/TailscaleService.js';
@@ -70,8 +70,8 @@ import { runMigrations } from './db/migrate.js';
 const logger = createLogger('gateway-api');
 
 const DEFAULT_ALLOWED_ORIGINS = [
-  /^https:\/\/([a-z0-9-]+\.)*47matrix\.online(:\d+)?$/i,
-  /^https:\/\/([a-z0-9-]+\.)*sven\.systems(:\d+)?$/i,
+  /^https:\/\/([a-z0-9-]+\.)*47matrix\.online$/i,
+  /^https:\/\/([a-z0-9-]+\.)*sven\.systems$/i,
   /^http:\/\/localhost(:\d+)?$/i,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/i,
 ];
@@ -351,12 +351,6 @@ async function main() {
   await app.register(fastifyMultipart as any, {
     limits: { fileSize: 100 * 1024 * 1024, files: 10 },
   });
-  await app.register(fastifyRateLimit as any, {
-    max: Number(process.env.GATEWAY_RATE_LIMIT_MAX || 200),
-    timeWindow: Number(process.env.GATEWAY_RATE_LIMIT_WINDOW_MS || 60_000),
-    keyGenerator: (request: any) => (request as any).realIp || request.ip,
-    allowList: (process.env.GATEWAY_RATE_LIMIT_ALLOW_LIST || '127.0.0.1,::1').split(',').map((s: string) => s.trim()).filter(Boolean),
-  });
   requireTokenExchangeSecretForStartup(process.env);
 
   app.addHook('onRequest', async (request, _reply) => {
@@ -418,6 +412,7 @@ async function main() {
     const acceptsEventStream = String(request.headers.accept || '').toLowerCase().includes('text/event-stream');
     const isSseRoute =
       rawUrl.endsWith('/v1/admin/events') ||
+      rawUrl.endsWith('/v1/trading/events') ||
       rawUrl.endsWith('/v1/stream') ||
       rawUrl.endsWith('/a2ui/stream') ||
       rawUrl.endsWith('/v1/entity/stream') ||
@@ -800,6 +795,7 @@ async function main() {
   await registerDocumentRoutes(app, pool);
   await registerQuantumRoutes(app, pool);
   await registerSecurityToolkitRoutes(app, pool);
+  await registerTradingRoutes(app, pool);
   await registerMarketingRoutes(app, pool);
   await registerComputeMeshRoutes(app, pool);
 

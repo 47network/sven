@@ -554,5 +554,6 @@ schedules:
 
 - **Pillar 2** (Multi-Model): LLM analysis for competitive intel and content
 - **Pillar 5** (Security): Credential management for social media APIs
+- **Pillar 6** (Trading): Trading performance data feeds into marketing content
 - **Pillar 8** (Distributed Compute): Heavy competitive analysis runs distributed
 - **Master Plan**: `docs/features/EXPANSION_MASTER_PLAN.md`

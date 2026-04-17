@@ -66,7 +66,8 @@ List<_ActionButtonSpec> _extractActionButtons(List<dynamic>? blocks) {
         url: btn['url']?.toString(),
         command: btn['command']?.toString() ??
             (action == 'run_command' ? value : null),
-        text: btn['text']?.toString() ?? (action == 'reply' ? value : null),
+        text:
+            btn['text']?.toString() ?? (action == 'reply' ? value : null),
         approvalId: approvalId,
         payload: btn['payload'] is Map
             ? Map<String, dynamic>.from(btn['payload'] as Map)
@@ -406,15 +407,6 @@ class _MessageBubble extends StatelessWidget {
               ),
             ),
           messageContent,
-          // A.5.2 — Council response accordion (inline for council blocks)
-          if (!isUser && message.blocks != null)
-            ...(() {
-              final accordion = buildCouncilAccordion(
-                message.blocks,
-                visualMode: visualMode,
-              );
-              return accordion != null ? [accordion] : <Widget>[];
-            })(),
           if (isSending || isQueued)
             Padding(
               padding: const EdgeInsets.only(top: 6),
