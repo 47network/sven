@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-04-17T06:00:00.000Z",
+  "hardware_class": "multi-vm-production",
+  "environment": "staging",
+  "site": "proxmox-cluster",
+  "load_profile": "sustained-24h",
+  "gateway_host": "app.sven.systems",
+  "run_id": "soak-2026-04-17",
+  "head_sha": "f745f37f51bec160dc16c18777322bb48563512b",
+  "started_at": "2026-04-16T06:00:00.000Z",
+  "finished_at": "2026-04-17T06:00:00.000Z",
+  "summary_status": "pass",
+  "metrics": {
+    "uptime_pct": 99.98,
+    "p99_latency_ms": 142,
+    "error_rate_pct": 0.02,
+    "memory_peak_mb": 1280,
+    "cpu_peak_pct": 34
+  }
+}

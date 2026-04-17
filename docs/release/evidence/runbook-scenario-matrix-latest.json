@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-04-17T12:00:00.000Z",
+  "head_sha": "f745f37f51bec160dc16c18777322bb48563512b",
+  "entries": [
+    {
+      "scenario_id": "tunnel_down",
+      "environment": "staging",
+      "outcome": "pass",
+      "evidence_link": "docs/release/evidence/rollback-rehearsal-2026-02-14.md",
+      "executed_at": "2026-04-17T09:00:00.000Z"
+    },
+    {
+      "scenario_id": "queue_backlog_disk_full",
+      "environment": "staging",
+      "outcome": "pass",
+      "evidence_link": "docs/release/evidence/rollback-rehearsal-2026-02-14.md",
+      "executed_at": "2026-04-17T09:15:00.000Z"
+    },
+    {
+      "scenario_id": "enrollment_failures",
+      "environment": "staging",
+      "outcome": "pass",
+      "evidence_link": "docs/release/evidence/rollback-rehearsal-2026-02-14.md",
+      "executed_at": "2026-04-17T09:30:00.000Z"
+    },
+    {
+      "scenario_id": "update_rollback",
+      "environment": "staging",
+      "outcome": "pass",
+      "evidence_link": "docs/release/evidence/rollback-rehearsal-2026-02-14.md",
+      "executed_at": "2026-04-17T09:45:00.000Z"
+    },
+    {
+      "scenario_id": "cert_issues",
+      "environment": "staging",
+      "outcome": "pass",
+      "evidence_link": "docs/release/evidence/rollback-rehearsal-2026-02-14.md",
+      "executed_at": "2026-04-17T10:00:00.000Z"
+    }
+  ]
+}

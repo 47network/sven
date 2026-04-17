@@ -1,7 +1,6 @@
 module.exports = {
-  preset: 'ts-jest/presets/default-esm',
+  preset: 'ts-jest',
   testEnvironment: 'node',
-  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
@@ -34,7 +33,6 @@ module.exports = {
   transform: {
     '^.+\\.[tj]sx?$': ['ts-jest', {
       tsconfig: 'tsconfig.jest.json',
-      useESM: true,
       diagnostics: false,
     }],
   },

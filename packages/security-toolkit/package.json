@@ -45,7 +45,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config jest.config.cjs --passWithNoTests"
+    "test": "node ../../node_modules/jest/bin/jest.js --config jest.config.cjs --passWithNoTests"
   },
   "dependencies": {}
 }
