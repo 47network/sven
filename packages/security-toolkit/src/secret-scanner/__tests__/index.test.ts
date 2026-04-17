@@ -136,5 +136,29 @@ describe('secret-scanner', () => {
       expect(report.bySeverity.high).toBe(0);
       expect(report.bySeverity.medium).toBe(0);
     });
+
+    it('aggregates by severity and type correctly', () => {
+      const files = new Map<string, string>();
+      files.set('file1.ts', `const key1 = "AKIA1234567890ABCDEF";\nconst webhook = "https://hooks.slack.com/services/T1/B1/123";\nconst key2 = "AKIA0987654321FEDCBA";`);
+      files.set('file2.ts', `const genericKey = "apikey='super_secret_123456789'";`);
+      files.set('ignored.png', `const ignored = "AKIA1234567890ABCDEF";`);
+
+      const report = scanForSecrets(files);
+
+      expect(report.filesScanned).toBe(3);
+      expect(report.secretsFound).toBe(4);
+      expect(report.clean).toBe(false);
+
+      expect(report.byType['aws-access-key']).toBe(2);
+      expect(report.byType['slack-webhook']).toBe(1);
+      expect(report.byType['generic-api-key']).toBe(1);
+
+      expect(report.bySeverity.critical).toBe(2);
+      expect(report.bySeverity.high).toBe(1);
+      expect(report.bySeverity.medium).toBe(1);
+
+      // Verify scannedAt format
+      expect(new Date(report.scannedAt).toISOString()).toBe(report.scannedAt);
+    });
   });
 });
