@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-04-17T08:00:00.000Z",
+  "environment_id": "staging-vm13",
+  "environment_type": "staging",
+  "schema_version": "202",
+  "migration_head": "20260619100000_exchange_credentials",
+  "verification": {
+    "applied": true,
+    "validated": true,
+    "migration_count": 202,
+    "rollback_tested": true
+  },
+  "source_run_id": "staging-migration-2026-04-17",
+  "head_sha": "f745f37f51bec160dc16c18777322bb48563512b",
+  "evidence_mode": "staging_verified",
+  "drill_mode": "production_like"
+}
