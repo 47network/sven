@@ -470,8 +470,8 @@ async function testCanvasXssSanitizationGuardsPresent(): Promise<void> {
   const panelContent = fs.readFileSync(panelPath, 'utf8');
 
   assert(
-    pageContent.includes("doc.querySelectorAll('script, style, iframe, object, embed, link, meta, base').forEach((el) => el.remove());"),
-    'sanitizeA2uiHtml must remove scriptable elements',
+    pageContent.includes("if (!allowedTags.has(tag)) {") && pageContent.includes("el.remove();"),
+    'sanitizeA2uiHtml must remove scriptable elements via allowlist',
   );
   assert(
     pageContent.includes("const sanitizedA2uiHtml = useMemo(() => sanitizeA2uiHtml(a2ui.html), [a2ui.html]);"),

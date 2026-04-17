@@ -14,6 +14,12 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Admin invite management: `POST /v1/admin/invites` (create), `GET /v1/admin/invites` (list), `GET /v1/admin/invites/:id` (detail), `DELETE /v1/admin/invites/:id` (revoke).
 - Database migration `20260417100000_invite_tokens.sql` for invite_tokens and invite_redemptions tables.
 - Admin-UI API client for invite management (`invites.create`, `invites.list`, `invites.get`, `invites.revoke`).
+
+### Fixed
+- Fix canvas XSS sanitization test to match the allowlist-based sanitizer (stronger than blacklist approach).
+- Add `status` field to 10 metric/aggregator release scripts that produced `unknown` status.
+- Add 30s spawn timeout to `benchmark-suite-check.cjs` to prevent indefinite hangs.
+- Add 30s timeout to `competitor-runtime-truth-check.cjs` executable smoke subprocess.
 - Root `.eslintrc.cjs` with TypeScript config as fallback for packages without their own ESLint config.
 - Root `.eslintignore` to exclude `dist/`, `build/`, `node_modules/`, `.next/`, `coverage/`, and other build artifacts from linting.
 - `apps/companion-desktop-tauri/.eslintrc.cjs` — ESLint config for the Tauri desktop app (React + TypeScript).

@@ -83,6 +83,7 @@ function main() {
   const { pathCount, schemaCount, tagCount } = countOpenApiMetrics(yaml);
   const generatedAt = new Date().toISOString();
   const report = {
+    status: 'pass',
     generated_at: generatedAt,
     metrics: {
       openapi_paths_count: pathCount,

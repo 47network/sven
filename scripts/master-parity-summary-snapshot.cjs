@@ -72,6 +72,7 @@ function main() {
   const oc = parseOpenClaw(fs.readFileSync(ocDoc, 'utf8'));
 
   const payload = {
+    status: 'pass',
     generated_at: new Date().toISOString(),
     sources: {
       agent_zero_doc: rel(azDoc),

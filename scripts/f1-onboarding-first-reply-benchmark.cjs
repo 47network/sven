@@ -248,6 +248,7 @@ async function main() {
     },
   };
   payload.summary = summarize(payload);
+  payload.status = payload.summary.status;
 
   writeOutputs(payload, outJson, outMd);
 

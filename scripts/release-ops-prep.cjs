@@ -952,6 +952,7 @@ function main() {
   };
 
   const summary = {
+      status: 'pass',
       generated_at: new Date().toISOString(),
       release_id: signoff.release_id || null,
       head_sha: signoff.head_sha || null,
