@@ -1,3 +1,0 @@
-## 2026-04-17 - [Avoid dynamic IN clauses for PostgreSQL bulk updates]
-**Learning:** PostgreSQL dynamically generated `IN ($2, $3, ...)` clauses with parameterized variables are slower and cause parsing overhead when parameter lists become large. Also, avoid explicit cast like `= ANY($2::text[])` because it can cause a type mismatch error if the target id column is of type uuid or int. It's safer to use `= ANY($2)` to let Postgres infer the type.
-**Action:** Replace dynamically generated `IN (...)` lists with the PostgreSQL `= ANY($X)` pattern, passing an array of values as a single parameter to improve performance, type safety, and code clarity.

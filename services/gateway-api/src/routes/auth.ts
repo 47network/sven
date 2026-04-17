@@ -3170,9 +3170,11 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
         [userId],
       );
     } else if (body.ids && body.ids.length > 0) {
+      // Parameterised IN clause
+      const placeholders = body.ids.map((_, i) => `$${i + 2}`).join(', ');
       await pool.query(
-        `UPDATE activity_feed SET read = TRUE WHERE user_id = $1 AND id = ANY($2)`,
-        [userId, body.ids],
+        `UPDATE activity_feed SET read = TRUE WHERE user_id = $1 AND id IN (${placeholders})`,
+        [userId, ...body.ids],
       );
     }
     reply.send({ success: true });

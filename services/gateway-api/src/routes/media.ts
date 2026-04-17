@@ -262,9 +262,10 @@ export async function registerMediaRoutes(app: FastifyInstance, pool: pg.Pool) {
       );
 
       // Link media to message
-      const updateParams = [message_id, media_ids];
+      const updateParams = [message_id, ...media_ids];
+      const placeholders = media_ids.map((_, i) => `$${i + 2}`).join(', ');
       await pool.query(
-        `UPDATE media_uploads SET message_id = $1 WHERE id = ANY($2)`,
+        `UPDATE media_uploads SET message_id = $1 WHERE id IN (${placeholders})`,
         updateParams,
       );
     }
