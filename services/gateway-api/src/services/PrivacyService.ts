@@ -734,7 +734,9 @@ export async function getRetentionAudit(
       throw err;
     }
     const hasOrgColumn = await publicTableHasColumn('retention_audit_log', 'organization_id');
-    let query = hasOrgColumn
+    const queryParts: string[] = [];
+
+    queryParts.push(hasOrgColumn
       ? 'SELECT action, resource_type, resource_id, created_at, details FROM retention_audit_log WHERE organization_id::text = $1::text'
       : `SELECT action, resource_type, resource_id, created_at, details
          FROM retention_audit_log ral
@@ -756,7 +758,7 @@ export async function getRetentionAudit(
              WHERE target_chat_scope.organization_id::text = $1::text
                AND target_chat_scope.id::text = ral.target_chat_id::text
            )
-         )`;
+         )`);
     const params: any[] = [orgId];
     const conditions: string[] = [];
 
@@ -771,13 +773,13 @@ export async function getRetentionAudit(
     }
 
     if (conditions.length > 0) {
-      query += ' AND ' + conditions.join(' AND ');
+      queryParts.push('AND ' + conditions.join(' AND '));
     }
 
     params.push(limit);
-    query += ` ORDER BY created_at DESC LIMIT $${params.length}`;
+    queryParts.push(`ORDER BY created_at DESC LIMIT $${params.length}`);
 
-    const result = await pool.query(query, params);
+    const result = await pool.query(queryParts.join(' '), params);
 
     return result.rows.map((r) => ({
       action: r.action,
