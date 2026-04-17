@@ -45,7 +45,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Android APK
-        run: flutter build apk --debug
+        run: flutter build apk --debug --flavor prod --target lib/main.dart --dart-define=SVEN_FLAVOR=prod --dart-define=SVEN_ENV=production
 
       - name: Run Android device-farm smoke
         continue-on-error: true
@@ -56,7 +56,7 @@ jobs:
             bash ../../scripts/ops/mobile/maestro-cloud-run.sh \
               "$MAESTRO_CLOUD_API_KEY" \
               android \
-              build/app/outputs/flutter-apk/app-debug.apk \
+              build/app/outputs/flutter-apk/app-prod-debug.apk \
               .maestro/flows/android-smoke.yaml
           else
             echo "⚠ Maestro Cloud not configured — skipping device-farm smoke"
@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
-          path: apps/companion-user-flutter/build/app/outputs/flutter-apk/app-debug.apk
+          path: apps/companion-user-flutter/build/app/outputs/flutter-apk/app-prod-debug.apk
 
   ios-maestro-cloud:
     runs-on: macos-latest
@@ -88,7 +88,7 @@ jobs:
         run: flutter pub get
 
       - name: Build iOS (no code signing)
-        run: flutter build ios --debug --no-codesign
+        run: flutter build ios --debug --no-codesign --flavor prod --target lib/main.dart --dart-define=SVEN_FLAVOR=prod --dart-define=SVEN_ENV=production
 
       - name: Run iOS device-farm smoke
         continue-on-error: true
