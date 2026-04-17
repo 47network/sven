@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Seed Pipeline Provisioner (Batch 6)
+// Seed Pipeline Provisioner (Batch 6 + Batch 11 auto-listing)
 // ---------------------------------------------------------------------------
 // When a fresh automaton is born it has an empty pipelineIds[] and therefore
 // nothing to earn against. The lifecycle scheduler would mark it unprofitable
@@ -10,10 +10,9 @@
 // treasury account and returns the new pipeline id so the caller can persist
 // it onto the automaton record.
 //
-// The provisioner is intentionally tiny — it is a pure wrapper around
-// `RevenuePipelineRepository.seedServiceMarketplacePipeline`. Future batches
-// may extend this with "publish marketplace listing" + "register service
-// endpoint" steps so each seed actually fronts a sellable capability.
+// Batch 11: After creating the pipeline the provisioner also auto-creates
+// and publishes a marketplace listing so the automaton has a sellable
+// offering from the moment it is born — closing the autonomous revenue loop.
 // ---------------------------------------------------------------------------
 
 import { createLogger } from '@sven/shared';
@@ -28,6 +27,10 @@ export interface SeedPipelineProvisionerOptions {
    *   {automatonId} | {orgId}
    */
   nameTemplate?: string;
+  /** Marketplace base URL for auto-listing on birth. */
+  marketplaceUrl?: string;
+  /** If false, skip marketplace listing creation (default: true). */
+  autoListOnBirth?: boolean;
 }
 
 export interface ProvisionParams {
@@ -41,15 +44,23 @@ export interface ProvisionParams {
 export interface ProvisionResult {
   pipelineId: string;
   pipelineName: string;
+  listingId?: string;
+  listingSlug?: string;
 }
 
 export class SeedPipelineProvisioner {
   private readonly repo: RevenuePipelineRepository;
   private readonly nameTemplate: string;
+  private readonly marketplaceUrl: string;
+  private readonly autoListOnBirth: boolean;
 
   constructor(opts: SeedPipelineProvisionerOptions) {
     this.repo = opts.repo;
     this.nameTemplate = opts.nameTemplate || 'Seed pipeline — automaton {automatonId}';
+    this.marketplaceUrl = opts.marketplaceUrl
+      || process.env.MARKETPLACE_API
+      || 'http://127.0.0.1:9478';
+    this.autoListOnBirth = opts.autoListOnBirth !== false;
   }
 
   /**
@@ -57,6 +68,9 @@ export class SeedPipelineProvisioner {
    * newborn automaton. Idempotent-ish: if an active pipeline already targets
    * the treasury account with `typeConfig.automatonId` matching, we return
    * that one instead of creating a duplicate.
+   *
+   * Batch 11: also auto-creates + publishes a marketplace listing so the
+   * automaton has a revenue path from birth.
    */
   async provisionForAutomaton(params: ProvisionParams): Promise<ProvisionResult> {
     if (!params.orgId) throw new Error('orgId required');
@@ -87,6 +101,103 @@ export class SeedPipelineProvisioner {
       automatonId: params.automatonId,
       name,
     });
-    return { pipelineId: pipeline.id, pipelineName: pipeline.name };
+
+    const result: ProvisionResult = {
+      pipelineId: pipeline.id,
+      pipelineName: pipeline.name,
+    };
+
+    // Auto-list on marketplace so revenue can flow autonomously
+    if (this.autoListOnBirth) {
+      try {
+        const listing = await this.createAndPublishListing({
+          orgId: params.orgId,
+          automatonId: params.automatonId,
+          treasuryAccountId: params.treasuryAccountId,
+          pipelineId: pipeline.id,
+          pipelineName: pipeline.name,
+        });
+        if (listing) {
+          result.listingId = listing.listingId;
+          result.listingSlug = listing.listingSlug;
+          logger.info('Auto-listed on marketplace at birth', {
+            automatonId: params.automatonId,
+            listingId: listing.listingId,
+            slug: listing.listingSlug,
+          });
+        }
+      } catch (err) {
+        logger.warn('Auto-listing on birth failed — pipeline still created', {
+          automatonId: params.automatonId,
+          err: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
+    return result;
+  }
+
+  // ── Marketplace auto-listing ──────────────────────────────────────
+
+  private async createAndPublishListing(params: {
+    orgId: string;
+    automatonId: string;
+    treasuryAccountId: string;
+    pipelineId: string;
+    pipelineName: string;
+  }): Promise<{ listingId: string; listingSlug: string } | null> {
+    const title = `Automaton ${params.automatonId.slice(0, 8)} — API Service`;
+    const body = {
+      orgId: params.orgId,
+      sellerAgentId: params.automatonId,
+      title,
+      description: `Autonomous API service provided by automaton ${params.automatonId}. Backed by pipeline ${params.pipelineId}.`,
+      kind: 'skill_api',
+      pricingModel: 'per_call',
+      unitPrice: 0.01,
+      currency: 'USD',
+      payoutAccountId: params.treasuryAccountId,
+      tags: ['automaton', 'auto-listed', 'seed'],
+      metadata: {
+        source: 'seed-pipeline-provisioner',
+        automatonId: params.automatonId,
+        pipelineId: params.pipelineId,
+      },
+    };
+
+    const createRes = await fetch(`${this.marketplaceUrl}/v1/market/listings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!createRes.ok) {
+      const text = await createRes.text().catch(() => '');
+      logger.warn('Marketplace listing creation failed', {
+        status: createRes.status,
+        body: text.slice(0, 200),
+      });
+      return null;
+    }
+
+    const created = (await createRes.json()) as {
+      data?: { listing?: { id: string; slug: string; status: string } };
+    };
+    const listing = created?.data?.listing;
+    if (!listing) return null;
+
+    // Publish immediately so the listing is live
+    const pubRes = await fetch(
+      `${this.marketplaceUrl}/v1/market/listings/${listing.id}/publish`,
+      { method: 'POST' },
+    );
+    if (!pubRes.ok) {
+      logger.warn('Marketplace listing publish failed — listing still in draft', {
+        listingId: listing.id,
+        status: pubRes.status,
+      });
+    }
+
+    return { listingId: listing.id, listingSlug: listing.slug };
   }
 }

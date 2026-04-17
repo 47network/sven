@@ -52,7 +52,7 @@ export default function EidolonPage() {
   return (
     <main className="relative h-screen w-screen overflow-hidden">
       <div className="absolute inset-0">
-        <CityScene snapshot={snapshot} selectedId={selected?.id ?? null} onSelect={setSelected} />
+        <CityScene snapshot={snapshot} selectedId={selected?.id ?? null} onSelect={setSelected} events={events} />
       </div>
 
       <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-4 pointer-events-none">

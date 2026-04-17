@@ -19,6 +19,7 @@ import {
   EnvSecretResolver,
 } from '@sven/treasury';
 import { BaseL2Client } from '@sven/treasury/providers/base-l2';
+import { rateLimiterHook } from '@sven/shared';
 import { registerAccountRoutes } from './routes/accounts.js';
 import { registerTransactionRoutes } from './routes/transactions.js';
 import { registerLimitRoutes } from './routes/limits.js';
@@ -61,6 +62,9 @@ async function main() {
 
   const app = Fastify({ logger: false });
 
+  // Rate limiting — 100 req/min per IP, health/readyz exempt
+  app.addHook('onRequest', rateLimiterHook({ max: 100, windowMs: 60_000 }));
+
   app.get('/health', async () =>
     buildHealthStatus('sven-treasury', VERSION, [
       { name: 'postgres', status: 'pass' },
@@ -68,6 +72,17 @@ async function main() {
       { name: 'base-chain', status: 'pass', message: network },
     ]),
   );
+
+  // Readiness probe — verifies Postgres can execute queries
+  app.get('/readyz', async (_req, reply) => {
+    try {
+      await pool.query('SELECT 1');
+      return { status: 'ready', postgres: 'ok', nats: nc ? 'ok' : 'unavailable' };
+    } catch {
+      reply.code(503);
+      return { status: 'not_ready', postgres: 'error', nats: nc ? 'ok' : 'unavailable' };
+    }
+  });
 
   await registerAccountRoutes(app, ledger);
   await registerTransactionRoutes(app, ledger, nc);

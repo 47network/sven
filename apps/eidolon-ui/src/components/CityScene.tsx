@@ -3,19 +3,22 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid, Stars, Html } from '@react-three/drei';
 import { Suspense, useMemo } from 'react';
-import type { EidolonSnapshot, EidolonBuilding } from '@/lib/api';
+import type { EidolonSnapshot, EidolonBuilding, EidolonEvent } from '@/lib/api';
 import { Building } from './Building';
 import { Citizen } from './Citizen';
+import { useEventGlow } from '@/hooks/useEventGlow';
 
 interface Props {
   snapshot: EidolonSnapshot | null;
   selectedId: string | null;
   onSelect: (b: EidolonBuilding | null) => void;
+  events: EidolonEvent[];
 }
 
-export function CityScene({ snapshot, selectedId, onSelect }: Props) {
+function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
   const buildings = snapshot?.buildings ?? [];
   const citizens = snapshot?.citizens ?? [];
+  const { getGlowBoost } = useEventGlow(events);
 
   const districtLabels = useMemo(
     () => [
@@ -27,6 +30,41 @@ export function CityScene({ snapshot, selectedId, onSelect }: Props) {
     [],
   );
 
+  return (
+    <>
+      {districtLabels.map((d) => (
+        <Html key={d.label} position={[d.pos[0], 50, d.pos[2]]} center distanceFactor={140}>
+          <div
+            className="pointer-events-none select-none rounded-full border border-white/10 bg-surface/60 px-3 py-1 text-[11px] font-medium tracking-wider uppercase backdrop-blur"
+            style={{ color: d.color }}
+          >
+            {d.label}
+          </div>
+        </Html>
+      ))}
+
+      {buildings.map((b) => {
+        const glow = getGlowBoost(b.kind);
+        return (
+          <Building
+            key={b.id}
+            building={b}
+            selected={selectedId === b.id}
+            onSelect={onSelect}
+            glowBoost={glow.boost}
+            glowColor={glow.color}
+          />
+        );
+      })}
+
+      {citizens.map((c) => (
+        <Citizen key={c.id} citizen={c} />
+      ))}
+    </>
+  );
+}
+
+export function CityScene({ snapshot, selectedId, onSelect, events }: Props) {
   return (
     <Canvas
       shadows
@@ -58,29 +96,12 @@ export function CityScene({ snapshot, selectedId, onSelect }: Props) {
       />
 
       <Suspense fallback={null}>
-        {districtLabels.map((d) => (
-          <Html key={d.label} position={[d.pos[0], 50, d.pos[2]]} center distanceFactor={140}>
-            <div
-              className="pointer-events-none select-none rounded-full border border-white/10 bg-surface/60 px-3 py-1 text-[11px] font-medium tracking-wider uppercase backdrop-blur"
-              style={{ color: d.color }}
-            >
-              {d.label}
-            </div>
-          </Html>
-        ))}
-
-        {buildings.map((b) => (
-          <Building
-            key={b.id}
-            building={b}
-            selected={selectedId === b.id}
-            onSelect={onSelect}
-          />
-        ))}
-
-        {citizens.map((c) => (
-          <Citizen key={c.id} citizen={c} />
-        ))}
+        <CityContent
+          snapshot={snapshot}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          events={events}
+        />
       </Suspense>
 
       <OrbitControls

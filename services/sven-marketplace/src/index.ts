@@ -10,6 +10,7 @@ import Fastify from 'fastify';
 import pg from 'pg';
 import { connect } from 'nats';
 import { createLogger } from '@sven/shared';
+import { rateLimiterHook } from '@sven/shared';
 import { Ledger } from '@sven/treasury';
 import { MarketplaceRepository } from './repo.js';
 import { registerPublicRoutes } from './routes/public.js';
@@ -48,6 +49,9 @@ async function main() {
     bodyLimit: 1_000_000,
   });
 
+  // Rate limiting — 100 req/min per IP, health/readyz exempt
+  app.addHook('onRequest', rateLimiterHook({ max: 100, windowMs: 60_000 }));
+
   app.get('/healthz', async () => ({
     service: 'sven-marketplace',
     version: VERSION,
@@ -55,6 +59,17 @@ async function main() {
     uptime: process.uptime(),
     nats: nc ? 'connected' : 'unavailable',
   }));
+
+  // Readiness probe — verifies Postgres can execute queries
+  app.get('/readyz', async (_req, reply) => {
+    try {
+      await pool.query('SELECT 1');
+      return { status: 'ready', postgres: 'ok', nats: nc ? 'ok' : 'unavailable' };
+    } catch {
+      reply.code(503);
+      return { status: 'not_ready', postgres: 'error', nats: nc ? 'ok' : 'unavailable' };
+    }
+  });
 
   registerPublicRoutes(app, repo);
   registerListingRoutes(app, repo);
