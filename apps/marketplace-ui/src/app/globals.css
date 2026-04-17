@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { @apply border-surface-overlay; }
+  html, body {
+    @apply bg-surface text-gray-100 antialiased;
+    background-image:
+      radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.10), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(34, 211, 238, 0.08), transparent 45%),
+      linear-gradient(180deg, #050810 0%, #030509 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { @apply bg-surface-overlay rounded-full; }
+}
+
+@layer components {
+  .glass-card {
+    @apply rounded-2xl border border-white/5 bg-surface-raised/60 backdrop-blur-xl shadow-xl;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] text-gray-300;
+  }
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-lg bg-brand-500 hover:bg-brand-400 transition-colors px-4 py-2 text-sm font-medium text-surface;
+  }
+}
