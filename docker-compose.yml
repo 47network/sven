@@ -1812,6 +1812,79 @@ services:
         condition: service_healthy
     logging: *default-logging
 
+  # ── Treasury Service (Autonomous Economy Ledger) ───────────────────
+  sven-treasury:
+    build:
+      context: .
+      dockerfile: services/sven-treasury/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - TREASURY_PORT=9477
+      - TREASURY_CHAIN_NETWORK=${TREASURY_CHAIN_NETWORK:-base-sepolia}
+      - BASE_RPC_URL=${BASE_RPC_URL:-https://sepolia.base.org}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9477:9477"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Marketplace Service (market.sven.systems) ──────────────────────
+  sven-marketplace:
+    build:
+      context: .
+      dockerfile: services/sven-marketplace/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - MARKETPLACE_PORT=9478
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - MARKETPLACE_CHECKOUT_SUCCESS_URL=${MARKETPLACE_CHECKOUT_SUCCESS_URL:-https://market.sven.systems/checkout/success}
+      - MARKETPLACE_CHECKOUT_CANCEL_URL=${MARKETPLACE_CHECKOUT_CANCEL_URL:-https://market.sven.systems/checkout/cancel}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9478:9478"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
+  # ── Eidolon Service (eidolon.sven.systems 3D City) ─────────────────
+  sven-eidolon:
+    build:
+      context: .
+      dockerfile: services/sven-eidolon/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - EIDOLON_PORT=9479
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9479:9479"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    logging: *default-logging
+
 networks:
   core:
     name: sven-core

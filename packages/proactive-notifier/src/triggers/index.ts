@@ -14,6 +14,9 @@ export type TriggerCategory =
   | 'health_degraded'
   | 'task_completed'
   | 'scheduled_digest'
+  | 'economy_balance_warning'
+  | 'economy_automaton_retiring'
+  | 'economy_revenue_milestone'
   | 'custom';
 
 /** Severity levels for proactive notifications */
@@ -118,6 +121,40 @@ export const DEFAULT_TRIGGER_RULES: Omit<TriggerRule, 'id' | 'last_fired_at' | '
     max_per_hour: 0,
     condition_expression: 'event.task_status === "completed"',
     body_template: '✅ **Task Complete**: {{event.task_name}}\n\n{{event.summary}}',
+    target_channels: [],
+  },
+  // ── Economy / Autonomous Revenue ──────────────────────────────────
+  {
+    name: 'Economy Balance Warning',
+    category: 'economy_balance_warning',
+    enabled: true,
+    min_severity: 'warning',
+    cooldown_seconds: 3600,
+    max_per_hour: 2,
+    condition_expression: 'event.balance < event.min_threshold',
+    body_template: '💰 **Low Balance**: Treasury at ${{event.balance}} (minimum: ${{event.min_threshold}})\n\nAccount: `{{event.account_id}}`\nAction required: top-up or reduce spend.',
+    target_channels: [],
+  },
+  {
+    name: 'Automaton Retiring',
+    category: 'economy_automaton_retiring',
+    enabled: true,
+    min_severity: 'warning',
+    cooldown_seconds: 600,
+    max_per_hour: 5,
+    condition_expression: 'event.decision === "retire"',
+    body_template: '🔻 **Automaton Retiring**: `{{event.automaton_id}}`\n\nROI: {{event.roi}} (threshold: {{event.retire_threshold}})\nLifetime revenue: ${{event.lifetime_revenue}}\nReason: Unprofitable — shutting down to conserve resources.',
+    target_channels: [],
+  },
+  {
+    name: 'Revenue Milestone',
+    category: 'economy_revenue_milestone',
+    enabled: true,
+    min_severity: 'info',
+    cooldown_seconds: 0,
+    max_per_hour: 0,
+    condition_expression: 'event.milestone !== undefined',
+    body_template: '🚀 **Revenue Milestone**: ${{event.total_revenue}} earned!\n\n{{event.description}}\nTop pipeline: `{{event.top_pipeline}}`',
     target_channels: [],
   },
 ];
