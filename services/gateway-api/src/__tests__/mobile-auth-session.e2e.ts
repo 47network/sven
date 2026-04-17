@@ -2,7 +2,7 @@ import http from 'http';
 import { describe, expect, it } from '@jest/globals';
 
 const API_BASE = process.env.API_URL || 'http://127.0.0.1:3001';
-const REQUEST_ORIGIN = process.env.TEST_REQUEST_ORIGIN || new URL(API_BASE).origin;
+const REQUEST_ORIGIN = process.env.TEST_REQUEST_ORIGIN || new URL(API_BASE || "http://127.0.0.1").origin;
 const TEST_SESSION_COOKIE = process.env.TEST_SESSION_COOKIE || '';
 const RUN_LIVE_GATEWAY_E2E = String(process.env.RUN_LIVE_GATEWAY_E2E || '').toLowerCase() === 'true';
 
