@@ -18,7 +18,7 @@ Release policy:
 
 ---
 
-## SSO / Keycloak Interop
-- [ ] Keycloak live interop gate passes in CI (`d9-keycloak-interop-gate`).
-- [ ] Keycloak local selfcheck passes (`release:sso:keycloak:interop:selfcheck:local`).
+### D9 SSO / Keycloak Interop
+- [x] Keycloak live interop gate passes in CI (`services/gateway-api/src/__tests__/tenant-sso.e2e.ts`, `docs/release/evidence/d9-keycloak-interop-live-20260223-082847Z.json`).
+- [x] Keycloak local selfcheck passes (`services/gateway-api/src/routes/auth.ts`, `docs/release/evidence/d9-enterprise-sso-phase1-2026-02-22.md`).
 

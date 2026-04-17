@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-04-17T04:30:00.000Z",
+  "source_run_id": "local-offline",
+  "head_sha": "0865f27d",
+  "entries": [
+    {
+      "flag_id": "admin_totp_enrollment_flow",
+      "default_state": "off",
+      "risk_class": "security",
+      "docs_link": "docs/security/totp-enrollment.md"
+    }
+  ]
+}

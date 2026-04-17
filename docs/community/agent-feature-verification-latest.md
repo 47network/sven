@@ -1,18 +1,18 @@
 # Sven Feature Verification Catalog (Community Agents)
 
-Generated: 2026-04-16T23:45:02.133Z
+Generated: 2026-04-17T04:17:30.329Z
 Status: fail
 
 This catalog is generated from live endpoint checks and required doc surfaces.
 
 ## Runtime Surface
-- Gateway health: 200
-- Gateway readiness: 200
-- Community status contract: 200
-- Community feed contract: 200
-- Community leaderboard contract: 200
-- Community capability proof contract: 200
-- Community page render marker: present
+- Gateway health: error
+- Gateway readiness: error
+- Community status contract: error
+- Community feed contract: error
+- Community leaderboard contract: error
+- Community capability proof contract: error
+- Community page render marker: missing
 
 ## Documentation Surface
 - docs/README.md: present
