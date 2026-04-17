@@ -70,7 +70,9 @@
   },
   "dependencies": {
     "@types/htmlparser2": "^3.10.7",
-    "htmlparser2": "^9.1.0",
     "nats": "^2.29.3"
+  },
+  "devDependencies": {
+    "htmlparser2": "^9.1.0"
   }
 }

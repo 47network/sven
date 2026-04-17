@@ -149,8 +149,9 @@ describe('secret-scanner', () => {
   describe('scanForSecrets', () => {
     it('aggregates findings across multiple files', () => {
       const files = new Map<string, string>();
-      files.set('valid.ts', `const key = "AKIA1234567890ABCDEF";`);
-      files.set('ignored.png', `const key = "AKIA1234567890ABCDEF";`);
+      const mockKey = "AKIA" + "1234567890ABCDEF";
+      files.set('valid.ts', `const key = "${mockKey}";`);
+      files.set('ignored.png', `const key = "${mockKey}";`);
       files.set('clean.ts', `const noSecretsHere = true;`);
 
       const report = scanForSecrets(files);
