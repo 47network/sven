@@ -2370,6 +2370,48 @@ export const trading = {
   brokerHealth: () => request<Record<string, boolean>>('GET', '/v1/trading/broker/health'),
 };
 
+// ── Revenue Pipelines (Batch 6: Seed Pipeline) ──
+export const revenuePipelines = {
+  list: (params?: { type?: string; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.type) q.set('type', params.type);
+    if (params?.status) q.set('status', params.status);
+    const qs = q.toString();
+    return request<{
+      success: boolean;
+      data: { pipelines: Array<Record<string, unknown>> };
+    }>('GET', `/admin/revenue/pipelines${qs ? '?' + qs : ''}`);
+  },
+  get: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('GET', `/admin/revenue/pipelines/${id}`),
+  seedSummary: () =>
+    request<{
+      success: boolean;
+      data: {
+        seedPipelines: number;
+        totalActive: number;
+        last24hNet: number;
+        last24hEvents: number;
+      };
+    }>('GET', '/admin/revenue/pipelines/seed-summary'),
+  stats: () =>
+    request<{ success: boolean; data: Record<string, unknown> }>('GET', '/admin/revenue/stats'),
+  events: (params?: { pipeline_id?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.pipeline_id) q.set('pipeline_id', params.pipeline_id);
+    if (params?.limit) q.set('limit', String(params.limit));
+    const qs = q.toString();
+    return request<{
+      success: boolean;
+      data: { events: Array<Record<string, unknown>>; limit: number; offset: number };
+    }>('GET', `/admin/revenue/events${qs ? '?' + qs : ''}`);
+  },
+  activate: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('PATCH', `/admin/revenue/pipelines/${id}/activate`),
+  pause: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('PATCH', `/admin/revenue/pipelines/${id}/pause`),
+};
+
 // ── Automatons (Batch 5: Autonomous Economy) ──
 export const automatons = {
   list: (params?: { status?: string; limit?: number }) => {
@@ -2454,4 +2496,5 @@ export const api = {
   analyticsOverview,
   trading,
   automatons,
+  revenuePipelines,
 };

@@ -139,6 +139,17 @@ export interface AutomatonLifecycleOptions {
   clone: ClonePort;
   thresholds?: Partial<LifecycleThresholds>;
   clock?: LifecycleClock;
+  /**
+   * Optional hook invoked inside birth() right after treasury+wallet setup but
+   * before the record is persisted. Use it to attach seed pipeline ids / extra
+   * metadata to every newborn. Return null/undefined to leave the record as-is.
+   */
+  onBirth?: (params: {
+    automatonId: string;
+    orgId: string;
+    treasuryAccountId: string;
+    walletId: string | null;
+  }) => Promise<{ pipelineIds?: string[]; metadata?: Record<string, unknown> } | null | void>;
 }
 
 /** Decision produced by evaluate() — persisted back onto the record. */
@@ -214,8 +225,36 @@ export class AutomatonLifecycle {
       },
       metadata: req.metadata ?? {},
     };
+
+    if (this.opts.onBirth) {
+      try {
+        const seeded = await this.opts.onBirth({
+          automatonId: record.id,
+          orgId: record.orgId,
+          treasuryAccountId: record.treasuryAccountId,
+          walletId: record.walletId,
+        });
+        if (seeded?.pipelineIds && seeded.pipelineIds.length > 0) {
+          record.pipelineIds = [...record.pipelineIds, ...seeded.pipelineIds];
+        }
+        if (seeded?.metadata) {
+          record.metadata = { ...record.metadata, ...seeded.metadata };
+        }
+      } catch (err) {
+        logger.warn('birth: onBirth hook failed — continuing with empty seed', {
+          id: record.id,
+          err: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
     await this.opts.store.insert(record);
-    logger.info('automaton born', { id, orgId: record.orgId, parentId: record.parentId });
+    logger.info('automaton born', {
+      id,
+      orgId: record.orgId,
+      parentId: record.parentId,
+      pipelineCount: record.pipelineIds.length,
+    });
     return record;
   }
 
@@ -349,6 +388,19 @@ export class AutomatonLifecycle {
     const decisions: LifecycleDecision[] = [];
     for (const rec of all) {
       if (rec.status === 'dead') continue;
+      // Freshly born automatons need to be promoted to 'working' before their
+      // first evaluation — this pulls live pipelineIds through the RevenuePort.
+      if (rec.status === 'born') {
+        try {
+          await this.markWorking(rec.id);
+        } catch (err) {
+          logger.warn('tick: markWorking failed for born automaton', {
+            id: rec.id,
+            err: err instanceof Error ? err.message : String(err),
+          });
+          continue;
+        }
+      }
       const d = await this.evaluate(rec.id);
       if (!d) continue;
       decisions.push(d);

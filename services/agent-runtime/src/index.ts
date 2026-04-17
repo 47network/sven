@@ -34,11 +34,14 @@ import { isMissingChatQueueDispatchError } from './queue-dispatch.js';
 import { AutomatonLifecycle, startLifecycleScheduler } from './automaton-lifecycle.js';
 import {
   makeTreasuryHttp,
-  makeRevenueHttp,
+  makeRevenuePg,
   makeInfraHttp,
   makeAutomatonStorePg,
-  makeCloneSimple,
+  makeClonePg,
 } from './automaton-adapters.js';
+import { RevenuePipelineRepository } from './revenue-pipeline-repo.js';
+import { SeedPipelineProvisioner } from './seed-pipeline-provisioner.js';
+import { Ledger } from '@sven/treasury';
 import { basename } from 'path';
 
 const logger = createLogger('agent-runtime');
@@ -351,12 +354,31 @@ async function main() {
       const lifecycleOrgId = String(process.env.SVEN_LIFECYCLE_ORG_ID || 'default').trim() || 'default';
       const lifecycleIntervalMs = Number(process.env.SVEN_LIFECYCLE_INTERVAL_MS || 600_000);
       const automatonStore = makeAutomatonStorePg(pool);
+      const ledger = new Ledger(pool);
+      const pipelineRepo = new RevenuePipelineRepository({ pool, ledger });
+      const seedProvisioner = new SeedPipelineProvisioner({ repo: pipelineRepo });
       const lifecycle = new AutomatonLifecycle({
         treasury: makeTreasuryHttp(),
-        revenue: makeRevenueHttp({ orgId: lifecycleOrgId, store: automatonStore }),
+        revenue: makeRevenuePg({ repo: pipelineRepo, pool }),
         infra: makeInfraHttp(),
         store: automatonStore,
-        clone: makeCloneSimple(),
+        clone: makeClonePg({ repo: pipelineRepo }),
+        onBirth: async ({ automatonId, orgId, treasuryAccountId }) => {
+          try {
+            const seeded = await seedProvisioner.provisionForAutomaton({
+              orgId,
+              automatonId,
+              treasuryAccountId,
+            });
+            return { pipelineIds: [seeded.pipelineId] };
+          } catch (err) {
+            logger.warn('seed pipeline provisioning failed', {
+              automatonId,
+              err: err instanceof Error ? err.message : String(err),
+            });
+            return null;
+          }
+        },
       });
       const stopLifecycle = startLifecycleScheduler({
         lifecycle,

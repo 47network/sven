@@ -22,6 +22,7 @@ import type {
   StorePort,
   TreasuryPort,
 } from './automaton-lifecycle.js';
+import type { RevenuePipelineRepository } from './revenue-pipeline-repo.js';
 
 const logger = createLogger('automaton-adapters');
 
@@ -131,6 +132,47 @@ export function makeRevenueHttp(opts: {
       } catch {
         return [];
       }
+    },
+  };
+}
+
+/**
+ * PG-backed RevenuePort — the production wiring for Batch 6.
+ * Uses the RevenuePipelineRepository directly so there is no HTTP hop and so
+ * the pipeline ↔ treasury link becomes the single source of truth for both
+ * netInflowSince() and activePipelineIds().
+ */
+export function makeRevenuePg(opts: {
+  repo: RevenuePipelineRepository;
+  /**
+   * Fallback to treasury_transactions if no revenue_events exist for the
+   * account yet (e.g. credits posted before the pipeline was created).
+   */
+  pool?: Pool;
+}): RevenuePort {
+  const { repo, pool } = opts;
+  return {
+    async netInflowSince(accountId, sinceIso) {
+      const pipelineInflow = await repo.sumNetInflowByTreasurySince(accountId, sinceIso);
+      if (pipelineInflow > 0 || !pool) return pipelineInflow;
+      // Fallback: tally treasury_transactions directly. Credits increase inflow,
+      // debits decrease it, matching the HTTP adapter's semantics.
+      const res = await pool.query<{ net: string | null }>(
+        `SELECT COALESCE(SUM(CASE WHEN direction = 'credit' THEN amount
+                                  WHEN direction = 'debit'  THEN -amount
+                                  ELSE 0 END), 0)::text AS net
+           FROM treasury_transactions
+          WHERE account_id = $1
+            AND created_at >= $2
+            AND status = 'posted'`,
+        [accountId, sinceIso],
+      );
+      return Number(res.rows[0]?.net ?? 0) || 0;
+    },
+
+    async activePipelineIds(treasuryAccountId) {
+      const pipelines = await repo.findActiveByTreasuryAccount(treasuryAccountId);
+      return pipelines.map((p) => p.id);
     },
   };
 }
@@ -298,6 +340,61 @@ export function makeCloneSimple(): ClonePort {
           clonedFrom: parent.id,
           cloneIdx,
           cloneReason: 'roi_threshold_met',
+        },
+      };
+    },
+  };
+}
+
+/**
+ * Production clone port: duplicates each of the parent's active pipelines into
+ * brand-new pipeline rows bound to the parent's treasury account, so the child
+ * inherits earning capacity without cannibalising the parent's history.
+ */
+export function makeClonePg(opts: { repo: RevenuePipelineRepository }): ClonePort {
+  const { repo } = opts;
+  return {
+    async spawnDescendant(parent) {
+      const cloneIdx = (parent.metrics.cloneCount || 0) + 1;
+      const parentPipelines = await Promise.all(
+        (parent.pipelineIds || []).map((id) => repo.getPipeline(id).catch(() => null)),
+      );
+      const active = parentPipelines.filter((p): p is NonNullable<typeof p> => !!p && p.status === 'active');
+      if (active.length === 0) {
+        // No pipelines to inherit — let the scheduler skip the clone.
+        return null;
+      }
+      const pipelineIds: string[] = [];
+      for (const parentPipe of active) {
+        const child = await repo.createPipeline({
+          orgId: parent.orgId,
+          name: `${parentPipe.name} (clone #${cloneIdx})`,
+          type: parentPipe.type,
+          config: {
+            ...parentPipe.config,
+            typeConfig: {
+              ...(parentPipe.config.typeConfig ?? {}),
+              clonedFrom: parentPipe.id,
+              cloneIdx,
+              parentAutomatonId: parent.id,
+            },
+          },
+        });
+        const activated = await repo.activatePipeline(child.id);
+        pipelineIds.push(activated?.id ?? child.id);
+      }
+      logger.info('Clone spawned with duplicated pipelines', {
+        parent: parent.id,
+        cloneIdx,
+        pipelineCount: pipelineIds.length,
+      });
+      return {
+        pipelineIds,
+        metadata: {
+          clonedFrom: parent.id,
+          cloneIdx,
+          cloneReason: 'roi_threshold_met',
+          clonedPipelineParents: active.map((p) => p.id),
         },
       };
     },
