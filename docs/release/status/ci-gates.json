@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-17T09:46:50.026Z",
-  "source_branch": "fix-pdf-pages-object-15225039809587380290",
-  "source_head_sha": "a1f36c06d215bda88672de666beba5a40a7f46e2",
+  "generated_at": "2026-04-17T09:48:36.795Z",
+  "source_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+  "source_head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T09:46:49.150Z",
-    "branch": "fix-pdf-pages-object-15225039809587380290",
-    "total_runs": 29
+    "captured_at": "2026-04-17T09:48:35.567Z",
+    "branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+    "total_runs": 34
   },
   "final_dod_ci": false,
   "parity_e2e_ci": true,
@@ -34,40 +34,39 @@
   "ops_shell_ci": true,
   "skill_quarantine_scan_ci": false,
   "security_audit_unified_ci": false,
-  "security_baseline_ci": true,
+  "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "run_id": 24558840384,
+      "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
-      "event": null,
-      "status": null,
+      "run_id": 24558840466,
+      "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+      "event": "pull_request",
+      "status": "in_progress",
       "conclusion": null,
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "no_runs_for_branch",
+      "decision": "preserved_previous_pass_non_final_target_sha",
       "previous_gate_value": true
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -81,7 +80,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -91,12 +90,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T09:46:39.429Z"
+      "generated_at": "2026-04-17T09:48:25.949Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -111,7 +110,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -121,12 +120,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T09:46:44.106Z"
+      "generated_at": "2026-04-17T09:48:30.584Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -136,12 +135,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T09:46:48.806Z"
+      "generated_at": "2026-04-17T09:48:35.216Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -156,7 +155,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -169,7 +168,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -181,23 +180,22 @@
       "previous_gate_value": true
     },
     "mobile_auth_session_smoke_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "run_id": 24558840379,
+      "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310875,
       "workflow_name": "mobile-auth-session-smoke",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -211,7 +209,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -225,7 +223,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -238,7 +236,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -252,7 +250,7 @@
     "ui_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -266,7 +264,7 @@
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -280,7 +278,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -292,22 +290,23 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24558543262,
-      "head_sha": "a1f36c06d215bda88672de666beba5a40a7f46e2",
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "run_id": null,
+      "head_sha": null,
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310854,
       "workflow_name": "client-env-governance",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "client_env_governance_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": true
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -321,7 +320,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -335,7 +334,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -349,7 +348,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -375,7 +374,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -389,7 +388,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -401,12 +400,12 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24558544576,
-      "head_sha": "a1f36c06d215bda88672de666beba5a40a7f46e2",
-      "head_branch": "fix-pdf-pages-object-15225039809587380290",
+      "run_id": 24558840381,
+      "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+      "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
       "event": "pull_request",
       "status": "completed",
-      "conclusion": "success",
+      "conclusion": "failure",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
@@ -442,35 +441,34 @@
     "final-dod-e2e": {
       "pass": false,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24558840384,
+        "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "final_dod_e2e_ci"
     },
     "parity-e2e": {
       "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
-        "event": null,
-        "status": null,
+        "run_id": 24558840466,
+        "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+        "event": "pull_request",
+        "status": "in_progress",
         "conclusion": null,
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "no_runs_for_branch",
+        "decision": "preserved_previous_pass_non_final_target_sha",
         "previous_gate_value": true
       },
       "gate_key": "parity_e2e_ci"
@@ -480,7 +478,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -498,7 +496,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -514,35 +512,34 @@
     "mobile-auth-session-smoke": {
       "pass": false,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24558840379,
+        "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310875,
         "workflow_name": "mobile-auth-session-smoke",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
     "flutter-user-app-device-farm": {
       "pass": true,
       "provenance": {
-        "run_id": 24558544595,
-        "head_sha": "a1f36c06d215bda88672de666beba5a40a7f46e2",
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
-        "event": "pull_request",
-        "status": "in_progress",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+        "event": null,
+        "status": null,
         "conclusion": null,
         "workflow_id": 261310866,
         "workflow_name": "flutter-user-app-device-farm",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "flutter_user_app_device_farm_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
+        "decision": "no_runs_for_branch",
         "previous_gate_value": true
       },
       "gate_key": "flutter_user_app_device_farm_ci"
@@ -552,7 +549,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -570,7 +567,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -584,46 +581,46 @@
       "gate_key": "ui_e2e_accessibility_ci"
     },
     "gateway-coverage-gate": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24558840382,
+        "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310871,
         "workflow_name": "gateway-coverage-gate",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "gateway_coverage_gate_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "gateway_coverage_gate_ci"
     },
     "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24558543262,
-        "head_sha": "a1f36c06d215bda88672de666beba5a40a7f46e2",
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310854,
         "workflow_name": "client-env-governance",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "client_env_governance_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": true
       },
       "gate_key": "client_env_governance_ci"
     },
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24558543228,
-        "head_sha": "a1f36c06d215bda88672de666beba5a40a7f46e2",
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "run_id": 24558838119,
+        "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": "push",
         "status": "in_progress",
         "conclusion": null,
@@ -637,32 +634,31 @@
       "gate_key": "deployment_pipeline_ci"
     },
     "env-secrets-governance": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24558838083,
+        "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310862,
         "workflow_name": "env-secrets-governance",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "env_secrets_governance_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24558544576,
-        "head_sha": "a1f36c06d215bda88672de666beba5a40a7f46e2",
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "run_id": 24558840381,
+        "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": "pull_request",
         "status": "completed",
-        "conclusion": "success",
+        "conclusion": "failure",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
@@ -676,7 +672,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -694,7 +690,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -712,7 +708,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -730,7 +726,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -748,7 +744,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -762,20 +758,19 @@
       "gate_key": "bridge_runtime_tests_ci"
     },
     "gateway-bridge-contract-tests": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "fix-pdf-pages-object-15225039809587380290",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24558840391,
+        "head_sha": "6663cac8977b8ca2f41f386cdab62bda500caa83",
+        "head_branch": "security-fix-sql-injection-privacy-service-9987842640587273013",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310869,
         "workflow_name": "gateway-bridge-contract-tests",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "gateway_bridge_contract_tests_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "gateway_bridge_contract_tests_ci"
     }
