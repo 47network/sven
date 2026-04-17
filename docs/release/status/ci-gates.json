@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-04-17T10:34:24.655Z",
-  "source_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-  "source_head_sha": "e60d19649617b210a95381e1b946c4e0dda720cc",
+  "generated_at": "2026-04-17T10:35:33.026Z",
+  "source_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+  "source_head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T10:34:23.266Z",
-    "branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-    "total_runs": 47
+    "captured_at": "2026-04-17T10:35:32.073Z",
+    "branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+    "total_runs": 31
   },
-  "final_dod_ci": false,
+  "final_dod_ci": true,
   "parity_e2e_ci": true,
   "parity_checklist_verify_ci": false,
   "agent_zero_parity_verify_ci": false,
@@ -23,7 +23,7 @@
   "backup_restore_api_ci": false,
   "flutter_user_app_device_farm_ci": true,
   "desktop_release_ci": false,
-  "ui_e2e_ci": true,
+  "ui_e2e_ci": false,
   "mobile_coverage_gate_ci": false,
   "csrf_auth_e2e_ci": false,
   "client_env_governance_ci": false,
@@ -37,37 +37,35 @@
   "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "run_id": 24560558482,
+      "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "run_id": 24560558498,
+      "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -81,7 +79,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -91,12 +89,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T10:34:13.521Z"
+      "generated_at": "2026-04-17T10:35:23.045Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -111,7 +109,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -121,12 +119,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T10:34:18.191Z"
+      "generated_at": "2026-04-17T10:35:27.340Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -136,12 +134,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T10:34:22.935Z"
+      "generated_at": "2026-04-17T10:35:31.645Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -156,7 +154,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -169,7 +167,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -181,23 +179,22 @@
       "previous_gate_value": true
     },
     "mobile_auth_session_smoke_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "run_id": 24560558575,
+      "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310875,
       "workflow_name": "mobile-auth-session-smoke",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "no_runs_for_branch",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -211,7 +208,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -225,7 +222,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -238,7 +235,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -250,22 +247,23 @@
       "previous_gate_value": false
     },
     "ui_e2e_ci": {
-      "run_id": 24560614104,
-      "head_sha": "e60d19649617b210a95381e1b946c4e0dda720cc",
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-      "event": "pull_request",
-      "status": "completed",
-      "conclusion": "success",
+      "run_id": null,
+      "head_sha": null,
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310896,
       "workflow_name": "ui-e2e-accessibility",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "ui_e2e_accessibility_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -279,7 +277,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -293,7 +291,7 @@
     "client_env_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -301,13 +299,13 @@
       "workflow_name": "client-env-governance",
       "matched_target_sha": false,
       "gate_key": "client_env_governance_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "e60d19649617b210a95381e1b946c4e0dda720cc"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -321,7 +319,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -335,7 +333,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -349,7 +347,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -358,7 +356,7 @@
       "matched_target_sha": false,
       "gate_key": "ops_shell_ci",
       "decision": "not_required_scope_clean",
-      "previous_gate_value": true,
+      "target_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
       "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
@@ -375,7 +373,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -389,7 +387,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -401,9 +399,9 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24560614061,
-      "head_sha": "e60d19649617b210a95381e1b946c4e0dda720cc",
-      "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+      "run_id": 24560559805,
+      "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+      "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
       "event": "pull_request",
       "status": "completed",
       "conclusion": "failure",
@@ -440,38 +438,36 @@
   },
   "required_workflow_gates": {
     "final-dod-e2e": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24560558482,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "final_dod_e2e_ci"
     },
     "parity-e2e": {
       "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24560558498,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -480,7 +476,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -498,7 +494,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -514,35 +510,35 @@
     "mobile-auth-session-smoke": {
       "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24560558575,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310875,
         "workflow_name": "mobile-auth-session-smoke",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
     "flutter-user-app-device-farm": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": 24560614038,
-        "head_sha": "e60d19649617b210a95381e1b946c4e0dda720cc",
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": "pull_request",
-        "status": "completed",
-        "conclusion": "failure",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310866,
         "workflow_name": "flutter-user-app-device-farm",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "flutter_user_app_device_farm_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": true
       },
       "gate_key": "flutter_user_app_device_farm_ci"
     },
@@ -551,7 +547,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -565,37 +561,37 @@
       "gate_key": "desktop_tauri_release_ci"
     },
     "ui-e2e-accessibility": {
-      "pass": true,
-      "provenance": {
-        "run_id": 24560614104,
-        "head_sha": "e60d19649617b210a95381e1b946c4e0dda720cc",
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": "pull_request",
-        "status": "completed",
-        "conclusion": "success",
-        "workflow_id": 261310896,
-        "workflow_name": "ui-e2e-accessibility",
-        "matched_target_sha": true,
-        "gate_key": "ui_e2e_accessibility_ci",
-        "decision": "target_sha_completed_run"
-      },
-      "gate_key": "ui_e2e_accessibility_ci"
-    },
-    "gateway-coverage-gate": {
       "pass": false,
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": null,
         "status": null,
         "conclusion": null,
-        "workflow_id": 261310871,
-        "workflow_name": "gateway-coverage-gate",
+        "workflow_id": 261310896,
+        "workflow_name": "ui-e2e-accessibility",
         "matched_target_sha": false,
-        "gate_key": "gateway_coverage_gate_ci",
+        "gate_key": "ui_e2e_accessibility_ci",
         "decision": "no_runs_for_branch",
         "previous_gate_value": false
+      },
+      "gate_key": "ui_e2e_accessibility_ci"
+    },
+    "gateway-coverage-gate": {
+      "pass": true,
+      "provenance": {
+        "run_id": 24560559382,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "workflow_id": 261310871,
+        "workflow_name": "gateway-coverage-gate",
+        "matched_target_sha": true,
+        "gate_key": "gateway_coverage_gate_ci",
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "gateway_coverage_gate_ci"
     },
@@ -604,7 +600,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -612,53 +608,52 @@
         "workflow_name": "client-env-governance",
         "matched_target_sha": false,
         "gate_key": "client_env_governance_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "e60d19649617b210a95381e1b946c4e0dda720cc"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "client_env_governance_ci"
     },
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": null,
-        "status": null,
+        "run_id": 24560556516,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+        "event": "push",
+        "status": "in_progress",
         "conclusion": null,
         "workflow_id": 261310856,
         "workflow_name": "deployment-pipeline",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "deployment_pipeline_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "e60d19649617b210a95381e1b946c4e0dda720cc"
+        "decision": "pending_non_final_target_sha",
+        "previous_gate_value": false
       },
       "gate_key": "deployment_pipeline_ci"
     },
     "env-secrets-governance": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24560556526,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310862,
         "workflow_name": "env-secrets-governance",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "env_secrets_governance_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
       "pass": false,
       "provenance": {
-        "run_id": 24560614061,
-        "head_sha": "e60d19649617b210a95381e1b946c4e0dda720cc",
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "run_id": 24560559805,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": "pull_request",
         "status": "completed",
         "conclusion": "failure",
@@ -671,20 +666,19 @@
       "gate_key": "security_baseline_ci"
     },
     "onboarding-readiness": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24560556512,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310882,
         "workflow_name": "onboarding-readiness",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "onboarding_readiness_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "onboarding_readiness_ci"
     },
@@ -693,7 +687,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -709,9 +703,9 @@
     "release-supply-chain": {
       "pass": false,
       "provenance": {
-        "run_id": 24560611534,
-        "head_sha": "e60d19649617b210a95381e1b946c4e0dda720cc",
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "run_id": 24560556562,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": "push",
         "status": "in_progress",
         "conclusion": null,
@@ -729,7 +723,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -737,8 +731,8 @@
         "workflow_name": "ops-shell-ci",
         "matched_target_sha": false,
         "gate_key": "ops_shell_ci_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309"
       },
       "gate_key": "ops_shell_ci_ci"
     },
@@ -747,7 +741,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -761,20 +755,19 @@
       "gate_key": "bridge_runtime_tests_ci"
     },
     "gateway-bridge-contract-tests": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "sentinel-fix-xss-dompurify-15360771274625815827",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24560558481,
+        "head_sha": "b23f5a492c1c5c67bddf75dbfef1d20294c79309",
+        "head_branch": "perf/fix-registry-n-plus-1-6374351948198210065",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310869,
         "workflow_name": "gateway-bridge-contract-tests",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "gateway_bridge_contract_tests_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "gateway_bridge_contract_tests_ci"
     }
