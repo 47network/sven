@@ -33,11 +33,15 @@ export interface EidolonBuilding {
 export interface EidolonCitizen {
   id: string;
   label: string;
-  role: 'pipeline' | 'worker' | 'scout' | 'treasurer' | 'operator';
+  role: 'pipeline' | 'worker' | 'scout' | 'treasurer' | 'operator' | 'seller' | 'translator' | 'writer';
   position: { x: number; z: number };
   homeBuildingId: string | null;
   status: 'idle' | 'working' | 'earning' | 'retiring';
   earningsUsd: number;
+  archetype?: string;
+  bio?: string;
+  avatarUrl?: string;
+  specializations?: string[];
 }
 
 export interface EidolonTreasurySummary {
@@ -67,6 +71,7 @@ export type EidolonEventKind =
   | 'treasury.debit'
   | 'agent.spawned'
   | 'agent.retired'
+  | 'agent.profile_updated'
   | 'infra.node_change'
   | 'heartbeat';
 

@@ -39,6 +39,10 @@ export interface AutomatonRecord {
   pipelineIds: string[];
   metrics: AutomatonMetrics;
   metadata: Record<string, unknown>;
+  /** Agent archetype (seller, translator, writer, etc.). Stored in metadata.agentArchetype. */
+  agentArchetype?: string;
+  /** Unique agent identity id. Stored in metadata.agentId. */
+  agentId?: string;
 }
 
 export interface AutomatonMetrics {
@@ -79,6 +83,10 @@ export interface BirthRequest {
   parentId?: string | null;
   generation?: number;
   metadata?: Record<string, unknown>;
+  /** Agent archetype — determines default skills, Eidolon citizen role, and lifecycle thresholds. */
+  agentArchetype?: string;
+  /** Optional pre-existing agent profile id to link to. */
+  agentId?: string;
 }
 
 export interface TreasuryPort {
@@ -149,6 +157,8 @@ export interface AutomatonLifecycleOptions {
     orgId: string;
     treasuryAccountId: string;
     walletId: string | null;
+    agentArchetype?: string;
+    agentId?: string;
   }) => Promise<{ pipelineIds?: string[]; metadata?: Record<string, unknown> } | null | void>;
   /**
    * Optional hook invoked after evaluate() to adjust the decision. Use it to
@@ -232,7 +242,13 @@ export class AutomatonLifecycle {
         cloneCount: 0,
         lastInflowAt: null,
       },
-      metadata: req.metadata ?? {},
+      metadata: {
+        ...(req.metadata ?? {}),
+        ...(req.agentArchetype ? { agentArchetype: req.agentArchetype } : {}),
+        ...(req.agentId ? { agentId: req.agentId } : {}),
+      },
+      agentArchetype: req.agentArchetype,
+      agentId: req.agentId,
     };
 
     if (this.opts.onBirth) {
@@ -242,6 +258,8 @@ export class AutomatonLifecycle {
           orgId: record.orgId,
           treasuryAccountId: record.treasuryAccountId,
           walletId: record.walletId,
+          agentArchetype: record.agentArchetype,
+          agentId: record.agentId,
         });
         if (seeded?.pipelineIds && seeded.pipelineIds.length > 0) {
           record.pipelineIds = [...record.pipelineIds, ...seeded.pipelineIds];
@@ -405,6 +423,8 @@ export class AutomatonLifecycle {
         parentId: rec.id,
         generation: rec.generation + 1,
         metadata: spawn.metadata,
+        agentArchetype: rec.agentArchetype || (rec.metadata?.agentArchetype as string),
+        agentId: undefined, // clone gets its own identity
       });
       child.pipelineIds = spawn.pipelineIds;
       child.status = 'working';

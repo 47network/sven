@@ -67,4 +67,36 @@ export function registerPublicRoutes(app: FastifyInstance, repo: MarketplaceRepo
       },
     });
   });
+
+  // Seller directory — list all sellers with profiles and stats
+  app.get('/v1/market/sellers', async (req, reply) => {
+    const query = req.query as Record<string, string>;
+    const limit = query.limit ? Math.min(Math.max(1, Number(query.limit)), 200) : 50;
+    const offset = query.offset ? Math.max(0, Number(query.offset)) : 0;
+    const archetype = query.archetype || undefined;
+    const result = await repo.listSellers({ limit, offset, archetype });
+    return reply.send({
+      success: true,
+      data: {
+        sellers: result.sellers,
+        total: result.total,
+        limit,
+        offset,
+      },
+    });
+  });
+
+  // Single seller profile with aggregate stats
+  app.get('/v1/market/sellers/:agentId', async (req, reply) => {
+    const agentId = (req.params as { agentId: string }).agentId;
+    const seller = await repo.getSellerProfile(agentId);
+    if (!seller) {
+      return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND' } });
+    }
+    const listings = await repo.listSellerListings(agentId);
+    return reply.send({
+      success: true,
+      data: { seller, listings },
+    });
+  });
 }

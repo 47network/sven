@@ -61,6 +61,7 @@ import { registerBrainRoutes } from './brain.js';
 import { registerRevenueRoutes } from './revenue.js';
 import { registerInfraRoutes } from './infra.js';
 import { registerAutomatonRoutes } from './automatons.js';
+import { registerAgentProfileRoutes } from './agent-profiles.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
 import { registerAgentTypeRoutes } from './agent-types.js';
 import { registerFederationRoutes } from './federation.js';
@@ -377,6 +378,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerRevenueRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerInfraRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerAutomatonRoutes(scopedApp, pool));
+      await mountAdminRoutes((scopedApp) => registerAgentProfileRoutes(scopedApp, pool, nc));
     },
     { prefix: '/v1/admin' },
   );

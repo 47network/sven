@@ -24,6 +24,7 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.treasury.debit': 'treasury.debit',
   'sven.agent.spawned': 'agent.spawned',
   'sven.agent.retired': 'agent.retired',
+  'sven.agent.profile_updated': 'agent.profile_updated',
   'sven.infra.node_change': 'infra.node_change',
 };
 

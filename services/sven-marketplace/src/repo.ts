@@ -87,6 +87,47 @@ function toOrder(r: OrderRow): Order {
   };
 }
 
+export interface SellerDirectoryEntry {
+  agentId: string;
+  displayName: string;
+  bio: string | null;
+  archetype: string;
+  specializations: string[];
+  reputation: { rating: number; reviewCount: number; totalSales: number };
+  avatarUrl: string | null;
+  listingCount: number;
+  totalRevenue: number;
+  totalSales: number;
+}
+
+type SellerDirectoryRow = {
+  agent_id: string;
+  display_name: string;
+  bio: string | null;
+  archetype: string;
+  specializations: string[] | null;
+  reputation: { rating: number; reviewCount: number; totalSales: number } | null;
+  avatar_url: string | null;
+  listing_count: number;
+  total_revenue: string;
+  total_sales: number;
+};
+
+function toSellerEntry(r: SellerDirectoryRow): SellerDirectoryEntry {
+  return {
+    agentId: r.agent_id,
+    displayName: r.display_name,
+    bio: r.bio,
+    archetype: r.archetype,
+    specializations: r.specializations ?? [],
+    reputation: r.reputation ?? { rating: 0, reviewCount: 0, totalSales: 0 },
+    avatarUrl: r.avatar_url,
+    listingCount: Number(r.listing_count),
+    totalRevenue: Number(r.total_revenue),
+    totalSales: Number(r.total_sales),
+  };
+}
+
 /* ---------------------------------------------------------------- helpers */
 
 function slugify(s: string): string {
@@ -230,6 +271,80 @@ export class MarketplaceRepository {
       [agentId, lim],
     );
     return res.rows.map(toListing);
+  }
+
+  /** Seller directory — lists all sellers with profiles and aggregate stats. */
+  async listSellers(opts: { limit?: number; offset?: number; archetype?: string } = {}): Promise<{
+    sellers: SellerDirectoryEntry[];
+    total: number;
+  }> {
+    const lim = bounded(opts.limit, 50);
+    const off = Math.max(0, opts.offset ?? 0);
+    const values: unknown[] = [];
+    let filter = `ap.status = 'active'`;
+    if (opts.archetype) {
+      values.push(opts.archetype);
+      filter += ` AND ap.archetype = $${values.length}`;
+    }
+    values.push(lim, off);
+    const limIdx = values.length - 1;
+    const offIdx = values.length;
+    const res = await this.pool.query<SellerDirectoryRow>(
+      `SELECT ap.agent_id, ap.display_name, ap.bio, ap.archetype,
+              ap.specializations, ap.reputation, ap.avatar_url,
+              COALESCE(agg.listing_count, 0)::int AS listing_count,
+              COALESCE(agg.total_revenue, 0)::numeric AS total_revenue,
+              COALESCE(agg.total_sales, 0)::int AS total_sales
+       FROM agent_profiles ap
+       LEFT JOIN (
+         SELECT seller_agent_id,
+                COUNT(*)::int AS listing_count,
+                SUM(total_revenue)::numeric AS total_revenue,
+                SUM(total_sales)::int AS total_sales
+         FROM marketplace_listings
+         WHERE status = 'published'
+         GROUP BY seller_agent_id
+       ) agg ON agg.seller_agent_id = ap.agent_id
+       WHERE ${filter}
+       ORDER BY COALESCE(agg.total_revenue, 0) DESC, ap.display_name ASC
+       LIMIT $${limIdx} OFFSET $${offIdx}`,
+      values,
+    );
+    const countRes = await this.pool.query<{ cnt: string }>(
+      `SELECT COUNT(*)::text AS cnt FROM agent_profiles ap WHERE ${filter}`,
+      opts.archetype ? [opts.archetype] : [],
+    );
+    const total = Number(countRes.rows[0]?.cnt ?? 0);
+    return {
+      sellers: res.rows.map(toSellerEntry),
+      total,
+    };
+  }
+
+  /** Single seller profile with their published listings. */
+  async getSellerProfile(agentId: string): Promise<SellerDirectoryEntry | null> {
+    const res = await this.pool.query<SellerDirectoryRow>(
+      `SELECT ap.agent_id, ap.display_name, ap.bio, ap.archetype,
+              ap.specializations, ap.reputation, ap.avatar_url,
+              COALESCE(agg.listing_count, 0)::int AS listing_count,
+              COALESCE(agg.total_revenue, 0)::numeric AS total_revenue,
+              COALESCE(agg.total_sales, 0)::int AS total_sales
+       FROM agent_profiles ap
+       LEFT JOIN (
+         SELECT seller_agent_id,
+                COUNT(*)::int AS listing_count,
+                SUM(total_revenue)::numeric AS total_revenue,
+                SUM(total_sales)::int AS total_sales
+         FROM marketplace_listings
+         WHERE status = 'published' AND seller_agent_id = $1
+         GROUP BY seller_agent_id
+       ) agg ON agg.seller_agent_id = ap.agent_id
+       WHERE ap.agent_id = $1 AND ap.status = 'active'
+       LIMIT 1`,
+      [agentId],
+    );
+    if (!res.rows[0]) return null;
+    return toSellerEntry(res.rows[0]);
   }
 
   async listOrgListings(orgId: string, opts: { status?: ListingStatus; limit?: number } = {}): Promise<Listing[]> {

@@ -201,9 +201,9 @@ export class EidolonRepository {
   }
 
   // -------------------------------------------------------------------------
-  // Citizens (agents). Derived from recent revenue + marketplace activity
-  // until a first-class agent registry exists. Deterministic positions anchor
-  // each citizen near their home building.
+  // Citizens (agents). Merges marketplace activity with agent_profiles when
+  // available for richer identity (display name, archetype, bio, avatar).
+  // Falls back gracefully if agent_profiles table doesn't exist yet.
   // -------------------------------------------------------------------------
 
   private async fetchCitizens(
@@ -219,11 +219,18 @@ export class EidolonRepository {
       total_revenue: string;
       total_sales: number;
       status: string;
+      display_name: string | null;
+      archetype: string | null;
+      bio: string | null;
+      avatar_url: string | null;
+      specializations: string[] | null;
     }>(
-      `SELECT id, seller_agent_id, total_revenue, total_sales, status
-       FROM marketplace_listings
-       WHERE org_id = $1 AND seller_agent_id IS NOT NULL AND status IN ('published','paused')
-       ORDER BY total_revenue DESC
+      `SELECT ml.id, ml.seller_agent_id, ml.total_revenue, ml.total_sales, ml.status,
+              ap.display_name, ap.archetype, ap.bio, ap.avatar_url, ap.specializations
+       FROM marketplace_listings ml
+       LEFT JOIN agent_profiles ap ON ap.agent_id = ml.seller_agent_id AND ap.status = 'active'
+       WHERE ml.org_id = $1 AND ml.seller_agent_id IS NOT NULL AND ml.status IN ('published','paused')
+       ORDER BY ml.total_revenue DESC
        LIMIT 150`,
       [orgId],
     );
@@ -242,10 +249,11 @@ export class EidolonRepository {
         existing.status = sales > 0 ? 'earning' : existing.status;
         continue;
       }
+      const role = archetypeToRole(r.archetype);
       byAgent.set(agentId, {
         id: `agent:${agentId}`,
-        label: safeLabel(agentId),
-        role: 'pipeline',
+        label: r.display_name || safeLabel(agentId),
+        role,
         position: home
           ? { x: home.position.x + 2, z: home.position.z + 2 }
           : positionFor(agentId, 'market'),
@@ -257,6 +265,10 @@ export class EidolonRepository {
               ? 'earning'
               : 'working',
         earningsUsd: earnings,
+        archetype: r.archetype ?? undefined,
+        bio: r.bio ?? undefined,
+        avatarUrl: r.avatar_url ?? undefined,
+        specializations: r.specializations ?? undefined,
       });
     }
 
@@ -312,6 +324,21 @@ export class EidolonRepository {
 }
 
 // ---- internal helpers -----------------------------------------------------
+
+const ARCHETYPE_ROLE_MAP: Record<string, EidolonCitizen['role']> = {
+  seller: 'seller',
+  translator: 'translator',
+  writer: 'writer',
+  scout: 'scout',
+  analyst: 'worker',
+  operator: 'operator',
+  custom: 'pipeline',
+};
+
+function archetypeToRole(archetype: string | null | undefined): EidolonCitizen['role'] {
+  if (!archetype) return 'pipeline';
+  return ARCHETYPE_ROLE_MAP[archetype] ?? 'pipeline';
+}
 
 function safeLabel(raw: string | null | undefined): string {
   if (!raw) return 'unknown';
