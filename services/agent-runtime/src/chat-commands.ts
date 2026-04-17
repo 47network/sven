@@ -156,6 +156,12 @@ export async function handleChatCommand(ctx: CommandContext): Promise<boolean> {
           `${parsed.prefix}compact`,
           `${parsed.prefix}reset (alias: ${parsed.prefix}new)`,
           '',
+          'Autonomous economy:',
+          `${parsed.prefix}economy [status]`,
+          `${parsed.prefix}treasury [accounts|balance <accountId>|transactions <accountId> [limit]]`,
+          `${parsed.prefix}market [listings|listing <id>]`,
+          `${parsed.prefix}eidolon [snapshot]`,
+          '',
           'Directives:',
           'sven: status',
           'sven think high',
@@ -2248,6 +2254,20 @@ export async function handleChatCommand(ctx: CommandContext): Promise<boolean> {
         chat_id: ctx.event.chat_id,
         channel: ctx.event.channel,
         text: `Usage: ${parsed.prefix}config get <key> | ${parsed.prefix}config set <key> <value>`,
+      });
+      return true;
+    }
+
+    case 'economy':
+    case 'treasury':
+    case 'market':
+    case 'eidolon': {
+      const orgId = process.env.SVEN_ORG_ID || 'default';
+      const reply = await handleEconomyCommand(command, args, orgId);
+      await ctx.canvasEmitter.emit({
+        chat_id: ctx.event.chat_id,
+        channel: ctx.event.channel,
+        text: reply,
       });
       return true;
     }
@@ -5603,5 +5623,110 @@ async function killSubagentForChat(
     return { ok: true, message: `Subagent ${targetAgentId} removed from this chat.` };
   } catch {
     return { ok: false, message: 'Failed to kill subagent (agent schema unavailable).' };
+  }
+}
+
+// ──── Autonomous economy commands ────
+
+const TREASURY_API = process.env.TREASURY_API || 'http://127.0.0.1:9477';
+const MARKETPLACE_API = process.env.MARKETPLACE_API || 'http://127.0.0.1:9478';
+const EIDOLON_API = process.env.EIDOLON_API || 'http://127.0.0.1:9479';
+
+async function safeFetch(url: string, timeoutMs = 5000): Promise<unknown> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    const text = await res.text();
+    if (!res.ok) return { error: `HTTP ${res.status}`, body: text.slice(0, 400) };
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { raw: text.slice(0, 400) };
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err) };
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+function fmtBlock(title: string, payload: unknown): string {
+  const body = typeof payload === 'string' ? payload : JSON.stringify(payload, null, 2);
+  const truncated = body.length > 3500 ? body.slice(0, 3500) + '\n…(truncated)' : body;
+  return `${title}\n\`\`\`json\n${truncated}\n\`\`\``;
+}
+
+async function handleEconomyCommand(
+  command: string,
+  args: string[],
+  orgId: string,
+): Promise<string> {
+  const sub = (args[0] || '').toLowerCase();
+  const enc = encodeURIComponent(orgId);
+
+  try {
+    if (command === 'economy') {
+      const [treasury, market, eidolon] = await Promise.all([
+        safeFetch(`${TREASURY_API}/accounts?orgId=${enc}`),
+        safeFetch(`${MARKETPLACE_API}/v1/market/org/${enc}/listings`),
+        safeFetch(`${EIDOLON_API}/v1/eidolon/snapshot?orgId=${enc}`),
+      ]);
+      return [
+        `Autonomous economy snapshot (orgId=${orgId}):`,
+        fmtBlock('treasury', treasury),
+        fmtBlock('marketplace', market),
+        fmtBlock('eidolon', eidolon),
+      ].join('\n\n');
+    }
+
+    if (command === 'treasury') {
+      if (!sub || sub === 'accounts') {
+        return fmtBlock('treasury accounts', await safeFetch(`${TREASURY_API}/accounts?orgId=${enc}`));
+      }
+      if (sub === 'balance') {
+        const accountId = args[1];
+        if (!accountId) return `Usage: /treasury balance <accountId>`;
+        return fmtBlock(`treasury balance: ${accountId}`,
+          await safeFetch(`${TREASURY_API}/accounts/${encodeURIComponent(accountId)}`));
+      }
+      if (sub === 'transactions') {
+        const accountId = args[1];
+        if (!accountId) return `Usage: /treasury transactions <accountId> [limit]`;
+        const limit = args[2] || '20';
+        return fmtBlock(`treasury transactions: ${accountId}`,
+          await safeFetch(
+            `${TREASURY_API}/transactions?accountId=${encodeURIComponent(accountId)}&limit=${encodeURIComponent(limit)}`,
+          ));
+      }
+      return `Usage: /treasury [accounts | balance <accountId> | transactions <accountId> [limit]]`;
+    }
+
+    if (command === 'market') {
+      if (!sub || sub === 'listings') {
+        return fmtBlock('marketplace listings',
+          await safeFetch(`${MARKETPLACE_API}/v1/market/org/${enc}/listings`));
+      }
+      if (sub === 'listing') {
+        const id = args[1];
+        if (!id) return `Usage: /market listing <id>`;
+        return fmtBlock(`listing: ${id}`,
+          await safeFetch(`${MARKETPLACE_API}/v1/market/listings/${encodeURIComponent(id)}`));
+      }
+      return `Usage: /market [listings | listing <id>]`;
+    }
+
+    if (command === 'eidolon') {
+      if (!sub || sub === 'snapshot') {
+        return fmtBlock('eidolon snapshot',
+          await safeFetch(`${EIDOLON_API}/v1/eidolon/snapshot?orgId=${enc}`));
+      }
+      return `Usage: /eidolon [snapshot]`;
+    }
+
+    return `Unknown economy command: ${command}`;
+  } catch (err) {
+    logger.error('economy command failed', { command, err: err instanceof Error ? err.message : String(err) });
+    return `Command failed: ${err instanceof Error ? err.message : String(err)}`;
   }
 }
