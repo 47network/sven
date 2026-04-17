@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-17T09:56:32.575Z",
-  "source_branch": "fix/security-toolkit-report-tests-17593500967798439398",
-  "source_head_sha": "0243a56de833488115a9abaf30e4fa9e236fa3cb",
+  "generated_at": "2026-04-17T10:00:11.862Z",
+  "source_branch": "perf/quantum-sim-startup-11531230467970156404",
+  "source_head_sha": "bf43089f5efdb058cc651bb57c35b6be847152df",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T09:56:31.209Z",
-    "branch": "fix/security-toolkit-report-tests-17593500967798439398",
-    "total_runs": 41
+    "captured_at": "2026-04-17T10:00:10.844Z",
+    "branch": "perf/quantum-sim-startup-11531230467970156404",
+    "total_runs": 27
   },
   "final_dod_ci": false,
   "parity_e2e_ci": true,
@@ -39,7 +39,7 @@
     "final_dod_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -53,7 +53,7 @@
     "parity_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -67,7 +67,7 @@
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -81,7 +81,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -91,12 +91,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T09:56:21.381Z"
+      "generated_at": "2026-04-17T10:00:00.878Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -111,7 +111,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -121,12 +121,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T09:56:26.033Z"
+      "generated_at": "2026-04-17T10:00:05.757Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -136,12 +136,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T09:56:30.705Z"
+      "generated_at": "2026-04-17T10:00:10.441Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -156,7 +156,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -169,7 +169,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -183,7 +183,7 @@
     "mobile_auth_session_smoke_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -197,7 +197,7 @@
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -211,7 +211,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -225,7 +225,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -238,7 +238,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -252,7 +252,7 @@
     "ui_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -266,7 +266,7 @@
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -280,7 +280,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -292,9 +292,9 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24558917134,
-      "head_sha": "0243a56de833488115a9abaf30e4fa9e236fa3cb",
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "run_id": 24559331653,
+      "head_sha": "bf43089f5efdb058cc651bb57c35b6be847152df",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": "push",
       "status": "completed",
       "conclusion": "success",
@@ -307,7 +307,7 @@
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -321,7 +321,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -335,7 +335,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -349,7 +349,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -375,7 +375,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -389,7 +389,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -401,17 +401,18 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24558918728,
-      "head_sha": "0243a56de833488115a9abaf30e4fa9e236fa3cb",
-      "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+      "run_id": 24559333400,
+      "head_sha": "bf43089f5efdb058cc651bb57c35b6be847152df",
+      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
       "event": "pull_request",
-      "status": "completed",
-      "conclusion": "success",
+      "status": "in_progress",
+      "conclusion": null,
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "preserved_previous_pass_non_final_target_sha",
+      "previous_gate_value": true
     }
   },
   "required_workflow_manifest": {
@@ -444,7 +445,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -462,7 +463,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -480,7 +481,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -498,7 +499,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -516,7 +517,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -532,9 +533,9 @@
     "flutter-user-app-device-farm": {
       "pass": true,
       "provenance": {
-        "run_id": 24558918682,
-        "head_sha": "0243a56de833488115a9abaf30e4fa9e236fa3cb",
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "run_id": 24559333417,
+        "head_sha": "bf43089f5efdb058cc651bb57c35b6be847152df",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": "pull_request",
         "status": "in_progress",
         "conclusion": null,
@@ -552,7 +553,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -570,7 +571,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -588,7 +589,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -604,9 +605,9 @@
     "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24558917134,
-        "head_sha": "0243a56de833488115a9abaf30e4fa9e236fa3cb",
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "run_id": 24559331653,
+        "head_sha": "bf43089f5efdb058cc651bb57c35b6be847152df",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": "push",
         "status": "completed",
         "conclusion": "success",
@@ -621,9 +622,9 @@
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24558917150,
-        "head_sha": "0243a56de833488115a9abaf30e4fa9e236fa3cb",
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "run_id": 24559331644,
+        "head_sha": "bf43089f5efdb058cc651bb57c35b6be847152df",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": "push",
         "status": "in_progress",
         "conclusion": null,
@@ -641,7 +642,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -650,24 +651,25 @@
         "matched_target_sha": false,
         "gate_key": "env_secrets_governance_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "0243a56de833488115a9abaf30e4fa9e236fa3cb"
+        "target_sha": "bf43089f5efdb058cc651bb57c35b6be847152df"
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
       "pass": true,
       "provenance": {
-        "run_id": 24558918728,
-        "head_sha": "0243a56de833488115a9abaf30e4fa9e236fa3cb",
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "run_id": 24559333400,
+        "head_sha": "bf43089f5efdb058cc651bb57c35b6be847152df",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": "pull_request",
-        "status": "completed",
-        "conclusion": "success",
+        "status": "in_progress",
+        "conclusion": null,
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "preserved_previous_pass_non_final_target_sha",
+        "previous_gate_value": true
       },
       "gate_key": "security_baseline_ci"
     },
@@ -676,7 +678,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -694,7 +696,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -712,7 +714,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -730,7 +732,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -748,7 +750,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -766,7 +768,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "fix/security-toolkit-report-tests-17593500967798439398",
+        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
         "event": null,
         "status": null,
         "conclusion": null,
