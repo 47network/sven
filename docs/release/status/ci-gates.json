@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-17T17:42:07.458Z",
+  "generated_at": "2026-04-17T17:47:26.088Z",
   "source_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-  "source_head_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f",
+  "source_head_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T17:42:06.806Z",
+    "captured_at": "2026-04-17T17:47:25.213Z",
     "branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-    "total_runs": 18
+    "total_runs": 20
   },
   "final_dod_ci": false,
   "parity_e2e_ci": false,
@@ -62,7 +62,7 @@
       "matched_target_sha": false,
       "gate_key": "parity_e2e_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f"
+      "target_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -91,7 +91,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T17:41:57.039Z"
+      "generated_at": "2026-04-17T17:47:15.460Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +121,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T17:42:01.759Z"
+      "generated_at": "2026-04-17T17:47:20.113Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +136,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T17:42:06.450Z"
+      "generated_at": "2026-04-17T17:47:24.778Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -292,8 +292,8 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24578642547,
-      "head_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f",
+      "run_id": 24578861910,
+      "head_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4",
       "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
       "event": "push",
       "status": "completed",
@@ -358,7 +358,7 @@
       "matched_target_sha": false,
       "gate_key": "ops_shell_ci",
       "decision": "not_required_scope_clean",
-      "target_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f",
+      "target_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4",
       "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
@@ -412,7 +412,7 @@
       "matched_target_sha": false,
       "gate_key": "security_baseline_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f"
+      "target_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4"
     }
   },
   "required_workflow_manifest": {
@@ -472,7 +472,7 @@
         "matched_target_sha": false,
         "gate_key": "parity_e2e_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f"
+        "target_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4"
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -605,8 +605,8 @@
     "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24578642547,
-        "head_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f",
+        "run_id": 24578861910,
+        "head_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4",
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
         "event": "push",
         "status": "completed",
@@ -622,8 +622,8 @@
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24578642628,
-        "head_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f",
+        "run_id": 24578861897,
+        "head_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4",
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
         "event": "push",
         "status": "in_progress",
@@ -669,7 +669,7 @@
         "matched_target_sha": false,
         "gate_key": "security_baseline_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f"
+        "target_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4"
       },
       "gate_key": "security_baseline_ci"
     },
@@ -705,25 +705,25 @@
         "matched_target_sha": false,
         "gate_key": "release_status_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f"
+        "target_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4"
       },
       "gate_key": "release_status_ci"
     },
     "release-supply-chain": {
       "pass": false,
       "provenance": {
-        "run_id": 24578642579,
-        "head_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f",
+        "run_id": null,
+        "head_sha": null,
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-        "event": "push",
-        "status": "in_progress",
+        "event": null,
+        "status": null,
         "conclusion": null,
         "workflow_id": 261310893,
         "workflow_name": "release-supply-chain",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "release_supply_chain_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4"
       },
       "gate_key": "release_supply_chain_ci"
     },
@@ -741,7 +741,7 @@
         "matched_target_sha": false,
         "gate_key": "ops_shell_ci_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "663c4e9bed8aa5fe8987c5c7b42391822f80db6f"
+        "target_sha": "71cc6fae4c66b3dbfcf786205a489332302f1ac4"
       },
       "gate_key": "ops_shell_ci_ci"
     },
