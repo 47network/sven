@@ -26,6 +26,11 @@ describe('secret-scanner', () => {
       const high = shannonEntropy('a1b2c3d4e5f6');
       expect(high).toBeGreaterThan(low);
     });
+
+    it('returns 0 for strings with all identical characters', () => {
+      expect(shannonEntropy('aaaaa')).toBe(0);
+      expect(shannonEntropy('11111111')).toBe(0);
+    });
   });
 
   describe('redactSecret', () => {
@@ -37,6 +42,19 @@ describe('secret-scanner', () => {
     it('redacts middle characters if length > 8', () => {
       expect(redactSecret('1234567890')).toBe('1***0');
       expect(redactSecret('123456789012345678901234567890')).toBe('1234***7890');
+    });
+
+    it('redacts exactly 9 characters by showing 1 character on each end', () => {
+      // Math.floor(9 * 0.15) = 1
+      expect(redactSecret('123456789')).toBe('1***9');
+    });
+
+    it('caps shown characters to a maximum of 4 on each end for very long secrets', () => {
+      const longSecret = 'A'.repeat(100);
+      const redacted = redactSecret(longSecret);
+      // It should show 4 'A's at the start, '***' in the middle, and 4 'A's at the end.
+      expect(redacted).toBe('AAAA***AAAA');
+      expect(redacted.length).toBe(11);
     });
   });
 
@@ -104,6 +122,24 @@ describe('secret-scanner', () => {
       const source = `const key = process.env.AWS_ACCESS_KEY_ID;`;
       const findings = scanFileForSecrets(source, 'test.ts');
       expect(findings).toHaveLength(0);
+    });
+
+    it('falls back to match[0] when match[1] is undefined', () => {
+      const customPattern = [
+        {
+          id: 'SEC-TEST',
+          type: 'generic-secret' as const,
+          title: 'Test',
+          pattern: /TEST_SECRET_KEY/,
+          severity: 'medium' as const,
+        }
+      ];
+      const source = `const key = "TEST_SECRET_KEY";`;
+      const findings = scanFileForSecrets(source, 'test.ts', customPattern);
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].type).toBe('generic-secret');
+      expect(findings[0].matchedText).toBe('TEST_SECRET_KEY');
     });
   });
 
