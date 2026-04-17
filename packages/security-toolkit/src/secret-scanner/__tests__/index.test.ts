@@ -153,5 +153,25 @@ describe('secret-scanner', () => {
       expect(report.bySeverity.high).toBe(0);
       expect(report.bySeverity.medium).toBe(0);
     });
+
+    it('accepts custom patterns', () => {
+      const customPatterns = [
+        {
+          id: 'CUSTOM-1',
+          type: 'generic-secret' as any,
+          title: 'Custom Pattern',
+          pattern: /FOO_BAR_SECRET/,
+          severity: 'high' as const,
+        },
+      ];
+      const files = new Map<string, string>();
+      files.set('custom.ts', `const key = "FOO_BAR_SECRET";`);
+
+      const report = scanForSecrets(files, customPatterns);
+
+      expect(report.secretsFound).toBe(1);
+      expect(report.clean).toBe(false);
+      expect(report.findings[0].patternId).toBe('CUSTOM-1');
+    });
   });
 });
