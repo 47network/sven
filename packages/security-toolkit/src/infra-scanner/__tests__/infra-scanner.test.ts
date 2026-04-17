@@ -174,7 +174,7 @@ describe('Infra Scanner', () => {
     });
 
     it('detects debug mode in production files', () => {
-      const content = 'DEBUG=true\nNODE_ENV=development';
+      const content = ['DEBUG=true', 'NODE_ENV=development'].join('\n');
       const findings = auditEnvFile(content, '.env.production');
       expect(findings).toHaveLength(2);
       expect(findings[0].severity).toBe('medium');
