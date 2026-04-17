@@ -22,6 +22,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - ESLint lint gate now passes (0 errors) by adding missing configs and ignoring build output directories.
 - Fixed ReDoS-vulnerable SAML XML attribute and X509Certificate regexes in gateway auth routes.
 - Sanitized Admin UI KaTeX rendering and Canvas UI live HTML before `dangerouslySetInnerHTML` to block XSS payload injection.
+- Multi-device validation refresh now probes the production HTTPS surface directly instead of depending on missing gitignored `scripts/tmp` helpers.
+- Removed `--experimental-vm-modules` from 4 release check scripts (`a2a-compat-check`, `mcp-server-compat-check`, `resumable-stream-check`, `seed-baseline-check`) — flag triggered native ESM which broke CJS globals (`__dirname`/`exports`); ts-jest handles ESM internally.
 
 ### Security
 - Remediated 90+ GitHub CodeQL alerts across 67 files (SQL injection, polynomial ReDoS, path traversal, SSRF, XSS-DOM, insecure randomness, weak crypto, prototype pollution, resource exhaustion, tainted format strings, incomplete sanitisation, stack trace exposure).
