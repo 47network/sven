@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-17T04:33:25.243Z",
+  "generated_at": "2026-04-17T04:36:21.974Z",
   "source_branch": "bolt/postgres-any-optimization-12438270217783461984",
   "source_head_sha": "863e6516cf951aef4aba69b8820e0e2bfde8d6b2",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-17T04:33:24.489Z",
+    "captured_at": "2026-04-17T04:36:21.107Z",
     "branch": "bolt/postgres-any-optimization-12438270217783461984",
-    "total_runs": 22
+    "total_runs": 27
   },
   "final_dod_ci": false,
   "parity_e2e_ci": true,
@@ -54,14 +54,13 @@
       "head_sha": "863e6516cf951aef4aba69b8820e0e2bfde8d6b2",
       "head_branch": "bolt/postgres-any-optimization-12438270217783461984",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
       "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -90,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-17T04:33:15.121Z"
+      "generated_at": "2026-04-17T04:36:11.193Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -120,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-17T04:33:19.640Z"
+      "generated_at": "2026-04-17T04:36:15.851Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -135,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-17T04:33:24.149Z"
+      "generated_at": "2026-04-17T04:36:20.565Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -462,14 +461,13 @@
         "head_sha": "863e6516cf951aef4aba69b8820e0e2bfde8d6b2",
         "head_branch": "bolt/postgres-any-optimization-12438270217783461984",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
         "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -699,8 +697,8 @@
         "workflow_name": "release-status",
         "matched_target_sha": false,
         "gate_key": "release_status_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "863e6516cf951aef4aba69b8820e0e2bfde8d6b2"
       },
       "gate_key": "release_status_ci"
     },
