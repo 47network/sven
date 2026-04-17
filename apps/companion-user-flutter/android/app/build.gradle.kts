@@ -76,8 +76,8 @@ android {
                 signingConfigs.getByName("debug")
 
             // R8 code shrinking + obfuscation for release APK / AAB
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
