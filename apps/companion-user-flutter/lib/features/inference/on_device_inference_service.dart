@@ -121,13 +121,15 @@ class OnDeviceInferenceService extends ChangeNotifier {
       int freeStorageMb = 0;
 
       if (Platform.isAndroid) {
-        final android = await deviceInfo.androidInfo;
-        totalRamMb = android.physicalRamSize; // already in MB
-        freeStorageMb = android.freeDiskSize ~/ (1024 * 1024); // bytes → MB
+        // Fallback to defaults since these were added in device_info_plus 12.4.0
+        // and we downgraded to 12.3.0 to fix iOS build on XCode
+        totalRamMb = 0;
+        freeStorageMb = 0;
       } else if (Platform.isIOS) {
-        final ios = await deviceInfo.iosInfo;
-        totalRamMb = ios.physicalRamSize; // already in MB
-        freeStorageMb = ios.freeDiskSize ~/ (1024 * 1024); // bytes → MB
+        // Fallback to defaults since these were added in device_info_plus 12.4.0
+        // and we downgraded to 12.3.0 to fix iOS build on XCode
+        totalRamMb = 0;
+        freeStorageMb = 0;
       } else if (Platform.isMacOS) {
         final mac = await deviceInfo.macOsInfo;
         totalRamMb = mac.memorySize ~/ (1024 * 1024); // bytes → MB
