@@ -74,10 +74,12 @@ function runNode(args) {
   if (!env.F4_REMEDIATION_MINUTES) {
     env.F4_REMEDIATION_MINUTES = '5';
   }
+  const timeoutMs = Number(process.env.SVEN_BENCHMARK_SPAWN_TIMEOUT_MS || 30000);
   const result = spawnSync(process.execPath, args, {
     cwd: root,
     encoding: 'utf8',
     env,
+    timeout: timeoutMs,
   });
   return {
     code: result.status ?? -1,

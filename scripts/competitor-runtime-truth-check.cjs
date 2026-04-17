@@ -270,6 +270,7 @@ function run() {
       execSync('npm run -s release:competitor:executable:smoke', {
         cwd: root,
         stdio: 'inherit',
+        timeout: 30000,
       });
       executableSmokeRunStatus = 'executed';
     } catch {

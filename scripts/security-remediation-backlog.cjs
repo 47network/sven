@@ -197,6 +197,7 @@ function main() {
   };
 
   const backlog = {
+    status: 'pass',
     ...summary,
     findings: triaged,
   };

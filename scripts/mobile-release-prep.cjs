@@ -668,6 +668,7 @@ async function main() {
   const perfCaptureHint = buildPerfCaptureHint(perf);
 
   const summary = {
+    status: readiness?.status || null,
     generated_at: new Date().toISOString(),
     readiness_status: readiness?.status || null,
     mobile_release_scope: releaseScope.scope,

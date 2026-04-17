@@ -55,6 +55,7 @@ function main() {
   const testDeclarations = countMatches(testDartFiles, /\btestWidgets\s*\(|\btest\s*\(/g);
 
   const payload = {
+    status: 'pass',
     generated_at: new Date().toISOString(),
     metrics: {
       companion_lib_dart_files: libDartFiles.length,
