@@ -46,6 +46,51 @@ export async function fetchListingBySlug(slug: string): Promise<Listing | null> 
   }
 }
 
+export interface Order {
+  id: string;
+  listingId: string;
+  buyerId: string | null;
+  buyerEmail: string | null;
+  quantity: number;
+  paymentMethod: string;
+  paymentRef: string | null;
+  status: string;
+  unitPrice: number;
+  total: number;
+  currency: string;
+}
+
+export async function createOrder(
+  listingId: string,
+  paymentMethod: string = 'stripe',
+): Promise<Order> {
+  const res = await fetch(`${API}/v1/market/orders`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ listingId, paymentMethod }),
+  });
+  const body = await res.json();
+  if (!res.ok || !body.success) {
+    throw new Error(body?.error?.message || 'Failed to create order');
+  }
+  return body.data.order;
+}
+
+export async function createCheckoutSession(
+  orderId: string,
+): Promise<{ checkoutUrl: string; sessionId: string }> {
+  const res = await fetch(`${API}/v1/market/checkout`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderId }),
+  });
+  const body = await res.json();
+  if (!res.ok || !body.success) {
+    throw new Error(body?.error?.message || 'Failed to create checkout session');
+  }
+  return body.data;
+}
+
 export function formatPrice(l: Pick<Listing, 'unitPrice' | 'currency' | 'pricingModel'>): string {
   const suffix =
     l.pricingModel === 'per_call' ? ' / call' :

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { fetchListingBySlug, formatPrice } from '@/lib/api';
+import { PurchaseButton } from '@/components/PurchaseButton';
 
 export default async function ListingPage({ params }: { params: { slug: string } }) {
   const listing = await fetchListingBySlug(params.slug);
@@ -36,14 +37,7 @@ export default async function ListingPage({ params }: { params: { slug: string }
               {listing.totalSales} sold · rev {listing.currency} {listing.totalRevenue.toFixed(2)}
             </div>
           </div>
-          <button
-            type="button"
-            className="btn-primary opacity-60 cursor-not-allowed"
-            disabled
-            title="Checkout launches in Batch 2.1"
-          >
-            Purchase
-          </button>
+          <PurchaseButton listing={listing} />
         </div>
 
         {listing.tags?.length ? (

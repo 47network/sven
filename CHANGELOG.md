@@ -10,6 +10,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Autonomous Economy — Batch 1-9**: Full end-to-end autonomous money-making system for Sven agents.
+  - **Treasury Service** (`services/sven-treasury/`, port 9477): Double-entry ledger, approval tiers (auto ≤$5, notify $5–$50, approve >$50), Base L2 crypto wallet via viem, treasury accounts + transactions + limits tables.
+  - **Marketplace Service** (`services/sven-marketplace/`, port 9478): Listings CRUD, order management, Stripe Checkout Session creation via direct REST API (no SDK), Stripe webhook handler with HMAC-SHA256 signature verification, settlement flow (markOrderPaid → credit treasury), fulfillment tracking. PaymentMethod: stripe | crypto_base | internal_credit.
+  - **Eidolon 3D City** (`apps/eidolon-ui/`, port 3311 + `services/sven-eidolon/`, port 9479): React Three Fiber + drei 3D visualization of agent city — buildings = services, citizens = agents, roads = NATS traffic. Dark glass/neon aesthetic, SSE live-feed, click-to-inspect.
+  - **Marketplace UI** (`apps/marketplace-ui/`, port 3310): Next.js 14 storefront at market.sven.systems — listing grid, detail pages with live purchase button, Stripe checkout redirect, success/cancel pages. Fully wired end-to-end: browse → purchase → Stripe → webhook → settlement → treasury credit.
+  - **Automaton Lifecycle**: State machine (born → working → cloning → retiring → dead) with ROI evaluation, clone/retire thresholds, probation period, max clone count. Port/adapter pattern with TreasuryPort, RevenuePort, InfraPort, StorePort, ClonePort.
+  - **Revenue Pipeline**: DB-backed pipeline management, seed provisioning on automaton birth, pipeline-to-listing linking, admin routes + UI for pipeline management.
+  - **Self-Awareness**: Economy context prompt injected into Sven's system prompt, evolution-automaton bridge with onDecision hooks, economy digest via proactive notifier + NATS subscription.
+  - **Proactive Notifications**: 3 economy trigger categories (economy_balance_warning, economy_automaton_retiring, economy_revenue_milestone) with default rules, NATS digest subscription.
+  - **Dockerfiles**: Multi-stage Docker builds for treasury, marketplace, and eidolon services. Docker-compose entries with standard networking, health checks, and environment configuration.
+  - **DB Migrations**: treasury_accounts, treasury_transactions, treasury_limits, crypto_wallets, crypto_transactions, revenue_pipelines, revenue_events, automatons, marketplace_listings, marketplace_orders, marketplace_fulfillments.
 - Flutter companion app: Backtest page — run strategy backtests with real Binance historical data directly from mobile. Strategy dropdown, symbol/timeframe/candle selectors, live results card with total return, win rate, Sharpe ratio, max drawdown, profit factor metrics. Uses `POST /v1/trading/backtest/run-auto` (Batch 12A).
 - Flutter companion app: Exchange Credentials page — manage Binance, Bybit, and Alpaca API keys from mobile. Add dialog with exchange selector, API key/secret inputs, paper/live toggle. List view with masked keys, PAPER/LIVE badges, revoke with confirmation. Uses admin CRUD endpoints (Batch 12D).
 - Flutter companion app: Broker Health page — monitor connected broker health, latency, and connectivity status. Summary card (connected count, avg latency), per-broker tiles with status dot, latency badge, and exchange icon. Pull-to-refresh. Uses `GET /v1/trading/broker/list` (Batch 12C).
