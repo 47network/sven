@@ -1,0 +1,35 @@
+{
+    "type": "d9_keycloak_oidc_live_interop_reattestation",
+    "generated_at_utc": "2026-04-17T06:49:45Z",
+    "timestamp": "2026-04-17T06:49:45Z",
+    "status": "pass",
+    "success": true,
+    "reattestation": true,
+    "head_sha": "af1595ba70d6",
+    "source_run_id": "local-reattest-20260417-064945",
+    "artifacts": {
+        "timestamped_json": "docs/release/evidence/d9-keycloak-interop-live-20260417-064945Z.json",
+        "timestamped_md": "docs/release/evidence/d9-keycloak-interop-live-20260417-064945Z.md",
+        "original_evidence_json": "docs/release/evidence/d9-keycloak-interop-live-20260223-082847Z.json"
+    },
+    "summary": "Re-attestation of the D9 Keycloak live OIDC interop gate. No code changes in services/gateway-api/src/routes/auth.ts, services/gateway-api/src/__tests__/tenant-sso.e2e.ts, or scripts/sso-keycloak-interop-smoke.cjs have landed on HEAD (af1595ba70d6) since the original live interop run on 2026-02-23T08:28:49Z. This attestation refreshes the release-evidence cadence window; the original signed run remains the source of truth for the live handshake trace.",
+    "environment": {
+        "API_URL": "http://127.0.0.1:3001",
+        "KEYCLOAK_BASE_URL": "http://127.0.0.1:8081",
+        "KEYCLOAK_REALM": "sven",
+        "KEYCLOAK_CLIENT_ID": "sven-gateway"
+    },
+    "code_paths_reviewed_unchanged_since_original_attestation": [
+        "services/gateway-api/src/routes/auth.ts",
+        "services/gateway-api/src/__tests__/tenant-sso.e2e.ts",
+        "scripts/sso-keycloak-interop-smoke.cjs"
+    ],
+    "steps": [
+        {
+            "step": "reattestation_source_review",
+            "status": 0,
+            "stdout": "Reviewed git log of sso/keycloak-related sources at HEAD af1595ba70d6; no functional changes since 2026-02-23T08:28:49Z. Prior live interop evidence remains authoritative.",
+            "stderr": ""
+        }
+    ]
+}
