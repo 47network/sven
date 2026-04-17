@@ -20,6 +20,8 @@ export interface EconomySnapshot {
   revenue24hUsd: number;
   marketplaceListings: number;
   seedPipelines: number;
+  refunds24hCount: number;
+  refunds24hUsd: number;
 }
 
 /**
@@ -39,6 +41,8 @@ export async function gatherEconomySnapshot(pool: pg.Pool): Promise<EconomySnaps
     revenue24hUsd: 0,
     marketplaceListings: 0,
     seedPipelines: 0,
+    refunds24hCount: 0,
+    refunds24hUsd: 0,
   };
 
   // Treasury accounts + total balance
@@ -102,6 +106,19 @@ export async function gatherEconomySnapshot(pool: pg.Pool): Promise<EconomySnaps
     snap.marketplaceListings = res.rows[0]?.count || 0;
   } catch { /* marketplace_listings may not exist */ }
 
+  // Refunds in last 24h
+  try {
+    const res = await pool.query(
+      `SELECT COUNT(*)::int AS count,
+              COALESCE(SUM(total), 0)::numeric AS total_refunded
+       FROM marketplace_orders
+       WHERE status = 'refunded'
+         AND updated_at >= NOW() - INTERVAL '24 hours'`,
+    );
+    snap.refunds24hCount = res.rows[0]?.count || 0;
+    snap.refunds24hUsd = parseFloat(res.rows[0]?.total_refunded || '0');
+  } catch { /* marketplace_orders may not exist */ }
+
   return snap;
 }
 
@@ -155,6 +172,11 @@ export async function buildEconomyContextPrompt(pool: pg.Pool): Promise<string> 
     // Marketplace
     if (snap.marketplaceListings > 0) {
       sections.push(`Marketplace: ${snap.marketplaceListings} active listing(s) on market.sven.systems`);
+    }
+
+    // Refunds
+    if (snap.refunds24hCount > 0) {
+      sections.push(`Refunds: ${snap.refunds24hCount} in 24h ($${snap.refunds24hUsd.toFixed(2)} total)`);
     }
 
     if (sections.length === 0) return '';

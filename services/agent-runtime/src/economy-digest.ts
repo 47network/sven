@@ -78,6 +78,12 @@ function generateHighlights(snap: EconomySnapshot): string[] {
   if (snap.marketplaceListings === 0 && snap.activePipelines > 0) {
     highlights.push(`🏪 No marketplace listings — consider publishing services to market.sven.systems`);
   }
+  if (snap.refunds24hCount > 0) {
+    highlights.push(`🔄 ${snap.refunds24hCount} refund(s) in 24h totalling $${snap.refunds24hUsd.toFixed(2)} — review product quality`);
+  }
+  if (snap.refunds24hUsd > 0 && snap.revenue24hUsd > 0 && snap.refunds24hUsd / snap.revenue24hUsd > 0.2) {
+    highlights.push(`⚠️ Refund rate exceeds 20% of revenue — investigate buyer complaints`);
+  }
 
   return highlights;
 }
@@ -111,6 +117,7 @@ export function formatDigest(snap: EconomySnapshot, orgId: string): DigestReport
     ``,
     `MARKETPLACE`,
     `  Active listings: ${snap.marketplaceListings}`,
+    `  24h refunds:     ${snap.refunds24hCount} ($${snap.refunds24hUsd.toFixed(2)})`,
   ];
 
   if (highlights.length > 0) {

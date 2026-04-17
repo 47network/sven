@@ -1844,6 +1844,12 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:9477/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     logging: *default-logging
 
   # ── Marketplace Service (market.sven.systems) ──────────────────────
@@ -1870,6 +1876,12 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:9478/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     logging: *default-logging
 
   # ── Eidolon Service (eidolon.sven.systems 3D City) ─────────────────
@@ -1892,6 +1904,36 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:9479/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Marketplace UI (market.sven.systems frontend) ──────────────────
+  marketplace-ui:
+    build:
+      context: .
+      dockerfile: apps/marketplace-ui/Dockerfile
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_MARKETPLACE_API=http://sven-marketplace:9478
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "3002:3000"
+    networks:
+      - core
+    depends_on:
+      sven-marketplace:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:3000/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     logging: *default-logging
 
 networks:
