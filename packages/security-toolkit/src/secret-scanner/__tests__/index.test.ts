@@ -51,6 +51,7 @@ describe('secret-scanner', () => {
 
     it('partially redacts strings longer than 8 characters', () => {
       expect(redactSecret('12345678901234567890')).toBe('123***890');
+      expect(redactSecret('abcdefghijklmno')).toBe('ab***no');
     });
 
     it('caps shown characters to a maximum of 4 on each end for very long secrets', () => {
@@ -130,6 +131,114 @@ describe('secret-scanner', () => {
 
       const bearerToken = 'Authorization: Bearer ' + 'a'.repeat(20);
       expect(SECRET_PATTERNS.find((pattern) => pattern.type === 'bearer-token')?.pattern.test(bearerToken)).toBe(true);
+    });
+
+    it('matches valid fixtures and rejects invalid fixtures for built-in patterns', () => {
+      const fixtures: Record<string, { valid: string[]; invalid: string[] }> = {
+        'aws-access-key': {
+          valid: ['AKIA' + '1234567890ABCDEF'],
+          invalid: ['ASIA' + '1234567890ABCDEF', 'AKIA' + '12345'],
+        },
+        'aws-secret-key': {
+          valid: ['aws_secret_access_key = "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789+/AB"'],
+          invalid: ['aws_secret_access_key = "short"'],
+        },
+        'github-token': {
+          valid: ['ghp_' + 'a'.repeat(36)],
+          invalid: ['gho_' + 'a'.repeat(36)],
+        },
+        'github-fine-grained': {
+          valid: ['github_pat_' + 'a'.repeat(82)],
+          invalid: ['github_pat_short'],
+        },
+        'gitlab-token': {
+          valid: ['glpat-' + 'a'.repeat(20)],
+          invalid: ['glpat-short'],
+        },
+        'slack-token': {
+          valid: ['xoxb-' + '1234567890'],
+          invalid: ['xoxp-short'],
+        },
+        'slack-webhook': {
+          valid: ['https://hooks.slack.com/services/T' + '1234/B5678/901234'],
+          invalid: ['https://hooks.slack.com/services/T' + '1234/B5678/'],
+        },
+        'stripe-key': {
+          valid: ['sk_live_' + 'a'.repeat(20)],
+          invalid: ['sk_test_short'],
+        },
+        'twilio-key': {
+          valid: ['SK' + 'a'.repeat(32)],
+          invalid: ['SK' + 'a'.repeat(10)],
+        },
+        'sendgrid-key': {
+          valid: ['SG.' + 'a'.repeat(22) + '.' + 'a'.repeat(43)],
+          invalid: ['SG.short'],
+        },
+        'jwt': {
+          valid: ['eyJ' + 'a'.repeat(10) + '.eyJ' + 'a'.repeat(10) + '.' + 'a'.repeat(10)],
+          invalid: ['eyJ' + 'a'.repeat(10) + '.eyJ' + 'a'.repeat(10)],
+        },
+        'private-key': {
+          valid: ['-----BEGIN RSA PRIVATE KEY-----'],
+          invalid: ['-----BEGIN PUBLIC KEY-----'],
+        },
+        'npm-token': {
+          valid: ['npm_' + 'a'.repeat(36)],
+          invalid: ['npm_short'],
+        },
+        'pypi-token': {
+          valid: ['pypi-' + 'a'.repeat(50)],
+          invalid: ['pypi-short'],
+        },
+        'gcp-service-account': {
+          valid: ['"type": "service_account"'],
+          invalid: ['"type": "user"'],
+        },
+        'database-url': {
+          valid: ['postgresql://user:pass' + 'word@localhost:5432/db'],
+          invalid: ['postgresql://localhost:5432/db'],
+        },
+        'generic-api-key': {
+          valid: ['api_key = "AbCdEfGh12345678IjKlMnOp"'],
+          invalid: ['api_key = "short"'],
+        },
+        'generic-password': {
+          valid: ['password = "aBcD1234!xYz"'],
+          invalid: ['password = "short"'],
+        },
+        'basic-auth-header': {
+          valid: ['Authorization: Basic ' + 'dXNlcjpwYXNz'],
+          invalid: ['Authorization: Basic short'],
+        },
+        'bearer-token': {
+          valid: ['Authorization: Bearer ' + 'abcDEF123._~+/=-KLMnoPQRSTuv'],
+          invalid: ['Authorization: Bearer short'],
+        },
+      };
+
+      for (const pattern of SECRET_PATTERNS) {
+        const fixture = fixtures[pattern.type];
+        expect(fixture).toBeDefined();
+        for (const valid of fixture.valid) {
+          const match = pattern.pattern.exec(valid);
+          if (!match) {
+            throw new Error(`Expected valid fixture to match for ${pattern.type}: ${valid}`);
+          }
+          expect(match).toBeTruthy();
+          if (pattern.minEntropy !== undefined && match) {
+            expect(shannonEntropy(match[1] ?? match[0])).toBeGreaterThanOrEqual(pattern.minEntropy);
+          }
+        }
+        for (const invalid of fixture.invalid) {
+          const match = pattern.pattern.exec(invalid);
+          if (match && pattern.minEntropy !== undefined) {
+            expect(shannonEntropy(match[1] ?? match[0])).toBeLessThan(pattern.minEntropy);
+          } else {
+            expect(match).toBeFalsy();
+          }
+        }
+      }
     });
   });
 
@@ -237,6 +346,38 @@ describe('secret-scanner', () => {
       expect(findings[0].matchedText).toBe('NO_CAPTURE_GROUP_SECRET');
       expect(findings[0].patternId).toBe('CUSTOM-1');
     });
+
+    it('finds JWT tokens end-to-end', () => {
+      const jwtHeader = 'eyJ' + 'hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+      const jwtPayload = 'eyJ' + 'zdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ';
+      const jwtSignature = 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+      const source = `const token = "${jwtHeader}.${jwtPayload}.${jwtSignature}";`;
+      const findings = scanFileForSecrets(source, 'test.ts');
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].type).toBe('jwt');
+      expect(findings[0].matchedText).toBe(`${jwtHeader}.${jwtPayload}.${jwtSignature}`);
+    });
+
+    it('finds GCP service accounts end-to-end', () => {
+      const accountType = 'service_' + 'account';
+      const source = `const serviceAccount = { "type": "${accountType}", "project_id": "demo" };`;
+      const findings = scanFileForSecrets(source, 'test.ts');
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].type).toBe('gcp-service-account');
+      expect(findings[0].matchedText).toBe('"type": "service_account"');
+    });
+
+    it('finds Slack webhooks end-to-end', () => {
+      const webhookPath = ['T12345678', 'B12345678', 'abcdef1234567890'].join('/');
+      const source = `const webhook = "https://hooks.slack.com/services/${webhookPath}";`;
+      const findings = scanFileForSecrets(source, 'test.ts');
+
+      expect(findings).toHaveLength(1);
+      expect(findings[0].type).toBe('slack-webhook');
+      expect(findings[0].matchedText).toBe(`https://hooks.slack.com/services/${webhookPath}`);
+    });
   });
 
   describe('scanForSecrets', () => {
@@ -287,6 +428,29 @@ describe('secret-scanner', () => {
       expect(report.secretsFound).toBe(1);
       expect(report.clean).toBe(false);
       expect(report.findings[0].patternId).toBe('CUSTOM-1');
+    });
+
+    it('aggregates custom-pattern findings into report type and severity totals', () => {
+      const customPatterns: SecretPattern[] = [
+        {
+          id: 'CUSTOM-2',
+          type: 'generic-secret',
+          title: 'Custom Secret',
+          pattern: /dummy_secret_with_no_group/,
+          severity: 'medium',
+        },
+      ];
+      const files = new Map<string, string>();
+      files.set('valid.ts', 'const secret = dummy_secret_with_no_group;');
+
+      const report = scanForSecrets(files, customPatterns);
+
+      expect(report.filesScanned).toBe(1);
+      expect(report.secretsFound).toBe(1);
+      expect(report.clean).toBe(false);
+      expect(report.byType['generic-secret']).toBe(1);
+      expect(report.bySeverity.medium).toBeGreaterThan(0);
+      expect(report.findings[0].file).toBe('valid.ts');
     });
 
     it('aggregates by severity and type correctly', () => {
