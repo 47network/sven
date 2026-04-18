@@ -167,6 +167,7 @@ export function DataTable<T>({
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
               className="btn-ghost btn-sm"
+              aria-label="First page"
             >
               <ChevronsLeft className="h-4 w-4" />
             </button>
@@ -174,6 +175,7 @@ export function DataTable<T>({
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
               className="btn-ghost btn-sm"
+              aria-label="Previous page"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -181,6 +183,7 @@ export function DataTable<T>({
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
               className="btn-ghost btn-sm"
+              aria-label="Next page"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -188,6 +191,7 @@ export function DataTable<T>({
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage()}
               className="btn-ghost btn-sm"
+              aria-label="Last page"
             >
               <ChevronsRight className="h-4 w-4" />
             </button>
