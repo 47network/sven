@@ -119,3 +119,9 @@ services/gateway-api/migrations/20260513120000_agent_collaboration.sql export-ig
 packages/shared/src/agent-collaboration.ts export-ignore
 skills/autonomous-economy/agent-collaboration/** export-ignore
 services/agent-runtime/src/__tests__/batch40-agent-collaboration.test.ts export-ignore
+
+# Batch 41 — Cross-Platform Revenue Dashboard (private)
+services/gateway-api/migrations/20260514120000_revenue_dashboard.sql export-ignore
+packages/shared/src/revenue-dashboard.ts export-ignore
+skills/autonomous-economy/revenue-dashboard/** export-ignore
+services/agent-runtime/src/__tests__/batch41-revenue-dashboard.test.ts export-ignore
