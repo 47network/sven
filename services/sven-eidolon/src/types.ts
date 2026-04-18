@@ -63,6 +63,11 @@ export type EidolonBuildingKind =
   | 'ssl_cert_manager'
   | 'chaos_engineer'
   | 'ab_tester'
+  | 'container_registry'
+  | 'graphql_gateway'
+  | 'message_queue_hub'
+  | 'canary_deployer'
+  | 'db_replicator'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -97,7 +102,12 @@ export type EidolonBuildingKind =
   | 'dns_manager'
   | 'ssl_cert_manager'
   | 'chaos_engineer'
-  | 'ab_tester';
+  | 'ab_tester'
+  | 'container_registry'
+  | 'graphql_gateway'
+  | 'message_queue_hub'
+  | 'canary_deployer'
+  | 'db_replicator';
 
 export interface EidolonBuilding {
   id: string;
@@ -532,6 +542,26 @@ export type EidolonEventKind =
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
   | 'abtest.experiment_concluded'
+  | 'registry.image_pushed'
+  | 'registry.scan_completed'
+  | 'registry.retention_cleaned'
+  | 'registry.vulnerability_found'
+  | 'graphql.schema_published'
+  | 'graphql.breaking_detected'
+  | 'graphql.cache_configured'
+  | 'graphql.operation_slow'
+  | 'mq.queue_created'
+  | 'mq.consumer_registered'
+  | 'mq.dlq_threshold'
+  | 'mq.message_redriven'
+  | 'canary.release_started'
+  | 'canary.traffic_shifted'
+  | 'canary.promoted'
+  | 'canary.rolled_back'
+  | 'dbrepl.replica_added'
+  | 'dbrepl.lag_alert'
+  | 'dbrepl.failover_initiated'
+  | 'dbrepl.failover_completed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -676,6 +706,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'ssl_cert_manager':
     case 'chaos_engineer':
     case 'ab_tester':
+    case 'container_registry':
+    case 'graphql_gateway':
+    case 'message_queue_hub':
+    case 'canary_deployer':
+    case 'db_replicator':
     case 'translation_hub':
     case 'webhook_relay':
     case 'config_vault':
@@ -691,6 +726,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'ssl_cert_manager':
     case 'chaos_engineer':
     case 'ab_tester':
+    case 'container_registry':
+    case 'graphql_gateway':
+    case 'message_queue_hub':
+    case 'canary_deployer':
+    case 'db_replicator':
     case 'pipeline_forge':
     case 'cache_tower':
     case 'api_gateway':
@@ -723,6 +763,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'ssl_cert_manager':
     case 'chaos_engineer':
     case 'ab_tester':
+    case 'container_registry':
+    case 'graphql_gateway':
+    case 'message_queue_hub':
+    case 'canary_deployer':
+    case 'db_replicator':
       return 'civic';
   }
 }

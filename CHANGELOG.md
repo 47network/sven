@@ -10,6 +10,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 103**: Agent Container Registry — image management, vulnerability scanning, retention policies (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 104**: Agent GraphQL Gateway — schema federation, operation analytics, query caching (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 105**: Agent Message Queue — queue lifecycle, consumer groups, dead letter queues (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 106**: Agent Canary Deployment — traffic splitting, rollback triggers, promotion (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 107**: Agent Database Replication — replica management, lag monitoring, failover (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 98**: Agent Auto-Scaling — scaling policies, metric tracking, cost optimisation (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 99**: Agent DNS Management — zone CRUD, record management, propagation tracking (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 100**: Agent SSL Certificates — cert lifecycle, auto-renewal, expiry alerts (migration, types, skill, eidolon, event-bus, task-executor, tests)

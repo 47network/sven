@@ -124,3 +124,8 @@ export * from './agent-dns-management.js';
 export * from './agent-ssl-certificates.js';
 export * from './agent-chaos-engineering.js';
 export * from './agent-ab-testing.js';
+export * from './agent-container-registry.js';
+export * from './agent-graphql-gateway.js';
+export * from './agent-message-queue.js';
+export * from './agent-canary-deployment.js';
+export * from './agent-database-replication.js';
