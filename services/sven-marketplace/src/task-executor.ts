@@ -397,6 +397,13 @@ export class TaskExecutor {
       case 'policy_create': return this.handlePolicyCreate(input);
       case 'audit_query': return this.handleAuditQuery(input);
       case 'scope_define': return this.handleScopeDefine(input);
+      case 'feedback_submit': return this.handleFeedbackSubmit(input);
+      case 'survey_create': return this.handleSurveyCreate(input);
+      case 'survey_respond': return this.handleSurveyRespond(input);
+      case 'analytics_generate': return this.handleFeedbackAnalyticsGenerate(input);
+      case 'improvement_propose': return this.handleImprovementPropose(input);
+      case 'feedback_acknowledge': return this.handleFeedbackAcknowledge(input);
+      case 'survey_close': return this.handleSurveyClose(input);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4295,6 +4302,93 @@ export class TaskExecutor {
       scopeType: input.scopeType ?? 'api',
       isActive: true,
       definedAt: new Date().toISOString(),
+    };
+  }
+  /* ── Batch 61 — Agent Feedback & Surveys ── */
+
+  private handleFeedbackSubmit(input: Record<string, unknown>) {
+    const id = `fb-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      feedbackId: id,
+      agentId: input.agentId ?? 'unknown',
+      feedbackType: input.feedbackType ?? 'rating',
+      category: input.category ?? 'quality',
+      rating: input.rating ?? 5,
+      sentiment: 'neutral',
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleSurveyCreate(input: Record<string, unknown>) {
+    const id = `srv-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      surveyId: id,
+      agentId: input.agentId ?? 'unknown',
+      title: input.title ?? 'Untitled Survey',
+      surveyType: input.surveyType ?? 'satisfaction',
+      status: 'draft',
+      questionCount: Array.isArray(input.questions) ? input.questions.length : 0,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  private handleSurveyRespond(input: Record<string, unknown>) {
+    const id = `srsp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      responseId: id,
+      surveyId: input.surveyId ?? 'unknown',
+      respondentId: input.respondentId ?? 'anonymous',
+      score: input.score ?? null,
+      completionPct: 100,
+      status: 'completed',
+      completedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleFeedbackAnalyticsGenerate(input: Record<string, unknown>) {
+    const id = `fba-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      analyticsId: id,
+      agentId: input.agentId ?? 'unknown',
+      period: input.period ?? 'daily',
+      totalFeedback: 0,
+      avgRating: null,
+      npsScore: null,
+      generatedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleImprovementPropose(input: Record<string, unknown>) {
+    const id = `imp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      actionId: id,
+      agentId: input.agentId ?? 'unknown',
+      actionType: input.actionType ?? 'skill_update',
+      priority: input.priority ?? 'medium',
+      description: input.description ?? '',
+      status: 'proposed',
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  private handleFeedbackAcknowledge(input: Record<string, unknown>) {
+    return {
+      feedbackId: input.feedbackId ?? 'unknown',
+      updatedStatus: 'acknowledged',
+      response: input.response ?? '',
+      acknowledgedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleSurveyClose(input: Record<string, unknown>) {
+    return {
+      surveyId: input.surveyId ?? 'unknown',
+      status: 'closed',
+      reason: input.reason ?? 'manual',
+      totalResponses: 0,
+      avgScore: null,
+      closedAt: new Date().toISOString(),
     };
   }
 }

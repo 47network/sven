@@ -83,3 +83,4 @@ export * from './agent-communication-messaging.js';
 export * from './agent-monitoring-observability.js';
 export * from './agent-backup-recovery.js';
 export * from './agent-access-control.js';
+export * from './agent-feedback-surveys.js';

@@ -50,7 +50,8 @@ export type EidolonBuildingKind =
   | 'comm_tower'
   | 'observatory_tower'
   | 'vault_bunker'
-  | 'access_gate';
+  | 'access_gate'
+  | 'feedback_plaza';
 
 export interface EidolonBuilding {
   id: string;
@@ -317,6 +318,10 @@ export type EidolonEventKind =
   | 'acl.permission_granted'
   | 'acl.access_denied'
   | 'acl.policy_evaluated'
+  | 'feedback.submitted'
+  | 'feedback.survey_created'
+  | 'feedback.response_received'
+  | 'feedback.improvement_proposed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -449,6 +454,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'vault_bunker':
       return 'industrial';
     case 'access_gate':
+    case 'feedback_plaza':
       return 'civic';
   }
 }

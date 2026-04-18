@@ -203,6 +203,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.acl.permission_granted': 'acl.permission_granted',
   'sven.acl.access_denied': 'acl.access_denied',
   'sven.acl.policy_evaluated': 'acl.policy_evaluated',
+  'sven.feedback.submitted': 'feedback.submitted',
+  'sven.feedback.survey_created': 'feedback.survey_created',
+  'sven.feedback.response_received': 'feedback.response_received',
+  'sven.feedback.improvement_proposed': 'feedback.improvement_proposed',
 };
 
 export class EidolonEventBus {
