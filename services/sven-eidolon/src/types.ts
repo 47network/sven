@@ -35,7 +35,8 @@ export type EidolonBuildingKind =
   | 'reputation_monument'
   | 'council_chamber'
   | 'medical_bay'
-  | 'dispatch_center';
+  | 'dispatch_center'
+  | 'automation_factory';
 
 export interface EidolonBuilding {
   id: string;
@@ -242,6 +243,10 @@ export type EidolonEventKind =
   | 'task.assigned'
   | 'task.completed'
   | 'task.schedule_triggered'
+  | 'workflow.created'
+  | 'workflow.run_started'
+  | 'workflow.run_completed'
+  | 'workflow.step_failed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -344,6 +349,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'medical_bay':
       return 'residential';
     case 'dispatch_center':
+      return 'industrial';
+    case 'automation_factory':
       return 'industrial';
   }
 }

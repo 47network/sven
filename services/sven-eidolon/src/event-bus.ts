@@ -143,6 +143,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.task.assigned': 'task.assigned',
   'sven.task.completed': 'task.completed',
   'sven.task.schedule_triggered': 'task.schedule_triggered',
+  'sven.workflow.created': 'workflow.created',
+  'sven.workflow.run_started': 'workflow.run_started',
+  'sven.workflow.run_completed': 'workflow.run_completed',
+  'sven.workflow.step_failed': 'workflow.step_failed',
 };
 
 export class EidolonEventBus {
