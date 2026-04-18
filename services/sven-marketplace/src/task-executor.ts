@@ -509,6 +509,13 @@ export class TaskExecutor {
       case 'cost_check_alerts': return this.handleCostCheckAlerts(task);
       case 'cost_budget_report': return this.handleCostBudgetReport(task);
       case 'cost_optimize': return this.handleCostOptimize(task);
+      case 'tenant_create': return this.handleTenantCreate(task);
+      case 'tenant_manage_members': return this.handleTenantManageMembers(task);
+      case 'tenant_enforce_quotas': return this.handleTenantEnforceQuotas(task);
+      case 'tenant_send_invitation': return this.handleTenantSendInvitation(task);
+      case 'tenant_audit_query': return this.handleTenantAuditQuery(task);
+      case 'tenant_upgrade_plan': return this.handleTenantUpgradePlan(task);
+      case 'tenant_report': return this.handleTenantReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4971,6 +4978,42 @@ export class TaskExecutor {
   private async handleCostOptimize(task: any): Promise<any> {
     const { recommendation_id } = task.input || {};
     return { recommendation_id, status: 'implemented', applied_at: new Date().toISOString() };
+  }
+
+
+  private async handleTenantCreate(task: any): Promise<any> {
+    const { tenant_name, slug, plan } = task.input || {};
+    return { tenant_id: `tnt-${Date.now()}`, tenant_name, slug, plan: plan || 'free', status: 'active' };
+  }
+
+  private async handleTenantManageMembers(task: any): Promise<any> {
+    const { tenant_id, action, user_id, role } = task.input || {};
+    return { tenant_id, action: action || 'add', user_id, role: role || 'member', success: true };
+  }
+
+  private async handleTenantEnforceQuotas(task: any): Promise<any> {
+    const { tenant_id, resource_type } = task.input || {};
+    return { tenant_id, resource_type, within_limits: true, utilization_pct: 0 };
+  }
+
+  private async handleTenantSendInvitation(task: any): Promise<any> {
+    const { tenant_id, email, role } = task.input || {};
+    return { invitation_id: `inv-${Date.now()}`, tenant_id, email, role: role || 'member', status: 'pending' };
+  }
+
+  private async handleTenantAuditQuery(task: any): Promise<any> {
+    const { tenant_id, action, actor_id } = task.input || {};
+    return { tenant_id, entries: [], total: 0 };
+  }
+
+  private async handleTenantUpgradePlan(task: any): Promise<any> {
+    const { tenant_id, new_plan } = task.input || {};
+    return { tenant_id, new_plan: new_plan || 'pro', upgraded: true, upgraded_at: new Date().toISOString() };
+  }
+
+  private async handleTenantReport(task: any): Promise<any> {
+    const { tenant_id } = task.input || {};
+    return { tenant_id, members: 0, agents: 0, storage_used_mb: 0, plan: 'free', quotas: {} };
   }
 
 }

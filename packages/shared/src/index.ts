@@ -99,3 +99,4 @@ export * from './agent-api-gateway.js';
 export * from './agent-log-aggregation.js';
 export * from './agent-service-mesh.js';
 export * from './agent-cost-optimization.js';
+export * from './agent-multi-tenancy.js';

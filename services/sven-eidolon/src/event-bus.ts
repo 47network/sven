@@ -267,6 +267,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.cost.spend_recorded': 'cost.spend_recorded',
   'sven.cost.alert_triggered': 'cost.alert_triggered',
   'sven.cost.recommendation_made': 'cost.recommendation_made',
+  'sven.tenant.created': 'tenant.created',
+  'sven.tenant.member_joined': 'tenant.member_joined',
+  'sven.tenant.quota_exceeded': 'tenant.quota_exceeded',
+  'sven.tenant.plan_upgraded': 'tenant.plan_upgraded',
 };
 
 export class EidolonEventBus {
