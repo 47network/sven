@@ -115,6 +115,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.research.project_started': 'research.project_started',
   'sven.research.paper_published': 'research.paper_published',
   'sven.research.dataset_released': 'research.dataset_released',
+  'sven.integration.platform_discovered': 'integration.platform_discovered',
+  'sven.integration.agent_built': 'integration.agent_built',
+  'sven.integration.agent_evolved': 'integration.agent_evolved',
+  'sven.integration.subscription_created': 'integration.subscription_created',
 };
 
 export class EidolonEventBus {

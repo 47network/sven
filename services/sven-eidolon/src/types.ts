@@ -29,7 +29,8 @@ export type EidolonBuildingKind =
   | 'training_lab'
   | 'tutoring_center'
   | 'service_portal'
-  | 'research_campus';
+  | 'research_campus'
+  | 'integration_hub';
 
 export interface EidolonBuilding {
   id: string;
@@ -208,6 +209,10 @@ export type EidolonEventKind =
   | 'research.project_started'
   | 'research.paper_published'
   | 'research.dataset_released'
+  | 'integration.platform_discovered'
+  | 'integration.agent_built'
+  | 'integration.agent_evolved'
+  | 'integration.subscription_created'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -298,6 +303,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'service_portal':
       return 'market';
     case 'research_campus':
+      return 'infrastructure';
+    case 'integration_hub':
       return 'infrastructure';
   }
 }

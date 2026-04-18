@@ -107,3 +107,9 @@ services/agent-runtime/src/__tests__/batch38-*.test.ts  argentum-private export-
 *.sql  text eol=lf
 *.sh   text eol=lf
 *.lock binary
+
+# Batch 39 — Integration Agents Agency (private)
+services/gateway-api/migrations/20260512120000_integration_agents.sql export-ignore
+packages/shared/src/integration-agents.ts export-ignore
+skills/autonomous-economy/integration-agent/** export-ignore
+services/agent-runtime/src/__tests__/batch39-integration-agents.test.ts export-ignore

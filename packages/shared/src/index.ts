@@ -61,3 +61,4 @@ export * from './micro-training.js';
 export * from './academic-assistance.js';
 export * from './agent-service-domains.js';
 export * from './research-labs.js';
+export * from './integration-agents.js';

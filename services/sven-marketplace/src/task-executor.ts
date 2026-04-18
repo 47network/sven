@@ -243,6 +243,10 @@ export class TaskExecutor {
       case 'research_lab':     return this.handleResearchLab(input);
       case 'research_project': return this.handleResearchProject(input);
       case 'research_paper':   return this.handleResearchPaper(input);
+      case 'integration_discover': return this.handleIntegrationDiscover(input);
+      case 'integration_build':    return this.handleIntegrationBuild(input);
+      case 'integration_invoke':   return this.handleIntegrationInvoke(input);
+      case 'integration_evolve':   return this.handleIntegrationEvolve(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -1808,6 +1812,86 @@ export class TaskExecutor {
         status: 'draft',
         citationCount: 0,
         message: `Research paper "${title}" drafted for project ${projectId}`,
+      },
+    };
+  }
+
+  // ---------- Batch 39 — Integration Agents Agency ----------
+
+  private async handleIntegrationDiscover(input: Record<string, unknown>): Promise<TaskResult> {
+    const platformUrl = String(input.platformUrl ?? input.url ?? 'https://example.com');
+    const category = String(input.category ?? 'custom');
+    const name = String(input.name ?? 'Unknown Platform');
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const platformId = `plat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      success: true,
+      output: {
+        platformId,
+        name,
+        slug,
+        category,
+        platformUrl,
+        authType: 'oauth2',
+        endpointCount: 0,
+        status: 'discovered',
+        message: `Discovered platform "${name}" (${category}) — ready for analysis`,
+      },
+    };
+  }
+
+  private async handleIntegrationBuild(input: Record<string, unknown>): Promise<TaskResult> {
+    const platformId = String(input.platformId ?? '');
+    const targetCapabilities = Array.isArray(input.targetCapabilities) ? input.targetCapabilities : [];
+    const agentId = `iagent-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      success: true,
+      output: {
+        agentId,
+        platformId,
+        version: '0.1.0',
+        supportedActions: targetCapabilities.slice(0, 10),
+        apiCoveragePct: 15,
+        healthStatus: 'healthy',
+        message: `Built integration agent ${agentId} for platform ${platformId} — initial coverage 15%`,
+      },
+    };
+  }
+
+  private async handleIntegrationInvoke(input: Record<string, unknown>): Promise<TaskResult> {
+    const agentId = String(input.agentId ?? '');
+    const action = String(input.action ?? 'unknown');
+    const subscriberId = String(input.subscriberId ?? '');
+    const latencyMs = Math.floor(Math.random() * 400) + 50;
+    return {
+      success: true,
+      output: {
+        agentId,
+        action,
+        subscriberId,
+        result: { status: 'completed', data: {} },
+        latencyMs,
+        tokensCharged: 2,
+        message: `Invoked "${action}" on agent ${agentId} — ${latencyMs}ms`,
+      },
+    };
+  }
+
+  private async handleIntegrationEvolve(input: Record<string, unknown>): Promise<TaskResult> {
+    const agentId = String(input.agentId ?? '');
+    const trigger = String(input.trigger ?? 'scheduled');
+    const evolutionId = `evo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      success: true,
+      output: {
+        evolutionId,
+        agentId,
+        trigger,
+        evolutionType: 'skill_learned',
+        changes: ['Added new endpoint coverage', 'Improved error handling'],
+        autoResolved: true,
+        resolutionMs: 1200,
+        message: `Agent ${agentId} evolved — learned new capabilities (trigger: ${trigger})`,
       },
     };
   }
