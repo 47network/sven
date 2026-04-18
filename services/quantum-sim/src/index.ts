@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import pg from 'pg';
 import { connect, type NatsConnection, type Subscription } from 'nats';
+import { readFile } from 'node:fs/promises';
 import { createLogger } from '@sven/shared';
 
 // ── Quantum-sim library imports ──────────────────────────────────────────────
@@ -362,9 +363,7 @@ app.delete('/v1/quantum/cache', async () => {
 
 async function start(): Promise<void> {
   // Run migrations
-  const migrationSql = await import('node:fs/promises').then((fsp) =>
-    fsp.readFile(new URL('../migrations/001_create_quantum_jobs.sql', import.meta.url), 'utf8'),
-  );
+  const migrationSql = await readFile(new URL('../migrations/001_create_quantum_jobs.sql', import.meta.url), 'utf8');
   await pool.query(migrationSql);
   engineLogger.info('Migrations applied');
 
