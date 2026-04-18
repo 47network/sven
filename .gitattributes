@@ -131,3 +131,9 @@ services/gateway-api/migrations/20260515120000_agent_reputation.sql export-ignor
 packages/shared/src/agent-reputation.ts export-ignore
 skills/autonomous-economy/agent-reputation/** export-ignore
 services/agent-runtime/src/__tests__/batch42-agent-reputation.test.ts export-ignore
+
+# Batch 43 — Agent Governance & Voting (private)
+services/gateway-api/migrations/20260516120000_agent_governance.sql export-ignore
+packages/shared/src/agent-governance.ts export-ignore
+skills/autonomous-economy/agent-governance/** export-ignore
+services/agent-runtime/src/__tests__/batch43-agent-governance.test.ts export-ignore
