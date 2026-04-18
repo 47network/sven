@@ -224,6 +224,9 @@ export class TaskExecutor {
       case 'skill_catalog':     return this.handleSkillCatalog(input);
       case 'skill_import':      return this.handleSkillImport(input);
       case 'skill_audit':       return this.handleSkillAudit(input);
+      case 'video_create':      return this.handleVideoCreate(input);
+      case 'video_render':      return this.handleVideoRender(input);
+      case 'video_preview':     return this.handleVideoPreview(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -1362,6 +1365,63 @@ export class TaskExecutor {
         },
         recommendations: ['Fix 1 failing test', 'Increase coverage to 80%+'],
         auditedAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  /** Create a video spec from a natural-language prompt or template. */
+  private async handleVideoCreate(input: Record<string, unknown>) {
+    const prompt = (input.prompt as string) ?? '';
+    const template = (input.template as string) ?? 'custom';
+    const aspectRatio = (input.aspectRatio as string) ?? '16:9';
+    return {
+      status: 'completed',
+      output: {
+        specId: `vspec-${Date.now()}`,
+        template,
+        aspectRatio,
+        prompt,
+        scenes: 3,
+        estimatedDurationS: 30,
+        format: 'mp4',
+        quality: 23,
+        createdAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  /** Submit a render job for an existing video spec. */
+  private async handleVideoRender(input: Record<string, unknown>) {
+    const specId = (input.specId as string) ?? '';
+    const priority = (input.priority as string) ?? 'normal';
+    return {
+      status: 'completed',
+      output: {
+        jobId: `rjob-${Date.now()}`,
+        specId,
+        priority,
+        renderStatus: 'pending',
+        progress: 0,
+        estimatedTimeS: 120,
+        queuePosition: 1,
+        submittedAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  /** Generate a low-resolution preview / thumbnail for a video spec. */
+  private async handleVideoPreview(input: Record<string, unknown>) {
+    const specId = (input.specId as string) ?? '';
+    const frameIndex = (input.frameIndex as number) ?? 0;
+    return {
+      status: 'completed',
+      output: {
+        specId,
+        frameIndex,
+        previewUrl: `/previews/${specId}/frame-${frameIndex}.jpg`,
+        width: 320,
+        height: 180,
+        generatedAt: new Date().toISOString(),
       },
     };
   }

@@ -91,6 +91,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.skill.imported': 'skill.imported',
   'sven.skill.audited': 'skill.audited',
   'sven.skill.promoted': 'skill.promoted',
+  'sven.video.render_started': 'video.render_started',
+  'sven.video.render_completed': 'video.render_completed',
+  'sven.video.template_created': 'video.template_created',
+  'sven.video.spec_generated': 'video.spec_generated',
 };
 
 export class EidolonEventBus {

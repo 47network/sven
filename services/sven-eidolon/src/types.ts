@@ -23,7 +23,8 @@ export type EidolonBuildingKind =
   | 'memory_vault'
   | 'gpu_cluster'
   | 'evolution_lab'
-  | 'skill_academy';
+  | 'skill_academy'
+  | 'video_studio';
 
 export interface EidolonBuilding {
   id: string;
@@ -178,6 +179,10 @@ export type EidolonEventKind =
   | 'skill.imported'
   | 'skill.audited'
   | 'skill.promoted'
+  | 'video.render_started'
+  | 'video.render_completed'
+  | 'video.template_created'
+  | 'video.spec_generated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -257,5 +262,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'infrastructure';
     case 'skill_academy':
       return 'infrastructure';
+    case 'video_studio':
+      return 'market';
   }
 }
