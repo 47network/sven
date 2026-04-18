@@ -254,3 +254,6 @@ skills/autonomous-economy/agent-service-mesh/SKILL.md filter=skip-on-archive exp
 services/gateway-api/migrations/20260617130000_agent_cost_optimization.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-cost-optimization.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-cost-optimization/SKILL.md filter=skip-on-archive export-ignore
+services/gateway-api/migrations/20260617140000_agent_multi_tenancy.sql filter=skip-on-archive export-ignore
+packages/shared/src/agent-multi-tenancy.ts filter=skip-on-archive export-ignore
+skills/autonomous-economy/agent-multi-tenancy/SKILL.md filter=skip-on-archive export-ignore
