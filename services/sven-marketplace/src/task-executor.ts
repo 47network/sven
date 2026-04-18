@@ -200,6 +200,8 @@ export class TaskExecutor {
       case 'design':        return this.handleCoverDesign(input);
       case 'research':      return this.handleGenreResearch(input);
       case 'support':       return { status: 'completed', response: '', note: 'Support handler — auto-acknowledged.' };
+      case 'misiuni_post':  return this.handleMisiuniPost(input);
+      case 'misiuni_verify': return this.handleMisiuniVerify(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -510,5 +512,84 @@ export class TaskExecutor {
       [agentId, Math.min(limit, 200)],
     );
     return res.rows;
+  }
+
+  /** Post a misiune (task for human workers) on the Misiuni platform. */
+  private async handleMisiuniPost(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const title = String(input.title ?? 'Untitled misiune');
+    const description = String(input.description ?? '');
+    const category = String(input.category ?? 'other');
+    const budgetEur = Math.min(Math.max(Number(input.budgetEur ?? 25), 5), 500);
+    const locationCity = input.locationCity ? String(input.locationCity) : null;
+    const locationCounty = input.locationCounty ? String(input.locationCounty) : null;
+    const requiredProof = String(input.requiredProof ?? 'photo');
+    const priority = String(input.priority ?? 'normal');
+
+    return {
+      status: 'completed',
+      taskId: `mis_${Date.now()}`,
+      title,
+      description,
+      category,
+      budgetEur,
+      locationCity,
+      locationCounty,
+      requiredProof,
+      priority,
+      platformFee: budgetEur * 0.10,
+      estimatedMatchCount: 0,
+      note: 'Misiune posted — awaiting worker bids.',
+    };
+  }
+
+  /** Verify proof of work submitted by a human worker. */
+  private async handleMisiuniVerify(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const proofId = String(input.proofId ?? '');
+    const proofType = String(input.proofType ?? 'photo');
+    const gpsLat = input.gpsLat != null ? Number(input.gpsLat) : null;
+    const gpsLng = input.gpsLng != null ? Number(input.gpsLng) : null;
+    const expectedLat = input.expectedLat != null ? Number(input.expectedLat) : null;
+    const expectedLng = input.expectedLng != null ? Number(input.expectedLng) : null;
+    const maxDistanceKm = Number(input.maxDistanceKm ?? 0.5);
+
+    let confidence = 0.85;
+    let gpsDistanceKm: number | null = null;
+    const flags: string[] = [];
+
+    if (proofType === 'gps_checkin' && gpsLat != null && gpsLng != null && expectedLat != null && expectedLng != null) {
+      const toRad = (deg: number) => (deg * Math.PI) / 180;
+      const R = 6371;
+      const dLat = toRad(expectedLat - gpsLat);
+      const dLng = toRad(expectedLng - gpsLng);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(gpsLat)) * Math.cos(toRad(expectedLat)) * Math.sin(dLng / 2) ** 2;
+      gpsDistanceKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      if (gpsDistanceKm > maxDistanceKm) {
+        confidence = 0.3;
+        flags.push('gps_too_far');
+      } else {
+        confidence = 0.95;
+      }
+    }
+
+    if (!proofId) {
+      flags.push('missing_proof_id');
+      confidence = 0;
+    }
+
+    const verified = confidence >= 0.5;
+
+    return {
+      status: 'completed',
+      verified,
+      confidence,
+      proofId,
+      proofType,
+      gpsDistanceKm,
+      flags,
+      reason: verified
+        ? `Proof verified with ${(confidence * 100).toFixed(0)}% confidence.`
+        : `Proof rejected — ${flags.join(', ')}.`,
+    };
   }
 }

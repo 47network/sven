@@ -50,6 +50,11 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.world.tick': 'world.tick',
   'sven.world.parcel_interaction': 'world.parcel_interaction',
   'sven.infra.node_change': 'infra.node_change',
+  'sven.misiuni.task_created': 'misiuni.task_created',
+  'sven.misiuni.bid_accepted': 'misiuni.bid_accepted',
+  'sven.misiuni.proof_submitted': 'misiuni.proof_submitted',
+  'sven.misiuni.task_verified': 'misiuni.task_verified',
+  'sven.misiuni.payment_released': 'misiuni.payment_released',
 };
 
 export class EidolonEventBus {

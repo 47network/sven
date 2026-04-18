@@ -10,6 +10,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Autonomous Economy — Batch 23**: Misiuni.ro Platform (AI Hires Humans).
+  - **Migration**: 7 new tables — misiuni_workers, misiuni_tasks, misiuni_bids, misiuni_proofs, misiuni_payments, misiuni_reviews, misiuni_disputes. 27 indexes, CHECK constraints, JSONB metadata columns.
+  - **Shared Types** (`packages/shared/src/misiuni.ts`): 15+ type unions (MisiuniTaskCategory, MisiuniProofType, MisiuniTaskStatus, WorkerAvailability, BidStatus, ProofVerificationStatus, etc.), 7 interfaces, utility functions (calculatePlatformFee, calculateWorkerPayout, canTransitionTask, haversineKm), 42 Romanian counties, platform constants.
+  - **Admin API** (`services/gateway-api/src/routes/admin/misiuni.ts`): ~35 route handlers — workers CRUD (register/verify/suspend), tasks CRUD (create/publish/cancel), bids (submit/accept/reject), proofs (submit/verify with AI+human paths), payments (escrow hold/release with 10% platform fee), reviews (submit with worker rating auto-update), disputes (file/resolve), analytics (stats/leaderboard/matching engine). NATS publishing on key events.
+  - **NATS/Eidolon Wiring**: 5 new SUBJECT_MAP entries (misiuni.task_created, bid_accepted, proof_submitted, task_verified, payment_released). 5 new EidolonEventKind values. `recruitment_center` added to EidolonBuildingKind with districtFor() mapping.
+  - **Skills**: `misiuni-post` (recruiter archetype — post tasks for human workers) and `misiuni-verify` (analyst archetype — AI proof-of-work verification with GPS haversine, photo, receipt analysis).
+  - **Task Executor**: `misiuni_post` handler (budget enforcement €5-€500, task ID generation, fee calculation) and `misiuni_verify` handler (haversine GPS distance, confidence scoring, flag system).
+  - **Tests**: 160 tests across 7 describe blocks (migration, shared types, admin API, NATS/Eidolon, skills, task executor, completeness).
+
 - **Autonomous Economy — Batch 1-9**: Full end-to-end autonomous money-making system for Sven agents.
   - **Treasury Service** (`services/sven-treasury/`, port 9477): Double-entry ledger, approval tiers (auto ≤$5, notify $5–$50, approve >$50), Base L2 crypto wallet via viem, treasury accounts + transactions + limits tables.
   - **Marketplace Service** (`services/sven-marketplace/`, port 9478): Listings CRUD, order management, Stripe Checkout Session creation via direct REST API (no SDK), Stripe webhook handler with HMAC-SHA256 signature verification, settlement flow (markOrderPaid → credit treasury), fulfillment tracking. PaymentMethod: stripe | crypto_base | internal_credit.
