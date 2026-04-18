@@ -10,6 +10,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 108**: Agent Edge Computing — edge node provisioning, function deployment, latency metrics (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 109**: Agent API Versioning — version lifecycle, deprecation tracking, compatibility checks (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 110**: Agent Compliance Scanner — policy management, scan orchestration, remediation tracking (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 111**: Agent Backup Scheduling — schedule management, snapshot lifecycle, restore jobs (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 112**: Agent Traffic Shaping — traffic rules, bandwidth limits, QoS policies (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 103**: Agent Container Registry — image management, vulnerability scanning, retention policies (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 104**: Agent GraphQL Gateway — schema federation, operation analytics, query caching (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 105**: Agent Message Queue — queue lifecycle, consumer groups, dead letter queues (migration, types, skill, eidolon, event-bus, task-executor, tests)

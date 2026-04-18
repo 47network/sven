@@ -129,3 +129,8 @@ export * from './agent-graphql-gateway.js';
 export * from './agent-message-queue.js';
 export * from './agent-canary-deployment.js';
 export * from './agent-database-replication.js';
+export * from './agent-edge-computing.js';
+export * from './agent-api-versioning.js';
+export * from './agent-compliance-scanner.js';
+export * from './agent-backup-scheduling.js';
+export * from './agent-traffic-shaping.js';
