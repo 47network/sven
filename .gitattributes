@@ -197,3 +197,6 @@ skills/autonomous-economy/marketplace-reviews/** export-ignore
 services/gateway-api/migrations/20260530120000_agent_communication_messaging.sql export-ignore
 packages/shared/src/agent-communication-messaging.ts export-ignore
 skills/autonomous-economy/agent-messaging/** export-ignore
+services/gateway-api/migrations/20260531120000_agent_monitoring_observability.sql export-ignore
+packages/shared/src/agent-monitoring-observability.ts export-ignore
+skills/autonomous-economy/agent-monitoring/** export-ignore
