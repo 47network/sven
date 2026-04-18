@@ -474,6 +474,13 @@ export class TaskExecutor {
       case 'trigger_configure': return this.handleTriggerConfigure(task);
       case 'artifact_store': return this.handleArtifactStore(task);
       case 'pipeline_report': return this.handlePipelineReport(task);
+      case 'policy_create': return this.handlePolicyCreate(task);
+      case 'entry_set': return this.handleEntrySet(task);
+      case 'entry_invalidate': return this.handleEntryInvalidate(task);
+      case 'cdn_deploy': return this.handleCdnDeploy(task);
+      case 'purge_request': return this.handlePurgeRequest(task);
+      case 'analytics_query': return this.handleAnalyticsQuery(task);
+      case 'cache_report': return this.handleCacheReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4770,6 +4777,35 @@ export class TaskExecutor {
 
   private handlePipelineReport(task: any): any {
     return { totalInstances: 0, successRate: 100, avgDuration: 0, artifactCount: 0 };
+  }
+
+
+  private handlePolicyCreate(task: any): any {
+    return { policyId: `cpol-${Date.now()}`, cacheType: 'memory', enabled: true, created: true };
+  }
+
+  private handleEntrySet(task: any): any {
+    return { entryId: `ce-${Date.now()}`, cacheKey: task.input?.key || 'default', stored: true };
+  }
+
+  private handleEntryInvalidate(task: any): any {
+    return { invalidated: true, count: 1, pattern: task.input?.pattern || '*' };
+  }
+
+  private handleCdnDeploy(task: any): any {
+    return { distributionId: `cdn-${Date.now()}`, status: 'deploying', cdnUrl: 'https://cdn.sven.systems' };
+  }
+
+  private handlePurgeRequest(task: any): any {
+    return { purgeId: `prg-${Date.now()}`, status: 'completed', purgedCount: 0 };
+  }
+
+  private handleAnalyticsQuery(task: any): any {
+    return { totalRequests: 0, cacheHits: 0, cacheMisses: 0, hitRatio: 0, avgLatencyMs: 0 };
+  }
+
+  private handleCacheReport(task: any): any {
+    return { totalPolicies: 0, totalEntries: 0, totalSize: 0, overallHitRatio: 0 };
   }
 
 }

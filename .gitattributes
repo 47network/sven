@@ -239,3 +239,6 @@ skills/autonomous-economy/agent-environment-config/** export-ignore
 services/gateway-api/migrations/20260613120000_agent_pipeline_templates.sql export-ignore
 packages/shared/src/agent-pipeline-templates.ts export-ignore
 skills/autonomous-economy/agent-pipeline-templates/** export-ignore
+services/gateway-api/migrations/20260614120000_agent_caching_cdn.sql export-ignore
+packages/shared/src/agent-caching-cdn.ts export-ignore
+skills/autonomous-economy/agent-caching-cdn/** export-ignore

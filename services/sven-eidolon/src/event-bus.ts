@@ -247,6 +247,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.pipeline.instance_launched': 'pipeline.instance_launched',
   'sven.pipeline.stage_completed': 'pipeline.stage_completed',
   'sven.pipeline.pipeline_finished': 'pipeline.pipeline_finished',
+  'sven.cache.policy_created': 'cache.policy_created',
+  'sven.cache.entry_invalidated': 'cache.entry_invalidated',
+  'sven.cache.cdn_deployed': 'cache.cdn_deployed',
+  'sven.cache.purge_completed': 'cache.purge_completed',
 };
 
 export class EidolonEventBus {
