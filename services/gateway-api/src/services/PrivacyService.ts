@@ -771,11 +771,11 @@ export async function getRetentionAudit(
     }
 
     if (conditions.length > 0) {
-      query += ' AND ' + conditions.join(' AND ');
+      query = `${query} AND ${conditions.join(' AND ')}`;
     }
 
     params.push(limit);
-    query += ` ORDER BY created_at DESC LIMIT $${params.length}`;
+    query = `${query} ORDER BY created_at DESC LIMIT $${params.length}`;
 
     const result = await pool.query(query, params);
 
