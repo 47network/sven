@@ -572,6 +572,13 @@ export class TaskExecutor {
       case 'di_dispose': return this.handleDiDispose(task);
       case 'di_inspect': return this.handleDiInspect(task);
       case 'di_report': return this.handleDiReport(task);
+      case 'sm_create': return this.handleSmCreate(task);
+      case 'sm_transition': return this.handleSmTransition(task);
+      case 'sm_pause': return this.handleSmPause(task);
+      case 'sm_resume': return this.handleSmResume(task);
+      case 'sm_inspect': return this.handleSmInspect(task);
+      case 'sm_template': return this.handleSmTemplate(task);
+      case 'sm_report': return this.handleSmReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -5306,6 +5313,36 @@ export class TaskExecutor {
 
   private async handleDiReport(task: any): Promise<any> {
     return { ok: true, handler: 'di_report', containerCount: 0, totalBindings: 0, avgResolutionTime: 0, issues: [] };
+  }
+
+
+
+  private async handleSmCreate(task: any): Promise<any> {
+    return { ok: true, handler: 'sm_create', machineId: '', currentState: task.input?.initialState || 'idle', status: 'running' };
+  }
+
+  private async handleSmTransition(task: any): Promise<any> {
+    return { ok: true, handler: 'sm_transition', result: 'success', fromState: '', toState: '', guardPassed: true, actionExecuted: true };
+  }
+
+  private async handleSmPause(task: any): Promise<any> {
+    return { ok: true, handler: 'sm_pause', machineId: task.input?.machineId || '', previousStatus: 'running', newStatus: 'paused' };
+  }
+
+  private async handleSmResume(task: any): Promise<any> {
+    return { ok: true, handler: 'sm_resume', machineId: task.input?.machineId || '', currentState: '', status: 'running' };
+  }
+
+  private async handleSmInspect(task: any): Promise<any> {
+    return { ok: true, handler: 'sm_inspect', currentState: '', availableEvents: [], recentHistory: [], context: {} };
+  }
+
+  private async handleSmTemplate(task: any): Promise<any> {
+    return { ok: true, handler: 'sm_template', templateId: '', version: 1, stateCount: 0, transitionCount: 0 };
+  }
+
+  private async handleSmReport(task: any): Promise<any> {
+    return { ok: true, handler: 'sm_report', machineCount: 0, statusBreakdown: {}, avgTransitions: 0, stuckMachines: [] };
   }
 
 }

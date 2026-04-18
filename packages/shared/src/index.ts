@@ -108,3 +108,4 @@ export * from './agent-content-moderation.js';
 export * from './agent-service-discovery.js';
 export * from './agent-circuit-breaker.js';
 export * from './agent-dependency-injection.js';
+export * from './agent-state-machine.js';

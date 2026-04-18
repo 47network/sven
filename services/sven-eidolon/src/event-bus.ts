@@ -303,6 +303,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.di.binding_registered': 'di.binding_registered',
   'sven.di.resolution_completed': 'di.resolution_completed',
   'sven.di.container_disposed': 'di.container_disposed',
+  'sven.statemachine.created': 'statemachine.created',
+  'sven.statemachine.transitioned': 'statemachine.transitioned',
+  'sven.statemachine.completed': 'statemachine.completed',
+  'sven.statemachine.failed': 'statemachine.failed',
 };
 
 export class EidolonEventBus {
