@@ -77,6 +77,12 @@ services/agent-runtime/src/__tests__/batch34-*.test.ts  argentum-private export-
 # ── Private docker compose profiles ────────────────────────────────────────
 docker-compose.profiles.yml               argentum-private export-ignore
 
+# Batch 36 — Academic Assistance
+skills/autonomous-economy/academic-assist/  argentum-private export-ignore
+packages/shared/src/academic-assistance.ts  argentum-private export-ignore
+services/gateway-api/migrations/20260509120000_academic_assistance.sql  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch36-*.test.ts  argentum-private export-ignore
+
 # ── Standard git attributes ────────────────────────────────────────────────
 *.ts   text eol=lf
 *.tsx  text eol=lf
