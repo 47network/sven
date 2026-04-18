@@ -174,3 +174,8 @@ skills/autonomous-economy/billing-invoicing/** export-ignore
 services/gateway-api/migrations/20260523120000_agent_sla_contracts.sql export-ignore
 packages/shared/src/agent-sla-contracts.ts export-ignore
 skills/autonomous-economy/sla-contracts/** export-ignore
+
+# Batch 51 — Agent Knowledge Base & Documentation (private)
+services/gateway-api/migrations/20260524120000_agent_knowledge_base.sql export-ignore
+packages/shared/src/agent-knowledge-base.ts export-ignore
+skills/autonomous-economy/knowledge-base/** export-ignore

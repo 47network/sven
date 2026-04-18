@@ -73,3 +73,4 @@ export * from './agent-marketplace-analytics.js';
 export * from './agent-deployment-pipelines.js';
 export * from './agent-billing-invoicing.js';
 export * from './agent-sla-contracts.js';
+export * from './agent-knowledge-base.js';
