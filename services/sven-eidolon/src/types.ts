@@ -33,7 +33,8 @@ export type EidolonBuildingKind =
   | 'integration_hub'
   | 'collaboration_hub'
   | 'analytics_tower'
-  | 'reputation_monument';
+  | 'reputation_monument'
+  | 'council_chamber';
 
 export interface EidolonBuilding {
   id: string;
@@ -228,6 +229,10 @@ export type EidolonEventKind =
   | 'reputation.promoted'
   | 'trust.established'
   | 'badge.awarded'
+  | 'governance.proposal_created'
+  | 'governance.vote_cast'
+  | 'governance.proposal_passed'
+  | 'governance.council_formed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -327,5 +332,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'market';
     case 'reputation_monument':
       return 'market';
+    case 'council_chamber':
+      return 'civic';
   }
 }

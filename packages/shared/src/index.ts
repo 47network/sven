@@ -65,3 +65,4 @@ export * from './integration-agents.js';
 export * from './agent-collaboration.js';
 export * from './revenue-dashboard.js';
 export * from './agent-reputation.js';
+export * from './agent-governance.js';

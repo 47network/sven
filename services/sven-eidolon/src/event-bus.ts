@@ -131,6 +131,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.reputation.promoted': 'reputation.promoted',
   'sven.trust.established': 'trust.established',
   'sven.badge.awarded': 'badge.awarded',
+  'sven.governance.proposal_created': 'governance.proposal_created',
+  'sven.governance.vote_cast': 'governance.vote_cast',
+  'sven.governance.proposal_passed': 'governance.proposal_passed',
+  'sven.governance.council_formed': 'governance.council_formed',
 };
 
 export class EidolonEventBus {

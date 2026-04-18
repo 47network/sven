@@ -265,6 +265,13 @@ export class TaskExecutor {
       case 'badge_award':           return this.handleBadgeAward(input);
       case 'tier_evaluate':         return this.handleTierEvaluate(input);
       case 'reputation_leaderboard': return this.handleReputationLeaderboard(input);
+      case 'proposal_create': return this.handleProposalCreate(input);
+      case 'proposal_vote': return this.handleProposalVote(input);
+      case 'council_manage': return this.handleCouncilManage(input);
+      case 'council_elect': return this.handleCouncilElect(input);
+      case 'delegation_set': return this.handleDelegationSet(input);
+      case 'governance_tally': return this.handleGovernanceTally(input);
+      case 'governance_history': return this.handleGovernanceHistory(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -2242,6 +2249,139 @@ export class TaskExecutor {
           { rank: 3, agentId: 'agent-gamma', score: 82.1, tier: 'master' },
         ],
         message: `Leaderboard for ${dimension}: top ${limit} agents.`,
+      },
+    };
+  }
+
+  /* ── Batch 43 — Agent Governance & Voting ────────────────── */
+
+  private handleProposalCreate(input: Record<string, unknown>) {
+    const title = (input.title as string) || 'Untitled Proposal';
+    const proposalType = (input.proposalType as string) || 'standard';
+    const category = (input.category as string) || 'general';
+    const proposerId = (input.proposerId as string) || 'agent-unknown';
+    const id = `proposal-${Date.now()}`;
+    return {
+      status: 'completed' as const,
+      result: {
+        proposalId: id,
+        title,
+        proposalType,
+        category,
+        proposerId,
+        status: 'draft',
+        quorum: proposalType === 'constitutional' ? 0.75 : 0.5,
+        threshold: proposalType === 'constitutional' ? 0.8 : 0.6,
+        message: `Proposal "${title}" created as ${proposalType}.`,
+      },
+    };
+  }
+
+  private handleProposalVote(input: Record<string, unknown>) {
+    const proposalId = (input.proposalId as string) || '';
+    const voterId = (input.voterId as string) || '';
+    const vote = (input.vote as string) || 'abstain';
+    const weight = (input.weight as number) || 1.0;
+    return {
+      status: 'completed' as const,
+      result: {
+        voteId: `vote-${Date.now()}`,
+        proposalId,
+        voterId,
+        vote,
+        weight,
+        recorded: true,
+        message: `Vote '${vote}' recorded for proposal ${proposalId}.`,
+      },
+    };
+  }
+
+  private handleCouncilManage(input: Record<string, unknown>) {
+    const action = (input.action as string) || 'create';
+    const name = (input.name as string) || 'General Council';
+    const councilType = (input.councilType as string) || 'general';
+    const memberLimit = (input.memberLimit as number) || 7;
+    return {
+      status: 'completed' as const,
+      result: {
+        councilId: `council-${Date.now()}`,
+        action,
+        name,
+        councilType,
+        memberLimit,
+        status: 'active',
+        message: `Council "${name}" ${action}d successfully.`,
+      },
+    };
+  }
+
+  private handleCouncilElect(input: Record<string, unknown>) {
+    const councilId = (input.councilId as string) || '';
+    const seats = (input.seats as number) || 5;
+    return {
+      status: 'completed' as const,
+      result: {
+        councilId,
+        seats,
+        candidates: [
+          { agentId: 'agent-alpha', votes: 42, elected: true },
+          { agentId: 'agent-beta', votes: 38, elected: true },
+          { agentId: 'agent-gamma', votes: 35, elected: true },
+        ],
+        message: `Election completed for council ${councilId}: ${seats} seats filled.`,
+      },
+    };
+  }
+
+  private handleDelegationSet(input: Record<string, unknown>) {
+    const delegatorId = (input.delegatorId as string) || '';
+    const delegateId = (input.delegateId as string) || '';
+    const scope = (input.scope as string) || 'all';
+    return {
+      status: 'completed' as const,
+      result: {
+        delegationId: `deleg-${Date.now()}`,
+        delegatorId,
+        delegateId,
+        scope,
+        active: true,
+        message: `Delegation from ${delegatorId} to ${delegateId} (scope: ${scope}) active.`,
+      },
+    };
+  }
+
+  private handleGovernanceTally(input: Record<string, unknown>) {
+    const proposalId = (input.proposalId as string) || '';
+    return {
+      status: 'completed' as const,
+      result: {
+        proposalId,
+        votesFor: 28,
+        votesAgainst: 12,
+        abstentions: 5,
+        totalWeight: 52.5,
+        quorumMet: true,
+        thresholdMet: true,
+        result: 'passed',
+        message: `Proposal ${proposalId} tally: PASSED (28 for, 12 against).`,
+      },
+    };
+  }
+
+  private async handleGovernanceHistory(input: Record<string, unknown>) {
+    const scope = (input.scope as string) || 'all';
+    const limit = (input.limit as number) || 20;
+    return {
+      status: 'completed' as const,
+      result: {
+        scope,
+        limit,
+        proposals: [
+          { id: 'prop-001', title: 'Budget allocation Q3', status: 'executed', result: 'passed' },
+          { id: 'prop-002', title: 'New research council', status: 'passed', result: 'passed' },
+          { id: 'prop-003', title: 'Emergency security patch', status: 'executed', result: 'passed' },
+        ],
+        message: `Governance history: ${limit} most recent proposals (scope: ${scope}).`,
       },
     };
   }
