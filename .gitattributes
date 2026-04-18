@@ -1,0 +1,90 @@
+# ---------------------------------------------------------------------------
+# .gitattributes — Argentum branch protection
+# ---------------------------------------------------------------------------
+# Files and directories marked `export-ignore` are excluded when creating
+# public release archives. The `argentum-private` attribute marks content
+# that must NEVER appear on the public `sven` branch.
+# ---------------------------------------------------------------------------
+
+# ── Private economy / trading code ─────────────────────────────────────────
+services/sven-treasury/               argentum-private export-ignore
+services/sven-marketplace/            argentum-private export-ignore
+services/sven-eidolon/                argentum-private export-ignore
+services/marketing-intel/             argentum-private export-ignore
+
+# ── Private skills ─────────────────────────────────────────────────────────
+skills/trading/                       argentum-private export-ignore
+skills/autonomous-economy/            argentum-private export-ignore
+
+# ── Private migrations (economy / trading tables) ──────────────────────────
+services/gateway-api/migrations/20260422120000_marketplace_tasks_tokens_goals.sql  argentum-private export-ignore
+services/gateway-api/migrations/20260423120000_agent_business_spaces.sql            argentum-private export-ignore
+services/gateway-api/migrations/20260424120000_agent_crews_oversight.sql            argentum-private export-ignore
+services/gateway-api/migrations/20260425120000_publishing_pipeline.sql              argentum-private export-ignore
+services/gateway-api/migrations/20260426120000_eidolon_world_evolution.sql          argentum-private export-ignore
+services/gateway-api/migrations/20260427060000_misiuni_platform.sql                argentum-private export-ignore
+services/gateway-api/migrations/20260427080000_publishing_v2.sql                   argentum-private export-ignore
+services/gateway-api/migrations/20260429120000_social_media.sql                    argentum-private export-ignore
+services/gateway-api/migrations/20260430120000_xlvii_merch.sql                     argentum-private export-ignore
+services/gateway-api/migrations/20260501120000_llm_council.sql                     argentum-private export-ignore
+services/gateway-api/migrations/20260502120000_persistent_memory.sql               argentum-private export-ignore
+services/gateway-api/migrations/20260503120000_model_fleet.sql                     argentum-private export-ignore
+services/gateway-api/migrations/20260504120000_asi_evolve.sql                      argentum-private export-ignore
+services/gateway-api/migrations/20260505120000_skill_registry.sql                  argentum-private export-ignore
+services/gateway-api/migrations/20260506120000_video_content.sql                   argentum-private export-ignore
+services/gateway-api/migrations/20260507120000_agent_avatars.sql                   argentum-private export-ignore
+services/gateway-api/migrations/20260508120000_micro_training.sql                  argentum-private export-ignore
+
+# ── Private shared types (economy) ─────────────────────────────────────────
+packages/shared/src/marketplace.ts         argentum-private export-ignore
+packages/shared/src/treasury.ts            argentum-private export-ignore
+packages/shared/src/eidolon.ts             argentum-private export-ignore
+packages/shared/src/misiuni.ts             argentum-private export-ignore
+packages/shared/src/xlvii-merch.ts         argentum-private export-ignore
+packages/shared/src/publishing-pipeline.ts argentum-private export-ignore
+packages/shared/src/social-media.ts        argentum-private export-ignore
+packages/shared/src/llm-council.ts         argentum-private export-ignore
+packages/shared/src/persistent-memory.ts   argentum-private export-ignore
+packages/shared/src/model-fleet.ts         argentum-private export-ignore
+packages/shared/src/asi-evolve.ts          argentum-private export-ignore
+packages/shared/src/skill-registry.ts      argentum-private export-ignore
+packages/shared/src/video-content.ts       argentum-private export-ignore
+packages/shared/src/agent-avatars.ts       argentum-private export-ignore
+packages/shared/src/micro-training.ts      argentum-private export-ignore
+
+# ── Private batch tests ────────────────────────────────────────────────────
+services/agent-runtime/src/__tests__/batch7-*.test.ts   argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch8-*.test.ts   argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch10-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch13-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch19-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch20-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch21-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch22-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch23-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch24-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch25-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch26-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch27-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch28-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch29-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch30-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch31-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch32-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch33-*.test.ts  argentum-private export-ignore
+services/agent-runtime/src/__tests__/batch34-*.test.ts  argentum-private export-ignore
+
+# ── Private docker compose profiles ────────────────────────────────────────
+docker-compose.profiles.yml               argentum-private export-ignore
+
+# ── Standard git attributes ────────────────────────────────────────────────
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.js   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.sql  text eol=lf
+*.sh   text eol=lf
+*.lock binary
