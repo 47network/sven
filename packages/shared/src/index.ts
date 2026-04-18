@@ -75,3 +75,4 @@ export * from './agent-billing-invoicing.js';
 export * from './agent-sla-contracts.js';
 export * from './agent-knowledge-base.js';
 export * from './agent-notifications.js';
+export * from './agent-scheduling.js';

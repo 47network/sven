@@ -182,3 +182,6 @@ skills/autonomous-economy/knowledge-base/** export-ignore
 services/gateway-api/migrations/20260525120000_agent_notifications.sql export-ignore
 packages/shared/src/agent-notifications.ts export-ignore
 skills/autonomous-economy/notifications/** export-ignore
+services/gateway-api/migrations/20260526120000_agent_scheduling.sql export-ignore
+packages/shared/src/agent-scheduling.ts export-ignore
+skills/autonomous-economy/scheduling/** export-ignore
