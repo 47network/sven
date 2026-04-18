@@ -73,6 +73,7 @@ import { registerPublishingRoutes } from './publishing.js';
 import { registerEidolonWorldRoutes } from './eidolon-world.js';
 import { registerMisiuniRoutes } from './misiuni.js';
 import { registerPublishingV2Routes } from './publishing-v2.js';
+import { registerSocialMediaRoutes } from './social-media.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
 import { registerAgentTypeRoutes } from './agent-types.js';
 import { registerFederationRoutes } from './federation.js';
@@ -401,6 +402,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerEidolonWorldRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerMisiuniRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerPublishingV2Routes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerSocialMediaRoutes(scopedApp, pool, nc));
     },
     { prefix: '/v1/admin' },
   );

@@ -61,6 +61,11 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.publishing.genre_trend_discovered': 'publishing.genre_trend_discovered',
   'sven.publishing.author_persona_created': 'publishing.author_persona_created',
   'sven.publishing.printer_proposal_submitted': 'publishing.printer_proposal_submitted',
+  'sven.social.account_connected': 'social.account_connected',
+  'sven.social.post_created': 'social.post_created',
+  'sven.social.post_published': 'social.post_published',
+  'sven.social.campaign_started': 'social.campaign_started',
+  'sven.social.engagement_milestone': 'social.engagement_milestone',
 };
 
 export class EidolonEventBus {

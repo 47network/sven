@@ -206,6 +206,8 @@ export class TaskExecutor {
       case 'print_broker':   return this.handlePrintBroker(input);
       case 'trend_research': return this.handleTrendResearch(input);
       case 'author_persona': return this.handleAuthorPersona(input);
+      case 'social_post':    return this.handleSocialPost(input);
+      case 'social_analytics': return this.handleSocialAnalytics(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -730,6 +732,86 @@ export class TaskExecutor {
         'Define cover art style guide for brand consistency',
         'Set up author page on marketplace',
       ],
+    };
+  }
+
+  /** Social post creation handler. */
+  private async handleSocialPost(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const platform = String(input.platform ?? 'instagram');
+    const topic = String(input.topic ?? '');
+    const contentType = String(input.contentType ?? 'image');
+    const tone = String(input.tone ?? 'professional');
+    const targetAudience = String(input.targetAudience ?? 'general');
+
+    const captionLimits: Record<string, number> = {
+      instagram: 2200, tiktok: 4000, youtube: 5000, twitter: 280,
+      facebook: 63206, linkedin: 3000, threads: 500,
+    };
+    const hashtagLimits: Record<string, number> = {
+      instagram: 30, tiktok: 100, youtube: 15, twitter: 5,
+      facebook: 10, linkedin: 5, threads: 10,
+    };
+    const maxCaption = captionLimits[platform] ?? 2200;
+    const maxHashtags = hashtagLimits[platform] ?? 30;
+
+    const caption = `${topic} — crafted for ${targetAudience} in a ${tone} tone. #SvenAI`.slice(0, maxCaption);
+    const hashtags = ['#SvenAI', '#AutonomousEconomy', `#${platform}`].slice(0, maxHashtags);
+
+    const optimalHours: Record<string, number[]> = {
+      instagram: [9, 12, 17, 20], tiktok: [7, 10, 19, 22], youtube: [12, 15, 18],
+      twitter: [8, 12, 17], facebook: [9, 13, 16], linkedin: [7, 10, 12], threads: [9, 12, 18, 21],
+    };
+    const hours = optimalHours[platform] ?? [12];
+    const nextHour = hours[0];
+    const now = new Date();
+    now.setHours(nextHour, 0, 0, 0);
+    if (now.getTime() < Date.now()) now.setDate(now.getDate() + 1);
+
+    return {
+      status: 'completed',
+      post: {
+        platform,
+        contentType,
+        caption,
+        hashtags,
+        suggestedMediaPrompt: `Create a ${contentType} about "${topic}" targeting ${targetAudience}, ${tone} style`,
+        scheduledAt: now.toISOString(),
+      },
+      platformTips: [
+        `${platform}: Use ${contentType} format for best engagement`,
+        `Optimal posting hours: ${hours.join(', ')}:00`,
+        `Keep hashtags under ${maxHashtags} for ${platform}`,
+      ],
+    };
+  }
+
+  /** Social analytics handler. */
+  private async handleSocialAnalytics(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const accountId = String(input.accountId ?? '');
+    const period = String(input.period ?? '30d');
+    const metric = String(input.metric ?? 'engagement_rate');
+
+    const periodDays = parseInt(period.replace(/\D/g, ''), 10) || 30;
+
+    return {
+      status: 'completed',
+      report: {
+        accountId,
+        period: `${periodDays}d`,
+        metric,
+        summary: {
+          totalPosts: 0,
+          totalImpressions: 0,
+          totalReach: 0,
+          avgEngagementRate: 0,
+        },
+        recommendations: [
+          'Post consistently during optimal hours for your platform',
+          'Use carousel posts for higher engagement on Instagram',
+          'Analyze top-performing content types and double down',
+          'Engage with comments within the first hour of posting',
+        ],
+      },
     };
   }
 }

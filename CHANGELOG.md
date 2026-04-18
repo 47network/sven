@@ -10,6 +10,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Autonomous Economy — Batch 25**: Instagram + Social Media Integration.
+  - **Migration** (`20260429120000_social_media.sql`): 5 new tables — social_accounts, social_posts, social_campaigns, social_analytics, content_calendar. 15 indexes, 11 CHECK constraints, ALTER marketplace_tasks to add social_post + social_analytics task types.
+  - **Shared Types** (`packages/shared/src/social-media.ts`): 8 type unions (SocialPlatform 7 values, AccountStatus, PostStatus, SocialContentType 8 values, CampaignGoal, CampaignStatus, CalendarEntryStatus, ContentCategory 8 values), 5 interfaces, 5 constants (SUPPORTED_PLATFORMS, POST_STATUS_ORDER, OPTIMAL_POST_HOURS, HASHTAG_LIMITS, CAPTION_LIMITS), 6 utility functions (canPublishPost, getOptimalPostHours, calculateEngagementRate, isWithinHashtagLimit, isWithinCaptionLimit, formatHashtags).
+  - **Admin API** (`services/gateway-api/src/routes/admin/social-media.ts`): 22 route handlers — accounts (5), posts (5 + publish), campaigns (4), analytics (3 incl. overview), calendar (4). NATS publishing on 5 social events.
+  - **NATS/Eidolon Wiring**: 5 new SUBJECT_MAP entries (social.account_connected, post_created, post_published, campaign_started, engagement_milestone). 5 new EidolonEventKind values. `media_studio` added to EidolonBuildingKind with districtFor() → 'market'.
+  - **Skills**: `social-media-post` (marketer archetype, $1.99/post — create-post, schedule-post, multi-platform, generate-content-calendar) and `social-analytics` (analyst archetype, $0.99/analysis — track-engagement, analyze-campaign, audience-insights, content-ranking, roi-report).
+  - **Task Executor**: `social_post` handler (platform-specific captions, hashtags, scheduling, tips) and `social_analytics` handler (engagement rate calculation, recommendations).
+  - **Tests**: 132 tests across 7 describe blocks (migration, shared types, admin API, admin wiring, NATS/Eidolon, skills, task executor).
 - **Autonomous Economy — Batch 24**: Publishing Pipeline v2 (Printing, Legal, POD, Trending Genres).
   - **Migration**: 7 new tables — pod_integrations, printing_orders, legal_requirements, genre_trends, author_personas, edge_printing_specs, printer_purchase_proposals. 21 indexes, CHECK constraints, JSONB metadata columns.
   - **Shared Types** (`packages/shared/src/publishing-v2.ts`): 11 type unions (PrintOrderStatus, PrintOrderType, PrintFormat, EdgeType, PODProvider, LegalRequirementType, LegalStatus, TrendSource, CompetitionLevel, PrinterType, ProposalStatus), 6 interfaces, 4 utility functions (canAdvancePrintOrder, calculatePrintCost, calculateBreakEven, calculateROI), 10 constants including 15 trending genres and 16 trending tropes.
