@@ -13,7 +13,8 @@ export type EidolonBuildingKind =
   | 'infra_node'
   | 'treasury_vault'
   | 'agent_business'
-  | 'crew_headquarters';
+  | 'crew_headquarters'
+  | 'publishing_house';
 
 export interface EidolonBuilding {
   id: string;
@@ -119,6 +120,10 @@ export type EidolonEventKind =
   | 'agent.report_generated'
   | 'oversight.command_issued'
   | 'agent.message_sent'
+  | 'publishing.project_created'
+  | 'publishing.stage_advanced'
+  | 'publishing.review_submitted'
+  | 'publishing.book_published'
   | 'infra.node_change'
   | 'heartbeat';
 
@@ -179,5 +184,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'market';
     case 'crew_headquarters':
       return 'market'; // default; overridden per crew type in repo.ts
+    case 'publishing_house':
+      return 'market';
   }
 }

@@ -69,6 +69,7 @@ import { registerCrewManagementRoutes } from './crew-management.js';
 import { registerAccountantRoutes } from './accountant.js';
 import { registerOversightDashboardRoutes } from './oversight-dashboard.js';
 import { registerAgentMessagingRoutes } from './agent-messaging.js';
+import { registerPublishingRoutes } from './publishing.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
 import { registerAgentTypeRoutes } from './agent-types.js';
 import { registerFederationRoutes } from './federation.js';
@@ -393,6 +394,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerAccountantRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerOversightDashboardRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerAgentMessagingRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerPublishingRoutes(scopedApp, pool, nc));
     },
     { prefix: '/v1/admin' },
   );

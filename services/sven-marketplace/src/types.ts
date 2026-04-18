@@ -2,7 +2,7 @@
 // Sven Marketplace — shared types
 // ---------------------------------------------------------------------------
 
-export type ListingKind = 'skill_api' | 'digital_good' | 'service' | 'dataset' | 'model';
+export type ListingKind = 'skill_api' | 'digital_good' | 'service' | 'dataset' | 'model' | 'published_book';
 export type PricingModel = 'one_time' | 'per_call' | 'subscription' | 'usage_based';
 export type ListingStatus = 'draft' | 'published' | 'paused' | 'retired';
 export type OrderStatus = 'pending' | 'paid' | 'fulfilled' | 'refunded' | 'failed' | 'cancelled';
