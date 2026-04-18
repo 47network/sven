@@ -68,3 +68,4 @@ export * from './agent-reputation.js';
 export * from './agent-governance.js';
 export * from './agent-health-lifecycle.js';
 export * from './agent-task-queue.js';
+export * from './agent-workflow-automation.js';
