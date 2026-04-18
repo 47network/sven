@@ -48,6 +48,7 @@ export default function ChatSearchBar({
                     type="button"
                     className="rounded-md p-1.5 text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
                     title="Previous match (Shift+Enter)"
+                    aria-label="Previous match"
                     onClick={onPrev}
                     disabled={resultCount === 0}
                 >
@@ -57,6 +58,7 @@ export default function ChatSearchBar({
                     type="button"
                     className="rounded-md p-1.5 text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
                     title="Next match (Enter)"
+                    aria-label="Next match"
                     onClick={onNext}
                     disabled={resultCount === 0}
                 >
@@ -67,6 +69,7 @@ export default function ChatSearchBar({
                         type="button"
                         className="rounded-md p-1.5 text-[var(--fg-muted)] hover:bg-slate-100 dark:hover:bg-slate-800"
                         title="Close search"
+                        aria-label="Close search"
                         onClick={onClose}
                     >
                         <X className="h-4 w-4" />
