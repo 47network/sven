@@ -188,3 +188,6 @@ skills/autonomous-economy/scheduling/** export-ignore
 services/gateway-api/migrations/20260527120000_agent_resource_management.sql export-ignore
 packages/shared/src/agent-resource-management.ts export-ignore
 skills/autonomous-economy/resource-management/** export-ignore
+services/gateway-api/migrations/20260528120000_agent_compliance_audit.sql export-ignore
+packages/shared/src/agent-compliance-audit.ts export-ignore
+skills/autonomous-economy/compliance-audit/** export-ignore

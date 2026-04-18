@@ -77,3 +77,4 @@ export * from './agent-knowledge-base.js';
 export * from './agent-notifications.js';
 export * from './agent-scheduling.js';
 export * from './agent-resource-management.js';
+export * from './agent-compliance-audit.js';
