@@ -11,7 +11,8 @@ export type EidolonBuildingKind =
   | 'marketplace_listing'
   | 'revenue_service'
   | 'infra_node'
-  | 'treasury_vault';
+  | 'treasury_vault'
+  | 'agent_business';
 
 export interface EidolonBuilding {
   id: string;
@@ -108,6 +109,9 @@ export type EidolonEventKind =
   | 'agent.parcel_acquired'
   | 'goal.progress'
   | 'goal.completed'
+  | 'agent.business_created'
+  | 'agent.business_activated'
+  | 'agent.business_deactivated'
   | 'infra.node_change'
   | 'heartbeat';
 

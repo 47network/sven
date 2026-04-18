@@ -27,7 +27,19 @@ interface SpawnRequest {
   listingTitle?: string;
   listingPrice?: number;
   metadata?: Record<string, unknown>;
+  businessSubdomain?: string;
+  businessTagline?: string;
+  businessLandingType?: 'storefront' | 'portfolio' | 'api_explorer' | 'service_page';
 }
+
+const SUBDOMAIN_REGEX = /^[a-z0-9]([a-z0-9-]{1,38}[a-z0-9])?$/;
+const RESERVED_SUBDOMAINS = new Set([
+  'admin', 'api', 'app', 'auth', 'blog', 'cdn', 'dev', 'docs', 'eidolon',
+  'ftp', 'git', 'grafana', 'help', 'internal', 'mail', 'market', 'metrics',
+  'misiuni', 'monitor', 'nats', 'ns1', 'ns2', 'portal', 'proxy', 'staging',
+  'status', 'support', 'test', 'vpn', 'wiki', 'www',
+]);
+const VALID_LANDING_TYPES = ['storefront', 'portfolio', 'api_explorer', 'service_page'] as const;
 
 const ARCHETYPE_LISTING_DEFAULTS: Record<string, {
   kind: string; pricingModel: string; price: number; title: (name: string) => string;
@@ -141,15 +153,56 @@ export function registerAgentSpawnerRoutes(
         ],
       );
 
+      // 5. Optional: create business space if subdomain provided
+      let businessSubdomain: string | null = null;
+      let businessUrl: string | null = null;
+      if (body.businessSubdomain?.trim()) {
+        const sub = body.businessSubdomain.trim().toLowerCase();
+        if (!SUBDOMAIN_REGEX.test(sub)) {
+          await client.query('ROLLBACK');
+          return reply.status(400).send({ success: false, error: { code: 'INVALID_SUBDOMAIN', message: 'Invalid subdomain format' } });
+        }
+        if (RESERVED_SUBDOMAINS.has(sub)) {
+          await client.query('ROLLBACK');
+          return reply.status(400).send({ success: false, error: { code: 'RESERVED_SUBDOMAIN', message: `"${sub}" is reserved` } });
+        }
+        businessSubdomain = sub;
+        businessUrl = `https://${sub}.from.sven.systems`;
+        const landingType = body.businessLandingType && VALID_LANDING_TYPES.includes(body.businessLandingType)
+          ? body.businessLandingType : 'storefront';
+
+        await client.query(
+          `UPDATE agent_profiles
+           SET business_subdomain = $1, business_url = $2, business_status = 'pending',
+               business_landing_type = $3, business_tagline = $4, updated_at = NOW()
+           WHERE agent_id = $5`,
+          [businessSubdomain, businessUrl, landingType, body.businessTagline ?? null, agentId],
+        );
+
+        const bepId = `bep-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        await client.query(
+          `INSERT INTO agent_business_endpoints (id, agent_id, business_subdomain, status)
+           VALUES ($1, $2, $3, 'pending')`,
+          [bepId, agentId, businessSubdomain],
+        );
+      }
+
       await client.query('COMMIT');
 
-      logger.info('Agent spawned', { agentId, archetype: body.archetype, automatonId, listingId });
+      logger.info('Agent spawned', { agentId, archetype: body.archetype, automatonId, listingId, businessSubdomain });
 
       publishNats(natsConn, 'sven.agent.spawned', {
         agentId, automatonId, archetype: body.archetype,
         displayName: body.displayName.trim(), profileId,
         treasuryAccountId, listingId,
+        businessSubdomain, businessUrl,
       });
+
+      if (businessSubdomain) {
+        publishNats(natsConn, 'sven.agent.business_created', {
+          agentId, subdomain: businessSubdomain, businessUrl,
+        });
+      }
 
       return reply.status(201).send({
         success: true,
@@ -161,6 +214,8 @@ export function registerAgentSpawnerRoutes(
           listingId,
           archetype: body.archetype,
           displayName: body.displayName.trim(),
+          businessSubdomain,
+          businessUrl,
         },
       });
     } catch (err) {

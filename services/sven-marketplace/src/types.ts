@@ -69,4 +69,7 @@ export interface Fulfillment {
   createdAt: string;
 }
 
+export type BusinessSpaceStatus = 'inactive' | 'pending' | 'active' | 'suspended';
+export type BusinessLandingType = 'storefront' | 'portfolio' | 'api_explorer' | 'service_page';
+
 export const PLATFORM_FEE_PCT = Number(process.env.MARKETPLACE_PLATFORM_FEE_PCT || 5);

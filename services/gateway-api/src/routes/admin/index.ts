@@ -64,6 +64,7 @@ import { registerAutomatonRoutes } from './automatons.js';
 import { registerAgentSpawnerRoutes } from './agent-spawner.js';
 import { registerRevenueGoalRoutes } from './revenue-goals.js';
 import { registerAgentProfileRoutes } from './agent-profiles.js';
+import { registerBusinessSpaceRoutes } from './business-spaces.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
 import { registerAgentTypeRoutes } from './agent-types.js';
 import { registerFederationRoutes } from './federation.js';
@@ -383,6 +384,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerAgentProfileRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerAgentSpawnerRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerRevenueGoalRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerBusinessSpaceRoutes(scopedApp, pool, nc));
     },
     { prefix: '/v1/admin' },
   );

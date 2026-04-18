@@ -33,6 +33,9 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.agent.parcel_acquired': 'agent.parcel_acquired',
   'sven.goal.progress': 'goal.progress',
   'sven.goal.completed': 'goal.completed',
+  'sven.agent.business_created': 'agent.business_created',
+  'sven.agent.business_activated': 'agent.business_activated',
+  'sven.agent.business_deactivated': 'agent.business_deactivated',
   'sven.infra.node_change': 'infra.node_change',
 };
 

@@ -23,17 +23,19 @@ export class EidolonRepository {
   constructor(private readonly pool: Pool) {}
 
   async getSnapshot(orgId: string): Promise<EidolonSnapshot> {
-    const [listings, services, nodes, treasury] = await Promise.all([
+    const [listings, services, nodes, treasury, businessSpaces] = await Promise.all([
       this.fetchListings(orgId),
       this.fetchRevenueServices(orgId),
       this.fetchInfraNodes(orgId),
       this.fetchTreasurySummary(orgId),
+      this.fetchBusinessBuildings(orgId),
     ]);
 
     const buildings: EidolonBuilding[] = [
       ...listings,
       ...services,
       ...nodes,
+      ...businessSpaces,
       this.buildTreasuryVault(treasury),
     ];
 
@@ -182,6 +184,55 @@ export class EidolonRepository {
         glow: status === 'ok' ? Math.min(1, (cpuPct ?? 0) / 100) : 0,
         status,
         metrics: { cpuPct: cpuPct ?? undefined, memPct: memPct ?? undefined },
+      };
+    });
+  }
+
+  // ---- Agent business spaces (*.from.sven.systems) ----
+
+  private async fetchBusinessBuildings(orgId: string): Promise<EidolonBuilding[]> {
+    const existsRes = await this.pool.query<{ exists: boolean }>(
+      `SELECT EXISTS (
+         SELECT 1 FROM information_schema.tables
+         WHERE table_schema = 'public' AND table_name = 'agent_business_endpoints'
+       ) AS exists`,
+    );
+    if (!existsRes.rows[0]?.exists) return [];
+
+    const { rows } = await this.pool.query<{
+      agent_id: string;
+      display_name: string;
+      business_subdomain: string;
+      total_requests: string;
+      endpoint_status: string;
+    }>(
+      `SELECT ap.agent_id, ap.display_name, ap.business_subdomain,
+              be.total_requests, be.status AS endpoint_status
+       FROM agent_profiles ap
+       JOIN agent_business_endpoints be ON be.agent_id = ap.agent_id
+       WHERE ap.org_id = $1 AND ap.business_status = 'active'
+       ORDER BY be.total_requests DESC
+       LIMIT 100`,
+      [orgId],
+    );
+
+    return rows.map((r) => {
+      const requests = Number(r.total_requests) || 0;
+      const status: EidolonBuilding['status'] =
+        r.endpoint_status === 'healthy' ? 'ok'
+        : r.endpoint_status === 'degraded' ? 'degraded'
+        : r.endpoint_status === 'down' ? 'down'
+        : 'idle';
+      return {
+        id: `biz:${r.agent_id}`,
+        kind: 'agent_business' as const,
+        label: safeLabel(`${r.display_name} (${r.business_subdomain}.from.sven.systems)`),
+        district: districtFor('marketplace_listing'),
+        position: positionFor(r.agent_id, districtFor('marketplace_listing')),
+        height: Math.min(60, 10 + Math.log10(1 + requests) * 8),
+        glow: status === 'ok' ? 1.0 : status === 'degraded' ? 0.3 : 0,
+        status,
+        metrics: { totalRequests: requests },
       };
     });
   }

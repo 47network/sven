@@ -30,9 +30,21 @@ function resolveOrigin(opts: CorsOptions): string | string[] {
   return '*';
 }
 
+// Trusted domain suffixes — any subdomain under these is auto-allowed
+const TRUSTED_SUFFIXES = ['.sven.systems', '.the47network.com'];
+
 function isOriginAllowed(requestOrigin: string | undefined, allowed: string | string[]): boolean {
   if (!requestOrigin) return false;
   if (allowed === '*') return true;
+
+  // Suffix-based matching for trusted platform domains
+  try {
+    const host = new URL(requestOrigin).hostname;
+    for (const suffix of TRUSTED_SUFFIXES) {
+      if (host === suffix.slice(1) || host.endsWith(suffix)) return true;
+    }
+  } catch { /* malformed origin — fall through to exact match */ }
+
   if (typeof allowed === 'string') return requestOrigin === allowed;
   return allowed.includes(requestOrigin);
 }

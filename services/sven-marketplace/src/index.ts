@@ -97,6 +97,10 @@ async function main() {
   registerCheckoutRoutes(app, repo);
   await registerMarketEconomyRoutes(app, pool);
 
+  // Business landing pages — public JSON API for *.from.sven.systems
+  const { registerBusinessLandingRoutes } = await import('./routes/business-landing.js');
+  registerBusinessLandingRoutes(app, pool);
+
   // Webhook routes need raw body for Stripe signature verification.
   // Encapsulated plugin scope gets its own content type parser without
   // affecting the main app's JSON parsing.
