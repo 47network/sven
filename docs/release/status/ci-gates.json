@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-04-18T21:10:27.378Z",
-  "source_branch": "main",
-  "source_head_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc",
+  "generated_at": "2026-04-18T21:12:11.024Z",
+  "source_branch": "sentinel-fix-port-exposure-15449168101171298006",
+  "source_head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-18T21:10:03.869Z",
-    "branch": "main",
-    "total_runs": 1000
+    "captured_at": "2026-04-18T21:12:10.092Z",
+    "branch": "sentinel-fix-port-exposure-15449168101171298006",
+    "total_runs": 31
   },
-  "final_dod_ci": false,
+  "final_dod_ci": true,
   "parity_e2e_ci": false,
   "parity_checklist_verify_ci": false,
   "agent_zero_parity_verify_ci": true,
@@ -18,12 +18,12 @@
   "multi_device_validation_ci": false,
   "d9_keycloak_interop_ci": true,
   "release_ops_drill_ci": true,
-  "mobile_auth_session_smoke_ci": false,
+  "mobile_auth_session_smoke_ci": true,
   "mobile_release_readiness_ci": false,
   "backup_restore_api_ci": false,
   "flutter_user_app_device_farm_ci": true,
   "desktop_release_ci": false,
-  "ui_e2e_ci": true,
+  "ui_e2e_ci": false,
   "mobile_coverage_gate_ci": false,
   "csrf_auth_e2e_ci": false,
   "client_env_governance_ci": true,
@@ -37,23 +37,22 @@
   "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "main",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "run_id": 24613969615,
+      "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+      "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -61,13 +60,13 @@
       "workflow_name": "parity-e2e",
       "matched_target_sha": false,
       "gate_key": "parity_e2e_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -81,7 +80,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": "pass",
       "conclusion": "success",
@@ -91,12 +90,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-18T21:10:01.209Z"
+      "generated_at": "2026-04-18T21:12:07.793Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -111,7 +110,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -121,12 +120,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-18T21:10:02.398Z"
+      "generated_at": "2026-04-18T21:12:08.714Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -136,12 +135,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-18T21:10:03.565Z"
+      "generated_at": "2026-04-18T21:12:09.668Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -156,7 +155,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -169,7 +168,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -181,23 +180,22 @@
       "previous_gate_value": true
     },
     "mobile_auth_session_smoke_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "main",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "run_id": 24613969619,
+      "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310875,
       "workflow_name": "mobile-auth-session-smoke",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+      "decision": "target_sha_completed_run"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -211,7 +209,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -225,7 +223,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -238,7 +236,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -250,22 +248,23 @@
       "previous_gate_value": false
     },
     "ui_e2e_ci": {
-      "run_id": 24613927187,
-      "head_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc",
-      "head_branch": "main",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "run_id": null,
+      "head_sha": null,
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310896,
       "workflow_name": "ui-e2e-accessibility",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "ui_e2e_accessibility_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -279,7 +278,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -291,9 +290,9 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24613927191,
-      "head_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc",
-      "head_branch": "main",
+      "run_id": 24613969614,
+      "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": "push",
       "status": "completed",
       "conclusion": "success",
@@ -306,7 +305,7 @@
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -320,7 +319,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -334,7 +333,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -346,18 +345,17 @@
       "previous_gate_value": false
     },
     "ops_shell_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "main",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "run_id": 24613970596,
+      "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310883,
       "workflow_name": "ops-shell-ci",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "ops_shell_ci",
       "decision": "not_required_scope_clean",
-      "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc",
       "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
@@ -374,7 +372,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -388,7 +386,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -400,10 +398,10 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24613927197,
-      "head_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc",
-      "head_branch": "main",
-      "event": "push",
+      "run_id": 24613970588,
+      "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+      "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+      "event": "pull_request",
       "status": "in_progress",
       "conclusion": null,
       "workflow_id": 261310894,
@@ -440,20 +438,19 @@
   },
   "required_workflow_gates": {
     "final-dod-e2e": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "main",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24613969615,
+        "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "final_dod_e2e_ci"
     },
@@ -462,7 +459,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -470,8 +467,8 @@
         "workflow_name": "parity-e2e",
         "matched_target_sha": false,
         "gate_key": "parity_e2e_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -480,7 +477,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -488,8 +485,8 @@
         "workflow_name": "d9-keycloak-interop-gate",
         "matched_target_sha": false,
         "gate_key": "d9_keycloak_interop_gate_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "d9_keycloak_interop_gate_ci"
     },
@@ -498,7 +495,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -512,20 +509,19 @@
       "gate_key": "release_ops_drill_ci"
     },
     "mobile-auth-session-smoke": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "main",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24613969619,
+        "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310875,
         "workflow_name": "mobile-auth-session-smoke",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
@@ -534,7 +530,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -552,7 +548,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -566,19 +562,20 @@
       "gate_key": "desktop_tauri_release_ci"
     },
     "ui-e2e-accessibility": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24613927187,
-        "head_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc",
-        "head_branch": "main",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310896,
         "workflow_name": "ui-e2e-accessibility",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "ui_e2e_accessibility_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "ui_e2e_accessibility_ci"
     },
@@ -587,7 +584,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -595,17 +592,17 @@
         "workflow_name": "gateway-coverage-gate",
         "matched_target_sha": false,
         "gate_key": "gateway_coverage_gate_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "gateway_coverage_gate_ci"
     },
     "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24613927191,
-        "head_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc",
-        "head_branch": "main",
+        "run_id": 24613969614,
+        "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": "push",
         "status": "completed",
         "conclusion": "success",
@@ -620,9 +617,9 @@
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24613927200,
-        "head_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc",
-        "head_branch": "main",
+        "run_id": 24613969608,
+        "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": "push",
         "status": "in_progress",
         "conclusion": null,
@@ -636,30 +633,29 @@
       "gate_key": "deployment_pipeline_ci"
     },
     "env-secrets-governance": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "main",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24613969607,
+        "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310862,
         "workflow_name": "env-secrets-governance",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "env_secrets_governance_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
       "pass": false,
       "provenance": {
-        "run_id": 24613927197,
-        "head_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc",
-        "head_branch": "main",
-        "event": "push",
+        "run_id": 24613970588,
+        "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+        "event": "pull_request",
         "status": "in_progress",
         "conclusion": null,
         "workflow_id": 261310894,
@@ -676,7 +672,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -690,56 +686,54 @@
       "gate_key": "onboarding_readiness_ci"
     },
     "release-status": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "main",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24613969611,
+        "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310891,
         "workflow_name": "release-status",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "release_status_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "release_status_ci"
     },
     "release-supply-chain": {
       "pass": false,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "main",
-        "event": null,
-        "status": null,
+        "run_id": 24613969616,
+        "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+        "event": "push",
+        "status": "in_progress",
         "conclusion": null,
         "workflow_id": 261310893,
         "workflow_name": "release-supply-chain",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "release_supply_chain_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+        "decision": "pending_non_final_target_sha",
+        "previous_gate_value": false
       },
       "gate_key": "release_supply_chain_ci"
     },
     "ops-shell-ci": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "main",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24613970596,
+        "head_sha": "825fa29d3a63ce87f0959ae4571ee2757a792361",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310883,
         "workflow_name": "ops-shell-ci",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "ops_shell_ci_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "ops_shell_ci_ci"
     },
@@ -748,7 +742,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -766,7 +760,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "sentinel-fix-port-exposure-15449168101171298006",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -774,8 +768,8 @@
         "workflow_name": "gateway-bridge-contract-tests",
         "matched_target_sha": false,
         "gate_key": "gateway_bridge_contract_tests_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "1f40585c8ca3259be3b314ad4db44b5d44c16bcc"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "gateway_bridge_contract_tests_ci"
     }
