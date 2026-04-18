@@ -24,7 +24,8 @@ export type EidolonBuildingKind =
   | 'gpu_cluster'
   | 'evolution_lab'
   | 'skill_academy'
-  | 'video_studio';
+  | 'video_studio'
+  | 'avatar_gallery';
 
 export interface EidolonBuilding {
   id: string;
@@ -183,6 +184,10 @@ export type EidolonEventKind =
   | 'video.render_completed'
   | 'video.template_created'
   | 'video.spec_generated'
+  | 'identity.avatar_created'
+  | 'identity.trait_evolved'
+  | 'identity.mood_changed'
+  | 'identity.item_acquired'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -264,5 +269,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'infrastructure';
     case 'video_studio':
       return 'market';
+    case 'avatar_gallery':
+      return 'residential';
   }
 }

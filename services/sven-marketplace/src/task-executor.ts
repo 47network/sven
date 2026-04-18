@@ -227,6 +227,9 @@ export class TaskExecutor {
       case 'video_create':      return this.handleVideoCreate(input);
       case 'video_render':      return this.handleVideoRender(input);
       case 'video_preview':     return this.handleVideoPreview(input);
+      case 'avatar_customize':  return this.handleAvatarCustomize(input);
+      case 'trait_evolve':      return this.handleTraitEvolve(input);
+      case 'mood_update':       return this.handleMoodUpdate(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -1409,19 +1412,71 @@ export class TaskExecutor {
     };
   }
 
-  /** Generate a low-resolution preview / thumbnail for a video spec. */
-  private async handleVideoPreview(input: Record<string, unknown>) {
-    const specId = (input.specId as string) ?? '';
-    const frameIndex = (input.frameIndex as number) ?? 0;
+  /** Customize an agent's avatar appearance. */
+  private async handleAvatarCustomize(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) ?? '';
+    const style = (input.style as string) ?? 'cyberpunk';
+    const form = (input.form as string) ?? 'orb';
+    const colorPrimary = (input.colorPrimary as string) ?? '#6366f1';
     return {
       status: 'completed',
       output: {
-        specId,
-        frameIndex,
-        previewUrl: `/previews/${specId}/frame-${frameIndex}.jpg`,
-        width: 320,
-        height: 180,
-        generatedAt: new Date().toISOString(),
+        agentId,
+        style,
+        form,
+        colorPrimary,
+        glowIntensity: 50,
+        animationSet: 'default',
+        accessories: [],
+        updatedAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  /** Evolve an agent's personality trait based on activity. */
+  private async handleTraitEvolve(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) ?? '';
+    const traitName = (input.traitName as string) ?? 'curiosity';
+    const trigger = (input.trigger as string) ?? 'task_completion';
+    const previousScore = 50;
+    const delta = 5;
+    return {
+      status: 'completed',
+      output: {
+        agentId,
+        traitName,
+        previousScore,
+        newScore: previousScore + delta,
+        delta,
+        trigger,
+        trend: 'rising',
+        evolvedAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  /** Update an agent's mood based on current activity levels. */
+  private async handleMoodUpdate(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) ?? '';
+    const tasksCompleted = (input.tasksCompleted as number) ?? 0;
+    const tasksFailed = (input.tasksFailed as number) ?? 0;
+    const hoursActive = (input.hoursActive as number) ?? 0;
+    let mood = 'neutral';
+    if (hoursActive > 16) mood = 'tired';
+    else if (tasksFailed > tasksCompleted) mood = 'stressed';
+    else if (tasksCompleted > 10) mood = 'excited';
+    else if (tasksCompleted > 5) mood = 'happy';
+    else if (hoursActive > 8) mood = 'focused';
+    return {
+      status: 'completed',
+      output: {
+        agentId,
+        mood,
+        tasksCompleted,
+        tasksFailed,
+        hoursActive,
+        glowIntensity: Math.min(100, 50 + tasksCompleted * 10),
+        updatedAt: new Date().toISOString(),
       },
     };
   }

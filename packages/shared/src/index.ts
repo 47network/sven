@@ -56,3 +56,4 @@ export * from './model-fleet.js';
 export * from './asi-evolve.js';
 export * from './skill-registry.js';
 export * from './video-content.js';
+export * from './agent-avatars.js';
