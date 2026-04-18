@@ -69,7 +69,8 @@ export type EidolonBuildingKind =
   | 'cost_center'
   | 'tenant_hub'
   | 'incident_center'
-  | 'queue_exchange';
+  | 'queue_exchange'
+  | 'session_hub';
 
 export interface EidolonBuilding {
   id: string;
@@ -412,6 +413,10 @@ export type EidolonEventKind =
   | 'queue.message_enqueued'
   | 'queue.message_completed'
   | 'queue.consumer_registered'
+  | 'session.started'
+  | 'session.handoff_initiated'
+  | 'session.expired'
+  | 'session.analytics_recorded'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -563,6 +568,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'tenant_hub':
     case 'incident_center':
     case 'queue_exchange':
+    case 'session_hub':
       return 'civic';
   }
 }

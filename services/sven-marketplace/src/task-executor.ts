@@ -530,6 +530,13 @@ export class TaskExecutor {
       case 'queue_register_consumer': return this.handleQueueRegisterConsumer(task);
       case 'queue_schedule': return this.handleQueueSchedule(task);
       case 'queue_report': return this.handleQueueReport(task);
+      case 'session_create': return this.handleSessionCreate(task);
+      case 'session_message': return this.handleSessionMessage(task);
+      case 'session_manage_context': return this.handleSessionManageContext(task);
+      case 'session_handoff': return this.handleSessionHandoff(task);
+      case 'session_suspend': return this.handleSessionSuspend(task);
+      case 'session_resume': return this.handleSessionResume(task);
+      case 'session_report': return this.handleSessionReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -5086,6 +5093,35 @@ export class TaskExecutor {
 
   private handleQueueReport(task: any): any {
     return { ok: true, handler: 'queue_report', totalQueues: 0, totalMessages: 0, throughput: 0, avgLatencyMs: 0, dlqCount: 0 };
+  }
+
+
+  private handleSessionCreate(task: any): any {
+    return { ok: true, handler: 'session_create', sessionId: `sess-${Date.now()}`, agentId: task.input?.agentId, channel: task.input?.channel || 'api', status: 'active' };
+  }
+
+  private handleSessionMessage(task: any): any {
+    return { ok: true, handler: 'session_message', messageId: `msg-${Date.now()}`, sessionId: task.input?.sessionId, role: task.input?.role || 'user', tokenCount: 0 };
+  }
+
+  private handleSessionManageContext(task: any): any {
+    return { ok: true, handler: 'session_manage_context', contextId: `ctx-${Date.now()}`, sessionId: task.input?.sessionId, contextType: task.input?.contextType, tokenImpact: 0 };
+  }
+
+  private handleSessionHandoff(task: any): any {
+    return { ok: true, handler: 'session_handoff', handoffId: `ho-${Date.now()}`, fromSessionId: task.input?.fromSessionId, toAgentId: task.input?.toAgentId, status: 'pending' };
+  }
+
+  private handleSessionSuspend(task: any): any {
+    return { ok: true, handler: 'session_suspend', sessionId: task.input?.sessionId, status: 'suspended', savedAt: new Date().toISOString() };
+  }
+
+  private handleSessionResume(task: any): any {
+    return { ok: true, handler: 'session_resume', sessionId: task.input?.sessionId, status: 'active', resumedAt: new Date().toISOString() };
+  }
+
+  private handleSessionReport(task: any): any {
+    return { ok: true, handler: 'session_report', totalSessions: 0, avgDurationMs: 0, avgTokens: 0, handoffRate: 0, satisfactionAvg: 0 };
   }
 
 }
