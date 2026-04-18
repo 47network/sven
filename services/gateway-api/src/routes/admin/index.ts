@@ -65,6 +65,10 @@ import { registerAgentSpawnerRoutes } from './agent-spawner.js';
 import { registerRevenueGoalRoutes } from './revenue-goals.js';
 import { registerAgentProfileRoutes } from './agent-profiles.js';
 import { registerBusinessSpaceRoutes } from './business-spaces.js';
+import { registerCrewManagementRoutes } from './crew-management.js';
+import { registerAccountantRoutes } from './accountant.js';
+import { registerOversightDashboardRoutes } from './oversight-dashboard.js';
+import { registerAgentMessagingRoutes } from './agent-messaging.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
 import { registerAgentTypeRoutes } from './agent-types.js';
 import { registerFederationRoutes } from './federation.js';
@@ -385,6 +389,10 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerAgentSpawnerRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerRevenueGoalRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerBusinessSpaceRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerCrewManagementRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerAccountantRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerOversightDashboardRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerAgentMessagingRoutes(scopedApp, pool, nc));
     },
     { prefix: '/v1/admin' },
   );

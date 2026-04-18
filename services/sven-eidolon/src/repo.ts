@@ -9,6 +9,7 @@
 import type { Pool } from 'pg';
 import {
   districtFor,
+  type District,
   type EidolonBuilding,
   type EidolonCitizen,
   type EidolonSnapshot,
@@ -23,12 +24,13 @@ export class EidolonRepository {
   constructor(private readonly pool: Pool) {}
 
   async getSnapshot(orgId: string): Promise<EidolonSnapshot> {
-    const [listings, services, nodes, treasury, businessSpaces] = await Promise.all([
+    const [listings, services, nodes, treasury, businessSpaces, crewHQs] = await Promise.all([
       this.fetchListings(orgId),
       this.fetchRevenueServices(orgId),
       this.fetchInfraNodes(orgId),
       this.fetchTreasurySummary(orgId),
       this.fetchBusinessBuildings(orgId),
+      this.fetchCrewBuildings(orgId),
     ]);
 
     const buildings: EidolonBuilding[] = [
@@ -36,6 +38,7 @@ export class EidolonRepository {
       ...services,
       ...nodes,
       ...businessSpaces,
+      ...crewHQs,
       this.buildTreasuryVault(treasury),
     ];
 
@@ -237,6 +240,52 @@ export class EidolonRepository {
     });
   }
 
+  // ---- Agent crew headquarters ----
+
+  private async fetchCrewBuildings(orgId: string): Promise<EidolonBuilding[]> {
+    const existsRes = await this.pool.query<{ exists: boolean }>(
+      `SELECT EXISTS (
+         SELECT 1 FROM information_schema.tables
+         WHERE table_schema = 'public' AND table_name = 'agent_crews'
+       ) AS exists`,
+    );
+    if (!existsRes.rows[0]?.exists) return [];
+
+    const { rows } = await this.pool.query<{
+      id: string;
+      name: string;
+      crew_type: string;
+      status: string;
+      member_count: string;
+    }>(
+      `SELECT ac.id, ac.name, ac.crew_type, ac.status,
+              COUNT(acm.agent_id)::text AS member_count
+       FROM agent_crews ac
+       LEFT JOIN agent_crew_members acm ON acm.crew_id = ac.id
+       WHERE ac.org_id = $1 AND ac.status IN ('active','suspended')
+       GROUP BY ac.id, ac.name, ac.crew_type, ac.status
+       ORDER BY ac.name
+       LIMIT 50`,
+      [orgId],
+    );
+
+    return rows.map((r) => {
+      const members = Number(r.member_count) || 0;
+      const district = crewTypeToDistrict(r.crew_type);
+      return {
+        id: `crew:${r.id}`,
+        kind: 'crew_headquarters' as const,
+        label: safeLabel(`${r.name} (${members} members)`),
+        district,
+        position: positionFor(r.id, district),
+        height: Math.min(80, 20 + members * 8),
+        glow: r.status === 'active' ? 1.0 : 0.0,
+        status: r.status === 'active' ? 'ok' : 'idle',
+        metrics: { memberCount: members },
+      };
+    });
+  }
+
   private buildTreasuryVault(treasury: EidolonTreasurySummary): EidolonBuilding {
     return {
       id: 'treasury:vault',
@@ -416,4 +465,17 @@ function numericFromResources(
   if (typeof v === 'number' && Number.isFinite(v)) return v;
   if (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v))) return Number(v);
   return null;
+}
+
+const CREW_DISTRICT_MAP: Record<string, District> = {
+  publishing: 'market',
+  research: 'revenue',
+  operations: 'infra',
+  marketing: 'market',
+  legal_compliance: 'treasury',
+  custom: 'revenue',
+};
+
+function crewTypeToDistrict(crewType: string): District {
+  return CREW_DISTRICT_MAP[crewType] ?? 'revenue';
 }

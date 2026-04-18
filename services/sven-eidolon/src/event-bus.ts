@@ -36,6 +36,12 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.agent.business_created': 'agent.business_created',
   'sven.agent.business_activated': 'agent.business_activated',
   'sven.agent.business_deactivated': 'agent.business_deactivated',
+  'sven.crew.created': 'crew.created',
+  'sven.crew.member_added': 'crew.member_added',
+  'sven.agent.anomaly_detected': 'agent.anomaly_detected',
+  'sven.agent.report_generated': 'agent.report_generated',
+  'sven.oversight.command_issued': 'oversight.command_issued',
+  'sven.agent.message_sent': 'agent.message_sent',
   'sven.infra.node_change': 'infra.node_change',
 };
 

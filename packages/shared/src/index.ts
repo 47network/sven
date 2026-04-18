@@ -43,3 +43,4 @@ export * from './correlation-id.js';
 export * from './retry.js';
 export * from './metrics.js';
 export * from './agent-archetype.js';
+export * from './agent-crews.js';
