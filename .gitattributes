@@ -179,3 +179,6 @@ skills/autonomous-economy/sla-contracts/** export-ignore
 services/gateway-api/migrations/20260524120000_agent_knowledge_base.sql export-ignore
 packages/shared/src/agent-knowledge-base.ts export-ignore
 skills/autonomous-economy/knowledge-base/** export-ignore
+services/gateway-api/migrations/20260525120000_agent_notifications.sql export-ignore
+packages/shared/src/agent-notifications.ts export-ignore
+skills/autonomous-economy/notifications/** export-ignore
