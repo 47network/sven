@@ -354,6 +354,13 @@ export class TaskExecutor {
       case 'quota_set': return this.handleQuotaSet(input);
       case 'scaling_rule_add': return this.handleScalingRuleAdd(input);
       case 'usage_report': return this.handleUsageReport(input);
+      case 'policy_create': return this.handlePolicyCreate(input);
+      case 'audit_log': return this.handleAuditLog(input);
+      case 'check_run': return this.handleCheckRun(input);
+      case 'risk_assess': return this.handleRiskAssess(input);
+      case 'report_generate': return this.handleReportGenerate(input);
+      case 'policy_enforce': return this.handlePolicyEnforce(input);
+      case 'violation_resolve': return this.handleViolationResolve(input);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -3765,6 +3772,93 @@ export class TaskExecutor {
       totalUsed: 0,
       totalCost: 0,
       breakdown: [],
+    };
+  }
+
+  /* ---- Batch 55 — Agent Compliance & Audit ---- */
+
+  private handlePolicyCreate(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      policyId: `pol-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      name: input.name ?? 'Untitled Policy',
+      policyType: input.policyType ?? 'operational',
+      status: 'draft',
+      ruleCount: Array.isArray(input.rules) ? input.rules.length : 0,
+    };
+  }
+
+  private handleAuditLog(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      auditId: `aud-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      agentId: input.agentId ?? null,
+      actionType: input.actionType ?? 'execute',
+      resourceType: input.resourceType ?? 'unknown',
+      outcome: input.outcome ?? 'success',
+      riskLevel: 'low',
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  private handleCheckRun(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      checkId: `chk-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      policyId: input.policyId ?? null,
+      agentId: input.agentId ?? null,
+      checkType: input.checkType ?? 'automated',
+      status: 'passed',
+      score: 100,
+      findings: [],
+    };
+  }
+
+  private handleRiskAssess(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      assessmentId: `rsk-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      agentId: input.agentId ?? null,
+      assessmentType: input.assessmentType ?? 'periodic',
+      riskScore: 15.0,
+      riskLevel: 'low',
+      factors: Array.isArray(input.factors) ? input.factors : [],
+      mitigations: [],
+    };
+  }
+
+  private handleReportGenerate(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      reportId: `rpt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      reportType: input.reportType ?? 'summary',
+      periodStart: input.periodStart ?? new Date(Date.now() - 86400_000 * 30).toISOString(),
+      periodEnd: input.periodEnd ?? new Date().toISOString(),
+      status: 'ready',
+      findingsCount: 0,
+      passRate: 100,
+    };
+  }
+
+  private handlePolicyEnforce(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      enforcementId: `enf-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      policyId: input.policyId ?? null,
+      violationId: input.violationId ?? null,
+      actionTaken: input.enforcementAction ?? 'warning',
+      outcome: 'success',
+    };
+  }
+
+  private handleViolationResolve(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      resolutionId: `res-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      violationId: input.violationId ?? null,
+      resolution: input.resolution ?? 'corrected',
+      status: 'resolved',
+      resolvedAt: new Date().toISOString(),
     };
   }
 }

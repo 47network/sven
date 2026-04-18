@@ -44,7 +44,8 @@ export type EidolonBuildingKind =
   | 'knowledge_library'
   | 'notification_tower'
   | 'schedule_clocktower'
-  | 'resource_depot';
+  | 'resource_depot'
+  | 'compliance_courthouse';
 
 export interface EidolonBuilding {
   id: string;
@@ -287,6 +288,10 @@ export type EidolonEventKind =
   | 'resources.allocation_granted'
   | 'resources.quota_exceeded'
   | 'resources.scaling_triggered'
+  | 'compliance.policy_created'
+  | 'compliance.check_completed'
+  | 'compliance.violation_detected'
+  | 'compliance.report_generated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -408,5 +413,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'civic';
     case 'resource_depot':
       return 'industrial';
+    case 'compliance_courthouse':
+      return 'civic';
   }
 }

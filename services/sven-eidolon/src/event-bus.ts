@@ -179,6 +179,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.resources.allocation_granted': 'resources.allocation_granted',
   'sven.resources.quota_exceeded': 'resources.quota_exceeded',
   'sven.resources.scaling_triggered': 'resources.scaling_triggered',
+  'sven.compliance.policy_created': 'compliance.policy_created',
+  'sven.compliance.check_completed': 'compliance.check_completed',
+  'sven.compliance.violation_detected': 'compliance.violation_detected',
+  'sven.compliance.report_generated': 'compliance.report_generated',
 };
 
 export class EidolonEventBus {
