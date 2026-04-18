@@ -307,6 +307,13 @@ export class TaskExecutor {
       case 'deploy_rollback': return this.handleDeployRollback(input);
       case 'deploy_env_health': return this.handleDeployEnvHealth(input);
       case 'deploy_promote': return this.handleDeployPromote(input);
+      case 'billing_account_create': return this.handleBillingAccountCreate(input);
+      case 'billing_invoice_generate': return this.handleBillingInvoiceGenerate(input);
+      case 'billing_invoice_send': return this.handleBillingInvoiceSend(input);
+      case 'billing_payment_record': return this.handleBillingPaymentRecord(input);
+      case 'billing_usage_record': return this.handleBillingUsageRecord(input);
+      case 'billing_credit_adjust': return this.handleBillingCreditAdjust(input);
+      case 'billing_account_statement': return this.handleBillingAccountStatement(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -3117,6 +3124,161 @@ export class TaskExecutor {
         toEnvironment,
         promotionStatus: 'completed',
         message: `Promoted from ${fromEnvironment} to ${toEnvironment}.`,
+      },
+    };
+  }
+
+  /* ── Batch 49 — Agent Billing & Invoicing handlers ── */
+
+  private handleBillingAccountCreate(input: Record<string, unknown>) {
+    const agentId = (input.agentId as string) || `agent-${Date.now()}`;
+    const accountType = (input.accountType as string) || 'standard';
+    const billingCycle = (input.billingCycle as string) || 'monthly';
+    const currency = (input.currency as string) || 'USD';
+    const creditLimit = (input.creditLimit as number) || 1000;
+    const accountId = `ba-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      result: {
+        accountId,
+        agentId,
+        accountType,
+        billingCycle,
+        currency,
+        creditLimit,
+        balance: 0,
+        status: 'active',
+        message: `Billing account ${accountId} created for agent ${agentId}.`,
+      },
+    };
+  }
+
+  private handleBillingInvoiceGenerate(input: Record<string, unknown>) {
+    const accountId = (input.accountId as string) || 'unknown';
+    const periodStart = (input.periodStart as string) || new Date().toISOString();
+    const periodEnd = (input.periodEnd as string) || new Date().toISOString();
+    const lineItems = (input.lineItems as Array<{ description: string; quantity: number; unitPrice: number }>) || [];
+    const subtotal = lineItems.reduce((sum, li) => sum + li.quantity * li.unitPrice, 0);
+    const taxRate = (input.taxRate as number) || 0;
+    const taxAmount = Math.round(subtotal * taxRate * 100) / 100;
+    const total = subtotal + taxAmount;
+    const invoiceId = `inv-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    const invoiceNumber = `INV-${Date.now()}`;
+    return {
+      status: 'completed',
+      result: {
+        invoiceId,
+        invoiceNumber,
+        accountId,
+        periodStart,
+        periodEnd,
+        subtotal,
+        taxAmount,
+        total,
+        lineItemCount: lineItems.length,
+        status: 'draft',
+        message: `Invoice ${invoiceNumber} generated with total ${total}.`,
+      },
+    };
+  }
+
+  private handleBillingInvoiceSend(input: Record<string, unknown>) {
+    const invoiceId = (input.invoiceId as string) || 'unknown';
+    const invoiceNumber = (input.invoiceNumber as string) || 'unknown';
+    const recipientAgentId = (input.recipientAgentId as string) || 'unknown';
+    return {
+      status: 'completed',
+      result: {
+        invoiceId,
+        invoiceNumber,
+        recipientAgentId,
+        sentAt: new Date().toISOString(),
+        status: 'sent',
+        message: `Invoice ${invoiceNumber} sent to agent ${recipientAgentId}.`,
+      },
+    };
+  }
+
+  private handleBillingPaymentRecord(input: Record<string, unknown>) {
+    const invoiceId = (input.invoiceId as string) || 'unknown';
+    const amount = (input.amount as number) || 0;
+    const paymentMethod = (input.paymentMethod as string) || 'internal_transfer';
+    const transactionRef = (input.transactionRef as string) || `tx-${Date.now()}`;
+    return {
+      status: 'completed',
+      result: {
+        invoiceId,
+        amount,
+        paymentMethod,
+        transactionRef,
+        paidAt: new Date().toISOString(),
+        invoiceStatus: 'paid',
+        message: `Payment of ${amount} recorded for invoice ${invoiceId}.`,
+      },
+    };
+  }
+
+  private handleBillingUsageRecord(input: Record<string, unknown>) {
+    const accountId = (input.accountId as string) || 'unknown';
+    const meterType = (input.meterType as string) || 'api_requests';
+    const units = (input.units as number) || 0;
+    const unitCost = (input.unitCost as number) || 0;
+    const meterId = `meter-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      result: {
+        meterId,
+        accountId,
+        meterType,
+        unitsConsumed: units,
+        unitCost,
+        totalCost: Math.round(units * unitCost * 1e6) / 1e6,
+        periodStart: new Date().toISOString(),
+        status: 'active',
+        message: `Recorded ${units} ${meterType} units for account ${accountId}.`,
+      },
+    };
+  }
+
+  private handleBillingCreditAdjust(input: Record<string, unknown>) {
+    const accountId = (input.accountId as string) || 'unknown';
+    const amount = (input.amount as number) || 0;
+    const direction = (input.direction as string) || 'credit';
+    const reason = (input.reason as string) || 'adjustment';
+    const referenceId = (input.referenceId as string) || null;
+    const txId = `ctx-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      result: {
+        transactionId: txId,
+        accountId,
+        amount,
+        direction,
+        reason,
+        referenceId,
+        message: `${direction === 'credit' ? 'Credit' : 'Debit'} of ${amount} applied to account ${accountId}.`,
+      },
+    };
+  }
+
+  private handleBillingAccountStatement(input: Record<string, unknown>) {
+    const accountId = (input.accountId as string) || 'unknown';
+    const periodStart = (input.periodStart as string) || new Date().toISOString();
+    const periodEnd = (input.periodEnd as string) || new Date().toISOString();
+    return {
+      status: 'completed',
+      result: {
+        accountId,
+        periodStart,
+        periodEnd,
+        openingBalance: 0,
+        closingBalance: 0,
+        totalDebits: 0,
+        totalCredits: 0,
+        invoiceCount: 0,
+        paymentCount: 0,
+        statementDate: new Date().toISOString(),
+        message: `Statement generated for account ${accountId} from ${periodStart} to ${periodEnd}.`,
       },
     };
   }

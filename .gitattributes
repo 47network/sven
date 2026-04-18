@@ -166,3 +166,7 @@ services/agent-runtime/src/__tests__/batch47-agent-marketplace-analytics.test.ts
 services/gateway-api/migrations/20260521120000_agent_deployment_pipelines.sql export-ignore
 packages/shared/src/agent-deployment-pipelines.ts export-ignore
 skills/autonomous-economy/deployment-pipelines/** export-ignore
+# Batch 49 — Agent Billing & Invoicing (private)
+services/gateway-api/migrations/20260522120000_agent_billing_invoicing.sql export-ignore
+packages/shared/src/agent-billing-invoicing.ts export-ignore
+skills/autonomous-economy/billing-invoicing/** export-ignore

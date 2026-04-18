@@ -38,7 +38,8 @@ export type EidolonBuildingKind =
   | 'dispatch_center'
   | 'automation_factory'
   | 'analytics_observatory'
-  | 'deployment_center';
+  | 'deployment_center'
+  | 'billing_office';
 
 export interface EidolonBuilding {
   id: string;
@@ -257,6 +258,10 @@ export type EidolonEventKind =
   | 'deployment.stage_completed'
   | 'deployment.deployed'
   | 'deployment.rollback_initiated'
+  | 'billing.account_created'
+  | 'billing.invoice_generated'
+  | 'billing.payment_received'
+  | 'billing.credit_adjusted'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -363,6 +368,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'analytics_observatory':
       return 'market';
     case 'deployment_center':
+      return 'market';
+    case 'billing_office':
       return 'market';
     case 'automation_factory':
       return 'industrial';

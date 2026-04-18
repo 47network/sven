@@ -71,3 +71,4 @@ export * from './agent-task-queue.js';
 export * from './agent-workflow-automation.js';
 export * from './agent-marketplace-analytics.js';
 export * from './agent-deployment-pipelines.js';
+export * from './agent-billing-invoicing.js';

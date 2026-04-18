@@ -155,6 +155,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.deployment.stage_completed': 'deployment.stage_completed',
   'sven.deployment.deployed': 'deployment.deployed',
   'sven.deployment.rollback_initiated': 'deployment.rollback_initiated',
+  'sven.billing.account_created': 'billing.account_created',
+  'sven.billing.invoice_generated': 'billing.invoice_generated',
+  'sven.billing.payment_received': 'billing.payment_received',
+  'sven.billing.credit_adjusted': 'billing.credit_adjusted',
 };
 
 export class EidolonEventBus {
