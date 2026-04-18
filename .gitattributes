@@ -311,3 +311,6 @@ skills/autonomous-economy/agent-data-validation/SKILL.md filter=skip-on-archive 
 services/gateway-api/migrations/20260617320000_agent_schema_registry.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-schema-registry.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-schema-registry/SKILL.md filter=skip-on-archive export-ignore
+services/gateway-api/migrations/20260617330000_agent_workflow_templates.sql filter=skip-on-archive export-ignore
+packages/shared/src/agent-workflow-templates.ts filter=skip-on-archive export-ignore
+skills/autonomous-economy/agent-workflow-templates/SKILL.md filter=skip-on-archive export-ignore

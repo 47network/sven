@@ -343,6 +343,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.registry.version_published': 'registry.version_published',
   'sven.registry.compatibility_checked': 'registry.compatibility_checked',
   'sven.registry.schema_evolved': 'registry.schema_evolved',
+  'sven.workflow.template_created': 'workflow.template_created',
+  'sven.workflow.execution_started': 'workflow.execution_started',
+  'sven.workflow.execution_completed': 'workflow.execution_completed',
+  'sven.workflow.trigger_fired': 'workflow.trigger_fired',
 };
 
 export class EidolonEventBus {

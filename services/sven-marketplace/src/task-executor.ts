@@ -502,6 +502,13 @@ export class TaskExecutor {
       case 'registry_check_compatibility': return this.handleRegistryCheckCompatibility(task);
       case 'registry_evolve': return this.handleRegistryEvolve(task);
       case 'registry_report': return this.handleRegistryReport(task);
+      case 'workflow_create_template': return this.handleWorkflowCreateTemplate(task);
+      case 'workflow_add_step': return this.handleWorkflowAddStep(task);
+      case 'workflow_add_trigger': return this.handleWorkflowAddTrigger(task);
+      case 'workflow_execute': return this.handleWorkflowExecute(task);
+      case 'workflow_pause_resume': return this.handleWorkflowPauseResume(task);
+      case 'workflow_get_status': return this.handleWorkflowGetStatus(task);
+      case 'workflow_report': return this.handleWorkflowReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -5676,6 +5683,36 @@ export class TaskExecutor {
 
   private async handleRegistryReport(task: any): Promise<any> {
     return { ok: true, handler: 'registry_report', totalSchemas: 0, breakingChanges: 0, consumers: 0, recommendations: [] };
+  }
+
+
+
+  private async handleWorkflowCreateTemplate(task: any): Promise<any> {
+    return { ok: true, handler: 'workflow_create_template', templateId: '', name: task.input?.name || '', category: 'general', status: 'active' };
+  }
+
+  private async handleWorkflowAddStep(task: any): Promise<any> {
+    return { ok: true, handler: 'workflow_add_step', stepId: '', name: task.input?.name || '', stepOrder: task.input?.stepOrder || 1, action: task.input?.action || '' };
+  }
+
+  private async handleWorkflowAddTrigger(task: any): Promise<any> {
+    return { ok: true, handler: 'workflow_add_trigger', triggerId: '', triggerType: task.input?.triggerType || 'manual', isActive: true };
+  }
+
+  private async handleWorkflowExecute(task: any): Promise<any> {
+    return { ok: true, handler: 'workflow_execute', executionId: '', status: 'running', totalSteps: 0, startedAt: new Date().toISOString() };
+  }
+
+  private async handleWorkflowPauseResume(task: any): Promise<any> {
+    return { ok: true, handler: 'workflow_pause_resume', executionId: task.input?.executionId || '', status: 'paused', currentStep: 0 };
+  }
+
+  private async handleWorkflowGetStatus(task: any): Promise<any> {
+    return { ok: true, handler: 'workflow_get_status', status: 'completed', currentStep: 0, totalSteps: 0, stepResults: [] };
+  }
+
+  private async handleWorkflowReport(task: any): Promise<any> {
+    return { ok: true, handler: 'workflow_report', totalExecutions: 0, successRate: 1, avgDuration: 0, topFailures: [] };
   }
 
 }
