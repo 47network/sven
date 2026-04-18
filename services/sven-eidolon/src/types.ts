@@ -67,7 +67,8 @@ export type EidolonBuildingKind =
   | 'log_archive'
   | 'mesh_nexus'
   | 'cost_center'
-  | 'tenant_hub';
+  | 'tenant_hub'
+  | 'incident_center';
 
 export interface EidolonBuilding {
   id: string;
@@ -402,6 +403,10 @@ export type EidolonEventKind =
   | 'tenant.member_joined'
   | 'tenant.quota_exceeded'
   | 'tenant.plan_upgraded'
+  | 'incident.created'
+  | 'incident.escalated'
+  | 'incident.resolved'
+  | 'incident.postmortem_published'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -551,6 +556,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'mesh_nexus':
     case 'cost_center':
     case 'tenant_hub':
+    case 'incident_center':
       return 'civic';
   }
 }
