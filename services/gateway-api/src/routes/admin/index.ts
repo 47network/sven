@@ -71,6 +71,7 @@ import { registerOversightDashboardRoutes } from './oversight-dashboard.js';
 import { registerAgentMessagingRoutes } from './agent-messaging.js';
 import { registerPublishingRoutes } from './publishing.js';
 import { registerEidolonWorldRoutes } from './eidolon-world.js';
+import { registerMisiuniRoutes } from './misiuni.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
 import { registerAgentTypeRoutes } from './agent-types.js';
 import { registerFederationRoutes } from './federation.js';
@@ -397,6 +398,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerAgentMessagingRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerPublishingRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerEidolonWorldRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerMisiuniRoutes(scopedApp, pool, nc));
     },
     { prefix: '/v1/admin' },
   );

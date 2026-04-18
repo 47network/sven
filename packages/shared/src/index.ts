@@ -46,3 +46,4 @@ export * from './agent-archetype.js';
 export * from './agent-crews.js';
 export * from './publishing-pipeline.js';
 export * from './eidolon-world.js';
+export * from './misiuni.js';
