@@ -509,6 +509,13 @@ export class TaskExecutor {
       case 'workflow_pause_resume': return this.handleWorkflowPauseResume(task);
       case 'workflow_get_status': return this.handleWorkflowGetStatus(task);
       case 'workflow_report': return this.handleWorkflowReport(task);
+      case 'ratelimit_create_policy': return this.handleRatelimitCreatePolicy(task);
+      case 'ratelimit_set_quota': return this.handleRatelimitSetQuota(task);
+      case 'ratelimit_add_throttle': return this.handleRatelimitAddThrottle(task);
+      case 'ratelimit_check': return this.handleRatelimitCheck(task);
+      case 'ratelimit_track_usage': return this.handleRatelimitTrackUsage(task);
+      case 'ratelimit_resolve_violation': return this.handleRatelimitResolveViolation(task);
+      case 'ratelimit_report': return this.handleRatelimitReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -5713,6 +5720,36 @@ export class TaskExecutor {
 
   private async handleWorkflowReport(task: any): Promise<any> {
     return { ok: true, handler: 'workflow_report', totalExecutions: 0, successRate: 1, avgDuration: 0, topFailures: [] };
+  }
+
+
+
+  private async handleRatelimitCreatePolicy(task: any): Promise<any> {
+    return { ok: true, handler: 'ratelimit_create_policy', policyId: '', name: task.input?.name || '', targetType: 'agent', status: 'active' };
+  }
+
+  private async handleRatelimitSetQuota(task: any): Promise<any> {
+    return { ok: true, handler: 'ratelimit_set_quota', quotaId: '', resourceType: task.input?.resourceType || 'requests', quotaLimit: task.input?.quotaLimit || 1000 };
+  }
+
+  private async handleRatelimitAddThrottle(task: any): Promise<any> {
+    return { ok: true, handler: 'ratelimit_add_throttle', ruleId: '', action: task.input?.action || 'delay', priority: 0, isActive: true };
+  }
+
+  private async handleRatelimitCheck(task: any): Promise<any> {
+    return { ok: true, handler: 'ratelimit_check', allowed: true, remaining: 100, retryAfter: null, quotaStatus: 'ok' };
+  }
+
+  private async handleRatelimitTrackUsage(task: any): Promise<any> {
+    return { ok: true, handler: 'ratelimit_track_usage', recorded: true, currentUsage: 0, windowRemaining: 3600 };
+  }
+
+  private async handleRatelimitResolveViolation(task: any): Promise<any> {
+    return { ok: true, handler: 'ratelimit_resolve_violation', violationId: task.input?.violationId || '', resolved: true, resolvedAt: new Date().toISOString() };
+  }
+
+  private async handleRatelimitReport(task: any): Promise<any> {
+    return { ok: true, handler: 'ratelimit_report', totalRequests: 0, rejectedRequests: 0, violations: 0, quotaUtilization: 0 };
   }
 
 }

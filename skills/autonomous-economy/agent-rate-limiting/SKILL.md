@@ -1,54 +1,61 @@
 ---
 skill: agent-rate-limiting
-name: Agent Rate Limiting & Throttling
+name: Agent Rate Limiting
 version: 1.0.0
-description: Enforce fair usage quotas, manage burst capacity, and protect platform resources from overuse
-category: platform
-tags: [rate-limit, throttling, quota, fairness, capacity]
-autonomous: true
-economy:
-  pricing: included
-  base_cost: 0
+description: Rate limiting policies, quotas, throttling rules, and violation tracking
+author: sven-autonomous-economy
+archetype: analyst
+tags: [rate-limiting, throttling, quotas, policies, violations]
+price: 0
+currency: 47Token
+actions:
+  - ratelimit_create_policy
+  - ratelimit_set_quota
+  - ratelimit_add_throttle
+  - ratelimit_check
+  - ratelimit_track_usage
+  - ratelimit_resolve_violation
+  - ratelimit_report
 ---
 
-# Agent Rate Limiting & Throttling
+# Agent Rate Limiting
 
-Protect platform services with configurable rate limits, burst handling,
-quota management, and throttle strategies per agent and resource type.
+Rate limiting policies with quotas, throttle rules, usage tracking,
+and violation management for agents, services, and APIs.
 
 ## Actions
 
-### policy_create
-Create a new rate limit policy for a resource type.
-- **Inputs**: policyName, resourceType, maxRequests, windowSeconds, burstLimit?, throttleStrategy?
-- **Outputs**: policyId, enabled, created
+### ratelimit_create_policy
+Create a rate limiting policy.
+- **Input**: name, targetType, targetId, requestsPerMinute, strategy, burstLimit
+- **Output**: policyId, name, targetType, strategy, status
 
-### policy_update
-Update an existing rate limit policy.
-- **Inputs**: policyId, maxRequests?, windowSeconds?, burstLimit?, enabled?
-- **Outputs**: policyId, updated
+### ratelimit_set_quota
+Set a quota on a policy.
+- **Input**: policyId, resourceType, quotaLimit, resetInterval
+- **Output**: quotaId, resourceType, quotaLimit, resetInterval
 
-### override_grant
-Grant a rate limit override to a specific agent.
-- **Inputs**: policyId, agentId, overrideType, maxRequests?, reason?, expiresAt?
-- **Outputs**: overrideId, active, grantedBy
+### ratelimit_add_throttle
+Add a throttle rule to a policy.
+- **Input**: policyId, condition, action, delayMs, priority
+- **Output**: ruleId, action, priority, isActive
 
-### quota_allocate
-Allocate a usage quota to an agent for a resource.
-- **Inputs**: agentId, resourceType, allocated, periodStart, periodEnd, autoRenew?
-- **Outputs**: quotaId, allocated, remaining
+### ratelimit_check
+Check if a request is allowed by rate limits.
+- **Input**: policyId, targetId, requestType
+- **Output**: allowed, remaining, retryAfter, quotaStatus
 
-### counter_check
-Check current rate limit counter for an agent/policy.
-- **Inputs**: policyId, agentId
-- **Outputs**: requestCount, withinLimit, retryAfter?
+### ratelimit_track_usage
+Record usage for rate limit tracking.
+- **Input**: policyId, requestCount, tokenCount
+- **Output**: recorded, currentUsage, windowRemaining
 
-### throttle_status
-Get throttle status and recent events for an agent.
-- **Inputs**: agentId, resourceType?
-- **Outputs**: status, recentEvents[], activePolicies[]
+### ratelimit_resolve_violation
+Resolve a rate limit violation.
+- **Input**: violationId, resolution, notes
+- **Output**: violationId, resolved, resolvedAt
 
-### quota_report
-Generate quota usage report for an agent or globally.
-- **Inputs**: agentId?, resourceType?, periodStart?, periodEnd?
-- **Outputs**: allocations[], usagePercent, overages[]
+### ratelimit_report
+Generate rate limiting report.
+- **Input**: policyId, dateRange
+- **Output**: totalRequests, rejectedRequests, violations, quotaUtilization

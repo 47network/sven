@@ -1,90 +1,92 @@
-/* Batch 67 — Agent Rate Limiting & Throttling */
+export type RateLimitTarget = 'agent' | 'service' | 'api' | 'skill' | 'global' | 'ip' | 'user';
 
-export type ResourceType = 'api' | 'task' | 'skill' | 'model' | 'storage' | 'network';
-export type ThrottleStrategy = 'sliding_window' | 'fixed_window' | 'token_bucket' | 'leaky_bucket';
-export type OverrideType = 'increase' | 'decrease' | 'exempt' | 'temporary';
-export type ThrottleEventType = 'throttled' | 'blocked' | 'warned' | 'burst_exceeded' | 'quota_reset';
-export type RateLimitAction = 'policy_create' | 'policy_update' | 'override_grant' | 'quota_allocate' | 'counter_check' | 'throttle_status' | 'quota_report';
+export type RateLimitStrategy = 'sliding_window' | 'fixed_window' | 'token_bucket' | 'leaky_bucket';
+
+export type QuotaResource = 'tokens' | 'requests' | 'compute' | 'storage' | 'bandwidth' | 'cost';
+
+export type ThrottleAction = 'delay' | 'reject' | 'queue' | 'degrade' | 'redirect';
+
+export type ViolationType = 'rate_exceeded' | 'quota_exhausted' | 'burst_exceeded' | 'throttle_triggered' | 'policy_breach';
 
 export interface RateLimitPolicy {
   id: string;
-  agentId?: string;
-  policyName: string;
-  resourceType: ResourceType;
-  maxRequests: number;
-  windowSeconds: number;
-  burstLimit?: number;
-  throttleStrategy: ThrottleStrategy;
-  priority: number;
-  enabled: boolean;
+  name: string;
+  targetType: RateLimitTarget;
+  targetId?: string;
+  requestsPerSecond?: number;
+  requestsPerMinute?: number;
+  requestsPerHour?: number;
+  requestsPerDay?: number;
+  burstLimit: number;
+  strategy: RateLimitStrategy;
+  status: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface RateLimitCounter {
+export interface RateLimitQuota {
   id: string;
   policyId: string;
-  agentId: string;
+  resourceType: QuotaResource;
+  quotaLimit: number;
+  quotaUsed: number;
+  resetInterval: string;
+  lastResetAt: string;
+  overageAllowed: boolean;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ThrottleRule {
+  id: string;
+  policyId: string;
+  condition: Record<string, unknown>;
+  action: ThrottleAction;
+  delayMs: number;
+  priority: number;
+  isActive: boolean;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RateUsageRecord {
+  id: string;
+  policyId: string;
   windowStart: string;
   windowEnd: string;
   requestCount: number;
-  burstCount: number;
-  lastRequestAt?: string;
+  tokenCount: number;
+  rejectedCount: number;
+  avgLatencyMs: number;
+  metadata: Record<string, unknown>;
+  createdAt: string;
 }
 
-export interface ThrottleEvent {
+export interface RateViolation {
   id: string;
   policyId: string;
-  agentId: string;
-  eventType: ThrottleEventType;
-  requestCount: number;
-  limitValue: number;
-  retryAfter?: number;
+  violationType: ViolationType;
+  severity: string;
+  details: Record<string, unknown>;
+  resolved: boolean;
+  resolvedAt?: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
 }
 
-export interface QuotaAllocation {
-  id: string;
-  agentId: string;
-  resourceType: ResourceType;
-  allocated: number;
-  consumed: number;
-  remaining: number;
-  periodStart: string;
-  periodEnd: string;
-  autoRenew: boolean;
+export function isQuotaExhausted(q: RateLimitQuota): boolean {
+  return q.quotaUsed >= q.quotaLimit && !q.overageAllowed;
 }
 
-export interface RateLimitOverride {
-  id: string;
-  policyId: string;
-  agentId: string;
-  overrideType: OverrideType;
-  maxRequests?: number;
-  windowSeconds?: number;
-  reason?: string;
-  expiresAt?: string;
-  grantedBy?: string;
+export function quotaUtilization(q: RateLimitQuota): number {
+  if (q.quotaLimit === 0) return 0;
+  return q.quotaUsed / q.quotaLimit;
 }
 
-export const RESOURCE_TYPES: ResourceType[] = ['api', 'task', 'skill', 'model', 'storage', 'network'];
-export const THROTTLE_STRATEGIES: ThrottleStrategy[] = ['sliding_window', 'fixed_window', 'token_bucket', 'leaky_bucket'];
-export const OVERRIDE_TYPES: OverrideType[] = ['increase', 'decrease', 'exempt', 'temporary'];
-export const THROTTLE_EVENT_TYPES: ThrottleEventType[] = ['throttled', 'blocked', 'warned', 'burst_exceeded', 'quota_reset'];
-
-export function isWithinLimit(counter: RateLimitCounter, policy: RateLimitPolicy): boolean {
-  return counter.requestCount < policy.maxRequests;
-}
-
-export function getQuotaUsagePercent(allocation: QuotaAllocation): number {
-  if (allocation.allocated === 0) return 0;
-  return Math.round((allocation.consumed / allocation.allocated) * 100);
-}
-
-export function isOverrideActive(override: RateLimitOverride): boolean {
-  if (!override.expiresAt) return true;
-  return new Date(override.expiresAt) > new Date();
-}
-
-export function calculateRetryAfter(counter: RateLimitCounter): number {
-  const windowEnd = new Date(counter.windowEnd).getTime();
-  const now = Date.now();
-  return Math.max(0, Math.ceil((windowEnd - now) / 1000));
+export function violationRate(violations: RateViolation[]): number {
+  if (violations.length === 0) return 0;
+  return violations.filter(v => !v.resolved).length / violations.length;
 }

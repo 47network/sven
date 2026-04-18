@@ -347,6 +347,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.workflow.execution_started': 'workflow.execution_started',
   'sven.workflow.execution_completed': 'workflow.execution_completed',
   'sven.workflow.trigger_fired': 'workflow.trigger_fired',
+  'sven.ratelimit.policy_created': 'ratelimit.policy_created',
+  'sven.ratelimit.quota_exceeded': 'ratelimit.quota_exceeded',
+  'sven.ratelimit.violation_detected': 'ratelimit.violation_detected',
+  'sven.ratelimit.violation_resolved': 'ratelimit.violation_resolved',
 };
 
 export class EidolonEventBus {

@@ -86,7 +86,8 @@ export type EidolonBuildingKind =
   | 'load_balancer'
   | 'validation_hub'
   | 'schema_registry'
-  | 'workflow_factory';
+  | 'workflow_factory'
+  | 'rate_limiter';
 
 export interface EidolonBuilding {
   id: string;
@@ -497,6 +498,10 @@ export type EidolonEventKind =
   | 'workflow.execution_started'
   | 'workflow.execution_completed'
   | 'workflow.trigger_fired'
+  | 'ratelimit.policy_created'
+  | 'ratelimit.quota_exceeded'
+  | 'ratelimit.violation_detected'
+  | 'ratelimit.violation_resolved'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -645,6 +650,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'validation_hub':
     case 'schema_registry':
     case 'workflow_factory':
+    case 'rate_limiter':
     case 'pipeline_forge':
     case 'cache_tower':
     case 'api_gateway':
@@ -671,6 +677,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'validation_hub':
     case 'schema_registry':
     case 'workflow_factory':
+    case 'rate_limiter':
       return 'civic';
   }
 }
