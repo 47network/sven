@@ -215,3 +215,6 @@ skills/autonomous-economy/agent-marketplace-recommendations/** filter=skip-on-ar
 services/gateway-api/migrations/20260605120000_agent_versioning_rollback.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-versioning-rollback.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-versioning-rollback/** filter=skip-on-archive export-ignore
+services/gateway-api/migrations/20260606120000_agent_secrets_credentials.sql export-ignore
+packages/shared/src/agent-secrets-credentials.ts export-ignore
+skills/autonomous-economy/agent-secrets-credentials/** export-ignore

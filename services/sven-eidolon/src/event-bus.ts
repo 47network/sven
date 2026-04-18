@@ -215,6 +215,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.versioning.snapshot_taken': 'versioning.snapshot_taken',
   'sven.versioning.rollback_initiated': 'versioning.rollback_initiated',
   'sven.versioning.version_promoted': 'versioning.version_promoted',
+  'sven.secrets.secret_stored': 'secrets.secret_stored',
+  'sven.secrets.secret_rotated': 'secrets.secret_rotated',
+  'sven.secrets.access_logged': 'secrets.access_logged',
+  'sven.secrets.policy_enforced': 'secrets.policy_enforced',
 };
 
 export class EidolonEventBus {

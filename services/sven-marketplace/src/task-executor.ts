@@ -418,6 +418,13 @@ export class TaskExecutor {
       case 'diff_generate': return this.handleDiffGenerate(task);
       case 'version_promote': return this.handleVersionPromote(task);
       case 'rollback_cancel': return this.handleRollbackCancel(task);
+      case 'secret_store': return this.handleSecretStore(task);
+      case 'secret_retrieve': return this.handleSecretRetrieve(task);
+      case 'secret_rotate': return this.handleSecretRotate(task);
+      case 'secret_revoke': return this.handleSecretRevoke(task);
+      case 'secret_share': return this.handleSecretShare(task);
+      case 'policy_create': return this.handlePolicyCreate(task);
+      case 'audit_query': return this.handleAuditQuery(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4482,6 +4489,35 @@ export class TaskExecutor {
   private async handleRollbackCancel(task: any): Promise<any> {
     const rollbackId = task.input?.rollbackId;
     return { status: "completed", rollbackId, cancelled: true, previousStatus: "in_progress" };
+  }
+
+
+  private handleSecretStore(task: any): any {
+    return { secretId: `sec-${Date.now()}`, encrypted: true, keyVersion: 1, scope: task.input?.scope || 'agent' };
+  }
+
+  private handleSecretRetrieve(task: any): any {
+    return { value: '****masked****', accessLogId: `sal-${Date.now()}`, retrieved: true };
+  }
+
+  private handleSecretRotate(task: any): any {
+    return { rotationId: `rot-${Date.now()}`, newKeyVersion: (task.input?.currentVersion || 1) + 1, status: 'completed' };
+  }
+
+  private handleSecretRevoke(task: any): any {
+    return { revoked: true, secretId: task.input?.secretId, deactivatedShares: 0 };
+  }
+
+  private handleSecretShare(task: any): any {
+    return { shareId: `shr-${Date.now()}`, shareType: task.input?.shareType || 'read', grantedTo: task.input?.sharedWith };
+  }
+
+  private handlePolicyCreate(task: any): any {
+    return { policyId: `pol-${Date.now()}`, policyName: task.input?.policyName, enforced: true };
+  }
+
+  private handleAuditQuery(task: any): any {
+    return { logs: [], totalAccesses: 0, suspiciousCount: 0 };
   }
 
 }
