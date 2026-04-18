@@ -161,3 +161,8 @@ services/gateway-api/migrations/20260520120000_agent_marketplace_analytics.sql e
 packages/shared/src/agent-marketplace-analytics.ts export-ignore
 skills/autonomous-economy/marketplace-analytics/** export-ignore
 services/agent-runtime/src/__tests__/batch47-agent-marketplace-analytics.test.ts export-ignore
+
+# Batch 48 — Agent Deployment Pipelines (private)
+services/gateway-api/migrations/20260521120000_agent_deployment_pipelines.sql export-ignore
+packages/shared/src/agent-deployment-pipelines.ts export-ignore
+skills/autonomous-economy/deployment-pipelines/** export-ignore
