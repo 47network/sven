@@ -14,6 +14,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 77 — Agent Multi-Tenancy**: tenants, members, quotas, invitations, audit log; 5 tables, 20 indexes, 7 task handlers
 - **Batch 78 — Agent Incident Management**: incidents, timeline, escalations, runbooks, postmortems; 5 tables, 21 indexes, 7 task handlers
+- **Batch 79 — Agent Queue Management**: task queues, messages, consumers, schedules, metrics; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
@@ -134,6 +135,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 77 — Agent Multi-Tenancy**: tenants, members, quotas, invitations, audit log; 5 tables, 20 indexes, 7 task handlers
 - **Batch 78 — Agent Incident Management**: incidents, timeline, escalations, runbooks, postmortems; 5 tables, 21 indexes, 7 task handlers
+- **Batch 79 — Agent Queue Management**: task queues, messages, consumers, schedules, metrics; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
@@ -162,6 +164,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 77 — Agent Multi-Tenancy**: tenants, members, quotas, invitations, audit log; 5 tables, 20 indexes, 7 task handlers
 - **Batch 78 — Agent Incident Management**: incidents, timeline, escalations, runbooks, postmortems; 5 tables, 21 indexes, 7 task handlers
+- **Batch 79 — Agent Queue Management**: task queues, messages, consumers, schedules, metrics; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
@@ -190,6 +193,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 77 — Agent Multi-Tenancy**: tenants, members, quotas, invitations, audit log; 5 tables, 20 indexes, 7 task handlers
 - **Batch 78 — Agent Incident Management**: incidents, timeline, escalations, runbooks, postmortems; 5 tables, 21 indexes, 7 task handlers
+- **Batch 79 — Agent Queue Management**: task queues, messages, consumers, schedules, metrics; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
@@ -395,6 +399,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 77 — Agent Multi-Tenancy**: tenants, members, quotas, invitations, audit log; 5 tables, 20 indexes, 7 task handlers
 - **Batch 78 — Agent Incident Management**: incidents, timeline, escalations, runbooks, postmortems; 5 tables, 21 indexes, 7 task handlers
+- **Batch 79 — Agent Queue Management**: task queues, messages, consumers, schedules, metrics; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics

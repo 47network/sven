@@ -275,6 +275,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.incident.escalated': 'incident.escalated',
   'sven.incident.resolved': 'incident.resolved',
   'sven.incident.postmortem_published': 'incident.postmortem_published',
+  'sven.queue.created': 'queue.created',
+  'sven.queue.message_enqueued': 'queue.message_enqueued',
+  'sven.queue.message_completed': 'queue.message_completed',
+  'sven.queue.consumer_registered': 'queue.consumer_registered',
 };
 
 export class EidolonEventBus {

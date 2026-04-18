@@ -101,3 +101,4 @@ export * from './agent-service-mesh.js';
 export * from './agent-cost-optimization.js';
 export * from './agent-multi-tenancy.js';
 export * from './agent-incident-management.js';
+export * from './agent-queue-management.js';

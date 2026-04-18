@@ -260,3 +260,6 @@ skills/autonomous-economy/agent-multi-tenancy/SKILL.md filter=skip-on-archive ex
 services/gateway-api/migrations/20260617150000_agent_incident_management.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-incident-management.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-incident-management/SKILL.md filter=skip-on-archive export-ignore
+services/gateway-api/migrations/20260617160000_agent_queue_management.sql filter=skip-on-archive export-ignore
+packages/shared/src/agent-queue-management.ts filter=skip-on-archive export-ignore
+skills/autonomous-economy/agent-queue-management/SKILL.md filter=skip-on-archive export-ignore

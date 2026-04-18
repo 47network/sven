@@ -523,6 +523,13 @@ export class TaskExecutor {
       case 'incident_resolve': return this.handleIncidentResolve(task);
       case 'incident_postmortem': return this.handleIncidentPostmortem(task);
       case 'incident_report': return this.handleIncidentReport(task);
+      case 'queue_create': return this.handleQueueCreate(task);
+      case 'queue_enqueue': return this.handleQueueEnqueue(task);
+      case 'queue_dequeue': return this.handleQueueDequeue(task);
+      case 'queue_complete': return this.handleQueueComplete(task);
+      case 'queue_register_consumer': return this.handleQueueRegisterConsumer(task);
+      case 'queue_schedule': return this.handleQueueSchedule(task);
+      case 'queue_report': return this.handleQueueReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -5050,6 +5057,35 @@ export class TaskExecutor {
 
   private handleIncidentReport(task: any): any {
     return { ok: true, handler: 'incident_report', totalIncidents: 0, mttr: 0, bySeverity: {}, topAffectedServices: [], trendAnalysis: {} };
+  }
+
+
+  private handleQueueCreate(task: any): any {
+    return { ok: true, handler: 'queue_create', queueId: `q-${Date.now()}`, queueType: task.input?.queueType || 'fifo', status: 'active' };
+  }
+
+  private handleQueueEnqueue(task: any): any {
+    return { ok: true, handler: 'queue_enqueue', messageId: `msg-${Date.now()}`, queueId: task.input?.queueId, status: 'pending', priority: task.input?.priority || 0 };
+  }
+
+  private handleQueueDequeue(task: any): any {
+    return { ok: true, handler: 'queue_dequeue', queueId: task.input?.queueId, messages: [], batchSize: task.input?.batchSize || 1 };
+  }
+
+  private handleQueueComplete(task: any): any {
+    return { ok: true, handler: 'queue_complete', messageId: task.input?.messageId, completedAt: new Date().toISOString() };
+  }
+
+  private handleQueueRegisterConsumer(task: any): any {
+    return { ok: true, handler: 'queue_register_consumer', consumerId: `con-${Date.now()}`, queueId: task.input?.queueId, agentId: task.input?.agentId, status: 'active' };
+  }
+
+  private handleQueueSchedule(task: any): any {
+    return { ok: true, handler: 'queue_schedule', scheduleId: `sch-${Date.now()}`, queueId: task.input?.queueId, cronExpression: task.input?.cronExpression, enabled: true };
+  }
+
+  private handleQueueReport(task: any): any {
+    return { ok: true, handler: 'queue_report', totalQueues: 0, totalMessages: 0, throughput: 0, avgLatencyMs: 0, dlqCount: 0 };
   }
 
 }
