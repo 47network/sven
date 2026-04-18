@@ -224,3 +224,6 @@ skills/autonomous-economy/agent-feature-flags/** export-ignore
 services/gateway-api/migrations/20260608120000_agent_data_export_import.sql export-ignore
 packages/shared/src/agent-data-export-import.ts export-ignore
 skills/autonomous-economy/agent-data-export-import/** export-ignore
+services/gateway-api/migrations/20260609120000_agent_rate_limiting.sql export-ignore
+packages/shared/src/agent-rate-limiting.ts export-ignore
+skills/autonomous-economy/agent-rate-limiting/** export-ignore
