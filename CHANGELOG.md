@@ -10,6 +10,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Autonomous Economy — Batch 27**: LLM Council (Multi-Model Debate).
+  - **Migration** (`20260501120000_llm_council.sql`): 4 new tables — council_sessions, council_opinions, council_peer_reviews, council_model_metrics. 13 indexes, CHECK constraints for session status (6 values), strategy (4 values), peer review score (0-100). ALTER marketplace_tasks adds council_deliberate + council_vote task types.
+  - **Shared Types** (`packages/shared/src/llm-council.ts`): 5 type unions (CouncilSessionStatus 6 values, CouncilStrategy 4, CouncilQueryCategory 7, CouncilModelRole 4, CouncilSpecialty 4+), 5 interfaces (CouncilSession, CouncilConfig, CouncilOpinion, CouncilPeerReview, CouncilModelMetrics), 6 constants (COUNCIL_STRATEGIES, COUNCIL_DEFAULT_MODELS, COUNCIL_MAX_ROUNDS, COUNCIL_MIN_MODELS, MODEL_SPECIALTIES, COUNCIL_TERMINAL_STATUSES), 5 utility functions (isTerminalStatus, requiresMultipleRounds, selectModelsForCategory, estimateCouncilCost, validateCouncilConfig).
+  - **Skills**: council-deliberate (strategist, per_use, 4 actions: deliberate, vote, critique, select-model). 23 skills total in autonomous-economy.
+  - **Admin API** (`council.ts`): 5 route handlers — POST deliberate, GET sessions list, GET sessions/:id detail, PUT config, GET config. Wired into admin/index.ts. Config stored in settings_global with council.* prefix.
+  - **Task Executor**: 2 new handlers — handleCouncilDeliberate (fan-out query to 3 models, opinions, peer reviews, scoring, winning model), handleCouncilVote (majority-vote simulation with confidence).
+  - **NATS/Eidolon**: 4 SUBJECT_MAP entries (council.*), council_chamber building kind, 4 EidolonEventKind values, districtFor → civic.
+  - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
+
+### Added
 - **Autonomous Economy — Batch 26**: XLVII Brand / Merch Platform.
   - **Migration** (`20260430120000_xlvii_merch.sql`): 5 new tables — xlvii_collections, xlvii_products, xlvii_variants, xlvii_designs, xlvii_fulfillments. 19 indexes, CHECK constraints for categories (10), quality tiers (4), sizes (8), design types (8), placements (7), approval statuses (4), fulfillment types (7), fulfillment statuses (8). ALTER marketplace_tasks adds merch_listing + product_design.
   - **Shared Types** (`packages/shared/src/xlvii-merch.ts`): 13 type unions (XlviiProductCategory 10 values, XlviiQualityTier 4, XlviiProductStatus 7, XlviiPodProvider 5, XlviiSeason 5, XlviiCollectionStatus 5, XlviiSize 8, XlviiDesignType 8, XlviiPlacement 7, XlviiApprovalStatus 4, XlviiFulfillmentType 7, XlviiFulfillmentStatus 8, XlviiVariantStatus 4), 5 interfaces, 7 constants (XLVII_CATEGORIES, XLVII_SIZES, XLVII_BRAND_THEME, XLVII_POD_PROVIDERS, XLVII_PRODUCT_STATUS_ORDER, XLVII_BASE_PRICES, XLVII_QUALITY_MULTIPLIERS), 6 utility functions (calculateProductPrice, calculateMargin, generateSku, canAdvanceProduct, isLowStock, isOutOfStock).
