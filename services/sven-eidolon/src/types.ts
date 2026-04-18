@@ -26,7 +26,8 @@ export type EidolonBuildingKind =
   | 'skill_academy'
   | 'video_studio'
   | 'avatar_gallery'
-  | 'training_lab';
+  | 'training_lab'
+  | 'tutoring_center';
 
 export interface EidolonBuilding {
   id: string;
@@ -193,6 +194,10 @@ export type EidolonEventKind =
   | 'training.epoch_completed'
   | 'training.job_finished'
   | 'training.export_registered'
+  | 'academic.project_submitted'
+  | 'academic.review_completed'
+  | 'academic.project_delivered'
+  | 'academic.citation_validated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -278,5 +283,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'residential';
     case 'training_lab':
       return 'infrastructure';
+    case 'tutoring_center':
+      return 'market';
   }
 }
