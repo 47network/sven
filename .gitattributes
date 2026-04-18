@@ -143,3 +143,9 @@ services/gateway-api/migrations/20260517120000_agent_health_lifecycle.sql export
 packages/shared/src/agent-health-lifecycle.ts export-ignore
 skills/autonomous-economy/agent-health-lifecycle/** export-ignore
 services/agent-runtime/src/__tests__/batch44-agent-health-lifecycle.test.ts export-ignore
+
+# Batch 45 — Agent Task Queue & Scheduling (private)
+services/gateway-api/migrations/20260518120000_agent_task_queue.sql export-ignore
+packages/shared/src/agent-task-queue.ts export-ignore
+skills/autonomous-economy/task-queue/** export-ignore
+services/agent-runtime/src/__tests__/batch45-agent-task-queue.test.ts export-ignore
