@@ -481,6 +481,13 @@ export class TaskExecutor {
       case 'trace_query': return this.handleTraceQuery(task);
       case 'trace_analyze': return this.handleTraceAnalyze(task);
       case 'trace_report': return this.handleTraceReport(task);
+      case 'lb_create': return this.handleLbCreate(task);
+      case 'lb_add_backend': return this.handleLbAddBackend(task);
+      case 'lb_add_rule': return this.handleLbAddRule(task);
+      case 'lb_configure_probe': return this.handleLbConfigureProbe(task);
+      case 'lb_drain_backend': return this.handleLbDrainBackend(task);
+      case 'lb_traffic_stats': return this.handleLbTrafficStats(task);
+      case 'lb_report': return this.handleLbReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -5565,6 +5572,36 @@ export class TaskExecutor {
 
   private async handleTraceReport(task: any): Promise<any> {
     return { ok: true, handler: 'trace_report', totalTraces: 0, avgLatency: 0, errorRate: 0, slowestServices: [], recommendations: [] };
+  }
+
+
+
+  private async handleLbCreate(task: any): Promise<any> {
+    return { ok: true, handler: 'lb_create', lbId: '', name: task.input?.name || '', algorithm: 'round_robin', status: 'active' };
+  }
+
+  private async handleLbAddBackend(task: any): Promise<any> {
+    return { ok: true, handler: 'lb_add_backend', backendId: '', targetUrl: task.input?.targetUrl || '', weight: 1, status: 'healthy' };
+  }
+
+  private async handleLbAddRule(task: any): Promise<any> {
+    return { ok: true, handler: 'lb_add_rule', ruleId: '', matchType: task.input?.matchType || 'path', priority: 0, isActive: true };
+  }
+
+  private async handleLbConfigureProbe(task: any): Promise<any> {
+    return { ok: true, handler: 'lb_configure_probe', probeId: '', probeType: 'http', endpoint: '/health', intervalSeconds: 10 };
+  }
+
+  private async handleLbDrainBackend(task: any): Promise<any> {
+    return { ok: true, handler: 'lb_drain_backend', backendId: task.input?.backendId || '', status: 'draining', activeConnections: 0, drainStarted: new Date().toISOString() };
+  }
+
+  private async handleLbTrafficStats(task: any): Promise<any> {
+    return { ok: true, handler: 'lb_traffic_stats', totalRequests: 0, successRate: 1, avgLatency: 0, p99Latency: 0, bytesTransferred: 0 };
+  }
+
+  private async handleLbReport(task: any): Promise<any> {
+    return { ok: true, handler: 'lb_report', activeLBs: 0, totalBackends: 0, healthyBackends: 0, avgLatency: 0, recommendations: [] };
   }
 
 }

@@ -331,6 +331,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.tracing.span_completed': 'tracing.span_completed',
   'sven.tracing.sampling_updated': 'tracing.sampling_updated',
   'sven.tracing.analysis_generated': 'tracing.analysis_generated',
+  'sven.lb.instance_created': 'lb.instance_created',
+  'sven.lb.backend_added': 'lb.backend_added',
+  'sven.lb.backend_drained': 'lb.backend_drained',
+  'sven.lb.rule_activated': 'lb.rule_activated',
 };
 
 export class EidolonEventBus {
