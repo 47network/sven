@@ -283,6 +283,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.session.handoff_initiated': 'session.handoff_initiated',
   'sven.session.expired': 'session.expired',
   'sven.session.analytics_recorded': 'session.analytics_recorded',
+  'sven.plugin.registered': 'plugin.registered',
+  'sven.plugin.installed': 'plugin.installed',
+  'sven.plugin.hook_fired': 'plugin.hook_fired',
+  'sven.plugin.review_submitted': 'plugin.review_submitted',
 };
 
 export class EidolonEventBus {

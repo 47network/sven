@@ -70,7 +70,8 @@ export type EidolonBuildingKind =
   | 'tenant_hub'
   | 'incident_center'
   | 'queue_exchange'
-  | 'session_hub';
+  | 'session_hub'
+  | 'plugin_forge';
 
 export interface EidolonBuilding {
   id: string;
@@ -417,6 +418,10 @@ export type EidolonEventKind =
   | 'session.handoff_initiated'
   | 'session.expired'
   | 'session.analytics_recorded'
+  | 'plugin.registered'
+  | 'plugin.installed'
+  | 'plugin.hook_fired'
+  | 'plugin.review_submitted'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -569,6 +574,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'incident_center':
     case 'queue_exchange':
     case 'session_hub':
+    case 'plugin_forge':
       return 'civic';
   }
 }

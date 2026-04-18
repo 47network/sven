@@ -537,6 +537,13 @@ export class TaskExecutor {
       case 'session_suspend': return this.handleSessionSuspend(task);
       case 'session_resume': return this.handleSessionResume(task);
       case 'session_report': return this.handleSessionReport(task);
+      case 'plugin_register': return this.handlePluginRegister(task);
+      case 'plugin_install': return this.handlePluginInstall(task);
+      case 'plugin_configure': return this.handlePluginConfigure(task);
+      case 'plugin_manage_hooks': return this.handlePluginManageHooks(task);
+      case 'plugin_publish': return this.handlePluginPublish(task);
+      case 'plugin_review': return this.handlePluginReview(task);
+      case 'plugin_report': return this.handlePluginReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -5122,6 +5129,35 @@ export class TaskExecutor {
 
   private handleSessionReport(task: any): any {
     return { ok: true, handler: 'session_report', totalSessions: 0, avgDurationMs: 0, avgTokens: 0, handoffRate: 0, satisfactionAvg: 0 };
+  }
+
+
+  private handlePluginRegister(task: any): any {
+    return { ok: true, handler: 'plugin_register', pluginId: `plg-${Date.now()}`, name: task.input?.name, status: 'draft' };
+  }
+
+  private handlePluginInstall(task: any): any {
+    return { ok: true, handler: 'plugin_install', installationId: `inst-${Date.now()}`, pluginId: task.input?.pluginId, agentId: task.input?.agentId, status: 'installed' };
+  }
+
+  private handlePluginConfigure(task: any): any {
+    return { ok: true, handler: 'plugin_configure', installationId: task.input?.installationId, configValid: true };
+  }
+
+  private handlePluginManageHooks(task: any): any {
+    return { ok: true, handler: 'plugin_manage_hooks', hookId: `hook-${Date.now()}`, pluginId: task.input?.pluginId, hookType: task.input?.hookType, priority: 0 };
+  }
+
+  private handlePluginPublish(task: any): any {
+    return { ok: true, handler: 'plugin_publish', pluginId: task.input?.pluginId, status: 'published', version: task.input?.version || '1.0.0' };
+  }
+
+  private handlePluginReview(task: any): any {
+    return { ok: true, handler: 'plugin_review', reviewId: `rev-${Date.now()}`, pluginId: task.input?.pluginId, rating: task.input?.rating || 5 };
+  }
+
+  private handlePluginReport(task: any): any {
+    return { ok: true, handler: 'plugin_report', totalPlugins: 0, totalInstalls: 0, avgRating: 0, hookFirings: 0 };
   }
 
 }
