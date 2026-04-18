@@ -87,3 +87,4 @@ export * from './agent-feedback-surveys.js';
 export * from './agent-marketplace-recommendations.js';
 export * from './agent-versioning-rollback.js';
 export * from './agent-secrets-credentials.js';
+export * from './agent-feature-flags.js';

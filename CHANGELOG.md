@@ -10,6 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection
 - **Batch 64 — Agent Secrets & Credentials**: Encrypted vault for API keys, tokens, credentials with rotation policies, access auditing, and controlled sharing
 - **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
@@ -116,6 +117,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch28-persistent-memory.test.ts`): 98 tests across 17 describe blocks — migration structure, shared types, configs, utility logic, skill YAML, task executor, NATS events, Eidolon integration, coherence checks.
 
 ### Added
+- **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection
 - **Batch 64 — Agent Secrets & Credentials**: Encrypted vault for API keys, tokens, credentials with rotation policies, access auditing, and controlled sharing
 - **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
@@ -130,6 +132,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
 
 ### Added
+- **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection
 - **Batch 64 — Agent Secrets & Credentials**: Encrypted vault for API keys, tokens, credentials with rotation policies, access auditing, and controlled sharing
 - **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
@@ -144,6 +147,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
 
 ### Added
+- **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection
 - **Batch 64 — Agent Secrets & Credentials**: Encrypted vault for API keys, tokens, credentials with rotation policies, access auditing, and controlled sharing
 - **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
@@ -335,6 +339,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Flutter mobile app fixes: corrected API base URL from hardcoded port 3004 to gateway (EnvConfig.apiBase), added public-status fallback for guest users, fixed SSE path to match gateway route.
 
 ### Added
+- **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection
 - **Batch 64 — Agent Secrets & Credentials**: Encrypted vault for API keys, tokens, credentials with rotation policies, access auditing, and controlled sharing
 - **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
