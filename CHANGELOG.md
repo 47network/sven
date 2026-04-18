@@ -10,6 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
 - **Batch 67 — Agent Rate Limiting & Throttling**: Fair usage quotas, burst capacity management, throttle strategies, and per-agent rate limit policies
 - **Batch 66 — Agent Data Export & Import**: Bulk data portability with multi-format export/import, schema registry, field mappings, and transfer progress tracking
 - **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection
@@ -119,6 +120,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch28-persistent-memory.test.ts`): 98 tests across 17 describe blocks — migration structure, shared types, configs, utility logic, skill YAML, task executor, NATS events, Eidolon integration, coherence checks.
 
 ### Added
+- **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
 - **Batch 67 — Agent Rate Limiting & Throttling**: Fair usage quotas, burst capacity management, throttle strategies, and per-agent rate limit policies
 - **Batch 66 — Agent Data Export & Import**: Bulk data portability with multi-format export/import, schema registry, field mappings, and transfer progress tracking
 - **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection
@@ -136,6 +138,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
 
 ### Added
+- **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
 - **Batch 67 — Agent Rate Limiting & Throttling**: Fair usage quotas, burst capacity management, throttle strategies, and per-agent rate limit policies
 - **Batch 66 — Agent Data Export & Import**: Bulk data portability with multi-format export/import, schema registry, field mappings, and transfer progress tracking
 - **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection
@@ -153,6 +156,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
 
 ### Added
+- **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
 - **Batch 67 — Agent Rate Limiting & Throttling**: Fair usage quotas, burst capacity management, throttle strategies, and per-agent rate limit policies
 - **Batch 66 — Agent Data Export & Import**: Bulk data portability with multi-format export/import, schema registry, field mappings, and transfer progress tracking
 - **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection
@@ -347,6 +351,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Flutter mobile app fixes: corrected API base URL from hardcoded port 3004 to gateway (EnvConfig.apiBase), added public-status fallback for guest users, fixed SSE path to match gateway route.
 
 ### Added
+- **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
 - **Batch 67 — Agent Rate Limiting & Throttling**: Fair usage quotas, burst capacity management, throttle strategies, and per-agent rate limit policies
 - **Batch 66 — Agent Data Export & Import**: Bulk data portability with multi-format export/import, schema registry, field mappings, and transfer progress tracking
 - **Batch 65 — Agent Feature Flags & Experiments**: Toggle features, run A/B experiments with variant assignments, gradual rollouts, and metric-driven winner selection

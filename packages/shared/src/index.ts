@@ -90,3 +90,4 @@ export * from './agent-secrets-credentials.js';
 export * from './agent-feature-flags.js';
 export * from './agent-data-export-import.js';
 export * from './agent-rate-limiting.js';
+export * from './agent-localization.js';
