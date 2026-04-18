@@ -245,3 +245,6 @@ skills/autonomous-economy/agent-caching-cdn/** export-ignore
 services/gateway-api/migrations/20260615120000_agent_api_gateway.sql export-ignore
 packages/shared/src/agent-api-gateway.ts export-ignore
 skills/autonomous-economy/agent-api-gateway/** export-ignore
+services/gateway-api/migrations/20260616120000_agent_log_aggregation.sql filter=skip-on-archive export-ignore
+packages/shared/src/agent-log-aggregation.ts filter=skip-on-archive export-ignore
+skills/autonomous-economy/agent-log-aggregation/SKILL.md filter=skip-on-archive export-ignore

@@ -10,6 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
 - **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
@@ -125,6 +126,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch28-persistent-memory.test.ts`): 98 tests across 17 describe blocks — migration structure, shared types, configs, utility logic, skill YAML, task executor, NATS events, Eidolon integration, coherence checks.
 
 ### Added
+- **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
 - **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
@@ -148,6 +150,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
 
 ### Added
+- **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
 - **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
@@ -171,6 +174,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
 
 ### Added
+- **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
 - **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
@@ -371,6 +375,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Flutter mobile app fixes: corrected API base URL from hardcoded port 3004 to gateway (EnvConfig.apiBase), added public-status fallback for guest users, fixed SSE path to match gateway route.
 
 ### Added
+- **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
 - **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
