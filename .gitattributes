@@ -203,3 +203,6 @@ skills/autonomous-economy/agent-monitoring/** export-ignore
 services/gateway-api/migrations/20260601120000_agent_backup_recovery.sql export-ignore
 packages/shared/src/agent-backup-recovery.ts export-ignore
 skills/autonomous-economy/agent-backup-recovery/** export-ignore
+services/gateway-api/migrations/20260602120000_agent_access_control.sql export-ignore
+packages/shared/src/agent-access-control.ts export-ignore
+skills/autonomous-economy/agent-access-control/** export-ignore
