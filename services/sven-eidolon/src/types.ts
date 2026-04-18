@@ -65,7 +65,8 @@ export type EidolonBuildingKind =
   | 'cache_tower'
   | 'api_gateway'
   | 'log_archive'
-  | 'mesh_nexus';
+  | 'mesh_nexus'
+  | 'cost_center';
 
 export interface EidolonBuilding {
   id: string;
@@ -392,6 +393,10 @@ export type EidolonEventKind =
   | 'mesh.health_changed'
   | 'mesh.dependency_mapped'
   | 'mesh.traffic_routed'
+  | 'cost.budget_created'
+  | 'cost.spend_recorded'
+  | 'cost.alert_triggered'
+  | 'cost.recommendation_made'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -539,6 +544,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'api_gateway':
     case 'log_archive':
     case 'mesh_nexus':
+    case 'cost_center':
       return 'civic';
   }
 }

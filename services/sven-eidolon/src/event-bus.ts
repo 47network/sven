@@ -263,6 +263,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.mesh.health_changed': 'mesh.health_changed',
   'sven.mesh.dependency_mapped': 'mesh.dependency_mapped',
   'sven.mesh.traffic_routed': 'mesh.traffic_routed',
+  'sven.cost.budget_created': 'cost.budget_created',
+  'sven.cost.spend_recorded': 'cost.spend_recorded',
+  'sven.cost.alert_triggered': 'cost.alert_triggered',
+  'sven.cost.recommendation_made': 'cost.recommendation_made',
 };
 
 export class EidolonEventBus {
