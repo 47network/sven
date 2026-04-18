@@ -195,6 +195,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.monitoring.alert_fired': 'monitoring.alert_fired',
   'sven.monitoring.slo_breached': 'monitoring.slo_breached',
   'sven.monitoring.dashboard_updated': 'monitoring.dashboard_updated',
+  'sven.backup.job_created': 'backup.job_created',
+  'sven.backup.restore_completed': 'backup.restore_completed',
+  'sven.backup.dr_plan_tested': 'backup.dr_plan_tested',
+  'sven.backup.retention_applied': 'backup.retention_applied',
 };
 
 export class EidolonEventBus {

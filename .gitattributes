@@ -200,3 +200,6 @@ skills/autonomous-economy/agent-messaging/** export-ignore
 services/gateway-api/migrations/20260531120000_agent_monitoring_observability.sql export-ignore
 packages/shared/src/agent-monitoring-observability.ts export-ignore
 skills/autonomous-economy/agent-monitoring/** export-ignore
+services/gateway-api/migrations/20260601120000_agent_backup_recovery.sql export-ignore
+packages/shared/src/agent-backup-recovery.ts export-ignore
+skills/autonomous-economy/agent-backup-recovery/** export-ignore

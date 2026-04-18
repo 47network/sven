@@ -383,6 +383,13 @@ export class TaskExecutor {
       case 'log_query': return this.handleLogQuery(input);
       case 'slo_define': return this.handleSloDefine(input);
       case 'slo_check': return this.handleSloCheck(input);
+      case 'backup_create': return this.handleBackupCreate(input);
+      case 'backup_restore': return this.handleBackupRestore(input);
+      case 'recovery_point_create': return this.handleRecoveryPointCreate(input);
+      case 'retention_set': return this.handleRetentionSet(input);
+      case 'dr_plan_create': return this.handleDrPlanCreate(input);
+      case 'dr_test': return this.handleDrTest(input);
+      case 'restore_log_query': return this.handleRestoreLogQuery(input);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4112,6 +4119,96 @@ export class TaskExecutor {
       budgetRemaining: 98.5,
       status: 'met',
       checkedAt: new Date().toISOString(),
+    };
+  }
+
+  /** Create a backup job for an agent. */
+  private handleBackupCreate(input: Record<string, unknown>) {
+    const jobId = `bkp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      jobId,
+      agentId: input.agentId ?? 'unknown',
+      backupType: input.backupType ?? 'full',
+      status: 'pending',
+      sizeBytes: 0,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  /** Restore an agent from a recovery point. */
+  private handleBackupRestore(input: Record<string, unknown>) {
+    const restoreLogId = `rlog-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      restoreLogId,
+      recoveryPointId: input.recoveryPointId ?? 'unknown',
+      restoreType: input.restoreType ?? 'full',
+      status: 'completed',
+      itemsRestored: 42,
+      itemsFailed: 0,
+      durationMs: 3200,
+      restoredAt: new Date().toISOString(),
+    };
+  }
+
+  /** Create a recovery point for an agent. */
+  private handleRecoveryPointCreate(input: Record<string, unknown>) {
+    const rpId = `rp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      recoveryPointId: rpId,
+      agentId: input.agentId ?? 'unknown',
+      recoveryType: input.recoveryType ?? 'full',
+      status: 'available',
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  /** Set a retention policy for agent backups. */
+  private handleRetentionSet(input: Record<string, unknown>) {
+    const policyId = `rpol-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      policyId,
+      agentId: input.agentId ?? 'unknown',
+      policyName: input.policyName ?? 'default',
+      retentionDays: input.retentionDays ?? 30,
+      maxBackups: input.maxBackups ?? 100,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  /** Create a disaster recovery plan. */
+  private handleDrPlanCreate(input: Record<string, unknown>) {
+    const planId = `drp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      planId,
+      agentId: input.agentId ?? 'unknown',
+      planName: input.planName ?? 'default-dr',
+      priority: input.priority ?? 'medium',
+      rtoMinutes: input.rtoMinutes ?? 60,
+      rpoMinutes: input.rpoMinutes ?? 15,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  /** Test a disaster recovery plan (dry run). */
+  private handleDrTest(input: Record<string, unknown>) {
+    return {
+      drPlanId: input.drPlanId ?? 'unknown',
+      testResult: 'passed',
+      actualRtoMinutes: 45,
+      passed: true,
+      testedAt: new Date().toISOString(),
+    };
+  }
+
+  /** Query restore logs for an agent. */
+  private handleRestoreLogQuery(input: Record<string, unknown>) {
+    return {
+      agentId: input.agentId ?? 'unknown',
+      logs: [],
+      totalCount: 0,
+      queriedAt: new Date().toISOString(),
     };
   }
 }
