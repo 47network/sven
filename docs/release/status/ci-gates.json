@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-18T17:06:07.606Z",
-  "source_branch": "improve-infra-scanner-tests-5807086919779338190",
-  "source_head_sha": "bf3444e176cd7c4c720bb3014cdd7735078e488e",
+  "generated_at": "2026-04-18T17:12:03.226Z",
+  "source_branch": "testing-secret-scanner-patterns-3113689402641227932",
+  "source_head_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-18T17:06:06.746Z",
-    "branch": "improve-infra-scanner-tests-5807086919779338190",
-    "total_runs": 30
+    "captured_at": "2026-04-18T17:12:02.527Z",
+    "branch": "testing-secret-scanner-patterns-3113689402641227932",
+    "total_runs": 19
   },
   "final_dod_ci": false,
   "parity_e2e_ci": false,
@@ -39,7 +39,7 @@
     "final_dod_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -53,7 +53,7 @@
     "parity_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -67,7 +67,7 @@
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -81,7 +81,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": "pass",
       "conclusion": "success",
@@ -91,12 +91,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-18T17:06:04.077Z"
+      "generated_at": "2026-04-18T17:11:59.862Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -111,7 +111,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -121,12 +121,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-18T17:06:05.226Z"
+      "generated_at": "2026-04-18T17:12:01.021Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -136,12 +136,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-18T17:06:06.388Z"
+      "generated_at": "2026-04-18T17:12:02.204Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -156,7 +156,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -169,7 +169,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -183,7 +183,7 @@
     "mobile_auth_session_smoke_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -197,7 +197,7 @@
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -211,7 +211,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -225,7 +225,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -238,7 +238,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -252,7 +252,7 @@
     "ui_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -266,7 +266,7 @@
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -280,7 +280,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -292,9 +292,9 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24609595398,
-      "head_sha": "bf3444e176cd7c4c720bb3014cdd7735078e488e",
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "run_id": 24609509196,
+      "head_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": "push",
       "status": "completed",
       "conclusion": "success",
@@ -307,7 +307,7 @@
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -321,7 +321,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -335,7 +335,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -349,7 +349,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -375,7 +375,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -389,7 +389,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -403,7 +403,7 @@
     "security_baseline_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+      "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -412,7 +412,7 @@
       "matched_target_sha": false,
       "gate_key": "security_baseline_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "bf3444e176cd7c4c720bb3014cdd7735078e488e"
+      "target_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a"
     }
   },
   "required_workflow_manifest": {
@@ -445,7 +445,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -463,7 +463,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -481,7 +481,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -499,7 +499,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -517,7 +517,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -531,11 +531,11 @@
       "gate_key": "mobile_auth_session_smoke_ci"
     },
     "flutter-user-app-device-farm": {
-      "pass": true,
+      "pass": false,
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -543,8 +543,8 @@
         "workflow_name": "flutter-user-app-device-farm",
         "matched_target_sha": false,
         "gate_key": "flutter_user_app_device_farm_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": true
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a"
       },
       "gate_key": "flutter_user_app_device_farm_ci"
     },
@@ -553,7 +553,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -571,7 +571,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -589,7 +589,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -605,9 +605,9 @@
     "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24609595398,
-        "head_sha": "bf3444e176cd7c4c720bb3014cdd7735078e488e",
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "run_id": 24609509196,
+        "head_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": "push",
         "status": "completed",
         "conclusion": "success",
@@ -622,9 +622,9 @@
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24609595400,
-        "head_sha": "bf3444e176cd7c4c720bb3014cdd7735078e488e",
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "run_id": 24609509194,
+        "head_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": "push",
         "status": "in_progress",
         "conclusion": null,
@@ -640,9 +640,9 @@
     "env-secrets-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24609595402,
-        "head_sha": "bf3444e176cd7c4c720bb3014cdd7735078e488e",
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "run_id": 24609509197,
+        "head_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": "push",
         "status": "completed",
         "conclusion": "success",
@@ -659,7 +659,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -668,7 +668,7 @@
         "matched_target_sha": false,
         "gate_key": "security_baseline_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "bf3444e176cd7c4c720bb3014cdd7735078e488e"
+        "target_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a"
       },
       "gate_key": "security_baseline_ci"
     },
@@ -677,7 +677,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -693,9 +693,9 @@
     "release-status": {
       "pass": true,
       "provenance": {
-        "run_id": 24609595406,
-        "head_sha": "bf3444e176cd7c4c720bb3014cdd7735078e488e",
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "run_id": 24609509198,
+        "head_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": "push",
         "status": "completed",
         "conclusion": "success",
@@ -708,20 +708,19 @@
       "gate_key": "release_status_ci"
     },
     "release-supply-chain": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24609509193,
+        "head_sha": "2946d2d8df43b574ffac57c592472614ab04cc2a",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310893,
         "workflow_name": "release-supply-chain",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "release_supply_chain_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "bf3444e176cd7c4c720bb3014cdd7735078e488e"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "release_supply_chain_ci"
     },
@@ -730,7 +729,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -748,7 +747,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -766,7 +765,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "improve-infra-scanner-tests-5807086919779338190",
+        "head_branch": "testing-secret-scanner-patterns-3113689402641227932",
         "event": null,
         "status": null,
         "conclusion": null,
