@@ -88,3 +88,4 @@ export * from './agent-marketplace-recommendations.js';
 export * from './agent-versioning-rollback.js';
 export * from './agent-secrets-credentials.js';
 export * from './agent-feature-flags.js';
+export * from './agent-data-export-import.js';

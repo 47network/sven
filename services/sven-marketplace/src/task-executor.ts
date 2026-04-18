@@ -432,6 +432,13 @@ export class TaskExecutor {
       case 'variant_assign': return this.handleVariantAssign(task);
       case 'metric_record': return this.handleMetricRecord(task);
       case 'experiment_conclude': return this.handleExperimentConclude(task);
+      case 'export_create': return this.handleExportCreate(task);
+      case 'import_create': return this.handleImportCreate(task);
+      case 'schema_register': return this.handleSchemaRegister(task);
+      case 'mapping_create': return this.handleMappingCreate(task);
+      case 'export_download': return this.handleExportDownload(task);
+      case 'import_validate': return this.handleImportValidate(task);
+      case 'transfer_status': return this.handleTransferStatus(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4554,6 +4561,35 @@ export class TaskExecutor {
 
   private handleExperimentConclude(task: any): any {
     return { experimentId: task.input?.experimentId, status: 'completed', winner: task.input?.winnerVariant };
+  }
+
+
+  private handleExportCreate(task: any): any {
+    return { jobId: `exp-${Date.now()}`, status: 'queued', estimatedSize: 0 };
+  }
+
+  private handleImportCreate(task: any): any {
+    return { jobId: `imp-${Date.now()}`, status: 'validating', validationStatus: 'pending' };
+  }
+
+  private handleSchemaRegister(task: any): any {
+    return { schemaId: `sch-${Date.now()}`, version: '1.0.0', registered: true };
+  }
+
+  private handleMappingCreate(task: any): any {
+    return { mappingId: `map-${Date.now()}`, fieldCount: 0, created: true };
+  }
+
+  private handleExportDownload(task: any): any {
+    return { filePath: '/tmp/export.json', fileSize: 0, checksum: 'sha256:none' };
+  }
+
+  private handleImportValidate(task: any): any {
+    return { valid: true, errors: [], rowCount: 0, schemaMatch: true };
+  }
+
+  private handleTransferStatus(task: any): any {
+    return { status: 'completed', progressPct: 100, rowsProcessed: 0, eta: null };
   }
 
 }

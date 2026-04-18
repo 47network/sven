@@ -223,6 +223,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.flags.experiment_started': 'flags.experiment_started',
   'sven.flags.variant_assigned': 'flags.variant_assigned',
   'sven.flags.experiment_concluded': 'flags.experiment_concluded',
+  'sven.data_transfer.export_created': 'data_transfer.export_created',
+  'sven.data_transfer.import_created': 'data_transfer.import_created',
+  'sven.data_transfer.transfer_completed': 'data_transfer.transfer_completed',
+  'sven.data_transfer.schema_registered': 'data_transfer.schema_registered',
 };
 
 export class EidolonEventBus {
