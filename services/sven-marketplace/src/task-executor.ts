@@ -331,6 +331,14 @@ export class TaskExecutor {
       case 'knowledge_feedback_submit': return this.handleKnowledgeFeedbackSubmit(input);
       case 'knowledge_category_manage': return this.handleKnowledgeCategoryManage(input);
 
+      case 'notification_send': return this.handleNotificationSend(input);
+      case 'notification_read': return this.handleNotificationRead(input);
+      case 'notification_preference_update': return this.handleNotificationPreferenceUpdate(input);
+      case 'notification_template_create': return this.handleNotificationTemplateCreate(input);
+      case 'notification_escalation_configure': return this.handleNotificationEscalationConfigure(input);
+      case 'notification_digest_generate': return this.handleNotificationDigestGenerate(input);
+      case 'notification_channel_manage': return this.handleNotificationChannelManage(input);
+
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -3494,6 +3502,88 @@ export class TaskExecutor {
       name: input.name,
       parentId: input.parentId ?? null,
       note: `Category ${input.action ?? 'create'} completed.`,
+    };
+  }
+
+  private handleNotificationSend(input: Record<string, unknown>) {
+    const id = `notif-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      notificationId: id,
+      agentId: input.agentId ?? null,
+      channel: input.channel ?? 'in_app',
+      priority: input.priority ?? 'normal',
+      sentAt: new Date().toISOString(),
+      note: 'Notification sent successfully.',
+    };
+  }
+
+  private handleNotificationRead(input: Record<string, unknown>) {
+    return {
+      status: 'completed',
+      notificationId: input.notificationId ?? null,
+      readAt: new Date().toISOString(),
+      note: 'Notification marked as read.',
+    };
+  }
+
+  private handleNotificationPreferenceUpdate(input: Record<string, unknown>) {
+    const id = `npref-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      preferenceId: id,
+      agentId: input.agentId ?? null,
+      notificationType: input.notificationType ?? null,
+      channel: input.channel ?? 'in_app',
+      enabled: input.enabled ?? true,
+      note: 'Notification preference updated.',
+    };
+  }
+
+  private handleNotificationTemplateCreate(input: Record<string, unknown>) {
+    const id = `ntpl-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      templateId: id,
+      name: input.name ?? null,
+      notificationType: input.notificationType ?? null,
+      note: 'Notification template created.',
+    };
+  }
+
+  private handleNotificationEscalationConfigure(input: Record<string, unknown>) {
+    const id = `nesc-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      ruleId: id,
+      name: input.name ?? null,
+      escalateAfterMinutes: input.escalateAfterMinutes ?? 30,
+      enabled: true,
+      note: 'Escalation rule configured.',
+    };
+  }
+
+  private handleNotificationDigestGenerate(input: Record<string, unknown>) {
+    return {
+      status: 'completed',
+      agentId: input.agentId ?? null,
+      period: input.period ?? 'daily',
+      totalCount: 0,
+      unreadCount: 0,
+      notifications: [],
+      note: 'Notification digest generated.',
+    };
+  }
+
+  private handleNotificationChannelManage(input: Record<string, unknown>) {
+    const id = `nch-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return {
+      status: 'completed',
+      channelId: id,
+      name: input.name ?? null,
+      action: input.action ?? 'create',
+      enabled: input.action !== 'disable',
+      note: `Notification channel ${input.action ?? 'create'} completed.`,
     };
   }
 }
