@@ -212,3 +212,6 @@ skills/autonomous-economy/agent-feedback-surveys/** export-ignore
 services/gateway-api/migrations/20260604120000_agent_marketplace_recommendations.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-marketplace-recommendations.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-marketplace-recommendations/** filter=skip-on-archive export-ignore
+services/gateway-api/migrations/20260605120000_agent_versioning_rollback.sql filter=skip-on-archive export-ignore
+packages/shared/src/agent-versioning-rollback.ts filter=skip-on-archive export-ignore
+skills/autonomous-economy/agent-versioning-rollback/** filter=skip-on-archive export-ignore

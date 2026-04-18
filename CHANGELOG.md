@@ -10,6 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
 - **Batch 61 — Agent Feedback & Surveys**: feedback submission, survey management, NPS analytics, improvement proposals, Eidolon feedback_plaza building
 - **Autonomous Economy — Batch 60**: Agent Access Control & Permissions — role-based and attribute-based access control for autonomous agents with permission grants, policy evaluation, access auditing, and scope boundaries. 5 DB tables (agent_roles, agent_permissions, agent_access_policies, agent_access_audit, agent_scopes), 17 indexes, 7 type unions (RoleType 5, PermissionAction 5, PermissionEffect 2, PolicyType 5, AccessDecision 5, ScopeType 5, AccessControlAction 7), 5 interfaces, 6 constants, 4 helper functions (isRoleActive, isPermissionAllowed, isAccessGranted, formatPermission), 7 skill actions (role_assign, role_revoke, permission_grant, permission_check, policy_create, audit_query, scope_define), Eidolon access_gate building kind (43 total), 4 event-bus subjects (187 total), 7 task-executor handlers (201 cases / 197 handlers total).
@@ -114,6 +115,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch28-persistent-memory.test.ts`): 98 tests across 17 describe blocks — migration structure, shared types, configs, utility logic, skill YAML, task executor, NATS events, Eidolon integration, coherence checks.
 
 ### Added
+- **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
 - **Batch 61 — Agent Feedback & Surveys**: feedback submission, survey management, NPS analytics, improvement proposals, Eidolon feedback_plaza building
 - **Autonomous Economy — Batch 27**: LLM Council (Multi-Model Debate).
@@ -126,6 +128,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
 
 ### Added
+- **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
 - **Batch 61 — Agent Feedback & Surveys**: feedback submission, survey management, NPS analytics, improvement proposals, Eidolon feedback_plaza building
 - **Autonomous Economy — Batch 26**: XLVII Brand / Merch Platform.
@@ -138,6 +141,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
 
 ### Added
+- **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
 - **Batch 61 — Agent Feedback & Surveys**: feedback submission, survey management, NPS analytics, improvement proposals, Eidolon feedback_plaza building
 - **Autonomous Economy — Batch 25**: Instagram + Social Media Integration.
@@ -327,6 +331,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Flutter mobile app fixes: corrected API base URL from hardcoded port 3004 to gateway (EnvConfig.apiBase), added public-status fallback for guest users, fixed SSE path to match gateway route.
 
 ### Added
+- **Batch 63 — Agent Versioning & Rollback**: Semantic versioning, state snapshots, multi-slot deployments (production/staging/canary), automatic rollbacks, and version diff tracking for agents
 - **Batch 62 — Agent Marketplace Recommendations**: AI-powered recommendation engine for marketplace discovery, collaborative filtering models, interaction tracking, recommendation campaigns, and feedback-driven personalization
 - **Batch 61 — Agent Feedback & Surveys**: feedback submission, survey management, NPS analytics, improvement proposals, Eidolon feedback_plaza building
 - Gateway API routes for all 8 expansion pillars: Design Intelligence (`/v1/design/*` — 15 endpoints: color palette/theme/contrast/blindness, typography scale/pairing/readability, motion animate/spring/stagger, layout spacing/grid/pattern, full design audit + history), Multi-Model & AI Agency (`/v1/models/*` + `/v1/agents/*` — 12 endpoints: model registry CRUD, intelligent routing with scoring, VRAM budget, agent spawn/terminate/list, benchmark suites/run/leaderboard), OCR & Document Intelligence (`/v1/documents/*` — 8 endpoints: OCR with mode selection, full pipeline, entity extraction, PII redaction, summarization, comparison, job history), Quantum Computing (`/v1/quantum/*` — 11 endpoints: simulation with noise models, QAOA/annealing/portfolio optimization, Grover's search, QRNG, backends, cost estimation, benchmark, job history), Security Toolkit (`/v1/security/*` — 10 endpoints: SAST scanning with 14 rules, dependency audit, secret scanning, infrastructure audit for Docker/TLS/env, penetration testing with 6 scenarios, security posture report, scan history), Trading Platform (`/v1/trading/*` — 12 endpoints: instruments, orders with mandatory pre-trade risk checks, portfolio with positions/performance, risk assessment with circuit breakers, candle predictions with ensemble, news sentiment/impact/entity analysis, strategy registry, signal aggregation, NATS subjects), Marketing Intelligence (`/v1/marketing/*` — 13 endpoints: competitor analysis with DB persistence, brand guidelines + voice check, content outline/draft/scoring with readability analysis, campaign creation + listing, conversation follow-up with empathy scoring, ROI/funnel analytics), Federated Compute Mesh (`/v1/compute/*` — 13 endpoints: device registration/discovery/status/removal, job submission/listing/detail/cancel/progress reporting, inference routing, scheduler policy CRUD, mesh statistics). All routes follow established gateway patterns: Fastify, requireRole + requireTenantMembership auth, parameterized SQL, `{ success, data }` response envelope, isSchemaCompatError graceful degradation, structured logging. DB migration `20260412100000_pillar_expansion_tables.sql` creates 17 tables with proper FK constraints, CHECK constraints, and optimized indexes across all 8 pillars.
