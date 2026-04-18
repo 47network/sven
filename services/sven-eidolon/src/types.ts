@@ -83,7 +83,8 @@ export type EidolonBuildingKind =
   | 'config_vault'
   | 'health_tower'
   | 'trace_nexus'
-  | 'load_balancer';
+  | 'load_balancer'
+  | 'validation_hub';
 
 export interface EidolonBuilding {
   id: string;
@@ -482,6 +483,10 @@ export type EidolonEventKind =
   | 'lb.backend_added'
   | 'lb.backend_drained'
   | 'lb.rule_activated'
+  | 'validation.schema_created'
+  | 'validation.data_validated'
+  | 'validation.pipeline_completed'
+  | 'validation.audit_logged'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -627,6 +632,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'health_tower':
     case 'trace_nexus':
     case 'load_balancer':
+    case 'validation_hub':
     case 'pipeline_forge':
     case 'cache_tower':
     case 'api_gateway':
@@ -650,6 +656,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'health_tower':
     case 'trace_nexus':
     case 'load_balancer':
+    case 'validation_hub':
       return 'civic';
   }
 }

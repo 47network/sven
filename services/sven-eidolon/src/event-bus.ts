@@ -335,6 +335,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.lb.backend_added': 'lb.backend_added',
   'sven.lb.backend_drained': 'lb.backend_drained',
   'sven.lb.rule_activated': 'lb.rule_activated',
+  'sven.validation.schema_created': 'validation.schema_created',
+  'sven.validation.data_validated': 'validation.data_validated',
+  'sven.validation.pipeline_completed': 'validation.pipeline_completed',
+  'sven.validation.audit_logged': 'validation.audit_logged',
 };
 
 export class EidolonEventBus {

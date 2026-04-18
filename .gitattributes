@@ -305,3 +305,6 @@ skills/autonomous-economy/agent-distributed-tracing/SKILL.md filter=skip-on-arch
 services/gateway-api/migrations/20260617300000_agent_load_balancing.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-load-balancing.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-load-balancing/SKILL.md filter=skip-on-archive export-ignore
+services/gateway-api/migrations/20260617310000_agent_data_validation.sql filter=skip-on-archive export-ignore
+packages/shared/src/agent-data-validation.ts filter=skip-on-archive export-ignore
+skills/autonomous-economy/agent-data-validation/SKILL.md filter=skip-on-archive export-ignore

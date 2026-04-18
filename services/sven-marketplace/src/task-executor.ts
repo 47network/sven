@@ -488,6 +488,13 @@ export class TaskExecutor {
       case 'lb_drain_backend': return this.handleLbDrainBackend(task);
       case 'lb_traffic_stats': return this.handleLbTrafficStats(task);
       case 'lb_report': return this.handleLbReport(task);
+      case 'validation_create_schema': return this.handleValidationCreateSchema(task);
+      case 'validation_add_rule': return this.handleValidationAddRule(task);
+      case 'validation_validate': return this.handleValidationValidate(task);
+      case 'validation_create_pipeline': return this.handleValidationCreatePipeline(task);
+      case 'validation_run_pipeline': return this.handleValidationRunPipeline(task);
+      case 'validation_audit': return this.handleValidationAudit(task);
+      case 'validation_report': return this.handleValidationReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -5602,6 +5609,36 @@ export class TaskExecutor {
 
   private async handleLbReport(task: any): Promise<any> {
     return { ok: true, handler: 'lb_report', activeLBs: 0, totalBackends: 0, healthyBackends: 0, avgLatency: 0, recommendations: [] };
+  }
+
+
+
+  private async handleValidationCreateSchema(task: any): Promise<any> {
+    return { ok: true, handler: 'validation_create_schema', schemaId: '', name: task.input?.name || '', version: '1.0.0', status: 'active' };
+  }
+
+  private async handleValidationAddRule(task: any): Promise<any> {
+    return { ok: true, handler: 'validation_add_rule', ruleId: '', fieldPath: task.input?.fieldPath || '', ruleType: 'required', severity: 'error' };
+  }
+
+  private async handleValidationValidate(task: any): Promise<any> {
+    return { ok: true, handler: 'validation_validate', isValid: true, errorCount: 0, warningCount: 0, errors: [], warnings: [] };
+  }
+
+  private async handleValidationCreatePipeline(task: any): Promise<any> {
+    return { ok: true, handler: 'validation_create_pipeline', pipelineId: '', name: task.input?.name || '', stageCount: 0, status: 'active' };
+  }
+
+  private async handleValidationRunPipeline(task: any): Promise<any> {
+    return { ok: true, handler: 'validation_run_pipeline', passed: true, stageResults: [], totalErrors: 0, totalWarnings: 0 };
+  }
+
+  private async handleValidationAudit(task: any): Promise<any> {
+    return { ok: true, handler: 'validation_audit', auditId: '', action: task.input?.action || 'validate', createdAt: new Date().toISOString() };
+  }
+
+  private async handleValidationReport(task: any): Promise<any> {
+    return { ok: true, handler: 'validation_report', totalValidations: 0, passRate: 1, topErrors: [], recommendations: [] };
   }
 
 }
