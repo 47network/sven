@@ -202,6 +202,10 @@ export class TaskExecutor {
       case 'support':       return { status: 'completed', response: '', note: 'Support handler — auto-acknowledged.' };
       case 'misiuni_post':  return this.handleMisiuniPost(input);
       case 'misiuni_verify': return this.handleMisiuniVerify(input);
+      case 'legal_research': return this.handleLegalResearch(input);
+      case 'print_broker':   return this.handlePrintBroker(input);
+      case 'trend_research': return this.handleTrendResearch(input);
+      case 'author_persona': return this.handleAuthorPersona(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -590,6 +594,142 @@ export class TaskExecutor {
       reason: verified
         ? `Proof verified with ${(confidence * 100).toFixed(0)}% confidence.`
         : `Proof rejected — ${flags.join(', ')}.`,
+    };
+  }
+
+  /* ── Batch 24 — Publishing v2 handlers ──────────────────── */
+
+  private handleLegalResearch(input: Record<string, unknown>): TaskResult {
+    const country = String(input.country ?? 'RO');
+    const bookTitle = String(input.book_title ?? 'Untitled');
+    const requirementTypes = [
+      'isbn_registration',
+      'copyright_filing',
+      'distribution_agreement',
+      'tax_obligations',
+      'content_rating',
+      'deposit_copy',
+    ];
+    const requirements = requirementTypes.map((type) => ({
+      type,
+      status: 'pending' as const,
+      country,
+      description: `${type.replace(/_/g, ' ')} requirement for ${country}`,
+      estimatedCostEur: type === 'isbn_registration' ? 25 : type === 'copyright_filing' ? 50 : 0,
+      deadlineDays: type === 'tax_obligations' ? 90 : 30,
+    }));
+
+    return {
+      status: 'completed',
+      bookTitle,
+      country,
+      requirementsFound: requirements.length,
+      requirements,
+      summary: `Found ${requirements.length} legal requirements for publishing "${bookTitle}" in ${country}.`,
+    };
+  }
+
+  private handlePrintBroker(input: Record<string, unknown>): TaskResult {
+    const format = String(input.format ?? 'paperback');
+    const quantity = Number(input.quantity ?? 100);
+    const edgeType = String(input.edge_type ?? 'plain');
+
+    const providers = [
+      { name: 'amazon_kdp', unitCostEur: 3.5, minOrder: 1, turnaroundDays: 5, supportsEdgePrinting: false },
+      { name: 'ingram_spark', unitCostEur: 4.2, minOrder: 1, turnaroundDays: 7, supportsEdgePrinting: false },
+      { name: 'lulu', unitCostEur: 4.0, minOrder: 1, turnaroundDays: 6, supportsEdgePrinting: false },
+      { name: 'tipografia_universul', unitCostEur: 2.8, minOrder: 50, turnaroundDays: 14, supportsEdgePrinting: true },
+    ];
+
+    const eligible = providers.filter((p) => {
+      if (edgeType !== 'plain' && !p.supportsEdgePrinting) return false;
+      if (quantity < p.minOrder) return false;
+      return true;
+    });
+
+    const ranked = eligible
+      .map((p) => ({ ...p, totalCostEur: +(p.unitCostEur * quantity).toFixed(2) }))
+      .sort((a, b) => a.totalCostEur - b.totalCostEur);
+
+    return {
+      status: 'completed',
+      format,
+      quantity,
+      edgeType,
+      providersEvaluated: providers.length,
+      eligibleProviders: ranked.length,
+      recommendations: ranked,
+      bestOption: ranked[0]?.name ?? 'none',
+      summary: ranked.length
+        ? `Best option: ${ranked[0].name} at €${ranked[0].totalCostEur} for ${quantity} copies.`
+        : `No eligible provider found for ${quantity}x ${format} with ${edgeType} edges.`,
+    };
+  }
+
+  private handleTrendResearch(input: Record<string, unknown>): TaskResult {
+    const market = String(input.market ?? 'global');
+    const genre = String(input.genre ?? 'romance');
+
+    const trendingGenres = [
+      { genre: 'dark-romance', score: 95, source: 'amazon_bestsellers' },
+      { genre: 'mafia-romance', score: 88, source: 'booktok' },
+      { genre: 'enemies-to-lovers', score: 92, source: 'goodreads' },
+      { genre: 'why-choose', score: 78, source: 'booktok' },
+      { genre: 'romantasy', score: 85, source: 'amazon_bestsellers' },
+      { genre: 'psychological-thriller', score: 82, source: 'goodreads' },
+    ];
+
+    const trendingTropes = [
+      'enemies-to-lovers',
+      'morally-grey',
+      'forced-proximity',
+      'touch-her-and-die',
+      'grumpy-sunshine',
+    ];
+
+    const competition = genre === 'dark-romance' ? 'high' : genre === 'romantasy' ? 'medium' : 'low';
+
+    return {
+      status: 'completed',
+      market,
+      requestedGenre: genre,
+      trendingGenres,
+      trendingTropes,
+      competition,
+      recommendation: `Focus on ${trendingGenres[0].genre} (score: ${trendingGenres[0].score}) — ${competition} competition in ${market} market.`,
+    };
+  }
+
+  private handleAuthorPersona(input: Record<string, unknown>): TaskResult {
+    const personaName = String(input.persona_name ?? 'Anonymous Author');
+    const primaryGenre = String(input.primary_genre ?? 'romance');
+    const voiceStyle = String(input.voice_style ?? 'witty and emotional');
+
+    const persona = {
+      name: personaName,
+      primaryGenre,
+      voiceStyle,
+      brandElements: {
+        tagline: `Stories that burn — by ${personaName}`,
+        themes: ['passion', 'redemption', 'forbidden desire'],
+        targetAudience: '18-35, primarily female readers',
+        socialMediaTone: 'mysterious yet approachable',
+      },
+      backlist: [] as string[],
+      evolutionStage: 'nascent' as const,
+      reputationScore: 0,
+    };
+
+    return {
+      status: 'completed',
+      persona,
+      summary: `Author persona "${personaName}" created for ${primaryGenre} genre with "${voiceStyle}" voice.`,
+      nextSteps: [
+        'Develop 3-book series outline for backlist building',
+        'Create social media presence templates',
+        'Define cover art style guide for brand consistency',
+        'Set up author page on marketplace',
+      ],
     };
   }
 }

@@ -15,7 +15,8 @@ export type EidolonBuildingKind =
   | 'agent_business'
   | 'crew_headquarters'
   | 'publishing_house'
-  | 'recruitment_center';
+  | 'recruitment_center'
+  | 'print_works';
 
 export interface EidolonBuilding {
   id: string;
@@ -134,6 +135,12 @@ export type EidolonEventKind =
   | 'misiuni.proof_submitted'
   | 'misiuni.task_verified'
   | 'misiuni.payment_released'
+  | 'publishing.print_order_created'
+  | 'publishing.print_order_shipped'
+  | 'publishing.legal_requirement_added'
+  | 'publishing.genre_trend_discovered'
+  | 'publishing.author_persona_created'
+  | 'publishing.printer_proposal_submitted'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -196,6 +203,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'publishing_house':
       return 'market';
     case 'recruitment_center':
+      return 'market';
+    case 'print_works':
       return 'market';
   }
 }

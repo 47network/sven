@@ -55,6 +55,12 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.misiuni.proof_submitted': 'misiuni.proof_submitted',
   'sven.misiuni.task_verified': 'misiuni.task_verified',
   'sven.misiuni.payment_released': 'misiuni.payment_released',
+  'sven.publishing.print_order_created': 'publishing.print_order_created',
+  'sven.publishing.print_order_shipped': 'publishing.print_order_shipped',
+  'sven.publishing.legal_requirement_added': 'publishing.legal_requirement_added',
+  'sven.publishing.genre_trend_discovered': 'publishing.genre_trend_discovered',
+  'sven.publishing.author_persona_created': 'publishing.author_persona_created',
+  'sven.publishing.printer_proposal_submitted': 'publishing.printer_proposal_submitted',
 };
 
 export class EidolonEventBus {

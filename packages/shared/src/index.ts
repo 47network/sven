@@ -47,3 +47,4 @@ export * from './agent-crews.js';
 export * from './publishing-pipeline.js';
 export * from './eidolon-world.js';
 export * from './misiuni.js';
+export * from './publishing-v2.js';

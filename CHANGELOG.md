@@ -10,6 +10,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Autonomous Economy — Batch 24**: Publishing Pipeline v2 (Printing, Legal, POD, Trending Genres).
+  - **Migration**: 7 new tables — pod_integrations, printing_orders, legal_requirements, genre_trends, author_personas, edge_printing_specs, printer_purchase_proposals. 21 indexes, CHECK constraints, JSONB metadata columns.
+  - **Shared Types** (`packages/shared/src/publishing-v2.ts`): 11 type unions (PrintOrderStatus, PrintOrderType, PrintFormat, EdgeType, PODProvider, LegalRequirementType, LegalStatus, TrendSource, CompetitionLevel, PrinterType, ProposalStatus), 6 interfaces, 4 utility functions (canAdvancePrintOrder, calculatePrintCost, calculateBreakEven, calculateROI), 10 constants including 15 trending genres and 16 trending tropes.
+  - **Admin API** (`services/gateway-api/src/routes/admin/publishing-v2.ts`): 29 route handlers — POD integrations CRUD, printing orders CRUD, legal requirements CRUD, genre trends CRUD, author personas CRUD, edge printing specs, printer purchase proposals with auto break-even/ROI calculation, analytics endpoint.
+  - **NATS/Eidolon Wiring**: 6 new SUBJECT_MAP entries. 6 new EidolonEventKind values. `print_works` added to EidolonBuildingKind.
+  - **Skills**: book-legal, book-print-broker, genre-research-v2, author-persona (4 new skills).
+  - **Task Executor**: 4 new handlers (legal_research, print_broker, trend_research, author_persona).
+  - **Tests**: 132 tests across 7 describe blocks.
 - **Autonomous Economy — Batch 23**: Misiuni.ro Platform (AI Hires Humans).
   - **Migration**: 7 new tables — misiuni_workers, misiuni_tasks, misiuni_bids, misiuni_proofs, misiuni_payments, misiuni_reviews, misiuni_disputes. 27 indexes, CHECK constraints, JSONB metadata columns.
   - **Shared Types** (`packages/shared/src/misiuni.ts`): 15+ type unions (MisiuniTaskCategory, MisiuniProofType, MisiuniTaskStatus, WorkerAvailability, BidStatus, ProofVerificationStatus, etc.), 7 interfaces, utility functions (calculatePlatformFee, calculateWorkerPayout, canTransitionTask, haversineKm), 42 Romanian counties, platform constants.
