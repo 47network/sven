@@ -317,3 +317,28 @@ skills/autonomous-economy/agent-workflow-templates/SKILL.md filter=skip-on-archi
 services/gateway-api/migrations/20260617340000_agent_rate_limiting.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-rate-limiting.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-rate-limiting/SKILL.md filter=skip-on-archive export-ignore
+
+# Batch 98 — Agent Auto-Scaling
+packages/shared/src/agent-auto-scaling.ts filter=sven-private
+services/gateway-api/migrations/20260617350000_agent_auto_scaling.sql filter=sven-private
+skills/agent-auto-scaling/** filter=sven-private
+
+# Batch 99 — Agent DNS Management
+packages/shared/src/agent-dns-management.ts filter=sven-private
+services/gateway-api/migrations/20260617360000_agent_dns_management.sql filter=sven-private
+skills/agent-dns-management/** filter=sven-private
+
+# Batch 100 — Agent SSL Certificates
+packages/shared/src/agent-ssl-certificates.ts filter=sven-private
+services/gateway-api/migrations/20260617370000_agent_ssl_certificates.sql filter=sven-private
+skills/agent-ssl-certificates/** filter=sven-private
+
+# Batch 101 — Agent Chaos Engineering
+packages/shared/src/agent-chaos-engineering.ts filter=sven-private
+services/gateway-api/migrations/20260617380000_agent_chaos_engineering.sql filter=sven-private
+skills/agent-chaos-engineering/** filter=sven-private
+
+# Batch 102 — Agent A/B Testing
+packages/shared/src/agent-ab-testing.ts filter=sven-private
+services/gateway-api/migrations/20260617390000_agent_ab_testing.sql filter=sven-private
+skills/agent-ab-testing/** filter=sven-private

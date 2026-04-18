@@ -119,3 +119,8 @@ export * from './agent-load-balancing.js';
 export * from './agent-data-validation.js';
 export * from './agent-schema-registry.js';
 export * from './agent-workflow-templates.js';
+export * from './agent-auto-scaling.js';
+export * from './agent-dns-management.js';
+export * from './agent-ssl-certificates.js';
+export * from './agent-chaos-engineering.js';
+export * from './agent-ab-testing.js';

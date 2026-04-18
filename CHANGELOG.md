@@ -10,6 +10,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 98**: Agent Auto-Scaling — scaling policies, metric tracking, cost optimisation (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 99**: Agent DNS Management — zone CRUD, record management, propagation tracking (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 100**: Agent SSL Certificates — cert lifecycle, auto-renewal, expiry alerts (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 101**: Agent Chaos Engineering — fault injection, resilience testing, weakness discovery (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 102**: Agent A/B Testing — experiment design, variant assignment, statistical analysis (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 97 — Agent Rate Limiting**: rate limiting policies, quotas, throttling, and violation tracking
 - **Batch 96 — Agent Workflow Templates**: reusable workflow templates with steps, triggers, and execution tracking
 - **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
@@ -149,6 +154,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch28-persistent-memory.test.ts`): 98 tests across 17 describe blocks — migration structure, shared types, configs, utility logic, skill YAML, task executor, NATS events, Eidolon integration, coherence checks.
 
 ### Added
+- **Batch 98**: Agent Auto-Scaling — scaling policies, metric tracking, cost optimisation (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 99**: Agent DNS Management — zone CRUD, record management, propagation tracking (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 100**: Agent SSL Certificates — cert lifecycle, auto-renewal, expiry alerts (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 101**: Agent Chaos Engineering — fault injection, resilience testing, weakness discovery (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 102**: Agent A/B Testing — experiment design, variant assignment, statistical analysis (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 97 — Agent Rate Limiting**: rate limiting policies, quotas, throttling, and violation tracking
 - **Batch 96 — Agent Workflow Templates**: reusable workflow templates with steps, triggers, and execution tracking
 - **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
@@ -196,6 +206,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
 
 ### Added
+- **Batch 98**: Agent Auto-Scaling — scaling policies, metric tracking, cost optimisation (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 99**: Agent DNS Management — zone CRUD, record management, propagation tracking (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 100**: Agent SSL Certificates — cert lifecycle, auto-renewal, expiry alerts (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 101**: Agent Chaos Engineering — fault injection, resilience testing, weakness discovery (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 102**: Agent A/B Testing — experiment design, variant assignment, statistical analysis (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 97 — Agent Rate Limiting**: rate limiting policies, quotas, throttling, and violation tracking
 - **Batch 96 — Agent Workflow Templates**: reusable workflow templates with steps, triggers, and execution tracking
 - **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
@@ -243,6 +258,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
 
 ### Added
+- **Batch 98**: Agent Auto-Scaling — scaling policies, metric tracking, cost optimisation (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 99**: Agent DNS Management — zone CRUD, record management, propagation tracking (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 100**: Agent SSL Certificates — cert lifecycle, auto-renewal, expiry alerts (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 101**: Agent Chaos Engineering — fault injection, resilience testing, weakness discovery (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 102**: Agent A/B Testing — experiment design, variant assignment, statistical analysis (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 97 — Agent Rate Limiting**: rate limiting policies, quotas, throttling, and violation tracking
 - **Batch 96 — Agent Workflow Templates**: reusable workflow templates with steps, triggers, and execution tracking
 - **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
@@ -467,6 +487,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Flutter mobile app fixes: corrected API base URL from hardcoded port 3004 to gateway (EnvConfig.apiBase), added public-status fallback for guest users, fixed SSE path to match gateway route.
 
 ### Added
+- **Batch 98**: Agent Auto-Scaling — scaling policies, metric tracking, cost optimisation (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 99**: Agent DNS Management — zone CRUD, record management, propagation tracking (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 100**: Agent SSL Certificates — cert lifecycle, auto-renewal, expiry alerts (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 101**: Agent Chaos Engineering — fault injection, resilience testing, weakness discovery (migration, types, skill, eidolon, event-bus, task-executor, tests)
+- **Batch 102**: Agent A/B Testing — experiment design, variant assignment, statistical analysis (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 97 — Agent Rate Limiting**: rate limiting policies, quotas, throttling, and violation tracking
 - **Batch 96 — Agent Workflow Templates**: reusable workflow templates with steps, triggers, and execution tracking
 - **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
