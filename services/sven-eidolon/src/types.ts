@@ -34,7 +34,8 @@ export type EidolonBuildingKind =
   | 'analytics_tower'
   | 'reputation_monument'
   | 'council_chamber'
-  | 'medical_bay';
+  | 'medical_bay'
+  | 'dispatch_center';
 
 export interface EidolonBuilding {
   id: string;
@@ -237,6 +238,10 @@ export type EidolonEventKind =
   | 'health.recovery_triggered'
   | 'lifecycle.state_changed'
   | 'lifecycle.agent_retired'
+  | 'task.queued'
+  | 'task.assigned'
+  | 'task.completed'
+  | 'task.schedule_triggered'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -338,5 +343,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'civic';
     case 'medical_bay':
       return 'residential';
+    case 'dispatch_center':
+      return 'industrial';
   }
 }

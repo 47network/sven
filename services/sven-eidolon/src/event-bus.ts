@@ -139,6 +139,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.health.recovery_triggered': 'health.recovery_triggered',
   'sven.lifecycle.state_changed': 'lifecycle.state_changed',
   'sven.lifecycle.agent_retired': 'lifecycle.agent_retired',
+  'sven.task.queued': 'task.queued',
+  'sven.task.assigned': 'task.assigned',
+  'sven.task.completed': 'task.completed',
+  'sven.task.schedule_triggered': 'task.schedule_triggered',
 };
 
 export class EidolonEventBus {

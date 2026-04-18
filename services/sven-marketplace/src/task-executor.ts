@@ -279,6 +279,13 @@ export class TaskExecutor {
       case 'sla_configure': return this.handleSlaConfigure(input);
       case 'health_report': return this.handleHealthReport(input);
       case 'lifecycle_history': return this.handleLifecycleHistory(input);
+      case 'queue_submit': return this.handleQueueSubmit(input);
+      case 'queue_poll': return this.handleQueuePoll(input);
+      case 'queue_assign': return this.handleQueueAssign(input);
+      case 'schedule_create': return this.handleScheduleCreate(input);
+      case 'schedule_toggle': return this.handleScheduleToggle(input);
+      case 'dependency_add': return this.handleDependencyAdd(input);
+      case 'execution_history_query': return this.handleExecutionHistoryQuery(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -2537,6 +2544,140 @@ export class TaskExecutor {
         totalTransitions: 4,
         currentState: 'active',
         message: `Lifecycle history for ${agentId}: ${limit} most recent transitions.`,
+      },
+    };
+  }
+
+  /** Submit a task to the queue. */
+  private async handleQueueSubmit(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const taskType = String(input.taskType ?? 'generic');
+    const priority = (input.priority as number) || 50;
+    const payload = (input.payload as Record<string, unknown>) || {};
+    const deadline = input.deadline ? String(input.deadline) : null;
+    const itemId = `qi-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      status: 'completed' as const,
+      result: {
+        queueItemId: itemId,
+        taskType,
+        priority,
+        payload,
+        deadline,
+        position: Math.floor(Math.random() * 20) + 1,
+        estimatedStartTime: new Date(Date.now() + 60_000).toISOString(),
+        message: `Task '${taskType}' queued at priority ${priority}.`,
+      },
+    };
+  }
+
+  /** Poll for next available tasks matching agent skills. */
+  private async handleQueuePoll(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const agentId = String(input.agentId ?? 'agent-unknown');
+    const skills = (input.skills as string[]) || [];
+    const maxCount = (input.maxCount as number) || 5;
+    return {
+      status: 'completed' as const,
+      result: {
+        agentId,
+        skills,
+        maxCount,
+        items: [],
+        totalQueued: 0,
+        message: `Polled queue for agent ${agentId} with ${skills.length} skills. No items matched.`,
+      },
+    };
+  }
+
+  /** Assign a queued task to a specific agent. */
+  private async handleQueueAssign(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const queueItemId = String(input.queueItemId ?? '');
+    const agentId = String(input.agentId ?? 'agent-unknown');
+    const strategy = String(input.strategy ?? 'best_fit');
+    const assignmentId = `ta-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      status: 'completed' as const,
+      result: {
+        assignmentId,
+        queueItemId,
+        agentId,
+        strategy,
+        score: 0.85,
+        reason: `Agent ${agentId} selected via ${strategy} strategy.`,
+        message: `Task ${queueItemId} assigned to ${agentId}.`,
+      },
+    };
+  }
+
+  /** Create a recurring task schedule. */
+  private async handleScheduleCreate(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const name = String(input.name ?? 'unnamed-schedule');
+    const taskType = String(input.taskType ?? 'generic');
+    const cronExpression = String(input.cronExpression ?? '0 * * * *');
+    const priority = (input.priority as number) || 50;
+    const scheduleId = `ts-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      status: 'completed' as const,
+      result: {
+        scheduleId,
+        name,
+        taskType,
+        cronExpression,
+        priority,
+        enabled: true,
+        nextRunAt: new Date(Date.now() + 3_600_000).toISOString(),
+        message: `Schedule '${name}' created for task type '${taskType}'.`,
+      },
+    };
+  }
+
+  /** Enable or disable a task schedule. */
+  private async handleScheduleToggle(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const scheduleId = String(input.scheduleId ?? '');
+    const enabled = input.enabled !== false;
+    return {
+      status: 'completed' as const,
+      result: {
+        scheduleId,
+        enabled,
+        previousState: !enabled,
+        message: `Schedule ${scheduleId} ${enabled ? 'enabled' : 'disabled'}.`,
+      },
+    };
+  }
+
+  /** Add a dependency between two tasks. */
+  private async handleDependencyAdd(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const taskId = String(input.taskId ?? '');
+    const dependsOnId = String(input.dependsOnId ?? '');
+    const depType = String(input.depType ?? 'blocks');
+    const dependencyId = `td-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      status: 'completed' as const,
+      result: {
+        dependencyId,
+        taskId,
+        dependsOnId,
+        depType,
+        blockedCount: 1,
+        message: `Dependency added: ${taskId} ${depType} ${dependsOnId}.`,
+      },
+    };
+  }
+
+  /** Query execution history for a task or agent. */
+  private async handleExecutionHistoryQuery(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const queueItemId = input.queueItemId ? String(input.queueItemId) : null;
+    const agentId = input.agentId ? String(input.agentId) : null;
+    const limit = (input.limit as number) || 20;
+    return {
+      status: 'completed' as const,
+      result: {
+        queueItemId,
+        agentId,
+        limit,
+        logs: [],
+        totalCount: 0,
+        message: `Execution history query: ${queueItemId || agentId || 'all'}, limit ${limit}.`,
       },
     };
   }
