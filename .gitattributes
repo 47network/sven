@@ -272,3 +272,6 @@ skills/autonomous-economy/agent-plugin-system/SKILL.md filter=skip-on-archive ex
 services/gateway-api/migrations/20260617190000_agent_content_moderation.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-content-moderation.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-content-moderation/SKILL.md filter=skip-on-archive export-ignore
+services/gateway-api/migrations/20260617200000_agent_service_discovery.sql filter=skip-on-archive export-ignore
+packages/shared/src/agent-service-discovery.ts filter=skip-on-archive export-ignore
+skills/autonomous-economy/agent-service-discovery/SKILL.md filter=skip-on-archive export-ignore

@@ -291,6 +291,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.moderation.verdict_rendered': 'moderation.verdict_rendered',
   'sven.moderation.appeal_filed': 'moderation.appeal_filed',
   'sven.moderation.action_taken': 'moderation.action_taken',
+  'sven.discovery.service_registered': 'discovery.service_registered',
+  'sven.discovery.health_changed': 'discovery.health_changed',
+  'sven.discovery.endpoint_cataloged': 'discovery.endpoint_cataloged',
+  'sven.discovery.dependency_mapped': 'discovery.dependency_mapped',
 };
 
 export class EidolonEventBus {

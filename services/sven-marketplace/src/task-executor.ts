@@ -551,6 +551,13 @@ export class TaskExecutor {
       case 'moderation_manage_queue': return this.handleModerationManageQueue(task);
       case 'moderation_action': return this.handleModerationAction(task);
       case 'moderation_report': return this.handleModerationReport(task);
+      case 'discovery_register': return this.handleDiscoveryRegister(task);
+      case 'discovery_deregister': return this.handleDiscoveryDeregister(task);
+      case 'discovery_health_check': return this.handleDiscoveryHealthCheck(task);
+      case 'discovery_find': return this.handleDiscoveryFind(task);
+      case 'discovery_endpoints': return this.handleDiscoveryEndpoints(task);
+      case 'discovery_dependencies': return this.handleDiscoveryDependencies(task);
+      case 'discovery_report': return this.handleDiscoveryReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -5195,6 +5202,36 @@ export class TaskExecutor {
 
   private async handleModerationReport(task: any): Promise<any> {
     return { ok: true, handler: 'moderation_report', totalReviews: 0, verdictBreakdown: {}, appealRate: 0, avgResponseTime: 0 };
+  }
+
+
+
+  private async handleDiscoveryRegister(task: any): Promise<any> {
+    return { ok: true, handler: 'discovery_register', serviceId: '', name: task.input?.name || '', status: 'registered', protocol: 'http' };
+  }
+
+  private async handleDiscoveryDeregister(task: any): Promise<any> {
+    return { ok: true, handler: 'discovery_deregister', serviceId: task.input?.serviceId || '', status: 'deregistered' };
+  }
+
+  private async handleDiscoveryHealthCheck(task: any): Promise<any> {
+    return { ok: true, handler: 'discovery_health_check', serviceId: task.input?.serviceId || '', checkType: 'http', lastStatus: 'passing', checksRun: 0 };
+  }
+
+  private async handleDiscoveryFind(task: any): Promise<any> {
+    return { ok: true, handler: 'discovery_find', services: [], totalFound: 0, healthyCount: 0 };
+  }
+
+  private async handleDiscoveryEndpoints(task: any): Promise<any> {
+    return { ok: true, handler: 'discovery_endpoints', serviceId: task.input?.serviceId || '', endpointsRegistered: 0, deprecatedCount: 0 };
+  }
+
+  private async handleDiscoveryDependencies(task: any): Promise<any> {
+    return { ok: true, handler: 'discovery_dependencies', serviceId: task.input?.serviceId || '', dependencyCount: 0, allHealthy: true };
+  }
+
+  private async handleDiscoveryReport(task: any): Promise<any> {
+    return { ok: true, handler: 'discovery_report', totalServices: 0, healthBreakdown: {}, endpointCount: 0, dependencyEdges: 0 };
   }
 
 }

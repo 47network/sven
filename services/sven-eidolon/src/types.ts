@@ -72,7 +72,8 @@ export type EidolonBuildingKind =
   | 'queue_exchange'
   | 'session_hub'
   | 'plugin_forge'
-  | 'moderation_hall';
+  | 'moderation_hall'
+  | 'discovery_beacon';
 
 export interface EidolonBuilding {
   id: string;
@@ -427,6 +428,10 @@ export type EidolonEventKind =
   | 'moderation.verdict_rendered'
   | 'moderation.appeal_filed'
   | 'moderation.action_taken'
+  | 'discovery.service_registered'
+  | 'discovery.health_changed'
+  | 'discovery.endpoint_cataloged'
+  | 'discovery.dependency_mapped'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -581,6 +586,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'session_hub':
     case 'plugin_forge':
     case 'moderation_hall':
+    case 'discovery_beacon':
       return 'civic';
   }
 }
