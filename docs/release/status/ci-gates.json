@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-04-18T18:28:28.977Z",
-  "source_branch": "perf/quantum-sim-startup-11531230467970156404",
-  "source_head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
+  "generated_at": "2026-04-18T18:52:27.411Z",
+  "source_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+  "source_head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-18T18:28:27.652Z",
-    "branch": "perf/quantum-sim-startup-11531230467970156404",
-    "total_runs": 44
+    "captured_at": "2026-04-18T18:52:26.853Z",
+    "branch": "sentinel-fix-timing-attacks-8454249007311421192",
+    "total_runs": 13
   },
-  "final_dod_ci": true,
+  "final_dod_ci": false,
   "parity_e2e_ci": true,
   "parity_checklist_verify_ci": false,
   "agent_zero_parity_verify_ci": true,
@@ -37,36 +37,37 @@
   "security_baseline_ci": true,
   "gate_provenance": {
     "final_dod_ci": {
-      "run_id": 24610893165,
-      "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "run_id": 24611509107,
+      "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+      "event": "pull_request",
+      "status": "in_progress",
+      "conclusion": null,
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
       "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "pending_non_final_target_sha",
+      "previous_gate_value": false
     },
     "parity_e2e_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-      "event": null,
-      "status": null,
+      "run_id": 24611509102,
+      "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+      "event": "pull_request",
+      "status": "in_progress",
       "conclusion": null,
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "no_runs_for_branch",
+      "decision": "preserved_previous_pass_non_final_target_sha",
       "previous_gate_value": true
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -80,7 +81,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": "pass",
       "conclusion": "success",
@@ -90,12 +91,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-18T18:28:25.128Z"
+      "generated_at": "2026-04-18T18:52:24.256Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -110,7 +111,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -120,12 +121,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-18T18:28:26.161Z"
+      "generated_at": "2026-04-18T18:52:25.305Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -135,12 +136,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-18T18:28:27.210Z"
+      "generated_at": "2026-04-18T18:52:26.387Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -155,7 +156,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -168,7 +169,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -180,22 +181,23 @@
       "previous_gate_value": true
     },
     "mobile_auth_session_smoke_ci": {
-      "run_id": 24610893151,
-      "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "run_id": 24611509104,
+      "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+      "event": "pull_request",
+      "status": "in_progress",
+      "conclusion": null,
       "workflow_id": 261310875,
       "workflow_name": "mobile-auth-session-smoke",
       "matched_target_sha": true,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "preserved_previous_pass_non_final_target_sha",
+      "previous_gate_value": true
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -209,7 +211,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -223,7 +225,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -236,7 +238,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -250,7 +252,7 @@
     "ui_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -264,7 +266,7 @@
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -278,7 +280,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -290,22 +292,23 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24610893152,
-      "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "run_id": null,
+      "head_sha": null,
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310854,
       "workflow_name": "client-env-governance",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "client_env_governance_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": true
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -319,7 +322,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -333,7 +336,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -347,7 +350,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -373,7 +376,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -387,7 +390,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -399,17 +402,18 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24610893696,
-      "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-      "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+      "run_id": 24611509116,
+      "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+      "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
       "event": "pull_request",
-      "status": "completed",
-      "conclusion": "success",
+      "status": "in_progress",
+      "conclusion": null,
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "preserved_previous_pass_non_final_target_sha",
+      "previous_gate_value": true
     }
   },
   "required_workflow_manifest": {
@@ -438,36 +442,37 @@
   },
   "required_workflow_gates": {
     "final-dod-e2e": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24610893165,
-        "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": 24611509107,
+        "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+        "event": "pull_request",
+        "status": "in_progress",
+        "conclusion": null,
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
         "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "pending_non_final_target_sha",
+        "previous_gate_value": false
       },
       "gate_key": "final_dod_e2e_ci"
     },
     "parity-e2e": {
       "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-        "event": null,
-        "status": null,
+        "run_id": 24611509102,
+        "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+        "event": "pull_request",
+        "status": "in_progress",
         "conclusion": null,
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "no_runs_for_branch",
+        "decision": "preserved_previous_pass_non_final_target_sha",
         "previous_gate_value": true
       },
       "gate_key": "parity_e2e_ci"
@@ -477,7 +482,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -495,7 +500,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -511,26 +516,27 @@
     "mobile-auth-session-smoke": {
       "pass": true,
       "provenance": {
-        "run_id": 24610893151,
-        "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": 24611509104,
+        "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+        "event": "pull_request",
+        "status": "in_progress",
+        "conclusion": null,
         "workflow_id": 261310875,
         "workflow_name": "mobile-auth-session-smoke",
         "matched_target_sha": true,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "preserved_previous_pass_non_final_target_sha",
+        "previous_gate_value": true
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
     "flutter-user-app-device-farm": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -538,8 +544,8 @@
         "workflow_name": "flutter-user-app-device-farm",
         "matched_target_sha": false,
         "gate_key": "flutter_user_app_device_farm_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": true
       },
       "gate_key": "flutter_user_app_device_farm_ci"
     },
@@ -548,7 +554,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -566,7 +572,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -580,46 +586,46 @@
       "gate_key": "ui_e2e_accessibility_ci"
     },
     "gateway-coverage-gate": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24611509122,
+        "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310871,
         "workflow_name": "gateway-coverage-gate",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "gateway_coverage_gate_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "gateway_coverage_gate_ci"
     },
     "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24610893152,
-        "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310854,
         "workflow_name": "client-env-governance",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "client_env_governance_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": true
       },
       "gate_key": "client_env_governance_ci"
     },
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24610893167,
-        "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "run_id": 24611507643,
+        "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": "push",
         "status": "in_progress",
         "conclusion": null,
@@ -635,9 +641,9 @@
     "env-secrets-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24610893169,
-        "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "run_id": 24611507638,
+        "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": "push",
         "status": "completed",
         "conclusion": "success",
@@ -652,17 +658,18 @@
     "security-baseline": {
       "pass": true,
       "provenance": {
-        "run_id": 24610893696,
-        "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "run_id": 24611509116,
+        "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": "pull_request",
-        "status": "completed",
-        "conclusion": "success",
+        "status": "in_progress",
+        "conclusion": null,
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "preserved_previous_pass_non_final_target_sha",
+        "previous_gate_value": true
       },
       "gate_key": "security_baseline_ci"
     },
@@ -671,7 +678,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -685,36 +692,38 @@
       "gate_key": "onboarding_readiness_ci"
     },
     "release-status": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24610893173,
-        "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310891,
         "workflow_name": "release-status",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "release_status_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "release_status_ci"
     },
     "release-supply-chain": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24610893161,
-        "head_sha": "634619245791742ea9ad6bb14ea4c56373a0d8be",
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "run_id": null,
+        "head_sha": null,
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310893,
         "workflow_name": "release-supply-chain",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "release_supply_chain_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "release_supply_chain_ci"
     },
@@ -723,7 +732,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -741,7 +750,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -755,20 +764,19 @@
       "gate_key": "bridge_runtime_tests_ci"
     },
     "gateway-bridge-contract-tests": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "perf/quantum-sim-startup-11531230467970156404",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24611509124,
+        "head_sha": "966ef8e75c875252213a1cdb1e866f5f186f07a9",
+        "head_branch": "sentinel-fix-timing-attacks-8454249007311421192",
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310869,
         "workflow_name": "gateway-bridge-contract-tests",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "gateway_bridge_contract_tests_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "gateway_bridge_contract_tests_ci"
     }
