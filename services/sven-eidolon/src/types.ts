@@ -71,7 +71,8 @@ export type EidolonBuildingKind =
   | 'incident_center'
   | 'queue_exchange'
   | 'session_hub'
-  | 'plugin_forge';
+  | 'plugin_forge'
+  | 'moderation_hall';
 
 export interface EidolonBuilding {
   id: string;
@@ -422,6 +423,10 @@ export type EidolonEventKind =
   | 'plugin.installed'
   | 'plugin.hook_fired'
   | 'plugin.review_submitted'
+  | 'moderation.content_screened'
+  | 'moderation.verdict_rendered'
+  | 'moderation.appeal_filed'
+  | 'moderation.action_taken'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -575,6 +580,7 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'queue_exchange':
     case 'session_hub':
     case 'plugin_forge':
+    case 'moderation_hall':
       return 'civic';
   }
 }

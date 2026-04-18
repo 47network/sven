@@ -269,3 +269,6 @@ skills/autonomous-economy/agent-session-management/SKILL.md filter=skip-on-archi
 services/gateway-api/migrations/20260617180000_agent_plugin_system.sql filter=skip-on-archive export-ignore
 packages/shared/src/agent-plugin-system.ts filter=skip-on-archive export-ignore
 skills/autonomous-economy/agent-plugin-system/SKILL.md filter=skip-on-archive export-ignore
+services/gateway-api/migrations/20260617190000_agent_content_moderation.sql filter=skip-on-archive export-ignore
+packages/shared/src/agent-content-moderation.ts filter=skip-on-archive export-ignore
+skills/autonomous-economy/agent-content-moderation/SKILL.md filter=skip-on-archive export-ignore

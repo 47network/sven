@@ -287,6 +287,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.plugin.installed': 'plugin.installed',
   'sven.plugin.hook_fired': 'plugin.hook_fired',
   'sven.plugin.review_submitted': 'plugin.review_submitted',
+  'sven.moderation.content_screened': 'moderation.content_screened',
+  'sven.moderation.verdict_rendered': 'moderation.verdict_rendered',
+  'sven.moderation.appeal_filed': 'moderation.appeal_filed',
+  'sven.moderation.action_taken': 'moderation.action_taken',
 };
 
 export class EidolonEventBus {

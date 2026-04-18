@@ -104,3 +104,4 @@ export * from './agent-incident-management.js';
 export * from './agent-queue-management.js';
 export * from './agent-session-management.js';
 export * from './agent-plugin-system.js';
+export * from './agent-content-moderation.js';
