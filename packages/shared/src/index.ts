@@ -111,3 +111,4 @@ export * from './agent-dependency-injection.js';
 export * from './agent-state-machine.js';
 export * from './agent-content-delivery.js';
 export * from './agent-search-indexing.js';
+export * from './agent-event-sourcing.js';
