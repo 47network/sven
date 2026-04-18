@@ -11,6 +11,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
+- **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
@@ -128,6 +129,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
+- **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
@@ -153,6 +155,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
+- **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
@@ -178,6 +181,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
+- **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics
@@ -380,6 +384,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 - **Batch 75 — Agent Service Mesh & Discovery**: service registry, endpoints, dependencies, health checks, traffic policies; 5 tables, 20 indexes, 7 task handlers
+- **Batch 76 — Agent Cost Optimization**: budgets, spend tracking, forecasts, recommendations, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 74 — Agent Log Aggregation & Search**: log streams, entries, filters, dashboards, alerts; 5 tables, 20 indexes, 7 task handlers
 - **Batch 73 — Agent API Gateway & Routing**: API routes, gateway policies, request transformation, load balancing, and traffic analytics
 - **Batch 72 — Agent Caching & CDN**: Cache policies, CDN distributions, entry management, purge workflows, and cache analytics

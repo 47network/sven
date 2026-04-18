@@ -98,3 +98,4 @@ export * from './agent-caching-cdn.js';
 export * from './agent-api-gateway.js';
 export * from './agent-log-aggregation.js';
 export * from './agent-service-mesh.js';
+export * from './agent-cost-optimization.js';
