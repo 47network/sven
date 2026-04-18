@@ -155,3 +155,9 @@ services/gateway-api/migrations/20260519120000_agent_workflow_automation.sql exp
 packages/shared/src/agent-workflow-automation.ts export-ignore
 skills/autonomous-economy/workflow-automation/** export-ignore
 services/agent-runtime/src/__tests__/batch46-agent-workflow-automation.test.ts export-ignore
+
+# Batch 47 — Agent Marketplace Analytics (private)
+services/gateway-api/migrations/20260520120000_agent_marketplace_analytics.sql export-ignore
+packages/shared/src/agent-marketplace-analytics.ts export-ignore
+skills/autonomous-economy/marketplace-analytics/** export-ignore
+services/agent-runtime/src/__tests__/batch47-agent-marketplace-analytics.test.ts export-ignore
