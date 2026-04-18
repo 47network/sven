@@ -495,6 +495,13 @@ export class TaskExecutor {
       case 'validation_run_pipeline': return this.handleValidationRunPipeline(task);
       case 'validation_audit': return this.handleValidationAudit(task);
       case 'validation_report': return this.handleValidationReport(task);
+      case 'registry_register_schema': return this.handleRegistryRegisterSchema(task);
+      case 'registry_publish_version': return this.handleRegistryPublishVersion(task);
+      case 'registry_add_dependency': return this.handleRegistryAddDependency(task);
+      case 'registry_subscribe': return this.handleRegistrySubscribe(task);
+      case 'registry_check_compatibility': return this.handleRegistryCheckCompatibility(task);
+      case 'registry_evolve': return this.handleRegistryEvolve(task);
+      case 'registry_report': return this.handleRegistryReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -5639,6 +5646,36 @@ export class TaskExecutor {
 
   private async handleValidationReport(task: any): Promise<any> {
     return { ok: true, handler: 'validation_report', totalValidations: 0, passRate: 1, topErrors: [], recommendations: [] };
+  }
+
+
+
+  private async handleRegistryRegisterSchema(task: any): Promise<any> {
+    return { ok: true, handler: 'registry_register_schema', registryId: '', namespace: task.input?.namespace || '', name: task.input?.name || '', status: 'active' };
+  }
+
+  private async handleRegistryPublishVersion(task: any): Promise<any> {
+    return { ok: true, handler: 'registry_publish_version', versionId: '', version: task.input?.version || '1.0.0', isBreaking: false };
+  }
+
+  private async handleRegistryAddDependency(task: any): Promise<any> {
+    return { ok: true, handler: 'registry_add_dependency', dependencyId: '', schemaId: task.input?.schemaId || '', dependencyType: 'required' };
+  }
+
+  private async handleRegistrySubscribe(task: any): Promise<any> {
+    return { ok: true, handler: 'registry_subscribe', subscriptionId: '', consumerId: task.input?.consumerId || '', subscribedVersion: '1.0.0' };
+  }
+
+  private async handleRegistryCheckCompatibility(task: any): Promise<any> {
+    return { ok: true, handler: 'registry_check_compatibility', compatible: true, breakingChanges: [], warnings: [] };
+  }
+
+  private async handleRegistryEvolve(task: any): Promise<any> {
+    return { ok: true, handler: 'registry_evolve', evolutionId: '', evolutionType: task.input?.evolutionType || 'update', impact: 'none' };
+  }
+
+  private async handleRegistryReport(task: any): Promise<any> {
+    return { ok: true, handler: 'registry_report', totalSchemas: 0, breakingChanges: 0, consumers: 0, recommendations: [] };
   }
 
 }

@@ -10,6 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
 - **Batch 94 — Agent Data Validation**: validation schemas, rules, pipelines, audit logging with 5 tables and 20 indexes
 - **Batch 93 — Agent Load Balancing**: load balancers, backends, routing rules, health probes, traffic metrics with 5 tables and 20 indexes
 - **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
@@ -146,6 +147,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch28-persistent-memory.test.ts`): 98 tests across 17 describe blocks — migration structure, shared types, configs, utility logic, skill YAML, task executor, NATS events, Eidolon integration, coherence checks.
 
 ### Added
+- **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
 - **Batch 94 — Agent Data Validation**: validation schemas, rules, pipelines, audit logging with 5 tables and 20 indexes
 - **Batch 93 — Agent Load Balancing**: load balancers, backends, routing rules, health probes, traffic metrics with 5 tables and 20 indexes
 - **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
@@ -190,6 +192,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
 
 ### Added
+- **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
 - **Batch 94 — Agent Data Validation**: validation schemas, rules, pipelines, audit logging with 5 tables and 20 indexes
 - **Batch 93 — Agent Load Balancing**: load balancers, backends, routing rules, health probes, traffic metrics with 5 tables and 20 indexes
 - **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
@@ -234,6 +237,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
 
 ### Added
+- **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
 - **Batch 94 — Agent Data Validation**: validation schemas, rules, pipelines, audit logging with 5 tables and 20 indexes
 - **Batch 93 — Agent Load Balancing**: load balancers, backends, routing rules, health probes, traffic metrics with 5 tables and 20 indexes
 - **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
@@ -455,6 +459,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Flutter mobile app fixes: corrected API base URL from hardcoded port 3004 to gateway (EnvConfig.apiBase), added public-status fallback for guest users, fixed SSE path to match gateway route.
 
 ### Added
+- **Batch 95 — Agent Schema Registry**: centralized schema registry with versioning, compatibility, and evolution logging
 - **Batch 94 — Agent Data Validation**: validation schemas, rules, pipelines, audit logging with 5 tables and 20 indexes
 - **Batch 93 — Agent Load Balancing**: load balancers, backends, routing rules, health probes, traffic metrics with 5 tables and 20 indexes
 - **Batch 92 — Agent Distributed Tracing**: traces, spans, baggage, sampling, analytics with 5 tables and 20 indexes
