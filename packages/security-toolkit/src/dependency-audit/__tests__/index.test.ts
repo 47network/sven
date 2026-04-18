@@ -6,7 +6,7 @@ import {
   parseDependencies,
   PackageDep,
   KnownVulnerability
-} from '../dependency-audit/index';
+} from '../index.js';
 
 describe('Dependency Audit', () => {
   describe('classifyLicense', () => {
@@ -152,6 +152,22 @@ describe('Dependency Audit', () => {
       expect(report.securityScore).toBe(85);
     });
 
+    it('should handle multiple vulnerabilities with different severities and pick max severity', () => {
+      const deps: PackageDep[] = [
+        { name: 'vuln-pkg', version: '1.0.0', isDev: false, integrity: 'sha512-abc' }
+      ];
+      const vulns: KnownVulnerability[] = [
+        { id: 'VULN-1', package: 'vuln-pkg', affectedVersions: '<2.0.0', severity: 'low', title: 'Test Vuln 1', description: 'A low vulnerability', patchedVersion: '2.0.0' },
+        { id: 'VULN-2', package: 'vuln-pkg', affectedVersions: '<2.0.0', severity: 'critical', title: 'Test Vuln 2', description: 'A critical vulnerability', patchedVersion: '2.0.0' },
+        { id: 'VULN-3', package: 'vuln-pkg', affectedVersions: '<2.0.0', severity: 'medium', title: 'Test Vuln 3', description: 'A medium vulnerability', patchedVersion: '2.0.0' }
+      ];
+
+      const report = auditDependencies(deps, vulns);
+
+      expect(report.findings.length).toBe(1);
+      expect(report.findings[0].riskLevel).toBe('critical');
+    });
+
     it('should flag typosquatting suspect packages', () => {
       const deps: PackageDep[] = [
         { name: 'reac', version: '1.0.0', isDev: false, integrity: 'sha512-abc' }
@@ -165,6 +181,22 @@ describe('Dependency Audit', () => {
       expect(report.supplyChainFlags[0].flagType).toBe('typosquat-suspect');
       expect(report.supplyChainFlags[0].description).toContain('react');
       expect(report.securityScore).toBe(92);
+    });
+
+    it('should flag typosquatting suspect packages and elevate riskLevel when it is low', () => {
+      const deps: PackageDep[] = [
+        { name: 'reac', version: '1.0.0', isDev: false, integrity: 'sha512-abc' }
+      ];
+      const vulns: KnownVulnerability[] = [
+        { id: 'VULN-LOW', package: 'reac', affectedVersions: '<2.0.0', severity: 'low', title: 'Low Vuln', description: 'Low', patchedVersion: '2.0.0' }
+      ];
+
+      const report = auditDependencies(deps, vulns);
+
+      expect(report.findings.length).toBe(1);
+      expect(report.findings[0].riskLevel).toBe('medium');
+      expect(report.supplyChainFlags.length).toBe(1);
+      expect(report.supplyChainFlags[0].flagType).toBe('typosquat-suspect');
     });
 
     it('should flag packages missing integrity hash', () => {
@@ -207,6 +239,19 @@ describe('Dependency Audit', () => {
       expect(deps.length).toBe(3);
       expect(deps.find(d => d.name === 'react')?.isDev).toBe(false);
       expect(deps.find(d => d.name === 'typescript')?.isDev).toBe(true);
+    });
+
+    it('should handle undefined dependency and devDependency maps', () => {
+      const deps = parseDependencies();
+      expect(deps.length).toBe(0);
+
+      const depsWithOnlyDev = parseDependencies(undefined, { typescript: '^5.0.0' });
+      expect(depsWithOnlyDev.length).toBe(1);
+      expect(depsWithOnlyDev[0].isDev).toBe(true);
+
+      const depsWithOnlyDeps = parseDependencies({ react: '^18.2.0' }, undefined);
+      expect(depsWithOnlyDeps.length).toBe(1);
+      expect(depsWithOnlyDeps[0].isDev).toBe(false);
     });
   });
 });
