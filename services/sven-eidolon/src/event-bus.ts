@@ -79,6 +79,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.memory.recalled': 'memory.recalled',
   'sven.memory.compressed': 'memory.compressed',
   'sven.memory.decayed': 'memory.decayed',
+  'sven.fleet.model_deployed': 'fleet.model_deployed',
+  'sven.fleet.model_evicted': 'fleet.model_evicted',
+  'sven.fleet.benchmark_completed': 'fleet.benchmark_completed',
+  'sven.fleet.vram_alert': 'fleet.vram_alert',
 };
 
 export class EidolonEventBus {

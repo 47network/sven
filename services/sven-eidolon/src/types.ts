@@ -20,7 +20,8 @@ export type EidolonBuildingKind =
   | 'media_studio'
   | 'xlvii_storefront'
   | 'council_chamber'
-  | 'memory_vault';
+  | 'memory_vault'
+  | 'gpu_cluster';
 
 export interface EidolonBuilding {
   id: string;
@@ -163,6 +164,10 @@ export type EidolonEventKind =
   | 'memory.recalled'
   | 'memory.compressed'
   | 'memory.decayed'
+  | 'fleet.model_deployed'
+  | 'fleet.model_evicted'
+  | 'fleet.benchmark_completed'
+  | 'fleet.vram_alert'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -235,6 +240,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'council_chamber':
       return 'civic';
     case 'memory_vault':
+      return 'infrastructure';
+    case 'gpu_cluster':
       return 'infrastructure';
   }
 }
