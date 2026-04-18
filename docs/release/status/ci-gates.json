@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-18T16:37:01.532Z",
+  "generated_at": "2026-04-18T16:44:50.842Z",
   "source_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-  "source_head_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c",
+  "source_head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-18T16:37:00.558Z",
+    "captured_at": "2026-04-18T16:44:49.545Z",
     "branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-    "total_runs": 39
+    "total_runs": 53
   },
   "final_dod_ci": false,
   "parity_e2e_ci": false,
@@ -62,7 +62,7 @@
       "matched_target_sha": false,
       "gate_key": "parity_e2e_ci",
       "decision": "missing_completed_target_sha_run",
-      "target_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c"
+      "target_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -91,7 +91,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-18T16:36:50.546Z"
+      "generated_at": "2026-04-18T16:44:39.754Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +121,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-18T16:36:55.404Z"
+      "generated_at": "2026-04-18T16:44:44.391Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +136,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-18T16:37:00.243Z"
+      "generated_at": "2026-04-18T16:44:49.174Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -292,8 +292,8 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24609001182,
-      "head_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c",
+      "run_id": 24609130148,
+      "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
       "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
       "event": "push",
       "status": "completed",
@@ -347,18 +347,17 @@
       "previous_gate_value": false
     },
     "ops_shell_ci": {
-      "run_id": null,
-      "head_sha": null,
+      "run_id": 24609131067,
+      "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
       "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310883,
       "workflow_name": "ops-shell-ci",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "ops_shell_ci",
       "decision": "not_required_scope_clean",
-      "target_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c",
       "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
@@ -401,18 +400,17 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": null,
-      "head_sha": null,
+      "run_id": 24609131057,
+      "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
       "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c"
+      "decision": "target_sha_completed_run"
     }
   },
   "required_workflow_manifest": {
@@ -472,7 +470,7 @@
         "matched_target_sha": false,
         "gate_key": "parity_e2e_ci",
         "decision": "missing_completed_target_sha_run",
-        "target_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c"
+        "target_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e"
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -605,8 +603,8 @@
     "client-env-governance": {
       "pass": true,
       "provenance": {
-        "run_id": 24609001182,
-        "head_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c",
+        "run_id": 24609130148,
+        "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
         "event": "push",
         "status": "completed",
@@ -622,11 +620,11 @@
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24609001179,
-        "head_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c",
+        "run_id": 24609130150,
+        "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
         "event": "push",
-        "status": "queued",
+        "status": "in_progress",
         "conclusion": null,
         "workflow_id": 261310856,
         "workflow_name": "deployment-pipeline",
@@ -638,38 +636,36 @@
       "gate_key": "deployment_pipeline_ci"
     },
     "env-secrets-governance": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
+        "run_id": 24609130141,
+        "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310862,
         "workflow_name": "env-secrets-governance",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "env_secrets_governance_ci",
-        "decision": "no_runs_for_branch",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
       "pass": false,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
+        "run_id": 24609131057,
+        "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "security_baseline_ci"
     },
@@ -692,28 +688,27 @@
       "gate_key": "onboarding_readiness_ci"
     },
     "release-status": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
+        "run_id": 24609130145,
+        "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310891,
         "workflow_name": "release-status",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "release_status_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "release_status_ci"
     },
     "release-supply-chain": {
       "pass": false,
       "provenance": {
-        "run_id": 24609001177,
-        "head_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c",
+        "run_id": 24609130153,
+        "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
         "event": "push",
         "status": "in_progress",
@@ -728,20 +723,19 @@
       "gate_key": "release_supply_chain_ci"
     },
     "ops-shell-ci": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
+        "run_id": 24609131067,
+        "head_sha": "81b803e172b75e73c0a2e7132b54efd2a1baad8e",
         "head_branch": "sentinel/fix-wide-port-exposure-6580876544417659666",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310883,
         "workflow_name": "ops-shell-ci",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "ops_shell_ci_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "39f04a44d34693a6abbde4250b936b03cd59be1c"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "ops_shell_ci_ci"
     },
