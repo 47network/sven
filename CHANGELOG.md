@@ -10,6 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
 - **Batch 70 — Agent Environment Configuration**: Environment profiles, config variables, templates, snapshots, and audit logging
 - **Batch 69 — Agent Webhooks & External Integrations**: Outbound webhook delivery, event subscriptions, retry logic, and external integration management
 - **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
@@ -122,6 +123,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch28-persistent-memory.test.ts`): 98 tests across 17 describe blocks — migration structure, shared types, configs, utility logic, skill YAML, task executor, NATS events, Eidolon integration, coherence checks.
 
 ### Added
+- **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
 - **Batch 70 — Agent Environment Configuration**: Environment profiles, config variables, templates, snapshots, and audit logging
 - **Batch 69 — Agent Webhooks & External Integrations**: Outbound webhook delivery, event subscriptions, retry logic, and external integration management
 - **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
@@ -142,6 +144,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch27-llm-council.test.ts`): 103 tests across 9 describe blocks.
 
 ### Added
+- **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
 - **Batch 70 — Agent Environment Configuration**: Environment profiles, config variables, templates, snapshots, and audit logging
 - **Batch 69 — Agent Webhooks & External Integrations**: Outbound webhook delivery, event subscriptions, retry logic, and external integration management
 - **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
@@ -162,6 +165,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
 
 ### Added
+- **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
 - **Batch 70 — Agent Environment Configuration**: Environment profiles, config variables, templates, snapshots, and audit logging
 - **Batch 69 — Agent Webhooks & External Integrations**: Outbound webhook delivery, event subscriptions, retry logic, and external integration management
 - **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
@@ -359,6 +363,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Flutter mobile app fixes: corrected API base URL from hardcoded port 3004 to gateway (EnvConfig.apiBase), added public-status fallback for guest users, fixed SSE path to match gateway route.
 
 ### Added
+- **Batch 71 — Agent Pipeline Templates**: Reusable workflow templates, stage orchestration, triggers, and artifact management
 - **Batch 70 — Agent Environment Configuration**: Environment profiles, config variables, templates, snapshots, and audit logging
 - **Batch 69 — Agent Webhooks & External Integrations**: Outbound webhook delivery, event subscriptions, retry logic, and external integration management
 - **Batch 68 — Agent Localization & i18n**: Multi-language content management, translation workflows, locale detection, and coverage tracking
