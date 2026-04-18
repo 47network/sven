@@ -82,6 +82,7 @@ import { registerPipelineRoutes } from './pipeline.js';
 import { registerAnalyticsOverviewRoutes } from './analytics-overview.js';
 import { registerProactiveNotificationRoutes } from './proactive-notifications.js';
 import { registerTradingDashboardRoutes } from './trading.js';
+import { registerXlviiRoutes } from './xlvii-merch.js';
 
 export async function registerAdminRoutes(
   app: FastifyInstance,
@@ -403,6 +404,7 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerMisiuniRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerPublishingV2Routes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerSocialMediaRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerXlviiRoutes(scopedApp, pool, nc));
     },
     { prefix: '/v1/admin' },
   );

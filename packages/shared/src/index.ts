@@ -49,3 +49,4 @@ export * from './eidolon-world.js';
 export * from './misiuni.js';
 export * from './publishing-v2.js';
 export * from './social-media.js';
+export * from './xlvii-merch.js';

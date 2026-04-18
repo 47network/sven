@@ -17,7 +17,8 @@ export type EidolonBuildingKind =
   | 'publishing_house'
   | 'recruitment_center'
   | 'print_works'
-  | 'media_studio';
+  | 'media_studio'
+  | 'xlvii_storefront';
 
 export interface EidolonBuilding {
   id: string;
@@ -147,6 +148,11 @@ export type EidolonEventKind =
   | 'social.post_published'
   | 'social.campaign_started'
   | 'social.engagement_milestone'
+  | 'xlvii.collection_created'
+  | 'xlvii.product_created'
+  | 'xlvii.design_created'
+  | 'xlvii.design_approved'
+  | 'xlvii.fulfillment_shipped'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -213,6 +219,8 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'print_works':
       return 'market';
     case 'media_studio':
+      return 'market';
+    case 'xlvii_storefront':
       return 'market';
   }
 }

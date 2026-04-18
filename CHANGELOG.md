@@ -10,6 +10,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Autonomous Economy — Batch 26**: XLVII Brand / Merch Platform.
+  - **Migration** (`20260430120000_xlvii_merch.sql`): 5 new tables — xlvii_collections, xlvii_products, xlvii_variants, xlvii_designs, xlvii_fulfillments. 19 indexes, CHECK constraints for categories (10), quality tiers (4), sizes (8), design types (8), placements (7), approval statuses (4), fulfillment types (7), fulfillment statuses (8). ALTER marketplace_tasks adds merch_listing + product_design.
+  - **Shared Types** (`packages/shared/src/xlvii-merch.ts`): 13 type unions (XlviiProductCategory 10 values, XlviiQualityTier 4, XlviiProductStatus 7, XlviiPodProvider 5, XlviiSeason 5, XlviiCollectionStatus 5, XlviiSize 8, XlviiDesignType 8, XlviiPlacement 7, XlviiApprovalStatus 4, XlviiFulfillmentType 7, XlviiFulfillmentStatus 8, XlviiVariantStatus 4), 5 interfaces, 7 constants (XLVII_CATEGORIES, XLVII_SIZES, XLVII_BRAND_THEME, XLVII_POD_PROVIDERS, XLVII_PRODUCT_STATUS_ORDER, XLVII_BASE_PRICES, XLVII_QUALITY_MULTIPLIERS), 6 utility functions (calculateProductPrice, calculateMargin, generateSku, canAdvanceProduct, isLowStock, isOutOfStock).
+  - **Skills**: xlvii-catalog (seller, $2.99, 4 actions), xlvii-design (designer, $4.99, 4 actions). 22 skills total in autonomous-economy.
+  - **Admin API** (`xlvii-merch.ts`): 28+ route handlers — collections CRUD, products CRUD, variants, inventory, designs, fulfillments, analytics. Wired into admin/index.ts.
+  - **Task Executor**: 2 new handlers — handleMerchListing (SKU generation, pricing tiers), handleProductDesign (AI prompt generation, brand guidelines).
+  - **NATS/Eidolon**: 5 SUBJECT_MAP entries (xlvii.*), xlvii_storefront building kind, 5 EidolonEventKind values, districtFor mapping.
+  - **Tests** (`batch26-xlvii-merch.test.ts`): 113 tests across 7 describe blocks.
+
+### Added
 - **Autonomous Economy — Batch 25**: Instagram + Social Media Integration.
   - **Migration** (`20260429120000_social_media.sql`): 5 new tables — social_accounts, social_posts, social_campaigns, social_analytics, content_calendar. 15 indexes, 11 CHECK constraints, ALTER marketplace_tasks to add social_post + social_analytics task types.
   - **Shared Types** (`packages/shared/src/social-media.ts`): 8 type unions (SocialPlatform 7 values, AccountStatus, PostStatus, SocialContentType 8 values, CampaignGoal, CampaignStatus, CalendarEntryStatus, ContentCategory 8 values), 5 interfaces, 5 constants (SUPPORTED_PLATFORMS, POST_STATUS_ORDER, OPTIMAL_POST_HOURS, HASHTAG_LIMITS, CAPTION_LIMITS), 6 utility functions (canPublishPost, getOptimalPostHours, calculateEngagementRate, isWithinHashtagLimit, isWithinCaptionLimit, formatHashtags).

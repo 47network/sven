@@ -208,6 +208,8 @@ export class TaskExecutor {
       case 'author_persona': return this.handleAuthorPersona(input);
       case 'social_post':    return this.handleSocialPost(input);
       case 'social_analytics': return this.handleSocialAnalytics(input);
+      case 'merch_listing':    return this.handleMerchListing(input);
+      case 'product_design':   return this.handleProductDesign(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -811,6 +813,80 @@ export class TaskExecutor {
           'Analyze top-performing content types and double down',
           'Engage with comments within the first hour of posting',
         ],
+      },
+    };
+  }
+
+  /** Merch listing task handler — creates XLVII product listings. */
+  private async handleMerchListing(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const productName = String(input.productName ?? 'Unnamed Product');
+    const category = String(input.category ?? 'tshirt');
+    const qualityTier = String(input.qualityTier ?? 'standard');
+    const collectionId = String(input.collectionId ?? '');
+
+    const qualityMultipliers: Record<string, number> = { standard: 1.0, premium: 1.8, luxury: 3.5 };
+    const basePrices: Record<string, number> = {
+      tshirt: 29.99, hoodie: 59.99, cap: 24.99, jacket: 89.99,
+      accessory: 19.99, poster: 14.99, sticker: 4.99, mug: 17.99,
+      tote_bag: 22.99, phone_case: 19.99,
+    };
+    const base = basePrices[category] ?? 29.99;
+    const multiplier = qualityMultipliers[qualityTier] ?? 1.0;
+    const finalPrice = Math.round(base * multiplier * 100) / 100;
+
+    return {
+      status: 'completed',
+      listing: {
+        productName,
+        category,
+        qualityTier,
+        collectionId: collectionId || null,
+        basePrice: base,
+        finalPrice,
+        sku: `XLVII-${category.toUpperCase()}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+        sizes: ['S', 'M', 'L', 'XL'],
+        listed: true,
+      },
+    };
+  }
+
+  /** Product design task handler — generates XLVII design briefs and AI prompts. */
+  private async handleProductDesign(input: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const productName = String(input.productName ?? 'XLVII Design');
+    const style = String(input.style ?? 'futuristic');
+    const category = String(input.category ?? 'tshirt');
+    const colourPalette = Array.isArray(input.colourPalette) ? input.colourPalette : ['#C0C0C0', '#0A1628', '#00D4FF'];
+
+    const styleKeywords: Record<string, string[]> = {
+      minimalist: ['clean lines', 'negative space', 'single element'],
+      bold: ['high contrast', 'large type', 'graphic impact'],
+      vintage: ['distressed texture', 'retro palette', 'worn edges'],
+      futuristic: ['neon accents', 'geometric patterns', 'holographic'],
+      abstract: ['fluid shapes', 'colour blocks', 'asymmetry'],
+      typographic: ['font-driven', 'letterform art', 'word play'],
+    };
+
+    const keywords = styleKeywords[style] ?? styleKeywords.futuristic;
+
+    return {
+      status: 'completed',
+      design: {
+        productName,
+        style,
+        category,
+        brief: {
+          concept: `XLVII Element 47 — ${style} design for ${category}`,
+          moodKeywords: keywords,
+          colourPalette,
+          placement: category === 'cap' ? 'front' : 'front',
+          brandElements: ['XLVII logo', 'Element 47 motif', 'Silver/Argentum theme'],
+        },
+        aiPrompt: `${style} graphic design for premium ${category}, ${keywords.join(', ')}, silver and dark navy colour scheme, XLVII branding, high-resolution, print-ready, ${colourPalette.join(' ')}`,
+        printSpec: {
+          dpi: 300,
+          format: 'PNG',
+          colourMode: 'CMYK',
+        },
       },
     };
   }
