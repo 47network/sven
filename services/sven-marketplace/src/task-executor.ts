@@ -362,6 +362,14 @@ export class TaskExecutor {
       case 'policy_enforce': return this.handlePolicyEnforce(input);
       case 'violation_resolve': return this.handleViolationResolve(input);
 
+      case 'review_submit': return this.handleReviewSubmit(input);
+      case 'review_respond': return this.handleReviewRespond(input);
+      case 'review_moderate': return this.handleReviewModerate(input);
+      case 'review_vote': return this.handleReviewVote(input);
+      case 'analytics_generate': return this.handleAnalyticsGenerate(input);
+      case 'review_flag': return this.handleReviewFlag(input);
+      case 'review_highlight': return this.handleReviewHighlight(input);
+
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -3859,6 +3867,80 @@ export class TaskExecutor {
       resolution: input.resolution ?? 'corrected',
       status: 'resolved',
       resolvedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleReviewSubmit(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      reviewId: `rev-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      listingId: input.listingId ?? null,
+      rating: input.rating ?? 5,
+      title: input.title ?? 'Marketplace review',
+      sentiment: 'positive',
+      submittedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleReviewRespond(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      responseId: `rsp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      reviewId: input.reviewId ?? null,
+      responseType: input.responseType ?? 'seller_reply',
+      respondedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleReviewModerate(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      moderationId: `mod-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      reviewId: input.reviewId ?? null,
+      action: input.action ?? 'approve',
+      moderatedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleReviewVote(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      voteId: `vot-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      reviewId: input.reviewId ?? null,
+      voteType: input.voteType ?? 'helpful',
+      votedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleAnalyticsGenerate(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      reportId: `rpt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      listingId: input.listingId ?? null,
+      avgRating: 4.5,
+      totalReviews: 0,
+      sentimentBreakdown: { positive: 0, neutral: 0, negative: 0, mixed: 0, unknown: 0 },
+      generatedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleReviewFlag(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      flagId: `flg-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      reviewId: input.reviewId ?? null,
+      reason: input.reason ?? 'inappropriate',
+      flaggedAt: new Date().toISOString(),
+    };
+  }
+
+  private handleReviewHighlight(input: Record<string, unknown>) {
+    return {
+      ok: true,
+      highlightId: `hlt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      reviewId: input.reviewId ?? null,
+      highlighted: true,
+      highlightedAt: new Date().toISOString(),
     };
   }
 }

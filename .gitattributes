@@ -191,3 +191,6 @@ skills/autonomous-economy/resource-management/** export-ignore
 services/gateway-api/migrations/20260528120000_agent_compliance_audit.sql export-ignore
 packages/shared/src/agent-compliance-audit.ts export-ignore
 skills/autonomous-economy/compliance-audit/** export-ignore
+services/gateway-api/migrations/20260529120000_agent_marketplace_reviews.sql export-ignore
+packages/shared/src/agent-marketplace-reviews.ts export-ignore
+skills/autonomous-economy/marketplace-reviews/** export-ignore

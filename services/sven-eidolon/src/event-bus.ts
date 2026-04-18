@@ -183,6 +183,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.compliance.check_completed': 'compliance.check_completed',
   'sven.compliance.violation_detected': 'compliance.violation_detected',
   'sven.compliance.report_generated': 'compliance.report_generated',
+  'sven.reviews.review_submitted': 'reviews.review_submitted',
+  'sven.reviews.response_posted': 'reviews.response_posted',
+  'sven.reviews.review_moderated': 'reviews.review_moderated',
+  'sven.reviews.analytics_generated': 'reviews.analytics_generated',
 };
 
 export class EidolonEventBus {
