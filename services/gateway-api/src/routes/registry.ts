@@ -156,6 +156,114 @@ async function cacheRegistryMarketplaceEmbedding(pool: pg.Pool, cacheKey: string
   }
 }
 
+async function enrichRegistryMarketplaceRows(pool: pg.Pool, orgId: string, rows: any[]): Promise<any[]> {
+  if (rows.length === 0) return rows;
+  const names = [...new Set(rows.map((row) => String(row.name || '')))].filter(Boolean);
+  if (names.length === 0) return rows;
+
+  const enrichmentQuery = `
+    SELECT
+      entry.name,
+      (
+        SELECT COUNT(*)::int
+        FROM skills_catalog c2
+        WHERE c2.organization_id = $1 AND c2.name = entry.name
+      ) AS version_count,
+      (
+        SELECT COUNT(*)::int
+        FROM skills_installed si
+        JOIN skills_catalog c2 ON c2.id = si.catalog_entry_id AND c2.organization_id = si.organization_id
+        WHERE si.organization_id = $1 AND c2.name = entry.name
+      ) AS install_count,
+      (
+        SELECT COUNT(DISTINCT tr.id)::int
+        FROM tool_runs tr
+        JOIN tools t ON t.name = tr.tool_name
+        JOIN skills_installed si ON si.tool_id = t.id AND si.organization_id = $1
+        JOIN skills_catalog c2 ON c2.id = si.catalog_entry_id AND c2.organization_id = si.organization_id
+        WHERE c2.name = entry.name AND tr.created_at >= NOW() - INTERVAL '30 days'
+      ) AS usage_30d,
+      (
+        SELECT COALESCE(
+          ROUND((COUNT(*) FILTER (WHERE tr.status IN ('error', 'timeout', 'denied'))::numeric / NULLIF(COUNT(*), 0)), 4),
+          0
+        )
+        FROM tool_runs tr
+        JOIN tools t ON t.name = tr.tool_name
+        JOIN skills_installed si ON si.tool_id = t.id AND si.organization_id = $1
+        JOIN skills_catalog c2 ON c2.id = si.catalog_entry_id AND c2.organization_id = si.organization_id
+        WHERE c2.name = entry.name AND tr.created_at >= NOW() - INTERVAL '30 days'
+      ) AS error_rate_30d,
+      (
+        SELECT COUNT(sr.id)::int
+        FROM skill_reviews sr
+        JOIN skills_catalog c2 ON c2.id = sr.catalog_entry_id AND c2.organization_id = sr.organization_id
+        WHERE sr.organization_id = $1 AND c2.name = entry.name
+      ) AS review_count,
+      (
+        SELECT COALESCE(ROUND(AVG(sr.rating)::numeric, 2), 0)
+        FROM skill_reviews sr
+        JOIN skills_catalog c2 ON c2.id = sr.catalog_entry_id AND c2.organization_id = sr.organization_id
+        WHERE sr.organization_id = $1 AND c2.name = entry.name
+      ) AS average_rating,
+      (
+        EXISTS (
+          SELECT 1
+          FROM skills_installed si
+          JOIN skills_catalog c2 ON c2.id = si.catalog_entry_id AND c2.organization_id = si.organization_id
+          WHERE si.organization_id = $1 AND c2.name = entry.name AND si.trust_level = 'trusted'
+        )
+        AND EXISTS (
+          SELECT 1
+          FROM skill_signatures ss
+          JOIN skills_installed si ON si.id = ss.skill_id AND si.organization_id = ss.organization_id
+          JOIN skills_catalog c2 ON c2.id = si.catalog_entry_id AND c2.organization_id = si.organization_id
+          WHERE ss.organization_id = $1 AND c2.name = entry.name AND ss.verified = TRUE
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM skill_quarantine_reports qr
+          JOIN skills_installed si ON si.id = qr.skill_id AND si.organization_id = qr.organization_id
+          JOIN skills_catalog c2 ON c2.id = si.catalog_entry_id AND c2.organization_id = si.organization_id
+          WHERE qr.organization_id = $1 AND c2.name = entry.name AND qr.overall_risk IN ('high', 'critical')
+        )
+      ) AS _is_verified
+    FROM (SELECT UNNEST($2::text[]) AS name) entry
+  `;
+
+  try {
+    const enrichmentResult = await pool.query(enrichmentQuery, [orgId, names]);
+    const enrichmentByName = new Map<string, any>();
+    for (const row of enrichmentResult.rows) {
+      enrichmentByName.set(row.name, row);
+    }
+    return rows.map((row) => {
+      const enrichment = enrichmentByName.get(String(row.name || '')) || {};
+      return {
+        ...row,
+        version_count: enrichment.version_count || 0,
+        install_count: enrichment.install_count || 0,
+        usage_30d: enrichment.usage_30d || 0,
+        error_rate_30d: enrichment.error_rate_30d || 0,
+        review_count: enrichment.review_count || 0,
+        average_rating: enrichment.average_rating || 0,
+        verified: Boolean(row.publisher_trusted) && Boolean(enrichment._is_verified),
+      };
+    });
+  } catch {
+    return rows.map((row) => ({
+      ...row,
+      version_count: 0,
+      install_count: 0,
+      usage_30d: 0,
+      error_rate_30d: 0,
+      review_count: 0,
+      average_rating: 0,
+      verified: false,
+    }));
+  }
+}
+
 async function getRegistryMarketplaceEmbedding(
   pool: pg.Pool,
   entryId: string,
@@ -303,116 +411,7 @@ export async function registerRegistryRoutes(app: FastifyInstance, pool: pg.Pool
             COALESCE(mr.is_premium, FALSE) AS is_premium,
             COALESCE(mr.price_cents, 0) AS price_cents,
             COALESCE(mr.currency, 'USD') AS currency,
-            COALESCE(mr.creator_share_bps, 7000) AS creator_share_bps,
-            (
-              SELECT COUNT(*)::int
-              FROM skills_catalog c2
-              WHERE c2.organization_id = c.organization_id
-                AND c2.name = c.name
-            ) AS version_count,
-            (
-              SELECT COUNT(*)::int
-              FROM skills_installed si
-              JOIN skills_catalog c2
-                ON c2.id = si.catalog_entry_id
-               AND c2.organization_id = si.organization_id
-              WHERE si.organization_id = c.organization_id
-                AND c2.name = c.name
-            ) AS install_count,
-            (
-              SELECT COUNT(DISTINCT tr.id)::int
-              FROM tool_runs tr
-              JOIN tools t
-                ON t.name = tr.tool_name
-              JOIN skills_installed si
-                ON si.tool_id = t.id
-               AND si.organization_id = c.organization_id
-              JOIN skills_catalog c2
-                ON c2.id = si.catalog_entry_id
-               AND c2.organization_id = si.organization_id
-              WHERE c2.name = c.name
-                AND tr.created_at >= NOW() - INTERVAL '30 days'
-            ) AS usage_30d,
-            (
-              SELECT COALESCE(
-                ROUND(
-                  (
-                    COUNT(*) FILTER (WHERE tr.status IN ('error', 'timeout', 'denied'))::numeric
-                    / NULLIF(COUNT(*), 0)
-                  ),
-                  4
-                ),
-                0
-              )
-              FROM tool_runs tr
-              JOIN tools t
-                ON t.name = tr.tool_name
-              JOIN skills_installed si
-                ON si.tool_id = t.id
-               AND si.organization_id = c.organization_id
-              JOIN skills_catalog c2
-                ON c2.id = si.catalog_entry_id
-               AND c2.organization_id = si.organization_id
-              WHERE c2.name = c.name
-                AND tr.created_at >= NOW() - INTERVAL '30 days'
-            ) AS error_rate_30d,
-            (
-              SELECT COUNT(sr.id)::int
-              FROM skill_reviews sr
-              JOIN skills_catalog c2
-                ON c2.id = sr.catalog_entry_id
-               AND c2.organization_id = sr.organization_id
-              WHERE sr.organization_id = c.organization_id
-                AND c2.name = c.name
-            ) AS review_count,
-            (
-              SELECT COALESCE(ROUND(AVG(sr.rating)::numeric, 2), 0)
-              FROM skill_reviews sr
-              JOIN skills_catalog c2
-                ON c2.id = sr.catalog_entry_id
-               AND c2.organization_id = sr.organization_id
-              WHERE sr.organization_id = c.organization_id
-                AND c2.name = c.name
-            ) AS average_rating,
-            (
-              COALESCE(rp.trusted, FALSE)
-              AND EXISTS (
-                SELECT 1
-                FROM skills_installed si
-                JOIN skills_catalog c2
-                  ON c2.id = si.catalog_entry_id
-                 AND c2.organization_id = si.organization_id
-                WHERE si.organization_id = c.organization_id
-                  AND c2.name = c.name
-                  AND si.trust_level = 'trusted'
-              )
-              AND EXISTS (
-                SELECT 1
-                FROM skill_signatures ss
-                JOIN skills_installed si
-                  ON si.id = ss.skill_id
-                 AND si.organization_id = ss.organization_id
-                JOIN skills_catalog c2
-                  ON c2.id = si.catalog_entry_id
-                 AND c2.organization_id = si.organization_id
-                WHERE ss.organization_id = c.organization_id
-                  AND c2.name = c.name
-                  AND ss.verified = TRUE
-              )
-              AND NOT EXISTS (
-                SELECT 1
-                FROM skill_quarantine_reports qr
-                JOIN skills_installed si
-                  ON si.id = qr.skill_id
-                 AND si.organization_id = qr.organization_id
-                JOIN skills_catalog c2
-                  ON c2.id = si.catalog_entry_id
-                 AND c2.organization_id = si.organization_id
-                WHERE qr.organization_id = c.organization_id
-                  AND c2.name = c.name
-                  AND qr.overall_risk IN ('high', 'critical')
-              )
-            ) AS verified
+            COALESCE(mr.creator_share_bps, 7000) AS creator_share_bps
          FROM skills_catalog c
          LEFT JOIN registry_publishers rp
            ON rp.id = c.publisher_id
@@ -431,15 +430,19 @@ export async function registerRegistryRoutes(app: FastifyInstance, pool: pg.Pool
            LIMIT $${dataParams.length - 1} OFFSET $${dataParams.length}`,
           dataParams,
         );
+        const enrichedRows = await enrichRegistryMarketplaceRows(pool, orgId, rows.rows);
         reply.send({
           success: true,
-          data: rows.rows,
+          data: enrichedRows,
           meta: { page, per_page: perPage, total, total_pages: Math.ceil(total / perPage) },
         });
         return;
       }
 
-      const rows = await pool.query(latestRowsSql, params);
+      const rawRows = await pool.query(latestRowsSql, params);
+      const rows = {
+        rows: await enrichRegistryMarketplaceRows(pool, orgId, rawRows.rows),
+      };
       const queryEmbedding = await embedTextFromEnv(semanticQuery, {
         ...process.env,
         EMBEDDINGS_CACHE_ENABLED: 'false',
