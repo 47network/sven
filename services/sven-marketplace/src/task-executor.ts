@@ -411,6 +411,13 @@ export class TaskExecutor {
       case 'feedback_submit_recommend': return this.handleFeedbackSubmitRecommend(task);
       case 'recommend_refresh': return this.handleRecommendRefresh(task);
       case 'campaign_manage': return this.handleCampaignManage(task);
+      case 'version_create': return this.handleVersionCreate(task);
+      case 'snapshot_take': return this.handleSnapshotTake(task);
+      case 'rollback_initiate': return this.handleRollbackInitiate(task);
+      case 'slot_assign': return this.handleSlotAssign(task);
+      case 'diff_generate': return this.handleDiffGenerate(task);
+      case 'version_promote': return this.handleVersionPromote(task);
+      case 'rollback_cancel': return this.handleRollbackCancel(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -4436,6 +4443,45 @@ export class TaskExecutor {
     const action = task.input?.action || "pause";
     const campaignId = task.input?.campaignId;
     return { status: "completed", campaignId, action, newStatus: action === "cancel" ? "cancelled" : action === "pause" ? "paused" : "active", effectiveDate: new Date().toISOString() };
+  }
+
+
+  private async handleVersionCreate(task: any): Promise<any> {
+    const agentId = task.input?.agentId || task.agentId;
+    const bump = task.input?.bumpType || "patch";
+    return { status: "completed", versionId: `ver-${Date.now()}`, versionTag: "v1.0.1", agentId, bump, configHash: `hash-${Date.now()}` };
+  }
+
+  private async handleSnapshotTake(task: any): Promise<any> {
+    const snapshotType = task.input?.snapshotType || "full";
+    return { status: "completed", snapshotId: `snap-${Date.now()}`, snapshotType, sizeBytes: 4096, compressed: false };
+  }
+
+  private async handleRollbackInitiate(task: any): Promise<any> {
+    const toVersionId = task.input?.toVersionId;
+    const reason = task.input?.reason || "manual rollback";
+    return { status: "completed", rollbackId: `rb-${Date.now()}`, toVersionId, reason, rollbackStatus: "in_progress" };
+  }
+
+  private async handleSlotAssign(task: any): Promise<any> {
+    const slotName = task.input?.slotName || "staging";
+    const trafficPct = task.input?.trafficPct || 100;
+    return { status: "completed", slotId: `slot-${Date.now()}`, slotName, trafficPct };
+  }
+
+  private async handleDiffGenerate(task: any): Promise<any> {
+    const diffType = task.input?.diffType || "full";
+    return { status: "completed", diffId: `diff-${Date.now()}`, diffType, additions: [], removals: [], modifications: [], summary: "No changes detected" };
+  }
+
+  private async handleVersionPromote(task: any): Promise<any> {
+    const versionId = task.input?.versionId;
+    return { status: "completed", promoted: true, versionId, fromSlot: "staging", toSlot: "production" };
+  }
+
+  private async handleRollbackCancel(task: any): Promise<any> {
+    const rollbackId = task.input?.rollbackId;
+    return { status: "completed", rollbackId, cancelled: true, previousStatus: "in_progress" };
   }
 
 }

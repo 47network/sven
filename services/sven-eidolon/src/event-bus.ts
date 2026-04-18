@@ -211,6 +211,10 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.recommend.model_trained': 'recommend.model_trained',
   'sven.recommend.interaction_recorded': 'recommend.interaction_recorded',
   'sven.recommend.campaign_launched': 'recommend.campaign_launched',
+  'sven.versioning.version_created': 'versioning.version_created',
+  'sven.versioning.snapshot_taken': 'versioning.snapshot_taken',
+  'sven.versioning.rollback_initiated': 'versioning.rollback_initiated',
+  'sven.versioning.version_promoted': 'versioning.version_promoted',
 };
 
 export class EidolonEventBus {
