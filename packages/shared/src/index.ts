@@ -36,3 +36,4 @@ export * from './anti-distillation.js';
 export * from './background-session.js';
 export * from './personality-engine.js';
 export * from './visual-companion.js';
+export * from './misiuni.js';
