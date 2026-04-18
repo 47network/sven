@@ -247,6 +247,10 @@ export class TaskExecutor {
       case 'integration_build':    return this.handleIntegrationBuild(input);
       case 'integration_invoke':   return this.handleIntegrationInvoke(input);
       case 'integration_evolve':   return this.handleIntegrationEvolve(input);
+      case 'collaboration_propose': return this.handleCollaborationPropose(input);
+      case 'collaboration_respond': return this.handleCollaborationRespond(input);
+      case 'team_create':           return this.handleTeamCreate(input);
+      case 'social_interact':       return this.handleSocialInteract(input);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -1873,6 +1877,80 @@ export class TaskExecutor {
         latencyMs,
         tokensCharged: 2,
         message: `Invoked "${action}" on agent ${agentId} — ${latencyMs}ms`,
+      },
+    };
+  }
+
+  private async handleCollaborationPropose(input: Record<string, unknown>): Promise<TaskResult> {
+    const initiatorId = String(input.initiatorId ?? '');
+    const partnerId = String(input.partnerId ?? '');
+    const collaborationType = String(input.collaborationType ?? 'joint_project');
+    const collabId = `collab-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      success: true,
+      output: {
+        collaborationId: collabId,
+        initiatorId,
+        partnerId,
+        collaborationType,
+        status: 'proposed',
+        trustScore: 50,
+        message: `Collaboration proposed: ${initiatorId} → ${partnerId} (${collaborationType})`,
+      },
+    };
+  }
+
+  private async handleCollaborationRespond(input: Record<string, unknown>): Promise<TaskResult> {
+    const collaborationId = String(input.collaborationId ?? '');
+    const response = String(input.response ?? 'accept');
+    const newStatus = response === 'accept' ? 'active' : response === 'reject' ? 'rejected' : 'negotiating';
+    return {
+      success: true,
+      output: {
+        collaborationId,
+        response,
+        status: newStatus,
+        trustDelta: response === 'accept' ? 5 : response === 'reject' ? -1 : 0,
+        message: `Collaboration ${collaborationId} — response: ${response}`,
+      },
+    };
+  }
+
+  private async handleTeamCreate(input: Record<string, unknown>): Promise<TaskResult> {
+    const name = String(input.name ?? 'Unnamed Team');
+    const teamType = String(input.teamType ?? 'project');
+    const leaderId = String(input.leaderId ?? '');
+    const teamId = `team-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      success: true,
+      output: {
+        teamId,
+        name,
+        teamType,
+        leaderId,
+        status: 'forming',
+        treasuryTokens: 0,
+        maxMembers: Number(input.maxMembers ?? 10),
+        message: `Team "${name}" created (type: ${teamType}, leader: ${leaderId})`,
+      },
+    };
+  }
+
+  private async handleSocialInteract(input: Record<string, unknown>): Promise<TaskResult> {
+    const fromAgentId = String(input.fromAgentId ?? '');
+    const toAgentId = String(input.toAgentId ?? '');
+    const interactionType = String(input.interactionType ?? 'greeting');
+    const interactionId = `social-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return {
+      success: true,
+      output: {
+        interactionId,
+        fromAgentId,
+        toAgentId,
+        interactionType,
+        impactScore: interactionType === 'endorsement' ? 3 : interactionType === 'mentoring_session' ? 4 : 1,
+        sentiment: 'positive',
+        message: `Social interaction: ${fromAgentId} → ${toAgentId} (${interactionType})`,
       },
     };
   }

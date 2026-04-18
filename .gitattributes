@@ -113,3 +113,9 @@ services/gateway-api/migrations/20260512120000_integration_agents.sql export-ign
 packages/shared/src/integration-agents.ts export-ignore
 skills/autonomous-economy/integration-agent/** export-ignore
 services/agent-runtime/src/__tests__/batch39-integration-agents.test.ts export-ignore
+
+# Batch 40 — Agent Collaboration & Social Dynamics (private)
+services/gateway-api/migrations/20260513120000_agent_collaboration.sql export-ignore
+packages/shared/src/agent-collaboration.ts export-ignore
+skills/autonomous-economy/agent-collaboration/** export-ignore
+services/agent-runtime/src/__tests__/batch40-agent-collaboration.test.ts export-ignore

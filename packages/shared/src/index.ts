@@ -62,3 +62,4 @@ export * from './academic-assistance.js';
 export * from './agent-service-domains.js';
 export * from './research-labs.js';
 export * from './integration-agents.js';
+export * from './agent-collaboration.js';
