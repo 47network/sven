@@ -224,3 +224,8 @@ export * from './agent-ingress-controller.js';
 export * from './agent-fault-injector.js';
 export * from './agent-connection-pool.js';
 export * from './agent-retry-handler.js';
+export * from './agent-stream-processor.js';
+export * from './agent-schema-validator.js';
+export * from './agent-etl-processor.js';
+export * from './agent-data-catalog.js';
+export * from './agent-query-optimizer.js';
