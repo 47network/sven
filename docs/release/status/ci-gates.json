@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-19T05:10:12.707Z",
+  "generated_at": "2026-04-19T05:40:10.472Z",
   "source_branch": "palette-aria-labels-appshell-9188964469529522283",
-  "source_head_sha": "0e3798d5b170427eeb8a94e4cca0305dccb87ebb",
+  "source_head_sha": "30852f6c58e75f9ee79910b485224d025fd7bcbe",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-19T05:10:12.384Z",
+    "captured_at": "2026-04-19T05:40:09.977Z",
     "branch": "palette-aria-labels-appshell-9188964469529522283",
-    "total_runs": 7
+    "total_runs": 12
   },
   "final_dod_ci": false,
   "parity_e2e_ci": false,
@@ -26,7 +26,7 @@
   "ui_e2e_ci": true,
   "mobile_coverage_gate_ci": false,
   "csrf_auth_e2e_ci": false,
-  "client_env_governance_ci": true,
+  "client_env_governance_ci": false,
   "backend_capability_e2e_ci": false,
   "security_privacy_governance_ci": false,
   "privacy_admin_e2e_ci": false,
@@ -91,7 +91,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-19T05:10:09.972Z"
+      "generated_at": "2026-04-19T05:40:07.148Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +121,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-19T05:10:10.997Z"
+      "generated_at": "2026-04-19T05:40:08.347Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +136,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-19T05:10:12.051Z"
+      "generated_at": "2026-04-19T05:40:09.556Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -250,8 +250,8 @@
       "previous_gate_value": false
     },
     "ui_e2e_ci": {
-      "run_id": 24621470149,
-      "head_sha": "0e3798d5b170427eeb8a94e4cca0305dccb87ebb",
+      "run_id": 24622011214,
+      "head_sha": "30852f6c58e75f9ee79910b485224d025fd7bcbe",
       "head_branch": "palette-aria-labels-appshell-9188964469529522283",
       "event": "pull_request",
       "status": "completed",
@@ -291,17 +291,18 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": 24621469391,
-      "head_sha": "0e3798d5b170427eeb8a94e4cca0305dccb87ebb",
+      "run_id": null,
+      "head_sha": null,
       "head_branch": "palette-aria-labels-appshell-9188964469529522283",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
+      "event": null,
+      "status": null,
+      "conclusion": null,
       "workflow_id": 261310854,
       "workflow_name": "client-env-governance",
-      "matched_target_sha": true,
+      "matched_target_sha": false,
       "gate_key": "client_env_governance_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "missing_completed_target_sha_run",
+      "target_sha": "30852f6c58e75f9ee79910b485224d025fd7bcbe"
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
@@ -400,17 +401,18 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24621470143,
-      "head_sha": "0e3798d5b170427eeb8a94e4cca0305dccb87ebb",
+      "run_id": 24622011200,
+      "head_sha": "30852f6c58e75f9ee79910b485224d025fd7bcbe",
       "head_branch": "palette-aria-labels-appshell-9188964469529522283",
       "event": "pull_request",
-      "status": "completed",
-      "conclusion": "success",
+      "status": "in_progress",
+      "conclusion": null,
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "preserved_previous_pass_non_final_target_sha",
+      "previous_gate_value": true
     }
   },
   "required_workflow_manifest": {
@@ -567,8 +569,8 @@
     "ui-e2e-accessibility": {
       "pass": true,
       "provenance": {
-        "run_id": 24621470149,
-        "head_sha": "0e3798d5b170427eeb8a94e4cca0305dccb87ebb",
+        "run_id": 24622011214,
+        "head_sha": "30852f6c58e75f9ee79910b485224d025fd7bcbe",
         "head_branch": "palette-aria-labels-appshell-9188964469529522283",
         "event": "pull_request",
         "status": "completed",
@@ -600,37 +602,38 @@
       "gate_key": "gateway_coverage_gate_ci"
     },
     "client-env-governance": {
-      "pass": true,
+      "pass": false,
       "provenance": {
-        "run_id": 24621469391,
-        "head_sha": "0e3798d5b170427eeb8a94e4cca0305dccb87ebb",
+        "run_id": null,
+        "head_sha": null,
         "head_branch": "palette-aria-labels-appshell-9188964469529522283",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "success",
+        "event": null,
+        "status": null,
+        "conclusion": null,
         "workflow_id": 261310854,
         "workflow_name": "client-env-governance",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "client_env_governance_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "30852f6c58e75f9ee79910b485224d025fd7bcbe"
       },
       "gate_key": "client_env_governance_ci"
     },
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 24621469390,
-        "head_sha": "0e3798d5b170427eeb8a94e4cca0305dccb87ebb",
+        "run_id": null,
+        "head_sha": null,
         "head_branch": "palette-aria-labels-appshell-9188964469529522283",
-        "event": "push",
-        "status": "in_progress",
+        "event": null,
+        "status": null,
         "conclusion": null,
         "workflow_id": 261310856,
         "workflow_name": "deployment-pipeline",
-        "matched_target_sha": true,
+        "matched_target_sha": false,
         "gate_key": "deployment_pipeline_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "missing_completed_target_sha_run",
+        "target_sha": "30852f6c58e75f9ee79910b485224d025fd7bcbe"
       },
       "gate_key": "deployment_pipeline_ci"
     },
@@ -655,17 +658,18 @@
     "security-baseline": {
       "pass": true,
       "provenance": {
-        "run_id": 24621470143,
-        "head_sha": "0e3798d5b170427eeb8a94e4cca0305dccb87ebb",
+        "run_id": 24622011200,
+        "head_sha": "30852f6c58e75f9ee79910b485224d025fd7bcbe",
         "head_branch": "palette-aria-labels-appshell-9188964469529522283",
         "event": "pull_request",
-        "status": "completed",
-        "conclusion": "success",
+        "status": "in_progress",
+        "conclusion": null,
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "preserved_previous_pass_non_final_target_sha",
+        "previous_gate_value": true
       },
       "gate_key": "security_baseline_ci"
     },
