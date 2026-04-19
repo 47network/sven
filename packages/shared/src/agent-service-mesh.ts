@@ -1,88 +1,54 @@
-// Batch 75: Agent Service Mesh & Discovery — shared types
+export type MeshProtocol = 'http' | 'grpc' | 'tcp' | 'udp';
+export type MtlsMode = 'strict' | 'permissive' | 'disabled';
+export type MeshPolicyType = 'traffic' | 'security' | 'observability' | 'fault_injection';
 
-export type ServiceProtocol = 'http' | 'grpc' | 'ws' | 'tcp' | 'nats';
-export type ServiceStatus = 'registered' | 'healthy' | 'degraded' | 'unhealthy' | 'deregistered';
-export type MeshDependencyType = 'required' | 'optional' | 'weak';
-export type HealthCheckType = 'http' | 'tcp' | 'grpc' | 'script' | 'nats';
-export type LoadBalanceStrategy = 'round_robin' | 'weighted' | 'least_conn' | 'random' | 'consistent_hash';
-
-export interface ServiceRegistryEntry {
+export interface MeshService {
   id: string;
-  service_name: string;
-  version: string;
-  protocol: ServiceProtocol;
-  host: string;
+  agentId: string;
+  name: string;
+  namespace: string;
+  protocol: MeshProtocol;
   port: number;
-  health_path: string;
-  status: ServiceStatus;
-  tags: string[];
-  metadata: Record<string, unknown>;
-  registered_at: string;
-  last_heartbeat?: string;
-  updated_at: string;
+  targetPort: number;
+  sidecarEnabled: boolean;
+  mtlsMode: MtlsMode;
+  healthCheckPath: string | null;
+  replicas: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface ServiceEndpoint {
+export interface MeshRoute {
   id: string;
-  service_id: string;
-  path: string;
-  method: string;
-  description?: string;
-  rate_limit?: number;
-  timeout_ms: number;
-  retries: number;
-  metadata: Record<string, unknown>;
-  created_at: string;
+  serviceId: string;
+  matchPath: string;
+  matchMethod: string | null;
+  destinationServiceId: string;
+  weight: number;
+  timeoutMs: number;
+  retryAttempts: number;
+  circuitBreakerThreshold: number;
+  rateLimitRps: number | null;
+  createdAt: string;
 }
 
-export interface ServiceDependency {
+export interface MeshPolicy {
   id: string;
-  service_id: string;
-  depends_on: string;
-  dep_type: MeshDependencyType;
-  min_version?: string;
-  metadata: Record<string, unknown>;
-  created_at: string;
+  agentId: string;
+  name: string;
+  policyType: MeshPolicyType;
+  targetServiceId: string | null;
+  rules: Record<string, unknown>[];
+  enabled: boolean;
+  priority: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface ServiceHealthCheck {
-  id: string;
-  service_id: string;
-  check_type: HealthCheckType;
-  interval_sec: number;
-  timeout_ms: number;
-  last_status: string;
-  last_output?: string;
-  consecutive_failures: number;
-  checked_at?: string;
-  created_at: string;
-}
-
-export interface MeshTrafficPolicy {
-  id: string;
-  policy_name: string;
-  source_service?: string;
-  target_service?: string;
-  strategy: LoadBalanceStrategy;
-  circuit_breaker: Record<string, unknown>;
-  retry_policy: Record<string, unknown>;
-  timeout_policy: Record<string, unknown>;
-  is_active: boolean;
-  metadata: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
-}
-
-export const SERVICE_STATUS_ORDER: ServiceStatus[] = ['registered', 'healthy', 'degraded', 'unhealthy', 'deregistered'];
-
-export function isServiceAvailable(status: ServiceStatus): boolean {
-  return status === 'healthy' || status === 'degraded';
-}
-
-export function buildServiceUrl(entry: ServiceRegistryEntry): string {
-  return `${entry.protocol}://${entry.host}:${entry.port}`;
-}
-
-export function shouldRetry(failures: number, maxRetries: number): boolean {
-  return failures < maxRetries;
+export interface ServiceMeshStats {
+  totalServices: number;
+  totalRoutes: number;
+  totalPolicies: number;
+  mtlsStrictCount: number;
+  sidecarEnabledCount: number;
 }

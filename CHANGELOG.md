@@ -9,6 +9,41 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added — Batch 118: Container Registry
+- Migration: `20260617550000_agent_container_registry.sql` — 3 tables, 6 indexes
+- Shared types: RegistryAuthType, ContainerRegistry, ContainerImage, ImageVulnerability
+- Skill: agent-container-registry — private registry management and vulnerability scanning
+- Eidolon: container_yard building, 4 event kinds, NATS subjects
+- Task executor: 5 handlers (registry_create, push_image, scan_vulns, list_images, report)
+
+### Added — Batch 119: Service Mesh
+- Migration: `20260617560000_agent_service_mesh.sql` — 3 tables, 6 indexes
+- Shared types: MeshProtocol, MeshService, MeshRoute, MeshPolicy
+- Skill: agent-service-mesh — routing, mTLS, policies, circuit breakers
+- Eidolon: mesh_nexus building, 4 event kinds, NATS subjects
+- Task executor: 6 handlers (register, create_route, create_policy, check_health, list, report)
+
+### Added — Batch 120: Config Drift Detection
+- Migration: `20260617570000_agent_config_drift.sql` — 3 tables, 6 indexes
+- Shared types: DriftResourceType, ConfigBaseline, ConfigDriftEvent, ConfigScanJob
+- Skill: agent-config-drift — baseline management, scanning, remediation
+- Eidolon: drift_scanner building, 4 event kinds, NATS subjects
+- Task executor: 6 handlers (create_baseline, run_scan, list_drifts, remediate, lock, report)
+
+### Added — Batch 121: Incident Escalation
+- Migration: `20260617580000_agent_incident_escalation.sql` — 3 tables, 6 indexes
+- Shared types: IncidentSeverity, EscalationPolicy, AgentIncident, EscalationLog
+- Skill: agent-incident-escalation — incident lifecycle and auto-escalation
+- Eidolon: escalation_tower building, 5 event kinds, NATS subjects
+- Task executor: 6 handlers (create_policy, open, acknowledge, escalate, resolve, report)
+
+### Added — Batch 122: Capacity Forecasting
+- Migration: `20260617590000_agent_capacity_forecasting.sql` — 3 tables, 6 indexes
+- Shared types: ForecastResourceType, CapacityModel, CapacityForecast, CapacityAlert
+- Skill: agent-capacity-forecasting — time-series forecasting and alerts
+- Eidolon: forecast_engine building, 4 event kinds, NATS subjects
+- Task executor: 6 handlers (create_model, train, forecast, check_alerts, recommendations, report)
+
 ### Added
 - **Batch 113 — Log Rotation**: agent_log_rotation_policies, agent_log_archives, agent_log_retention_jobs tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon log_rotator building
 - **Batch 114 — IP Allowlisting**: agent_ip_allowlists, agent_ip_rules, agent_ip_access_logs tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon ip_gatekeeper building

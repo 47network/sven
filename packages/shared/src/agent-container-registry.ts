@@ -1,56 +1,54 @@
-// Batch 103 — Agent Container Registry
+export type RegistryAuthType = 'token' | 'basic' | 'iam' | 'oidc';
+export type RegistryStorageBackend = 'local' | 's3' | 'gcs' | 'azure_blob';
+export type ImageArchitecture = 'amd64' | 'arm64' | 'multi';
+export type VulnerabilitySeverity = 'critical' | 'high' | 'medium' | 'low' | 'negligible';
 
-export type ContainerImageArch = 'amd64' | 'arm64' | 'arm' | 'ppc64le' | 's390x';
-export type ContainerScanStatus = 'pending' | 'running' | 'completed' | 'failed';
-export type ContainerSeverity = 'critical' | 'high' | 'medium' | 'low' | 'negligible';
+export interface ContainerRegistry {
+  id: string;
+  agentId: string;
+  name: string;
+  endpointUrl: string;
+  authType: RegistryAuthType;
+  storageBackend: RegistryStorageBackend;
+  maxImages: number;
+  maxStorageBytes: number;
+  tlsEnabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface ContainerImage {
   id: string;
-  agentId: string;
+  registryId: string;
   repository: string;
   tag: string;
   digest: string;
   sizeBytes: number;
-  architecture: ContainerImageArch;
+  architecture: ImageArchitecture;
   os: string;
+  pushedBy: string | null;
   pushedAt: string;
   lastPulledAt: string | null;
   pullCount: number;
   labels: Record<string, string>;
 }
 
-export interface ContainerScan {
+export interface ImageVulnerability {
   id: string;
   imageId: string;
-  scanner: string;
-  status: ContainerScanStatus;
-  criticalCount: number;
-  highCount: number;
-  mediumCount: number;
-  lowCount: number;
-  findings: Array<{ cve: string; severity: ContainerSeverity; package: string; fixedIn: string | null }>;
-  startedAt: string | null;
-  completedAt: string | null;
-}
-
-export interface ContainerRetentionPolicy {
-  id: string;
-  agentId: string;
-  repository: string;
-  policyName: string;
-  keepLast: number;
-  keepDays: number | null;
-  tagPattern: string;
-  enabled: boolean;
-  imagesCleaned: number;
-  bytesFreed: number;
+  cveId: string;
+  severity: VulnerabilitySeverity;
+  packageName: string;
+  installedVersion: string;
+  fixedVersion: string | null;
+  description: string | null;
+  scannedAt: string;
 }
 
 export interface ContainerRegistryStats {
+  totalRegistries: number;
   totalImages: number;
-  totalRepositories: number;
-  totalSizeBytes: number;
-  criticalVulnerabilities: number;
-  imagesScanned: number;
-  retentionPoliciesActive: number;
+  totalVulnerabilities: number;
+  criticalVulns: number;
+  totalStorageBytes: number;
 }

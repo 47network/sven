@@ -139,3 +139,8 @@ export * from './agent-ip-allowlisting.js';
 export * from './agent-webhook-retry.js';
 export * from './agent-storage-tiering.js';
 export * from './agent-network-peering.js';
+export * from './agent-container-registry.js';
+export * from './agent-service-mesh.js';
+export * from './agent-config-drift.js';
+export * from './agent-incident-escalation.js';
+export * from './agent-capacity-forecasting.js';
