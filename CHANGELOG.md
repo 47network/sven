@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 238-242 — Network Infrastructure
+- **Batch 238 – Certificate Authority**: SSL/TLS certificate lifecycle — issuance, renewal, revocation, auditing
+- **Batch 239 – Geo Locator**: IP geolocation lookups, compliance checks, geographic restrictions
+- **Batch 240 – DDoS Protector**: DDoS policy management, attack detection, incident mitigation, metrics
+- **Batch 241 – API Gateway Manager**: API route management, consumer keys, traffic analytics, versioning
+- **Batch 242 – Endpoint Monitor**: Endpoint health checks, uptime reporting, alert management
+- 5 migration SQL files, 5 shared TypeScript type modules, 5 SKILL.md files
+- 5 BK values, 20 EK values, 5 districtFor cases, 20 SUBJECT_MAP entries
+- 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries — 117 tests passing
+
+
 ### Batches 233-237: Security Access Control
 - **access_auditor** (Batch 233): Access logging and monitoring — audit logs, pattern detection, anomaly alerts, report generation
 - **permission_manager** (Batch 234): RBAC permissions — role creation, role assignment, permission checks, audit, revocation

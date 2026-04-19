@@ -259,3 +259,8 @@ export * from './agent-permission-manager.js';
 export * from './agent-token-validator.js';
 export * from './agent-session-enforcer.js';
 export * from './agent-network-firewall.js';
+export * from './agent-certificate-authority.js';
+export * from './agent-geo-locator.js';
+export * from './agent-ddos-protector.js';
+export * from './agent-api-gateway-manager.js';
+export * from './agent-endpoint-monitor.js';

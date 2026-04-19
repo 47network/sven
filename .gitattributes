@@ -857,3 +857,28 @@ skills/autonomous-economy/session-enforcer/** filter=sven-private
 services/gateway-api/migrations/20260618740000_agent_network_firewall.sql filter=sven-private
 packages/shared/src/agent-network-firewall.ts filter=sven-private
 skills/autonomous-economy/network-firewall/** filter=sven-private
+
+# Batch 238: Certificate Authority
+services/gateway-api/migrations/20260618750000_agent_certificate_authority.sql filter=sven-private
+packages/shared/src/agent-certificate-authority.ts filter=sven-private
+skills/autonomous-economy/certificate-authority/** filter=sven-private
+
+# Batch 239: Geo Locator
+services/gateway-api/migrations/20260618760000_agent_geo_locator.sql filter=sven-private
+packages/shared/src/agent-geo-locator.ts filter=sven-private
+skills/autonomous-economy/geo-locator/** filter=sven-private
+
+# Batch 240: DDoS Protector
+services/gateway-api/migrations/20260618770000_agent_ddos_protector.sql filter=sven-private
+packages/shared/src/agent-ddos-protector.ts filter=sven-private
+skills/autonomous-economy/ddos-protector/** filter=sven-private
+
+# Batch 241: API Gateway Manager
+services/gateway-api/migrations/20260618780000_agent_api_gateway_manager.sql filter=sven-private
+packages/shared/src/agent-api-gateway-manager.ts filter=sven-private
+skills/autonomous-economy/api-gateway-manager/** filter=sven-private
+
+# Batch 242: Endpoint Monitor
+services/gateway-api/migrations/20260618790000_agent_endpoint_monitor.sql filter=sven-private
+packages/shared/src/agent-endpoint-monitor.ts filter=sven-private
+skills/autonomous-economy/endpoint-monitor/** filter=sven-private
