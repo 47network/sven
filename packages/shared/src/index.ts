@@ -164,3 +164,8 @@ export * from './agent-sandbox-isolation.js';
 export * from './agent-swarm-coordination.js';
 export * from './agent-consensus-protocol.js';
 export * from './agent-anomaly-detection.js';
+export * from './agent-dependency-graph.js';
+export * from './agent-blueprint-system.js';
+export * from './agent-signal-dispatch.js';
+export * from './agent-throttle-control.js';
+export * from './agent-state-sync.js';

@@ -102,6 +102,11 @@ export type EidolonBuildingKind =
   | 'swarm_nexus'
   | 'consensus_forum'
   | 'anomaly_watchtower'
+  | 'dep_graph_lab'
+  | 'blueprint_forge'
+  | 'signal_tower'
+  | 'throttle_station'
+  | 'sync_bridge'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -687,6 +692,11 @@ export type EidolonEventKind =
   | 'swarm.cluster_formed' | 'swarm.member_joined' | 'swarm.task_distributed' | 'swarm.cluster_dissolved'
   | 'consensus.proposal_created' | 'consensus.vote_cast' | 'consensus.quorum_reached' | 'consensus.proposal_executed'
   | 'anomaly.detector_created' | 'anomaly.anomaly_detected' | 'anomaly.anomaly_resolved' | 'anomaly.baseline_updated'
+  | 'depgraph.graph_created' | 'depgraph.node_added' | 'depgraph.edge_added' | 'depgraph.analysis_completed'
+  | 'blueprint.created' | 'blueprint.validated' | 'blueprint.instantiated' | 'blueprint.deprecated'
+  | 'signal.sent' | 'signal.delivered' | 'signal.acknowledged' | 'signal.expired'
+  | 'throttle.rule_created' | 'throttle.request_throttled' | 'throttle.circuit_opened' | 'throttle.circuit_closed'
+  | 'statesync.peer_created' | 'statesync.state_pushed' | 'statesync.state_pulled' | 'statesync.conflict_resolved'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -948,6 +958,16 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'consensus_forum':
       return 'civic';
     case 'anomaly_watchtower':
+      return 'civic';
+    case 'dep_graph_lab':
+      return 'civic';
+    case 'blueprint_forge':
+      return 'civic';
+    case 'signal_tower':
+      return 'civic';
+    case 'throttle_station':
+      return 'civic';
+    case 'sync_bridge':
       return 'civic';
   }
 }

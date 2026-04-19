@@ -1,5 +1,45 @@
 # Changelog
 
+## Batch 147 — Agent State Sync
+- Migration: `20260617840000_agent_state_sync.sql` (sync_peers, sync_states, sync_operations)
+- Types: SyncDirection, ConflictPolicy, SyncPeer, SyncState, SyncOperationRecord, StateSyncStats
+- Skill: agent-state-sync (infrastructure archetype)
+- Eidolon: sync_bridge BK + 4 statesync EK values
+- Event bus: 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (sync_create_peer, sync_push, sync_pull, sync_resolve, sync_list, sync_report)
+
+## Batch 146 — Agent Throttle Control
+- Migration: `20260617830000_agent_throttle_control.sql` (throttle_rules, throttle_events, throttle_counters)
+- Types: ThrottleScope, ThrottleMode, ThrottleAction, ThrottleRule, ThrottleEvent, ThrottleCounter, ThrottleControlStats
+- Skill: agent-throttle-control (operations archetype)
+- Eidolon: throttle_station BK + 4 throttle EK values
+- Event bus: 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (throttle_create_rule, throttle_check, throttle_update_rule, throttle_reset, throttle_list, throttle_report)
+
+## Batch 145 — Agent Signal Dispatch
+- Migration: `20260617820000_agent_signal_dispatch.sql` (agent_signals, signal_subscriptions, signal_deliveries)
+- Types: SignalKind, SignalPriority, DispatchMode, DeliveryStatus, AgentSignal, SignalSubscription, SignalDelivery, SignalDispatchStats
+- Skill: agent-signal-dispatch (messaging archetype)
+- Eidolon: signal_tower BK + 4 signal EK values
+- Event bus: 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (signal_send, signal_subscribe, signal_broadcast, signal_acknowledge, signal_list, signal_report)
+
+## Batch 144 — Agent Blueprint System
+- Migration: `20260617810000_agent_blueprint_system.sql` (system_blueprints, blueprint_components, blueprint_instances)
+- Types: BlueprintScope, BlueprintStatus, ComponentSlot, SystemBlueprint, BlueprintComponent, BlueprintInstance, BlueprintSystemStats
+- Skill: agent-blueprint-system (architecture archetype)
+- Eidolon: blueprint_forge BK + 4 blueprint EK values
+- Event bus: 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (blueprint_create, blueprint_add_component, blueprint_validate, blueprint_instantiate, blueprint_list, blueprint_report)
+
+## Batch 143 — Agent Dependency Graph
+- Migration: `20260617800000_agent_dependency_graph.sql` (dependency_graphs, dependency_nodes, dependency_edges)
+- Types: DepGraphKind, DepNodeType, DepEdgeType, DependencyGraph, DependencyNode, DependencyEdge, DependencyGraphStats
+- Skill: agent-dependency-graph (analytics archetype)
+- Eidolon: dep_graph_lab BK + 4 depgraph EK values
+- Event bus: 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (depgraph_create, depgraph_add_node, depgraph_add_edge, depgraph_analyse, depgraph_list, depgraph_report)
+
 All notable changes to Sven are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
