@@ -427,3 +427,28 @@ skills/agent-compliance-audit/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260617640000_agent_rate_limiting.sql filter=sven-private
 packages/shared/src/agent-rate-limiting.ts filter=sven-private
 skills/agent-rate-limiting/SKILL.md filter=sven-private
+
+# Batch 128 — Agent Feature Flags
+services/gateway-api/migrations/20260617650000_agent_feature_flags.sql filter=sven-private
+packages/shared/src/agent-feature-flags.ts filter=sven-private
+skills/agent-feature-flags/SKILL.md filter=sven-private
+
+# Batch 129 — Agent Health Monitoring
+services/gateway-api/migrations/20260617660000_agent_health_monitoring.sql filter=sven-private
+packages/shared/src/agent-health-monitoring.ts filter=sven-private
+skills/agent-health-monitoring/SKILL.md filter=sven-private
+
+# Batch 130 — Agent Cost Optimization
+services/gateway-api/migrations/20260617670000_agent_cost_optimization.sql filter=sven-private
+packages/shared/src/agent-cost-optimization.ts filter=sven-private
+skills/agent-cost-optimization/SKILL.md filter=sven-private
+
+# Batch 131 — Agent Data Pipeline
+services/gateway-api/migrations/20260617680000_agent_data_pipeline.sql filter=sven-private
+packages/shared/src/agent-data-pipeline.ts filter=sven-private
+skills/agent-data-pipeline/SKILL.md filter=sven-private
+
+# Batch 132 — Agent Notification Router
+services/gateway-api/migrations/20260617690000_agent_notification_router.sql filter=sven-private
+packages/shared/src/agent-notification-router.ts filter=sven-private
+skills/agent-notification-router/SKILL.md filter=sven-private

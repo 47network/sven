@@ -87,6 +87,11 @@ export type EidolonBuildingKind =
   | 'cert_tower'
   | 'audit_hall'
   | 'rate_gate'
+  | 'flag_tower'
+  | 'health_beacon'
+  | 'cost_bureau'
+  | 'data_forge'
+  | 'alert_hub'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -657,6 +662,11 @@ export type EidolonEventKind =
   | 'vault.secret_stored' | 'vault.secret_rotated' | 'vault.access_logged' | 'vault.sealed'
   | 'compliance.framework_created' | 'compliance.control_assessed' | 'compliance.audit_completed' | 'compliance.finding_reported'
   | 'ratelimit.policy_created' | 'ratelimit.request_blocked' | 'ratelimit.override_added' | 'ratelimit.status_report'
+  | 'featureflag.flag_created' | 'featureflag.flag_toggled' | 'featureflag.rollout_changed' | 'featureflag.flag_evaluated'
+  | 'healthmon.check_created' | 'healthmon.status_changed' | 'healthmon.sla_breached' | 'healthmon.uptime_report'
+  | 'costopt.report_generated' | 'costopt.recommendation_created' | 'costopt.budget_exceeded' | 'costopt.savings_applied'
+  | 'datapipe.pipeline_created' | 'datapipe.run_started' | 'datapipe.run_completed' | 'datapipe.transform_added'
+  | 'notifrouter.channel_created' | 'notifrouter.notification_sent' | 'notifrouter.escalation_triggered' | 'notifrouter.delivery_failed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -897,6 +907,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'cert_tower':
     case 'audit_hall':
     case 'rate_gate':
+    case 'flag_tower':
+    case 'health_beacon':
+    case 'cost_bureau':
+    case 'data_forge':
+    case 'alert_hub':
       return 'civic';
   }
 }

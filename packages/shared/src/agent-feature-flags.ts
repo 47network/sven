@@ -1,86 +1,45 @@
-/* Batch 65 — Agent Feature Flags & Experiments */
+/* Batch 128 — Agent Feature Flags */
 
-export type AgentfFlagType = 'boolean' | 'percentage' | 'variant' | 'schedule' | 'allowlist';
-export type ExperimentStatus = 'draft' | 'running' | 'paused' | 'completed' | 'cancelled';
-export type FeatureFlagAction = 'flag_create' | 'flag_toggle' | 'experiment_create' | 'experiment_start' | 'variant_assign' | 'metric_record' | 'experiment_conclude';
+export type FeatureFlagType = 'boolean' | 'percentage' | 'variant' | 'schedule';
 
-export const FLAG_TYPES: AgentfFlagType[] = ['boolean', 'percentage', 'variant', 'schedule', 'allowlist'];
-export const EXPERIMENT_STATUSES: ExperimentStatus[] = ['draft', 'running', 'paused', 'completed', 'cancelled'];
-export const FEATURE_FLAG_ACTIONS: FeatureFlagAction[] = ['flag_create', 'flag_toggle', 'experiment_create', 'experiment_start', 'variant_assign', 'metric_record', 'experiment_conclude'];
+export type FlagChangeType = 'created' | 'toggled' | 'rollout_changed' | 'variant_added' | 'archived';
 
-export interface AgentFeatureFlag {
+export interface ManagedFeatureFlag {
   id: string;
-  flagKey: string;
-  flagName: string;
-  description?: string;
-  flagType: AgentfFlagType;
-  defaultValue: unknown;
-  currentValue: unknown;
-  isEnabled: boolean;
-  owner?: string;
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AgentExperiment {
-  id: string;
-  experimentKey: string;
-  experimentName: string;
-  description?: string;
-  hypothesis?: string;
-  status: ExperimentStatus;
-  startDate?: string;
-  endDate?: string;
-  trafficPct: number;
-  winnerVariant?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ExperimentVariant {
-  id: string;
-  experimentId: string;
-  variantKey: string;
-  variantName: string;
-  weight: number;
-  config: Record<string, unknown>;
-  isControl: boolean;
-  createdAt: string;
-}
-
-export interface ExperimentAssignment {
-  id: string;
-  experimentId: string;
   agentId: string;
-  variantId: string;
-  assignedAt: string;
+  flagKey: string;
+  flagType: FeatureFlagType;
+  enabled: boolean;
+  rolloutPct: number;
+  variants: unknown[];
+  targetingRules: Record<string, unknown>;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface ExperimentMetric {
+export interface ManagedFlagEvaluation {
   id: string;
-  experimentId: string;
-  variantId: string;
-  metricName: string;
-  metricValue: number;
-  sampleSize: number;
-  recordedAt: string;
+  flagId: string;
+  contextKey: string;
+  result: unknown;
+  variantServed?: string;
+  evaluatedAt: string;
 }
 
-export function isFlagEnabled(flag: AgentFeatureFlag): boolean {
-  return flag.isEnabled && flag.currentValue !== false;
+export interface FlagAuditEntry {
+  id: string;
+  flagId: string;
+  changeType: FlagChangeType;
+  oldValue?: unknown;
+  newValue?: unknown;
+  changedBy?: string;
+  changedAt: string;
 }
 
-export function isExperimentActive(exp: AgentExperiment): boolean {
-  return exp.status === 'running';
-}
-
-export function calculateVariantWinner(metrics: ExperimentMetric[]): string | null {
-  if (metrics.length === 0) return null;
-  const best = metrics.reduce((a, b) => a.metricValue > b.metricValue ? a : b);
-  return best.variantId;
-}
-
-export function getTrafficAllocation(trafficPct: number, weight: number): number {
-  return Math.round((trafficPct / 100) * (weight / 100) * 10000) / 100;
+export interface FeatureFlagStats {
+  totalFlags: number;
+  enabledFlags: number;
+  evaluationsToday: number;
+  avgRolloutPct: number;
 }

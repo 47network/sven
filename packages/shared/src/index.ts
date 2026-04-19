@@ -149,3 +149,8 @@ export * from './agent-tls-certificates.js';
 export * from './agent-secrets-vault.js';
 export * from './agent-compliance-audit.js';
 export * from './agent-rate-limiting.js';
+export * from './agent-feature-flags.js';
+export * from './agent-health-monitoring.js';
+export * from './agent-cost-optimization.js';
+export * from './agent-data-pipeline.js';
+export * from './agent-notification-router.js';

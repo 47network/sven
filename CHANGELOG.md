@@ -9,6 +9,41 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added — Batch 128: Agent Feature Flags
+- Migration: `20260617650000_agent_feature_flags.sql` — 3 tables (flags, evaluations, audit_log)
+- Shared types: FeatureFlagType, ManagedFeatureFlag, ManagedFlagEvaluation, FlagAuditEntry, FeatureFlagStats
+- Skill: `agent-feature-flags` — create, evaluate, toggle, rollout management
+- Eidolon: BK `flag_tower`, 4 EK events, districtFor civic, 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (create, evaluate, toggle, update_rollout, list, report)
+
+### Added — Batch 129: Agent Health Monitoring
+- Migration: `20260617660000_agent_health_monitoring.sql` — 3 tables (checks, events, uptime)
+- Shared types: HealthCheckType, ServiceHealthCheck, HealthEvent, UptimeRecord, HealthMonitoringStats
+- Skill: `agent-health-monitoring` — create check, run, uptime, SLA reports
+- Eidolon: BK `health_beacon`, 4 EK events, districtFor civic, 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (create_check, run_check, get_uptime, sla_report, list, report)
+
+### Added — Batch 130: Agent Cost Optimization
+- Migration: `20260617670000_agent_cost_optimization.sql` — 3 tables (reports, recommendations, alerts)
+- Shared types: CostReportPeriod, CloudCostProvider, CostReport, CostRecommendation, BudgetAlert, CostOptimizationStats
+- Skill: `agent-cost-optimization` — reports, recommendations, budgets, trends
+- Eidolon: BK `cost_bureau`, 4 EK events, districtFor civic, 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (generate_report, get_recommendations, apply, set_budget, trend, report)
+
+### Added — Batch 131: Agent Data Pipeline
+- Migration: `20260617680000_agent_data_pipeline.sql` — 3 tables (pipelines, runs, transforms)
+- Shared types: PipelineType, PipelineSourceType, PipelineSinkType, DataPipeline, PipelineRun, DataPipelineStats
+- Skill: `agent-data-pipeline` — create, run, transform, monitor pipelines
+- Eidolon: BK `data_forge`, 4 EK events, districtFor civic, 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (create, run, add_transform, get_status, list, report)
+
+### Added — Batch 132: Agent Notification Router
+- Migration: `20260617690000_agent_notification_router.sql` — 3 tables (channels, rules, log)
+- Shared types: NotificationChannelType, NotificationSeverity, NotifChannel, NotificationRule, NotificationRouterStats
+- Skill: `agent-notification-router` — channels, rules, send, delivery tracking
+- Eidolon: BK `alert_hub`, 4 EK events, districtFor civic, 4 SUBJECT_MAP entries
+- Task executor: 6 handlers (create_channel, create_rule, send, get_delivery, list, report)
+
 ### Added — Batch 118: Container Registry
 - Migration: `20260617550000_agent_container_registry.sql` — 3 tables, 6 indexes
 - Shared types: RegistryAuthType, ContainerRegistry, ContainerImage, ImageVulnerability

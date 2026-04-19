@@ -482,6 +482,36 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.ratelimit.request_blocked': 'ratelimit.request_blocked',
   'sven.ratelimit.override_added': 'ratelimit.override_added',
   'sven.ratelimit.status_report': 'ratelimit.status_report',
+
+  // Batch 128 — Agent Feature Flags
+  'sven.featureflag.flag_created': 'featureflag.flag_created',
+  'sven.featureflag.flag_toggled': 'featureflag.flag_toggled',
+  'sven.featureflag.rollout_changed': 'featureflag.rollout_changed',
+  'sven.featureflag.flag_evaluated': 'featureflag.flag_evaluated',
+
+  // Batch 129 — Agent Health Monitoring
+  'sven.healthmon.check_created': 'healthmon.check_created',
+  'sven.healthmon.status_changed': 'healthmon.status_changed',
+  'sven.healthmon.sla_breached': 'healthmon.sla_breached',
+  'sven.healthmon.uptime_report': 'healthmon.uptime_report',
+
+  // Batch 130 — Agent Cost Optimization
+  'sven.costopt.report_generated': 'costopt.report_generated',
+  'sven.costopt.recommendation_created': 'costopt.recommendation_created',
+  'sven.costopt.budget_exceeded': 'costopt.budget_exceeded',
+  'sven.costopt.savings_applied': 'costopt.savings_applied',
+
+  // Batch 131 — Agent Data Pipeline
+  'sven.datapipe.pipeline_created': 'datapipe.pipeline_created',
+  'sven.datapipe.run_started': 'datapipe.run_started',
+  'sven.datapipe.run_completed': 'datapipe.run_completed',
+  'sven.datapipe.transform_added': 'datapipe.transform_added',
+
+  // Batch 132 — Agent Notification Router
+  'sven.notifrouter.channel_created': 'notifrouter.channel_created',
+  'sven.notifrouter.notification_sent': 'notifrouter.notification_sent',
+  'sven.notifrouter.escalation_triggered': 'notifrouter.escalation_triggered',
+  'sven.notifrouter.delivery_failed': 'notifrouter.delivery_failed',
 };
 
 export class EidolonEventBus {
