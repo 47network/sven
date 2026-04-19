@@ -5,6 +5,7 @@ import { useCouncilMode } from '@/lib/store';
 import { useUpdateCouncilConfig } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { memo } from 'react';
 import MemoryIndicator from './MemoryIndicator';
 
 type Chat = { id?: string; name?: string; members?: unknown[]; type?: string };
@@ -31,7 +32,7 @@ type Props = {
     onNudge?: () => void;
 };
 
-export default function ChatHeader({
+const ChatHeader = memo(function ChatHeader({
     chat,
     searchOpen,
     shareActive = false,
@@ -155,7 +156,9 @@ export default function ChatHeader({
             )}
         </div>
     );
-}
+});
+
+export default ChatHeader;
 
 /** A.4.1 — Council Mode toggle in chat header */
 function CouncilToggle() {

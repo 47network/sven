@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import AppShell from '@/components/AppShell';
@@ -309,30 +309,6 @@ export default function ChatTimelinePage() {
     return () => { mounted = false; a2uiStreamRef.current?.close(); };
   }, [chatId]);
 
-  async function toggleAgentPause() {
-    try {
-      if (isAgentPaused) {
-        await resumeAgentMutation.mutateAsync();
-      } else {
-        await pauseAgentMutation.mutateAsync();
-      }
-      await queryClient.invalidateQueries({ queryKey: ['agent-state', chatId] });
-    } catch (error) {
-      toast.error(extractApiErrorMessage(error, 'Failed to update agent state'));
-    }
-  }
-
-  async function nudgeAgent() {
-    try {
-      await nudgeAgentMutation.mutateAsync();
-      await queryClient.invalidateQueries({ queryKey: ['agent-state', chatId] });
-      await queryClient.invalidateQueries({ queryKey: ['messages', chatId] });
-      toast.success('Nudge sent. Retrying last user message.');
-    } catch (error) {
-      toast.error(extractApiErrorMessage(error, 'Failed to nudge agent'));
-    }
-  }
-
   function handleSend(e: React.FormEvent) {
     e.preventDefault();
     const text = input.trim();
@@ -463,30 +439,34 @@ export default function ChatTimelinePage() {
     inputRef.current?.focus();
   }
 
-  function nextSearchMatch() {
+  const nextSearchMatch = useCallback(() => {
     if (filteredMessages.length === 0) return;
     setSearchCursor((prev) => (prev + 1) % filteredMessages.length);
-  }
+  }, [filteredMessages.length]);
 
-  function prevSearchMatch() {
+  const prevSearchMatch = useCallback(() => {
     if (filteredMessages.length === 0) return;
     setSearchCursor((prev) => (prev - 1 + filteredMessages.length) % filteredMessages.length);
-  }
+  }, [filteredMessages.length]);
 
-  function insertTemplate(text: string) {
+  const insertTemplate = useCallback((text: string) => {
     setInput((prev) => `${prev ? `${prev}\n` : ''}${text}`);
     inputRef.current?.focus();
-  }
+  }, []);
 
-  function handleReplyTo(message: ChatMessage) {
+  const handleToggleSearch = useCallback(() => {
+    setSearchOpen((s) => !s);
+  }, []);
+
+  const handleReplyTo = useCallback((message: ChatMessage) => {
     const preview = message.text?.trim() || '[non-text message]';
     const quoted = preview.length > 140 ? `${preview.slice(0, 140)}...` : preview;
     setReplyDraft(`Replying to ${message.sender_name || (message.role === 'assistant' ? 'Sven' : 'User')}: "${quoted}"`);
     setInput((prev) => `${prev ? `${prev}\n` : ''}> ${quoted}\n`);
     inputRef.current?.focus();
-  }
+  }, []);
 
-  async function handleCopy(text: string) {
+  const handleCopy = useCallback(async (text: string) => {
     if (!text.trim()) {
       toast.error('Nothing to copy');
       return;
@@ -497,15 +477,15 @@ export default function ChatTimelinePage() {
     } catch {
       toast.error('Copy failed');
     }
-  }
+  }, []);
 
-  function handleRemixFrom(message: ChatMessage) {
+  const handleRemixFrom = useCallback((message: ChatMessage) => {
     setInput(`/rewrite based_on: """${(message.text?.trim() ?? '').slice(0, 240)}"""`);
     setReplyDraft('');
     inputRef.current?.focus();
-  }
+  }, []);
 
-  function handleFeedback(message: ChatMessage, feedback: FeedbackValue) {
+  const handleFeedback = useCallback((message: ChatMessage, feedback: FeedbackValue) => {
     const previous = feedbackByMessage[message.id] ?? null;
     const nextFeedback = previous === feedback ? null : feedback;
 
@@ -536,9 +516,9 @@ export default function ChatTimelinePage() {
         },
       },
     );
-  }
+  }, [feedbackByMessage, feedbackMutation]);
 
-  function handleCancelQueued(message: ChatMessage) {
+  const handleCancelQueued = useCallback((message: ChatMessage) => {
     const queueId = String(message.queue_id || message.id || '').trim();
     if (!queueId) return;
     cancelQueuedMutation.mutate(queueId, {
@@ -550,11 +530,43 @@ export default function ChatTimelinePage() {
         toast.error(extractApiErrorMessage(error, 'Queue cancel failed'));
       },
     });
-  }
+  }, [cancelQueuedMutation]);
 
-  function handleShareChat() {
+  const handleShareChat = useCallback(() => {
     setShareDialogOpen(true);
-  }
+  }, []);
+
+  const handleUnshareChat = useCallback(() => {
+    setUnshareDialogOpen(true);
+  }, []);
+
+  const handleBack = useCallback(() => {
+    router.push('/');
+  }, [router]);
+
+  const handleToggleAgentPause = useCallback(async () => {
+    try {
+      if (isAgentPaused) {
+        await resumeAgentMutation.mutateAsync();
+      } else {
+        await pauseAgentMutation.mutateAsync();
+      }
+      await queryClient.invalidateQueries({ queryKey: ['agent-state', chatId] });
+    } catch (error) {
+      toast.error(extractApiErrorMessage(error, 'Failed to update agent state'));
+    }
+  }, [chatId, isAgentPaused, pauseAgentMutation, queryClient, resumeAgentMutation]);
+
+  const handleNudge = useCallback(async () => {
+    try {
+      await nudgeAgentMutation.mutateAsync();
+      await queryClient.invalidateQueries({ queryKey: ['agent-state', chatId] });
+      await queryClient.invalidateQueries({ queryKey: ['messages', chatId] });
+      toast.success('Nudge sent. Retrying last user message.');
+    } catch (error) {
+      toast.error(extractApiErrorMessage(error, 'Failed to nudge agent'));
+    }
+  }, [chatId, nudgeAgentMutation, queryClient]);
 
   async function submitShareChat() {
     const trimmed = shareDaysInput.trim();
@@ -595,10 +607,6 @@ export default function ChatTimelinePage() {
     }
   }
 
-  function handleUnshareChat() {
-    setUnshareDialogOpen(true);
-  }
-
   async function submitUnshareChat() {
     try {
       await unshareMutation.mutateAsync({ chatId });
@@ -613,7 +621,7 @@ export default function ChatTimelinePage() {
     }
   }
 
-  async function copyTranscript() {
+  const handleCopyTranscript = useCallback(async () => {
     if (exportBusy) return;
     setExportBusy(true);
     try {
@@ -626,9 +634,9 @@ export default function ChatTimelinePage() {
     } finally {
       setExportBusy(false);
     }
-  }
+  }, [chatId, exportBusy]);
 
-  async function downloadTranscript() {
+  const handleDownloadTranscript = useCallback(async () => {
     if (exportBusy) return;
     setExportBusy(true);
     try {
@@ -648,7 +656,7 @@ export default function ChatTimelinePage() {
     } finally {
       setExportBusy(false);
     }
-  }
+  }, [chatId, exportBusy]);
 
   if (chatLoading || msgsLoading) {
     return <AppShell><PageSpinner /></AppShell>;
@@ -665,18 +673,18 @@ export default function ChatTimelinePage() {
           shareBusy={shareMutation.isPending}
           unshareBusy={unshareMutation.isPending}
           shareHint={shareStatus || 'Share chat link'}
-          onBack={() => router.push('/')}
-          onToggleSearch={() => setSearchOpen((s) => !s)}
-          onCopyTranscript={() => void copyTranscript()}
-          onDownloadTranscript={() => void downloadTranscript()}
-          onShare={() => void handleShareChat()}
-          onUnshare={() => void handleUnshareChat()}
+          onBack={handleBack}
+          onToggleSearch={handleToggleSearch}
+          onCopyTranscript={handleCopyTranscript}
+          onDownloadTranscript={handleDownloadTranscript}
+          onShare={handleShareChat}
+          onUnshare={handleUnshareChat}
           agentPaused={isAgentPaused}
           agentPauseBusy={agentPauseBusy}
-          onToggleAgentPause={() => void toggleAgentPause()}
+          onToggleAgentPause={handleToggleAgentPause}
           showNudge={isAgentStuck}
           nudgeBusy={nudgeAgentMutation.isPending}
-          onNudge={() => void nudgeAgent()}
+          onNudge={handleNudge}
         />
 
         {shareStatus && (

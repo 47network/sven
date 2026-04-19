@@ -55,6 +55,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Added pnpm.overrides for minimatch ≥9.0.0 <9.0.7 → ≥9.0.9 to resolve CVE-2025-1609.
 
 ### Changed
+- canvas-ui: reduced chat timeline re-renders by memoizing chat header and message bubbles and stabilizing their page-level callbacks.
 - `@types/react` and `@types/react-dom` bumped to v19 across all React apps.
 - `eslint-config-next` bumped to v15.3.4 in admin-ui and canvas-ui.
 - Fixed React 19 `useRef()` breaking change in admin-ui RealtimeProvider and canvas-ui ComposerBar.
