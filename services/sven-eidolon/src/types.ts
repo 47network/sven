@@ -83,6 +83,10 @@ export type EidolonBuildingKind =
   | 'drift_scanner'
   | 'escalation_tower'
   | 'forecast_engine'
+  | 'dns_registry'
+  | 'cert_tower'
+  | 'audit_hall'
+  | 'rate_gate'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -648,6 +652,11 @@ export type EidolonEventKind =
   | 'capacity.generate_forecast'
   | 'capacity.check_alerts'
   | 'capacity.status_report'
+  | 'dns.zone_created' | 'dns.record_created' | 'dns.record_updated' | 'dns.zone_report'
+  | 'cert.provisioned' | 'cert.renewed' | 'cert.deployed' | 'cert.expiry_warning'
+  | 'vault.secret_stored' | 'vault.secret_rotated' | 'vault.access_logged' | 'vault.sealed'
+  | 'compliance.framework_created' | 'compliance.control_assessed' | 'compliance.audit_completed' | 'compliance.finding_reported'
+  | 'ratelimit.policy_created' | 'ratelimit.request_blocked' | 'ratelimit.override_added' | 'ratelimit.status_report'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -884,6 +893,10 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'webhook_relay':
     case 'storage_tower':
     case 'peering_bridge':
+    case 'dns_registry':
+    case 'cert_tower':
+    case 'audit_hall':
+    case 'rate_gate':
       return 'civic';
   }
 }

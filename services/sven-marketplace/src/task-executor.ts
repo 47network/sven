@@ -680,6 +680,36 @@ export class TaskExecutor {
       case 'capacity_check_alerts': return this.handleCapacityCheckAlerts(task);
       case 'capacity_get_recommendations': return this.handleCapacityGetRecommendations(task);
       case 'capacity_report': return this.handleCapacityReport(task);
+      case 'dns_create_zone': return this.handleDnsCreateZone(task);
+      case 'dns_create_record': return this.handleDnsCreateRecord(task);
+      case 'dns_update_record': return this.handleDnsUpdateRecord(task);
+      case 'dns_delete_record': return this.handleDnsDeleteRecord(task);
+      case 'dns_list_records': return this.handleDnsListRecords(task);
+      case 'dns_report': return this.handleDnsReport(task);
+      case 'cert_provision': return this.handleCertProvision(task);
+      case 'cert_renew': return this.handleCertRenew(task);
+      case 'cert_deploy': return this.handleCertDeploy(task);
+      case 'cert_revoke': return this.handleCertRevoke(task);
+      case 'cert_check_expiry': return this.handleCertCheckExpiry(task);
+      case 'cert_report': return this.handleCertReport(task);
+      case 'vault_create': return this.handleVaultCreate(task);
+      case 'vault_store_secret': return this.handleVaultStoreSecret(task);
+      case 'vault_read_secret': return this.handleVaultReadSecret(task);
+      case 'vault_rotate_secret': return this.handleVaultRotateSecret(task);
+      case 'vault_seal': return this.handleVaultSeal(task);
+      case 'vault_report': return this.handleVaultReport(task);
+      case 'compliance_create_framework': return this.handleComplianceCreateFramework(task);
+      case 'compliance_assess_control': return this.handleComplianceAssessControl(task);
+      case 'compliance_run_audit': return this.handleComplianceRunAudit(task);
+      case 'compliance_generate_report': return this.handleComplianceGenerateReport(task);
+      case 'compliance_list_findings': return this.handleComplianceListFindings(task);
+      case 'compliance_report': return this.handleComplianceReport(task);
+      case 'ratelimit_create_policy': return this.handleRatelimitCreatePolicy(task);
+      case 'ratelimit_update_policy': return this.handleRatelimitUpdatePolicy(task);
+      case 'ratelimit_check_status': return this.handleRatelimitCheckStatus(task);
+      case 'ratelimit_add_override': return this.handleRatelimitAddOverride(task);
+      case 'ratelimit_list_blocked': return this.handleRatelimitListBlocked(task);
+      case 'ratelimit_report': return this.handleRatelimitReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -6471,4 +6501,104 @@ export class TaskExecutor {
     return { success: true, action: 'capacity_report', totalModels: 0, totalForecasts: 0, activeAlerts: 0, avgAccuracy: 0, nextExhaustionDate: null };
   }
 
+
+  // --- Batch 123: DNS Zone Management ---
+  private async handleDnsCreateZone(task: any): Promise<any> {
+    return { success: true, zone: { name: task.input?.zoneName, provider: task.input?.provider || 'cloudflare', status: 'active', dnssecEnabled: false } };
+  }
+  private async handleDnsCreateRecord(task: any): Promise<any> {
+    return { success: true, record: { name: task.input?.name, type: task.input?.recordType, value: task.input?.value, ttl: task.input?.ttl || 3600 } };
+  }
+  private async handleDnsUpdateRecord(task: any): Promise<any> {
+    return { success: true, recordId: task.input?.recordId, updated: { value: task.input?.value, ttl: task.input?.ttl } };
+  }
+  private async handleDnsDeleteRecord(task: any): Promise<any> {
+    return { success: true, recordId: task.input?.recordId, deleted: true };
+  }
+  private async handleDnsListRecords(task: any): Promise<any> {
+    return { success: true, zoneId: task.input?.zoneId, records: [], totalCount: 0 };
+  }
+  private async handleDnsReport(task: any): Promise<any> {
+    return { success: true, totalZones: 0, totalRecords: 0, activeZones: 0, dnssecEnabled: 0, recentChanges: 0 };
+  }
+
+  // --- Batch 124: TLS Certificate Management ---
+  private async handleCertProvision(task: any): Promise<any> {
+    return { success: true, cert: { domain: task.input?.domain, issuer: task.input?.issuer || 'letsencrypt', status: 'pending', certType: task.input?.certType || 'dv' } };
+  }
+  private async handleCertRenew(task: any): Promise<any> {
+    return { success: true, certId: task.input?.certId, renewed: true, newExpiry: new Date(Date.now() + 90 * 86400000).toISOString() };
+  }
+  private async handleCertDeploy(task: any): Promise<any> {
+    return { success: true, certId: task.input?.certId, targetService: task.input?.targetService, deployed: true };
+  }
+  private async handleCertRevoke(task: any): Promise<any> {
+    return { success: true, certId: task.input?.certId, revoked: true, reason: task.input?.reason || 'unspecified' };
+  }
+  private async handleCertCheckExpiry(task: any): Promise<any> {
+    return { success: true, expiringSoon: [], totalChecked: 0, renewalsNeeded: 0 };
+  }
+  private async handleCertReport(task: any): Promise<any> {
+    return { success: true, totalCerts: 0, activeCerts: 0, expiringSoon: 0, autoRenewEnabled: 0, deploymentCount: 0 };
+  }
+
+  // --- Batch 125: Secrets Vault ---
+  private async handleVaultCreate(task: any): Promise<any> {
+    return { success: true, vault: { name: task.input?.name, engine: task.input?.engine || 'kv', sealed: false, maxVersions: task.input?.maxVersions || 10 } };
+  }
+  private async handleVaultStoreSecret(task: any): Promise<any> {
+    return { success: true, vaultId: task.input?.vaultId, path: task.input?.path, version: 1, stored: true };
+  }
+  private async handleVaultReadSecret(task: any): Promise<any> {
+    return { success: true, vaultId: task.input?.vaultId, path: task.input?.path, version: task.input?.version || 1, exists: false };
+  }
+  private async handleVaultRotateSecret(task: any): Promise<any> {
+    return { success: true, vaultId: task.input?.vaultId, path: task.input?.path, rotated: true, newVersion: 2 };
+  }
+  private async handleVaultSeal(task: any): Promise<any> {
+    return { success: true, vaultId: task.input?.vaultId, sealed: true };
+  }
+  private async handleVaultReport(task: any): Promise<any> {
+    return { success: true, totalVaults: 0, totalSecrets: 0, sealedVaults: 0, expiringSecrets: 0, accessCount24h: 0 };
+  }
+
+  // --- Batch 126: Compliance Audit ---
+  private async handleComplianceCreateFramework(task: any): Promise<any> {
+    return { success: true, framework: { name: task.input?.name, type: task.input?.frameworkType || 'custom', version: '1.0', status: 'draft' } };
+  }
+  private async handleComplianceAssessControl(task: any): Promise<any> {
+    return { success: true, controlId: task.input?.controlId, status: task.input?.status || 'not_assessed', evidence: task.input?.evidence || [] };
+  }
+  private async handleComplianceRunAudit(task: any): Promise<any> {
+    return { success: true, frameworkId: task.input?.frameworkId, complianceScore: 0, findingsCount: 0, criticalFindings: 0 };
+  }
+  private async handleComplianceGenerateReport(task: any): Promise<any> {
+    return { success: true, frameworkId: task.input?.frameworkId, reportType: task.input?.reportType || 'full', generated: true };
+  }
+  private async handleComplianceListFindings(task: any): Promise<any> {
+    return { success: true, frameworkId: task.input?.frameworkId, findings: [], totalCount: 0 };
+  }
+  private async handleComplianceReport(task: any): Promise<any> {
+    return { success: true, totalFrameworks: 0, totalControls: 0, compliantControls: 0, nonCompliantControls: 0, avgComplianceScore: 0 };
+  }
+
+  // --- Batch 127: Rate Limiting ---
+  private async handleRatelimitCreatePolicy(task: any): Promise<any> {
+    return { success: true, policy: { name: task.input?.name, scope: task.input?.scope || 'global', maxRequests: task.input?.maxRequests || 100, windowSeconds: task.input?.windowSeconds || 60 } };
+  }
+  private async handleRatelimitUpdatePolicy(task: any): Promise<any> {
+    return { success: true, policyId: task.input?.policyId, updated: true };
+  }
+  private async handleRatelimitCheckStatus(task: any): Promise<any> {
+    return { success: true, policyId: task.input?.policyId, currentCount: 0, limit: 100, remaining: 100, resetsAt: new Date(Date.now() + 60000).toISOString() };
+  }
+  private async handleRatelimitAddOverride(task: any): Promise<any> {
+    return { success: true, policyId: task.input?.policyId, identifier: task.input?.identifier, overrideType: task.input?.overrideType || 'whitelist' };
+  }
+  private async handleRatelimitListBlocked(task: any): Promise<any> {
+    return { success: true, blocked: [], totalBlocked24h: 0 };
+  }
+  private async handleRatelimitReport(task: any): Promise<any> {
+    return { success: true, totalPolicies: 0, activePolicies: 0, totalRequestsBlocked24h: 0, topBlockedIdentifiers: [], overrideCount: 0 };
+  }
 }

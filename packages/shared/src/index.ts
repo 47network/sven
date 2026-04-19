@@ -144,3 +144,8 @@ export * from './agent-service-mesh.js';
 export * from './agent-config-drift.js';
 export * from './agent-incident-escalation.js';
 export * from './agent-capacity-forecasting.js';
+export * from './agent-dns-zones.js';
+export * from './agent-tls-certificates.js';
+export * from './agent-secrets-vault.js';
+export * from './agent-compliance-audit.js';
+export * from './agent-rate-limiting.js';
