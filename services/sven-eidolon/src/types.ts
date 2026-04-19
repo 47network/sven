@@ -1358,6 +1358,31 @@ export type EidolonBuildingKind =
   | 'warmup_controller_auditor'
   | 'warmup_controller_reporter'
   | 'warmup_controller_optimizer'
+  | 'config_loader'
+  | 'config_loader_monitor'
+  | 'config_loader_auditor'
+  | 'config_loader_reporter'
+  | 'config_loader_optimizer'
+  | 'env_injector'
+  | 'env_injector_monitor'
+  | 'env_injector_auditor'
+  | 'env_injector_reporter'
+  | 'env_injector_optimizer'
+  | 'feature_flipper'
+  | 'feature_flipper_monitor'
+  | 'feature_flipper_auditor'
+  | 'feature_flipper_reporter'
+  | 'feature_flipper_optimizer'
+  | 'rollout_strategist'
+  | 'rollout_strategist_monitor'
+  | 'rollout_strategist_auditor'
+  | 'rollout_strategist_reporter'
+  | 'rollout_strategist_optimizer'
+  | 'deploy_gate'
+  | 'deploy_gate_monitor'
+  | 'deploy_gate_auditor'
+  | 'deploy_gate_reporter'
+  | 'deploy_gate_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5335,6 +5360,81 @@ export type EidolonEventKind =
   | 'wco.plan_created'
   | 'wco.optimization_applied'
   | 'wco.export_emitted'
+  | 'cl.entry_created'
+  | 'cl.config_updated'
+  | 'cl.export_emitted'
+  | 'clm.check_passed'
+  | 'clm.alert_raised'
+  | 'clm.export_emitted'
+  | 'cla.entry_logged'
+  | 'cla.violation_found'
+  | 'cla.export_emitted'
+  | 'clr.report_generated'
+  | 'clr.insight_found'
+  | 'clr.export_emitted'
+  | 'clo.plan_created'
+  | 'clo.optimization_applied'
+  | 'clo.export_emitted'
+  | 'ei.entry_created'
+  | 'ei.config_updated'
+  | 'ei.export_emitted'
+  | 'eim.check_passed'
+  | 'eim.alert_raised'
+  | 'eim.export_emitted'
+  | 'eia.entry_logged'
+  | 'eia.violation_found'
+  | 'eia.export_emitted'
+  | 'eir.report_generated'
+  | 'eir.insight_found'
+  | 'eir.export_emitted'
+  | 'eio.plan_created'
+  | 'eio.optimization_applied'
+  | 'eio.export_emitted'
+  | 'ff.entry_created'
+  | 'ff.config_updated'
+  | 'ff.export_emitted'
+  | 'ffm.check_passed'
+  | 'ffm.alert_raised'
+  | 'ffm.export_emitted'
+  | 'ffa.entry_logged'
+  | 'ffa.violation_found'
+  | 'ffa.export_emitted'
+  | 'ffr.report_generated'
+  | 'ffr.insight_found'
+  | 'ffr.export_emitted'
+  | 'ffo.plan_created'
+  | 'ffo.optimization_applied'
+  | 'ffo.export_emitted'
+  | 'rs.entry_created'
+  | 'rs.config_updated'
+  | 'rs.export_emitted'
+  | 'rsm.check_passed'
+  | 'rsm.alert_raised'
+  | 'rsm.export_emitted'
+  | 'rsa.entry_logged'
+  | 'rsa.violation_found'
+  | 'rsa.export_emitted'
+  | 'rsr.report_generated'
+  | 'rsr.insight_found'
+  | 'rsr.export_emitted'
+  | 'rso.plan_created'
+  | 'rso.optimization_applied'
+  | 'rso.export_emitted'
+  | 'dg.entry_created'
+  | 'dg.config_updated'
+  | 'dg.export_emitted'
+  | 'dgm.check_passed'
+  | 'dgm.alert_raised'
+  | 'dgm.export_emitted'
+  | 'dga.entry_logged'
+  | 'dga.violation_found'
+  | 'dga.export_emitted'
+  | 'dgr.report_generated'
+  | 'dgr.insight_found'
+  | 'dgr.export_emitted'
+  | 'dgo.plan_created'
+  | 'dgo.optimization_applied'
+  | 'dgo.export_emitted'
   | 'ct.experiment_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -8335,6 +8435,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'warmup_controller_auditor':
     case 'warmup_controller_reporter':
     case 'warmup_controller_optimizer':
+    case 'config_loader':
+    case 'config_loader_monitor':
+    case 'config_loader_auditor':
+    case 'config_loader_reporter':
+    case 'config_loader_optimizer':
+    case 'env_injector':
+    case 'env_injector_monitor':
+    case 'env_injector_auditor':
+    case 'env_injector_reporter':
+    case 'env_injector_optimizer':
+    case 'feature_flipper':
+    case 'feature_flipper_monitor':
+    case 'feature_flipper_auditor':
+    case 'feature_flipper_reporter':
+    case 'feature_flipper_optimizer':
+    case 'rollout_strategist':
+    case 'rollout_strategist_monitor':
+    case 'rollout_strategist_auditor':
+    case 'rollout_strategist_reporter':
+    case 'rollout_strategist_optimizer':
+    case 'deploy_gate':
+    case 'deploy_gate_monitor':
+    case 'deploy_gate_auditor':
+    case 'deploy_gate_reporter':
+    case 'deploy_gate_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
