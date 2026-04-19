@@ -158,6 +158,11 @@ export type EidolonBuildingKind =
   | 'quota_manager'
   | 'access_reviewer'
   | 'failover_tester'
+  | 'ssl_inspector'
+  | 'proxy_configurator'
+  | 'webhook_router'
+  | 'egress_filter'
+  | 'request_validator'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -990,6 +995,26 @@ export type EidolonEventKind =
   | 'fovt.recovery_measured'
   | 'fovt.score_calculated'
   | 'fovt.test_failed'
+  | 'ssli.scan_completed'
+  | 'ssli.expiry_warning'
+  | 'ssli.compliance_passed'
+  | 'ssli.vulnerability_found'
+  | 'pxcf.route_created'
+  | 'pxcf.upstream_added'
+  | 'pxcf.cache_configured'
+  | 'pxcf.health_checked'
+  | 'wbrt.endpoint_registered'
+  | 'wbrt.event_routed'
+  | 'wbrt.delivery_failed'
+  | 'wbrt.signature_verified'
+  | 'egfl.policy_applied'
+  | 'egfl.traffic_blocked'
+  | 'egfl.dlp_alert'
+  | 'egfl.report_generated'
+  | 'rqvl.schema_validated'
+  | 'rqvl.input_sanitized'
+  | 'rqvl.rate_limited'
+  | 'rqvl.audit_completed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1585,6 +1610,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'quota_manager':
     case 'access_reviewer':
     case 'failover_tester':
+    case 'ssl_inspector':
+    case 'proxy_configurator':
+    case 'webhook_router':
+    case 'egress_filter':
+    case 'request_validator':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

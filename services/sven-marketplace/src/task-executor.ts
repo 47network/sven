@@ -2933,6 +2933,36 @@ export class TaskExecutor {
       case 'fovt_score': return this.handleFovtScore(task);
       case 'fovt_compare': return this.handleFovtCompare(task);
       case 'fovt_report': return this.handleFovtReport(task);
+      case 'ssli_scan': return this.handleSsliScan(task);
+      case 'ssli_expiry': return this.handleSsliExpiry(task);
+      case 'ssli_compliance': return this.handleSsliCompliance(task);
+      case 'ssli_vulnerability': return this.handleSsliVulnerability(task);
+      case 'ssli_protocol': return this.handleSsliProtocol(task);
+      case 'ssli_report': return this.handleSsliReport(task);
+      case 'pxcf_configure': return this.handlePxcfConfigure(task);
+      case 'pxcf_route': return this.handlePxcfRoute(task);
+      case 'pxcf_upstream': return this.handlePxcfUpstream(task);
+      case 'pxcf_cache': return this.handlePxcfCache(task);
+      case 'pxcf_health': return this.handlePxcfHealth(task);
+      case 'pxcf_status': return this.handlePxcfStatus(task);
+      case 'wbrt_register': return this.handleWbrtRegister(task);
+      case 'wbrt_route': return this.handleWbrtRoute(task);
+      case 'wbrt_replay': return this.handleWbrtReplay(task);
+      case 'wbrt_verify': return this.handleWbrtVerify(task);
+      case 'wbrt_log': return this.handleWbrtLog(task);
+      case 'wbrt_status': return this.handleWbrtStatus(task);
+      case 'egfl_apply': return this.handleEgflApply(task);
+      case 'egfl_scan': return this.handleEgflScan(task);
+      case 'egfl_dlp': return this.handleEgflDlp(task);
+      case 'egfl_block': return this.handleEgflBlock(task);
+      case 'egfl_report': return this.handleEgflReport(task);
+      case 'egfl_audit': return this.handleEgflAudit(task);
+      case 'rqvl_validate': return this.handleRqvlValidate(task);
+      case 'rqvl_sanitize': return this.handleRqvlSanitize(task);
+      case 'rqvl_rate_limit': return this.handleRqvlRateLimit(task);
+      case 'rqvl_audit': return this.handleRqvlAudit(task);
+      case 'rqvl_schema': return this.handleRqvlSchema(task);
+      case 'rqvl_report': return this.handleRqvlReport(task);
     }
   }
 

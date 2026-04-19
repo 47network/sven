@@ -127,6 +127,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 458-462 — Network Security & Routing
+- **Batch 458**: ssl_inspector — SSL/TLS certificate inspection, protocol analysis, vulnerability scanning
+- **Batch 459**: proxy_configurator — Reverse proxy configuration, upstream management, traffic routing
+- **Batch 460**: webhook_router — Webhook endpoint management, delivery routing, retry logic
+- **Batch 461**: egress_filter — Outbound traffic filtering, data loss prevention, policy enforcement
+- **Batch 462**: request_validator — API request validation, schema enforcement, input sanitization
+- 5 migrations (20260620950000-20260620990000), 5 type files, 5 SKILL.md files
+- 5 BK + 20 EK + 5 districtFor, 20 SUBJECT_MAP entries, 30 cases + 30 handlers
+
 ### Batches 453-457 — Cloud Governance
 - **Batch 453**: cost_optimizer — Cloud cost optimization with rightsizing, reserved instances, savings tracking
 - **Batch 454**: resource_tagger — Resource tagging policy enforcement, compliance auditing, auto-tagging
