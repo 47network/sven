@@ -36,6 +36,18 @@
 
 # Changelog
 
+## Batches 578-582 — Customer Experience & Feedback
+- satisfaction_surveyor: Customer satisfaction surveying with trend detection
+- nps_calculator: Net Promoter Score calculation with benchmark comparison
+- churn_predictor: Customer churn prediction with intervention suggestions
+- feedback_aggregator: Multi-channel feedback aggregation with theme extraction
+- sentiment_tracker: Real-time sentiment tracking with shift detection
+- 5 migrations, shared types, barrel exports, SKILL.md files
+- Eidolon BK/EK/districtFor wiring, event-bus SUBJECT_MAP entries
+- Task-executor switch cases, .gitattributes privacy filters
+- 55/55 tests passing
+
+
 ## Batches 573-577 — Content Moderation & Safety
 - toxicity_scanner: Content toxicity scanning with severity classification
 - spam_classifier: Multi-signal spam classification with ML-based scoring
