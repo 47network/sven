@@ -380,3 +380,8 @@ export * from './agent-cache-warmer';
 export * from './agent-job-scheduler';
 export * from './agent-feature-toggle';
 export * from './agent-data-migrator';
+export * from './agent-session-recorder';
+export * from './agent-artifact-builder';
+export * from './agent-tenant-provisioner';
+export * from './agent-index-optimizer';
+export * from './agent-dependency-scanner';

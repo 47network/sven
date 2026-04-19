@@ -78,6 +78,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+
+### Batches 358-362 — DevOps Infrastructure
+- **Batch 358 – Session Recorder**: Records/replays agent sessions for debugging and training ($11.99, engineer)
+- **Batch 359 – Artifact Builder**: Builds, versions, and stores agent-produced artifacts ($14.99, engineer)
+- **Batch 360 – Tenant Provisioner**: Provisions isolated multi-tenant environments ($19.99, engineer)
+- **Batch 361 – Index Optimizer**: Analyzes and optimizes database indexes ($16.99, analyst)
+- **Batch 362 – Dependency Scanner**: Scans dependencies for vulnerabilities ($13.99, analyst)
+- 5 migration SQL files, 5 shared TypeScript type modules, 5 SKILL.md files
+- 5 BK values, 20 EK values, 5 districtFor cases, 20 SUBJECT_MAP entries
+- 30 task executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries, 219 tests passing
+
 ### Batches 353-357 — Platform Services
 - **Event Replayer** (Batch 353): Replay event streams, create checkpoints, filter/analyze/compare/export events ($12.99)
 - **Cache Warmer** (Batch 354): Warm caches, analyze hit rates, configure TTL, evict stale, predict access patterns ($10.99)
