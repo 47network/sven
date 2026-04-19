@@ -458,6 +458,31 @@ export type EidolonBuildingKind =
   | 'push_notification_router'
   | 'webhook_delivery_engine'
   | 'event_replay_processor'
+  | 'saga_coordinator'
+  | 'workflow_state_machine'
+  | 'compensating_action_runner'
+  | 'long_running_job_supervisor'
+  | 'cron_dispatcher'
+  | 'search_index_builder'
+  | 'fulltext_query_planner'
+  | 'vector_embedding_indexer'
+  | 'faceted_search_engine'
+  | 'search_relevance_tuner'
+  | 'content_moderation_pipeline'
+  | 'image_classifier'
+  | 'toxicity_detector'
+  | 'spam_filter_engine'
+  | 'pii_redactor'
+  | 'recommendation_ranker'
+  | 'collaborative_filter'
+  | 'content_personalizer'
+  | 'trending_engine'
+  | 'similar_item_finder'
+  | 'fraud_detector'
+  | 'transaction_screener'
+  | 'risk_score_calculator'
+  | 'chargeback_disputer'
+  | 'kyc_verifier'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -2495,6 +2520,106 @@ export type EidolonEventKind =
   | 'evrp.window_selected'
   | 'evrp.events_redelivered'
   | 'evrp.completion_verified'
+  | 'sgcd.saga_started'
+  | 'sgcd.step_completed'
+  | 'sgcd.compensation_triggered'
+  | 'sgcd.saga_finalized'
+  | 'wfsm.workflow_initiated'
+  | 'wfsm.transition_executed'
+  | 'wfsm.guard_evaluated'
+  | 'wfsm.workflow_terminated'
+  | 'cpar.action_planned'
+  | 'cpar.compensation_executed'
+  | 'cpar.idempotency_verified'
+  | 'cpar.failure_escalated'
+  | 'lrjs.job_supervised'
+  | 'lrjs.heartbeat_received'
+  | 'lrjs.timeout_detected'
+  | 'lrjs.recovery_attempted'
+  | 'crdp.job_scheduled'
+  | 'crdp.fire_dispatched'
+  | 'crdp.misfire_handled'
+  | 'crdp.lock_acquired'
+  | 'sixb.index_created'
+  | 'sixb.documents_indexed'
+  | 'sixb.shard_balanced'
+  | 'sixb.alias_swapped'
+  | 'ftqp.query_parsed'
+  | 'ftqp.plan_generated'
+  | 'ftqp.cache_hit'
+  | 'ftqp.results_returned'
+  | 'vein.embedding_computed'
+  | 'vein.vector_indexed'
+  | 'vein.ann_built'
+  | 'vein.recall_measured'
+  | 'fcse.facet_computed'
+  | 'fcse.filter_applied'
+  | 'fcse.bucket_aggregated'
+  | 'fcse.results_paginated'
+  | 'srtn.signal_collected'
+  | 'srtn.weights_optimized'
+  | 'srtn.ab_test_evaluated'
+  | 'srtn.model_promoted'
+  | 'cmpl.case_received'
+  | 'cmpl.policy_evaluated'
+  | 'cmpl.action_decided'
+  | 'cmpl.appeal_routed'
+  | 'imcl.image_received'
+  | 'imcl.features_extracted'
+  | 'imcl.label_assigned'
+  | 'imcl.confidence_scored'
+  | 'toxd.text_analyzed'
+  | 'toxd.score_computed'
+  | 'toxd.threshold_crossed'
+  | 'toxd.action_recommended'
+  | 'spfe.message_scanned'
+  | 'spfe.spam_classified'
+  | 'spfe.sender_reputation_updated'
+  | 'spfe.feedback_processed'
+  | 'piir.payload_scanned'
+  | 'piir.pii_detected'
+  | 'piir.field_redacted'
+  | 'piir.audit_recorded'
+  | 'rcrk.candidates_fetched'
+  | 'rcrk.features_assembled'
+  | 'rcrk.scores_ranked'
+  | 'rcrk.diversification_applied'
+  | 'clfl.matrix_factorized'
+  | 'clfl.neighbors_computed'
+  | 'clfl.predictions_generated'
+  | 'clfl.coldstart_handled'
+  | 'ctpe.profile_loaded'
+  | 'ctpe.content_filtered'
+  | 'ctpe.feed_assembled'
+  | 'ctpe.engagement_tracked'
+  | 'trne.events_aggregated'
+  | 'trne.velocity_computed'
+  | 'trne.trend_emerged'
+  | 'trne.window_rolled'
+  | 'simf.candidate_set_built'
+  | 'simf.similarity_scored'
+  | 'simf.results_filtered'
+  | 'simf.cache_warmed'
+  | 'frdt.transaction_scored'
+  | 'frdt.rule_triggered'
+  | 'frdt.case_opened'
+  | 'frdt.feedback_learned'
+  | 'trsc.payload_normalized'
+  | 'trsc.sanctions_checked'
+  | 'trsc.aml_evaluated'
+  | 'trsc.decision_recorded'
+  | 'rsca.signals_collected'
+  | 'rsca.score_computed'
+  | 'rsca.tier_assigned'
+  | 'rsca.review_routed'
+  | 'cbdp.case_received'
+  | 'cbdp.evidence_assembled'
+  | 'cbdp.dispute_submitted'
+  | 'cbdp.outcome_recorded'
+  | 'kycv.identity_received'
+  | 'kycv.document_validated'
+  | 'kycv.liveness_checked'
+  | 'kycv.verdict_issued'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -3410,6 +3535,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'push_notification_router':
     case 'webhook_delivery_engine':
     case 'event_replay_processor':
+    case 'saga_coordinator':
+    case 'workflow_state_machine':
+    case 'compensating_action_runner':
+    case 'long_running_job_supervisor':
+    case 'cron_dispatcher':
+    case 'search_index_builder':
+    case 'fulltext_query_planner':
+    case 'vector_embedding_indexer':
+    case 'faceted_search_engine':
+    case 'search_relevance_tuner':
+    case 'content_moderation_pipeline':
+    case 'image_classifier':
+    case 'toxicity_detector':
+    case 'spam_filter_engine':
+    case 'pii_redactor':
+    case 'recommendation_ranker':
+    case 'collaborative_filter':
+    case 'content_personalizer':
+    case 'trending_engine':
+    case 'similar_item_finder':
+    case 'fraud_detector':
+    case 'transaction_screener':
+    case 'risk_score_calculator':
+    case 'chargeback_disputer':
+    case 'kyc_verifier':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
