@@ -441,3 +441,9 @@ export * from './agent-telemetry-collector';
 export * from './agent-runbook-executor';
 export * from './agent-dependency-resolver';
 export * from './agent-resource-quoter';
+
+export * from './agent-incident-commander';
+export * from './agent-failure-injector';
+export * from './agent-service-mesh-router';
+export * from './agent-cache-optimizer';
+export * from './agent-log-indexer';

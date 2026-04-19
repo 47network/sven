@@ -79,6 +79,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 418-422 — Infrastructure Resilience
+- **incident_commander**: Incident lifecycle, triage, escalation, postmortem generation (6 handlers)
+- **failure_injector**: Chaos engineering experiments, failure injection, resilience reports (6 handlers)
+- **service_mesh_router**: Service mesh routing, circuit breakers, health checks, topology (6 handlers)
+- **cache_optimizer**: Cache analysis, TTL optimization, warming, eviction, reporting (6 handlers)
+- **log_indexer**: Log indexing, ingestion, full-text search, retention, export (6 handlers)
+- 5 migrations, 5 type files, 5 SKILL.md, 5 BK + 20 EK + 5 districtFor, 20 SUBJECT_MAP, 30 cases + 30 handlers
+- 175 tests passing
+
+
 ### Batches 413-417 — Observability & Reliability
 - **alert_router**: Alert rule management, firing, delivery, suppression (6 handlers)
 - **telemetry_collector**: Metric recording, dashboards, retention, summaries (6 handlers)
