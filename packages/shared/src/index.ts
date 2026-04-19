@@ -169,3 +169,8 @@ export * from './agent-blueprint-system.js';
 export * from './agent-signal-dispatch.js';
 export * from './agent-throttle-control.js';
 export * from './agent-state-sync.js';
+export * from './agent-mesh-routing.js';
+export * from './agent-hot-patching.js';
+export * from './agent-inventory-tracking.js';
+export * from './agent-service-discovery.js';
+export * from './agent-federation-protocol.js';

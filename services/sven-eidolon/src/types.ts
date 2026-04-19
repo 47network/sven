@@ -107,6 +107,11 @@ export type EidolonBuildingKind =
   | 'signal_tower'
   | 'throttle_station'
   | 'sync_bridge'
+  | 'mesh_router'
+  | 'patch_workshop'
+  | 'inventory_vault'
+  | 'discovery_beacon'
+  | 'federation_hub'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -697,6 +702,11 @@ export type EidolonEventKind =
   | 'signal.sent' | 'signal.delivered' | 'signal.acknowledged' | 'signal.expired'
   | 'throttle.rule_created' | 'throttle.request_throttled' | 'throttle.circuit_opened' | 'throttle.circuit_closed'
   | 'statesync.peer_created' | 'statesync.state_pushed' | 'statesync.state_pulled' | 'statesync.conflict_resolved'
+  | 'meshroute.table_created' | 'meshroute.route_added' | 'meshroute.route_evaluated' | 'meshroute.health_updated'
+  | 'hotpatch.patch_created' | 'hotpatch.patch_applied' | 'hotpatch.patch_rolled_back' | 'hotpatch.chain_executed'
+  | 'inventory.item_acquired' | 'inventory.item_consumed' | 'inventory.item_transferred' | 'inventory.reservation_created'
+  | 'discovery.service_registered' | 'discovery.probe_completed' | 'discovery.service_unhealthy' | 'discovery.dependency_mapped'
+  | 'federation.peer_registered' | 'federation.link_created' | 'federation.message_sent' | 'federation.state_synced'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -968,6 +978,16 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'throttle_station':
       return 'civic';
     case 'sync_bridge':
+      return 'civic';
+    case 'mesh_router':
+      return 'civic';
+    case 'patch_workshop':
+      return 'civic';
+    case 'inventory_vault':
+      return 'market';
+    case 'discovery_beacon':
+      return 'civic';
+    case 'federation_hub':
       return 'civic';
   }
 }
