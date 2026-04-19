@@ -274,3 +274,8 @@ export * from './agent-connection-pooler.js';
 export * from './agent-ip-allocator.js';
 export * from './agent-port-scanner.js';
 export * from './agent-edge-router.js';
+export * from './agent-load-balancer.js';
+export * from './agent-health-checker.js';
+export * from './agent-reverse-proxy.js';
+export * from './agent-nat-gateway.js';
+export * from './agent-traffic-shaper.js';

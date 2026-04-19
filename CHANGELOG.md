@@ -78,6 +78,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+
+### Batches 253-257 — Network Services Core
+- **Batch 253 — Load Balancer**: agent_lb_configs/backends/metrics tables, LbAlgorithm types, 6 task handlers, SKILL.md (9.99)
+- **Batch 254 — Health Checker**: agent_health_targets/results/incidents tables, HealthCheckType types, 6 task handlers, SKILL.md (5.99)
+- **Batch 255 — Reverse Proxy**: agent_proxy_configs/upstreams/access_logs tables, ProxyStatus types, 6 task handlers, SKILL.md (8.99)
+- **Batch 256 — NAT Gateway**: agent_nat_configs/rules/translations tables, NatType types, 6 task handlers, SKILL.md (7.99)
+- **Batch 257 — Traffic Shaper**: agent_shaper_policies/rules/stats tables, ShaperPriorityClass types, 6 task handlers, SKILL.md (10.99)
+- 20 SUBJECT_MAP entries, 5 BK/EK/districtFor values, 15 .gitattributes entries, 95 tests passing
+
 ### Batches 248-252 — Network Infrastructure Extended
 - **Batch 248 — Network Auditor**: agent_audit_scans/findings/reports tables, AuditScanType/FindingSeverity types, SKILL.md (12.99/analyst), 6 task handlers, 4 NATS subjects
 - **Batch 249 — Connection Pooler**: agent_connection_pools/pool_connections/pool_metrics tables, PoolBackendType/ConnectionState types, SKILL.md (6.99/engineer), 6 task handlers, 4 NATS subjects
