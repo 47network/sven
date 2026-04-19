@@ -508,3 +508,8 @@ export * from './agent-deploy-verifier';
 export * from './agent-env-provisioner';
 export * from './agent-release-tagger';
 export * from './agent-stack-auditor';
+export * from './agent-pod-scheduler';
+export * from './agent-volume-manager';
+export * from './agent-container-profiler';
+export * from './agent-cluster-balancer';
+export * from './agent-node-drainer';
