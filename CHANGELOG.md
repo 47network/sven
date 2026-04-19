@@ -1,3 +1,13 @@
+## Batches 983-1007 — Feature Store, Model Registry, Experiment Tracker, A/B Testing, Recommendation
+
+- 983-987 Feature Store: feature_store_value_writer, feature_store_server, feature_store_freshness_monitor, feature_store_lineage_tracker, feature_store_backfill_runner
+- 988-992 Model Registry: model_registry_publisher, model_registry_signer, model_registry_promoter, model_registry_lineage_tracker, model_registry_deprecation_warden
+- 993-997 Experiment Tracker: experiment_tracker_writer, experiment_tracker_aggregator, experiment_tracker_artifact_linker, experiment_tracker_reporter, experiment_tracker_governance_enforcer
+- 998-1002 A/B Testing: ab_test_assignment_router, ab_test_exposure_logger, ab_test_metrics_aggregator, ab_test_significance_evaluator, ab_test_rollback_arbiter
+- 1003-1007 Recommendation: recommendation_candidate_generator, recommendation_relevance_ranker, recommendation_diversifier, recommendation_explanation_logger, recommendation_feedback_collector
+
+25 verticals, 5 dedicated test suites, 275 passing tests. Crosses the 1000-vertical threshold.
+
 ## Batches 958-982 — Time Series, Document Store, Vector DB, ML Training, ML Inference
 
 - 958-962 Time Series DB: tsdb_ingest_writer, tsdb_downsampler, tsdb_retention_pruner, tsdb_query_planner, tsdb_anomaly_detector
