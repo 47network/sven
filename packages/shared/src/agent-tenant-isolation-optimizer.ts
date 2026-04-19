@@ -1,4 +1,4 @@
-export interface DisasterRecoveryPlan {
+export interface TenantIsolationOptPlan {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface DisasterRecoveryPlan {
   updatedAt: string;
 }
 
-export interface DisasterRecoveryConfig {
+export interface TenantIsolationOptConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface DisasterRecoveryResult {
+export interface TenantIsolationOptResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

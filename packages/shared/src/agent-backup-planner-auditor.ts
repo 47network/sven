@@ -1,4 +1,4 @@
-export interface DisasterRecoveryPlan {
+export interface BackupPlannerAuditEntry {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface DisasterRecoveryPlan {
   updatedAt: string;
 }
 
-export interface DisasterRecoveryConfig {
+export interface BackupPlannerAuditConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface DisasterRecoveryResult {
+export interface BackupPlannerAuditResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;
