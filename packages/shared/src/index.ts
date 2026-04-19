@@ -334,3 +334,8 @@ export * from './agent-image-registry';
 export * from './agent-orchestrator';
 export * from './agent-svc-mesh';
 export * from './agent-config-manager';
+export * from './agent-search-indexer';
+export * from './agent-analytics-engine';
+export * from './agent-data-lakehouse';
+export * from './agent-etl-pipeline';
+export * from './agent-report-generator';

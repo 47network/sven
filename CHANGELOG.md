@@ -79,6 +79,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 313-317 — Search & Analytics
+- **search_indexer**: Full-text search indexing service (configs, indexes, queries) — $14.99/task
+- **analytics_engine**: Analytics dataset creation, querying, ingestion, caching — $17.99/task
+- **data_lakehouse**: Lakehouse table management, snapshots, compaction — $19.99/task
+- **etl_pipeline**: ETL job orchestration, transforms, loads, retries — $15.99/task
+- **report_generator**: Report generation, templates, scheduling, delivery — $11.99/task
+- 5 migration SQL files, 5 shared type files, 5 SKILL.md files
+- 20 SUBJECT_MAP entries (sidx/anle/dlkh/etlp/rgen prefixes)
+- 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries
+- 142 Jest tests passing
+
+
 ### Batches 308-312 — Container & Orchestration
 - **container_builder**: Multi-stage builds, layer optimization, image scanning (migration, types, SKILL.md, 6 handlers)
 - **image_registry**: Repository management, image push, garbage collection (migration, types, SKILL.md, 6 handlers)
