@@ -390,3 +390,8 @@ export * from './agent-certificate-rotator';
 export * from './agent-vulnerability-assessor';
 export * from './agent-compliance-reporter';
 export * from './agent-identity-resolver';
+export * from './agent-metric-aggregator';
+export * from './agent-alert-correlator';
+export * from './agent-sla-tracker';
+export * from './agent-log-analyzer';
+export * from './agent-performance-profiler';

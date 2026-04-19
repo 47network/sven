@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 368-372 — Observability & Monitoring
+- **Batch 368 — Metric Aggregator**: metric collection, aggregation intervals, rollups, Prometheus export ($14.99)
+- **Batch 369 — Alert Correlator**: alert firing, temporal/causal/semantic correlation, dedup, silencing ($17.99)
+- **Batch 370 — SLA Tracker**: SLO/SLI tracking, error budgets, burn rates, violation detection ($19.99)
+- **Batch 371 — Log Analyzer**: log pattern detection, anomaly identification, cross-source correlation ($16.99)
+- **Batch 372 — Performance Profiler**: CPU/memory/IO profiling, hotspot detection, flame graphs ($21.99)
+- 5 migration SQL files, 5 shared TypeScript type files, 5 SKILL.md files
+- 20 EidolonEventKind values, 5 BuildingKind values, 5 districtFor cases
+- 20 SUBJECT_MAP entries, 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries
+- 175 tests — ALL PASSING
+
 ### Batches 363-367 — Security & Compliance
 - **Batch 363 – Encryption Manager**: Key lifecycle, envelope encryption, encrypted data registry ($15.99, engineer)
 - **Batch 364 – Certificate Rotator**: TLS cert issuance, renewal, zero-downtime rotation ($12.99, engineer)
