@@ -1856,6 +1856,36 @@ export class TaskExecutor {
       case 'artstore_list_versions': return this.handleArtstoreListVersions(task);
       case 'artstore_enforce_retention': return this.handleArtstoreEnforceRetention(task);
       case 'artstore_export_catalog': return this.handleArtstoreExportCatalog(task);
+      case 'plrun_trigger_pipeline': return this.handlePlrunTriggerPipeline(task);
+      case 'plrun_cancel_run': return this.handlePlrunCancelRun(task);
+      case 'plrun_retry_stage': return this.handlePlrunRetryStage(task);
+      case 'plrun_get_logs': return this.handlePlrunGetLogs(task);
+      case 'plrun_configure_pipeline': return this.handlePlrunConfigurePipeline(task);
+      case 'plrun_export_metrics': return this.handlePlrunExportMetrics(task);
+      case 'torch_run_suite': return this.handleTorchRunSuite(task);
+      case 'torch_analyze_failures': return this.handleTorchAnalyzeFailures(task);
+      case 'torch_track_coverage': return this.handleTorchTrackCoverage(task);
+      case 'torch_configure_tests': return this.handleTorchConfigureTests(task);
+      case 'torch_retry_failed': return this.handleTorchRetryFailed(task);
+      case 'torch_export_report': return this.handleTorchExportReport(task);
+      case 'dpmgr_deploy': return this.handleDpmgrDeploy(task);
+      case 'dpmgr_verify_health': return this.handleDpmgrVerifyHealth(task);
+      case 'dpmgr_promote': return this.handleDpmgrPromote(task);
+      case 'dpmgr_configure_deploy': return this.handleDpmgrConfigureDeploy(task);
+      case 'dpmgr_drain_instances': return this.handleDpmgrDrainInstances(task);
+      case 'dpmgr_export_history': return this.handleDpmgrExportHistory(task);
+      case 'rbctl_initiate_rollback': return this.handleRbctlInitiateRollback(task);
+      case 'rbctl_restore_snapshot': return this.handleRbctlRestoreSnapshot(task);
+      case 'rbctl_configure_rollback': return this.handleRbctlConfigureRollback(task);
+      case 'rbctl_list_history': return this.handleRbctlListHistory(task);
+      case 'rbctl_verify_rollback': return this.handleRbctlVerifyRollback(task);
+      case 'rbctl_export_report': return this.handleRbctlExportReport(task);
+      case 'relgk_evaluate_candidate': return this.handleRelgkEvaluateCandidate(task);
+      case 'relgk_check_gate': return this.handleRelgkCheckGate(task);
+      case 'relgk_promote_release': return this.handleRelgkPromoteRelease(task);
+      case 'relgk_configure_gates': return this.handleRelgkConfigureGates(task);
+      case 'relgk_reject_candidate': return this.handleRelgkRejectCandidate(task);
+      case 'relgk_export_report': return this.handleRelgkExportReport(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -12961,5 +12991,96 @@ export class TaskExecutor {
   private async handleArtstoreExportCatalog(task: any): Promise<any> {
     // Export artifact catalog
     return { success: true, taskType: 'artstore_export_catalog', artifacts: [], totalSize: 0, totalCount: 0, timestamp: new Date().toISOString() };
+  }
+
+  private async handlePlrunTriggerPipeline(task: any): Promise<any> {
+    return { skill: 'pipeline_runner', action: 'trigger-pipeline', pipelineType: task.metadata?.pipelineType || 'ci', trigger: task.metadata?.trigger || 'manual', branch: task.metadata?.branch || 'main' };
+  }
+  private async handlePlrunCancelRun(task: any): Promise<any> {
+    return { skill: 'pipeline_runner', action: 'cancel-run', runId: task.metadata?.runId, reason: task.metadata?.reason || 'manual cancellation' };
+  }
+  private async handlePlrunRetryStage(task: any): Promise<any> {
+    return { skill: 'pipeline_runner', action: 'retry-stage', runId: task.metadata?.runId, stageName: task.metadata?.stageName };
+  }
+  private async handlePlrunGetLogs(task: any): Promise<any> {
+    return { skill: 'pipeline_runner', action: 'get-logs', runId: task.metadata?.runId, stageName: task.metadata?.stageName, tail: task.metadata?.tail || 100 };
+  }
+  private async handlePlrunConfigurePipeline(task: any): Promise<any> {
+    return { skill: 'pipeline_runner', action: 'configure-pipeline', sourceRepo: task.metadata?.sourceRepo, triggerEvents: task.metadata?.triggerEvents || ['push'], timeoutMinutes: task.metadata?.timeoutMinutes || 60 };
+  }
+  private async handlePlrunExportMetrics(task: any): Promise<any> {
+    return { skill: 'pipeline_runner', action: 'export-metrics', configId: task.metadata?.configId, since: task.metadata?.since, format: task.metadata?.format || 'json' };
+  }
+  private async handleTorchRunSuite(task: any): Promise<any> {
+    return { skill: 'test_orchestrator', action: 'run-suite', suiteName: task.metadata?.suiteName, framework: task.metadata?.framework || 'jest', parallel: task.metadata?.parallel || 4 };
+  }
+  private async handleTorchAnalyzeFailures(task: any): Promise<any> {
+    return { skill: 'test_orchestrator', action: 'analyze-failures', runId: task.metadata?.runId, autoRetry: task.metadata?.autoRetry || false };
+  }
+  private async handleTorchTrackCoverage(task: any): Promise<any> {
+    return { skill: 'test_orchestrator', action: 'track-coverage', configId: task.metadata?.configId, threshold: task.metadata?.threshold || 80 };
+  }
+  private async handleTorchConfigureTests(task: any): Promise<any> {
+    return { skill: 'test_orchestrator', action: 'configure-tests', framework: task.metadata?.framework || 'jest', testDirectory: task.metadata?.testDirectory || 'src/__tests__', parallelWorkers: task.metadata?.parallelWorkers || 4 };
+  }
+  private async handleTorchRetryFailed(task: any): Promise<any> {
+    return { skill: 'test_orchestrator', action: 'retry-failed', runId: task.metadata?.runId, maxRetries: task.metadata?.maxRetries || 3 };
+  }
+  private async handleTorchExportReport(task: any): Promise<any> {
+    return { skill: 'test_orchestrator', action: 'export-report', runId: task.metadata?.runId, format: task.metadata?.format || 'json', includeStackTraces: task.metadata?.includeStackTraces || true };
+  }
+  private async handleDpmgrDeploy(task: any): Promise<any> {
+    return { skill: 'deploy_manager', action: 'deploy', version: task.metadata?.version, imageRef: task.metadata?.imageRef, targetEnv: task.metadata?.targetEnv || 'production', strategy: task.metadata?.strategy || 'rolling' };
+  }
+  private async handleDpmgrVerifyHealth(task: any): Promise<any> {
+    return { skill: 'deploy_manager', action: 'verify-health', deploymentId: task.metadata?.deploymentId, checkType: task.metadata?.checkType || 'http', endpoint: task.metadata?.endpoint };
+  }
+  private async handleDpmgrPromote(task: any): Promise<any> {
+    return { skill: 'deploy_manager', action: 'promote', deploymentId: task.metadata?.deploymentId, approvedBy: task.metadata?.approvedBy || 'system' };
+  }
+  private async handleDpmgrConfigureDeploy(task: any): Promise<any> {
+    return { skill: 'deploy_manager', action: 'configure-deploy', strategy: task.metadata?.strategy || 'rolling', targetEnv: task.metadata?.targetEnv || 'production', healthCheckUrl: task.metadata?.healthCheckUrl, rollbackOnFailure: task.metadata?.rollbackOnFailure ?? true };
+  }
+  private async handleDpmgrDrainInstances(task: any): Promise<any> {
+    return { skill: 'deploy_manager', action: 'drain-instances', deploymentId: task.metadata?.deploymentId, instanceIds: task.metadata?.instanceIds || [] };
+  }
+  private async handleDpmgrExportHistory(task: any): Promise<any> {
+    return { skill: 'deploy_manager', action: 'export-history', configId: task.metadata?.configId, since: task.metadata?.since, format: task.metadata?.format || 'json' };
+  }
+  private async handleRbctlInitiateRollback(task: any): Promise<any> {
+    return { skill: 'rollback_controller', action: 'initiate-rollback', deploymentId: task.metadata?.deploymentId, toVersion: task.metadata?.toVersion, reason: task.metadata?.reason || 'health check failed' };
+  }
+  private async handleRbctlRestoreSnapshot(task: any): Promise<any> {
+    return { skill: 'rollback_controller', action: 'restore-snapshot', eventId: task.metadata?.eventId, resourceType: task.metadata?.resourceType, resourceId: task.metadata?.resourceId };
+  }
+  private async handleRbctlConfigureRollback(task: any): Promise<any> {
+    return { skill: 'rollback_controller', action: 'configure-rollback', autoRollback: task.metadata?.autoRollback ?? true, maxDepth: task.metadata?.maxDepth || 3, healthThreshold: task.metadata?.healthThreshold || 95, cooldownMinutes: task.metadata?.cooldownMinutes || 10 };
+  }
+  private async handleRbctlListHistory(task: any): Promise<any> {
+    return { skill: 'rollback_controller', action: 'list-history', configId: task.metadata?.configId, since: task.metadata?.since, limit: task.metadata?.limit || 20 };
+  }
+  private async handleRbctlVerifyRollback(task: any): Promise<any> {
+    return { skill: 'rollback_controller', action: 'verify-rollback', eventId: task.metadata?.eventId, healthChecks: task.metadata?.healthChecks || true };
+  }
+  private async handleRbctlExportReport(task: any): Promise<any> {
+    return { skill: 'rollback_controller', action: 'export-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json' };
+  }
+  private async handleRelgkEvaluateCandidate(task: any): Promise<any> {
+    return { skill: 'release_gatekeeper', action: 'evaluate-candidate', version: task.metadata?.version, sourceBranch: task.metadata?.sourceBranch, commitSha: task.metadata?.commitSha };
+  }
+  private async handleRelgkCheckGate(task: any): Promise<any> {
+    return { skill: 'release_gatekeeper', action: 'check-gate', candidateId: task.metadata?.candidateId, gateName: task.metadata?.gateName };
+  }
+  private async handleRelgkPromoteRelease(task: any): Promise<any> {
+    return { skill: 'release_gatekeeper', action: 'promote-release', candidateId: task.metadata?.candidateId, approvedBy: task.metadata?.approvedBy || 'system' };
+  }
+  private async handleRelgkConfigureGates(task: any): Promise<any> {
+    return { skill: 'release_gatekeeper', action: 'configure-gates', gates: task.metadata?.gates || ['tests','security','review'], autoPromote: task.metadata?.autoPromote || false };
+  }
+  private async handleRelgkRejectCandidate(task: any): Promise<any> {
+    return { skill: 'release_gatekeeper', action: 'reject-candidate', candidateId: task.metadata?.candidateId, reason: task.metadata?.reason || 'quality gate failed' };
+  }
+  private async handleRelgkExportReport(task: any): Promise<any> {
+    return { skill: 'release_gatekeeper', action: 'export-report', configId: task.metadata?.configId, since: task.metadata?.since, format: task.metadata?.format || 'json' };
   }
 }

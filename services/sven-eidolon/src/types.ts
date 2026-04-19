@@ -78,6 +78,11 @@ export type EidolonBuildingKind =
   | 'registry_manager'
   | 'image_builder'
   | 'artifact_store'
+  | 'pipeline_runner'
+  | 'test_orchestrator'
+  | 'deploy_manager'
+  | 'rollback_controller'
+  | 'release_gatekeeper'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -736,7 +741,7 @@ export type EidolonEventKind =
   | 'vmorch.vm_created' | 'vmorch.vm_migrated' | 'vmorch.snapshot_taken' | 'vmorch.vm_destroyed'
   | 'regmgr.repo_created' | 'regmgr.tag_pushed' | 'regmgr.retention_applied' | 'regmgr.vuln_found'
   | 'imgbld.build_started' | 'imgbld.build_completed' | 'imgbld.image_pushed' | 'imgbld.build_failed'
-  | 'artstore.artifact_uploaded' | 'artstore.artifact_downloaded' | 'artstore.retention_applied' | 'artstore.access_audited'
+  | 'artstore.artifact_uploaded' | 'artstore.artifact_downloaded' | 'artstore.retention_applied' | 'artstore.access_audited' | 'plrun.pipeline_triggered' | 'plrun.stage_completed' | 'plrun.run_passed' | 'plrun.run_failed' | 'torch.suite_executed' | 'torch.failure_analyzed' | 'torch.coverage_tracked' | 'torch.report_exported' | 'dpmgr.deploy_initiated' | 'dpmgr.health_verified' | 'dpmgr.deploy_promoted' | 'dpmgr.instances_drained' | 'rbctl.rollback_initiated' | 'rbctl.snapshot_restored' | 'rbctl.rollback_verified' | 'rbctl.report_exported' | 'relgk.candidate_evaluated' | 'relgk.gate_checked' | 'relgk.release_promoted' | 'relgk.candidate_rejected'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1399,6 +1404,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'registry_manager':
     case 'image_builder':
     case 'artifact_store':
+    case 'pipeline_runner':
+    case 'test_orchestrator':
+    case 'deploy_manager':
+    case 'rollback_controller':
+    case 'release_gatekeeper':
       case 'network_firewall':
       case 'threat_detector':
       return 'industrial';

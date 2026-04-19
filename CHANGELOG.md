@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 283-287 — CI/CD Pipeline Tools
+- **pipeline_runner**: CI/CD pipeline orchestration and execution ($16.99, engineer)
+- **test_orchestrator**: Automated test suite orchestration and coverage ($13.99, analyst)
+- **deploy_manager**: Deployment with health checks and rollback ($18.99, engineer)
+- **rollback_controller**: Automated rollback with snapshot management ($15.99, engineer)
+- **release_gatekeeper**: Release quality gates and promotion ($14.99, analyst)
+
 ### Batches 278-282 — Cloud Infrastructure
 - **cloud_provisioner**: Multi-provider cloud resource provisioning and scaling ($19.99, engineer)
 - **vm_orchestrator**: VM lifecycle, snapshots, and live migration ($14.99, engineer)

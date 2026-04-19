@@ -304,3 +304,8 @@ export * from './agent-vm-orchestrator';
 export * from './agent-registry-manager';
 export * from './agent-image-builder';
 export * from './agent-artifact-store';
+export * from './agent-pipeline-runner';
+export * from './agent-test-orchestrator';
+export * from './agent-deploy-manager';
+export * from './agent-rollback-controller';
+export * from './agent-release-gatekeeper';
