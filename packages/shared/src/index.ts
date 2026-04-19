@@ -264,3 +264,8 @@ export * from './agent-geo-locator.js';
 export * from './agent-ddos-protector.js';
 export * from './agent-api-gateway-manager.js';
 export * from './agent-endpoint-monitor.js';
+export * from './agent-proxy-manager.js';
+export * from './agent-vpn-provisioner.js';
+export * from './agent-bandwidth-optimizer.js';
+export * from './agent-latency-analyzer.js';
+export * from './agent-packet-inspector.js';

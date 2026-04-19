@@ -78,6 +78,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 243-247 — Network Infrastructure Advanced
+- **Batch 243 – Proxy Manager**: Reverse/forward proxy orchestration, rule management, access logging (3 tables, 6 task handlers)
+- **Batch 244 – VPN Provisioner**: WireGuard/OpenVPN tunnel provisioning, peer management, connection monitoring (3 tables, 6 task handlers)
+- **Batch 245 – Bandwidth Optimizer**: Traffic shaping, QoS allocation, utilization monitoring (3 tables, 6 task handlers)
+- **Batch 246 – Latency Analyzer**: Network latency measurement, baseline tracking, anomaly detection (3 tables, 6 task handlers)
+- **Batch 247 – Packet Inspector**: Deep packet inspection, capture management, anomaly classification (3 tables, 6 task handlers)
+- 15 new DB tables, 5 shared type files, 5 SKILL.md files, 30 task executor handlers, 20 SUBJECT_MAP entries, 5 BK + 20 EK values, 165 tests passing
+
 
 ### Batches 238-242 — Network Infrastructure
 - **Batch 238 – Certificate Authority**: SSL/TLS certificate lifecycle — issuance, renewal, revocation, auditing
