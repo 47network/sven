@@ -17,6 +17,7 @@ build/
 .env
 .env.local
 .env.*.local
+config/env/*release.local.json
 # Keep: .env.example, .env.*.example (committed as templates)
 
 # ─── Database dumps ─────────────────────────────────────────────
