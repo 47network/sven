@@ -100,14 +100,31 @@ function shouldAttemptRefresh(path: string): boolean {
   const p = String(path || '').toLowerCase();
   if (!p) return true;
   if (p.startsWith('/auth/login')) return false;
-  if (p.startsWith('/auth/totp/verify')) return false;
+  if (p.startsWith('/auth/totp/')) return false;
   if (p.startsWith('/auth/logout')) return false;
   return true;
 }
 
 type LoginResponseData = {
   requires_totp?: boolean;
+  requires_totp_enrollment?: boolean;
   pre_session_id?: string;
+};
+
+type TotpSetupResponseData = {
+  otp_auth_url: string;
+  secret: string;
+};
+
+type TotpConfirmSetupResponseData = {
+  user_id: string;
+  username: string;
+  role: string;
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+  totp_enrolled: boolean;
 };
 
 type AccountRow = {
@@ -759,6 +776,10 @@ export const auth = {
     request<{ success: boolean; data: LoginResponseData }>('POST', '/auth/login', { username, password }),
   verifyTotp: (pre_session_id: string, code: string) =>
     request<{ success: boolean; data: LoginResponseData }>('POST', '/auth/totp/verify', { pre_session_id, code }),
+  setupTotp: (pre_session_id: string) =>
+    request<{ success: boolean; data: TotpSetupResponseData }>('POST', '/auth/totp/setup', { pre_session_id }),
+  confirmTotpSetup: (pre_session_id: string, code: string) =>
+    request<{ success: boolean; data: TotpConfirmSetupResponseData }>('POST', '/auth/totp/confirm-setup', { pre_session_id, code }),
   logout: () => request<void>('POST', '/auth/logout'),
   logoutAll: () => request<{ success: boolean; data: { sessions_revoked: number } }>('POST', '/auth/logout-all'),
   me: async () => {
@@ -804,6 +825,20 @@ export const users = {
     request<{ success: boolean; data: Record<string, unknown> }>('POST', `/admin/users/${userId}/identity-links/${linkId}/verify`, { code }),
   deleteIdentityLink: (userId: string, linkId: string) =>
     request<void>('DELETE', `/admin/users/${userId}/identity-links/${linkId}`),
+};
+
+// ── Invites ──
+export const invites = {
+  list: (includeExpired = false) =>
+    request<{ success: boolean; data: Array<Record<string, unknown>> }>(
+      'GET',
+      `/admin/invites${includeExpired ? '?include_expired=true' : ''}`,
+    ),
+  get: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('GET', `/admin/invites/${id}`),
+  create: (data: { role?: string; max_uses?: number; expires_in_hours?: number }) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('POST', '/admin/invites', data),
+  revoke: (id: string) => request<void>('DELETE', `/admin/invites/${id}`),
 };
 
 // ── Chats ──

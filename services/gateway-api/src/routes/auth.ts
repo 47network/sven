@@ -122,6 +122,30 @@ async function ensureAuthSupportTables(pool: pg.Pool): Promise<void> {
     `CREATE INDEX IF NOT EXISTS idx_oidc_auth_states_expires_at
        ON oidc_auth_states (expires_at)`,
   );
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS invite_tokens (
+       id            TEXT PRIMARY KEY,
+       token         TEXT NOT NULL UNIQUE,
+       created_by    TEXT NOT NULL,
+       organization_id TEXT,
+       role          TEXT NOT NULL DEFAULT 'user',
+       max_uses      INTEGER NOT NULL DEFAULT 1,
+       use_count     INTEGER NOT NULL DEFAULT 0,
+       expires_at    TIMESTAMPTZ NOT NULL,
+       revoked_at    TIMESTAMPTZ,
+       created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`,
+  );
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS invite_redemptions (
+       id            TEXT PRIMARY KEY,
+       invite_id     TEXT NOT NULL,
+       user_id       TEXT NOT NULL,
+       created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       UNIQUE (invite_id, user_id)
+     )`,
+  );
 }
 
 function parseBool(value: unknown, defaultValue = false): boolean {
@@ -2402,6 +2426,197 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
     return reply.redirect(redirectPath);
   });
 
+  // ─── POST /v1/auth/register ───
+  // Invite-based registration: public endpoint for new user self-registration
+  // using a valid, unexpired invite token created by an admin.
+  app.post('/v1/auth/register', {
+    config: { rateLimit: { max: 5, timeWindow: 60_000 } },
+    schema: {
+      body: {
+        type: 'object',
+        required: ['invite_token', 'username', 'password'],
+        additionalProperties: false,
+        properties: {
+          invite_token: { type: 'string', minLength: 1 },
+          username: { type: 'string', minLength: 2, maxLength: 64 },
+          password: { type: 'string', minLength: 8, maxLength: 128 },
+          display_name: { type: 'string', maxLength: 256 },
+        },
+      },
+    },
+  }, async (request, reply) => {
+    const { invite_token, username, password, display_name } = request.body as {
+      invite_token: string;
+      username: string;
+      password: string;
+      display_name?: string;
+    };
+
+    // Validate username format: alphanumeric, underscores, hyphens
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'VALIDATION', message: 'Username may only contain letters, numbers, underscores, and hyphens' },
+      });
+    }
+
+    // Look up the invite token
+    const inviteRes = await pool.query(
+      `SELECT id, organization_id, role, max_uses, use_count, expires_at, revoked_at, created_by
+       FROM invite_tokens
+       WHERE token = $1`,
+      [invite_token],
+    );
+
+    if (inviteRes.rows.length === 0) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVALID_INVITE', message: 'Invalid invite token' },
+      });
+    }
+
+    const invite = inviteRes.rows[0];
+
+    if (invite.revoked_at) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVITE_REVOKED', message: 'This invite has been revoked' },
+      });
+    }
+
+    if (new Date(invite.expires_at) < new Date()) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVITE_EXPIRED', message: 'This invite has expired' },
+      });
+    }
+
+    if (invite.use_count >= invite.max_uses) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVITE_EXHAUSTED', message: 'This invite has reached its maximum number of uses' },
+      });
+    }
+
+    // Check username uniqueness
+    const dupCheck = await pool.query(
+      `SELECT 1 FROM users WHERE username = $1`,
+      [username],
+    );
+    if (dupCheck.rows.length > 0) {
+      return reply.status(409).send({
+        success: false,
+        error: { code: 'CONFLICT', message: 'Username already exists' },
+      });
+    }
+
+    const userId = uuidv7();
+    const passwordHash = await bcrypt.hash(password, 12);
+    const effectiveDisplayName = String(display_name || username).trim().slice(0, 256);
+    const orgId = invite.organization_id;
+    const role = invite.role || 'user';
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Re-check invite atomically inside transaction
+      const inviteLock = await client.query(
+        `SELECT use_count, max_uses
+         FROM invite_tokens
+         WHERE id = $1
+         FOR UPDATE`,
+        [invite.id],
+      );
+      if (!inviteLock.rows[0] || inviteLock.rows[0].use_count >= inviteLock.rows[0].max_uses) {
+        await client.query('ROLLBACK');
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'INVITE_EXHAUSTED', message: 'This invite has reached its maximum number of uses' },
+        });
+      }
+
+      // Re-check username uniqueness inside transaction
+      const dupLock = await client.query(
+        `SELECT 1 FROM users WHERE username = $1`,
+        [username],
+      );
+      if (dupLock.rows.length > 0) {
+        await client.query('ROLLBACK');
+        return reply.status(409).send({
+          success: false,
+          error: { code: 'CONFLICT', message: 'Username already exists' },
+        });
+      }
+
+      // Create user
+      await client.query(
+        `INSERT INTO users (id, username, display_name, role, password_hash, active_organization_id, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+        [userId, username, effectiveDisplayName, role, passwordHash, orgId],
+      );
+
+      // Add organization membership
+      if (orgId) {
+        await client.query(
+          `INSERT INTO organization_memberships (id, organization_id, user_id, role, status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, 'active', NOW(), NOW())`,
+          [uuidv7(), orgId, userId, role === 'admin' ? 'admin' : 'member'],
+        );
+      }
+
+      // Increment invite use count
+      await client.query(
+        `UPDATE invite_tokens SET use_count = use_count + 1, updated_at = NOW() WHERE id = $1`,
+        [invite.id],
+      );
+
+      // Record redemption
+      await client.query(
+        `INSERT INTO invite_redemptions (id, invite_id, user_id, created_at)
+         VALUES ($1, $2, $3, NOW())`,
+        [uuidv7(), invite.id, userId],
+      );
+
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw err;
+    } finally {
+      client.release();
+    }
+
+    // Create session for immediate login
+    const sessionId = await createAccessSession(pool, userId);
+    const refreshToken = await createRefreshSession(pool, userId);
+
+    reply.setCookie(SESSION_COOKIE, sessionId, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
+
+    logger.info('User registered via invite', {
+      user_id: userId,
+      username,
+      role,
+      invite_id: invite.id,
+      organization_id: orgId,
+    });
+
+    reply.status(201).send({
+      success: true,
+      data: {
+        user_id: userId,
+        username,
+        display_name: effectiveDisplayName,
+        role,
+        organization_id: orgId,
+        access_token: sessionId,
+        refresh_token: refreshToken,
+        token_type: 'bearer',
+        expires_in: ACCESS_TOKEN_MAX_AGE,
+      },
+    });
+  });
+
   // ─── POST /v1/auth/login ───
   app.post('/v1/auth/login', {
     config: { rateLimit: { max: 10, timeWindow: 60_000 } },
@@ -2480,14 +2695,27 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
 
     // C2.1: Admin accounts can require TOTP enrollment based on policy.
     // Default: required in production, optional in non-production for local testing.
+    // When required but not yet enrolled, issue a limited pre-session so the
+    // client can redirect to the TOTP setup flow instead of hard-blocking.
     const adminTotpRequired = await isAdminTotpEnrollmentRequired(pool);
     if (adminTotpRequired && user.role === 'admin' && !user.totp_secret_enc) {
-      reply.status(403).send({
-        success: false,
-        error: {
-          code: 'ADMIN_TOTP_REQUIRED',
-          message: 'Admin account requires TOTP enrollment before login.',
-        },
+      await resetFailedLogin(pool, authAttemptKey);
+      await setAuthRateLimitHeaders(reply, pool, authAttemptKey);
+
+      const preSessionId = uuidv7();
+      await pool.query(
+        `INSERT INTO sessions (id, user_id, status, created_at, expires_at)
+         VALUES ($1, $2, 'pending_totp_enrollment', NOW(), NOW() + INTERVAL '10 minutes')`,
+        [preSessionId, user.id],
+      );
+
+      logger.info('Admin TOTP enrollment required, issuing enrollment pre-session', {
+        user_id: user.id, username: user.username,
+      });
+
+      reply.send({
+        success: true,
+        data: { requires_totp_enrollment: true, pre_session_id: preSessionId },
       });
       return;
     }
@@ -2612,6 +2840,185 @@ export async function registerAuthRoutes(app: FastifyInstance, pool: pg.Pool) {
         refresh_token: refreshToken,
         token_type: 'bearer',
         expires_in: ACCESS_TOKEN_MAX_AGE,
+      },
+    });
+  });
+
+  // ─── POST /v1/auth/totp/setup ───
+  // Generates a TOTP secret for an admin in a pending_totp_enrollment session.
+  // Returns the OTP auth URL (for QR code display) and the raw secret.
+  app.post('/v1/auth/totp/setup', { config: { rateLimit: { max: 10, timeWindow: 60_000 } } }, async (request, reply) => {
+    const { pre_session_id } = request.body as { pre_session_id: string };
+
+    if (!pre_session_id || typeof pre_session_id !== 'string') {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVALID_REQUEST', message: 'pre_session_id is required' },
+      });
+    }
+
+    const sessionRes = await pool.query(
+      `SELECT s.id, s.user_id, u.username, u.role, u.totp_secret_enc
+       FROM sessions s JOIN users u ON s.user_id = u.id
+       WHERE s.id = $1 AND s.status = 'pending_totp_enrollment' AND s.expires_at > NOW()`,
+      [pre_session_id],
+    );
+
+    if (sessionRes.rows.length === 0) {
+      return reply.status(401).send({
+        success: false,
+        error: { code: 'INVALID_SESSION', message: 'Invalid or expired enrollment session' },
+      });
+    }
+
+    const session = sessionRes.rows[0];
+
+    // If user already has TOTP, they should use the normal login flow
+    if (session.totp_secret_enc) {
+      return reply.status(409).send({
+        success: false,
+        error: { code: 'TOTP_ALREADY_ENROLLED', message: 'TOTP is already configured for this account' },
+      });
+    }
+
+    const totpSecret = authenticator.generateSecret();
+    const otpAuthUrl = authenticator.keyuri(session.username, 'Sven', totpSecret);
+
+    // Store the pending secret in the session metadata (not on the user yet)
+    // The secret is only committed to the user record after confirmation
+    await pool.query(
+      `UPDATE sessions SET expires_at = NOW() + INTERVAL '10 minutes'
+       WHERE id = $1 AND status = 'pending_totp_enrollment'`,
+      [pre_session_id],
+    );
+
+    // Store the pending secret temporarily in a separate table to avoid
+    // modifying the user record before confirmation
+    await pool.query(
+      `CREATE TABLE IF NOT EXISTS totp_enrollment_pending (
+         session_id TEXT PRIMARY KEY,
+         totp_secret TEXT NOT NULL,
+         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+       )`,
+    );
+    await pool.query(
+      `INSERT INTO totp_enrollment_pending (session_id, totp_secret)
+       VALUES ($1, $2)
+       ON CONFLICT (session_id) DO UPDATE SET totp_secret = $2, created_at = NOW()`,
+      [pre_session_id, totpSecret],
+    );
+
+    logger.info('TOTP enrollment secret generated', { user_id: session.user_id, username: session.username });
+
+    reply.send({
+      success: true,
+      data: {
+        otp_auth_url: otpAuthUrl,
+        secret: totpSecret,
+      },
+    });
+  });
+
+  // ─── POST /v1/auth/totp/confirm-setup ───
+  // Confirms TOTP enrollment: verifies a code against the pending secret,
+  // saves the secret to the user record, and upgrades the session to active.
+  app.post('/v1/auth/totp/confirm-setup', { config: { rateLimit: { max: 10, timeWindow: 60_000 } } }, async (request, reply) => {
+    const { pre_session_id, code } = request.body as { pre_session_id: string; code: string };
+
+    if (!pre_session_id || !code) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'INVALID_REQUEST', message: 'pre_session_id and code are required' },
+      });
+    }
+
+    const totpAttemptKey = `totp-enroll:${String(pre_session_id).slice(0, 128)}`;
+    if (await isLockedOut(pool, totpAttemptKey)) {
+      await setAuthRateLimitHeaders(reply, pool, totpAttemptKey);
+      return reply.status(429).send({
+        success: false,
+        error: { code: 'TOTP_RATE_LIMITED', message: 'Too many attempts. Try again later.' },
+      });
+    }
+
+    // Validate the enrollment session
+    const sessionRes = await pool.query(
+      `SELECT s.id, s.user_id, u.username, u.role
+       FROM sessions s JOIN users u ON s.user_id = u.id
+       WHERE s.id = $1 AND s.status = 'pending_totp_enrollment' AND s.expires_at > NOW()`,
+      [pre_session_id],
+    );
+
+    if (sessionRes.rows.length === 0) {
+      return reply.status(401).send({
+        success: false,
+        error: { code: 'INVALID_SESSION', message: 'Invalid or expired enrollment session' },
+      });
+    }
+
+    const session = sessionRes.rows[0];
+
+    // Retrieve the pending TOTP secret
+    const pendingRes = await pool.query(
+      `SELECT totp_secret FROM totp_enrollment_pending WHERE session_id = $1`,
+      [pre_session_id],
+    );
+
+    if (pendingRes.rows.length === 0) {
+      return reply.status(400).send({
+        success: false,
+        error: { code: 'NO_PENDING_SECRET', message: 'No pending TOTP secret found. Call /v1/auth/totp/setup first.' },
+      });
+    }
+
+    const pendingSecret = pendingRes.rows[0].totp_secret;
+
+    // Verify the code against the pending secret
+    const isValid = authenticator.check(code, pendingSecret);
+    if (!isValid) {
+      await recordFailedLogin(pool, totpAttemptKey);
+      await setAuthRateLimitHeaders(reply, pool, totpAttemptKey);
+      return reply.status(401).send({
+        success: false,
+        error: { code: 'INVALID_TOTP', message: 'Invalid TOTP code. Please try again.' },
+      });
+    }
+
+    await resetFailedLogin(pool, totpAttemptKey);
+
+    // Save the TOTP secret to the user record
+    await pool.query(
+      `UPDATE users SET totp_secret_enc = $1, updated_at = NOW() WHERE id = $2`,
+      [pendingSecret, session.user_id],
+    );
+
+    // Clean up the pending enrollment record
+    await pool.query(`DELETE FROM totp_enrollment_pending WHERE session_id = $1`, [pre_session_id]);
+
+    // Upgrade the session to active
+    await pool.query(
+      `UPDATE sessions SET status = 'active', expires_at = NOW() + INTERVAL '${ACCESS_TOKEN_MAX_AGE} seconds'
+       WHERE id = $1`,
+      [pre_session_id],
+    );
+    const refreshToken = await createRefreshSession(pool, session.user_id);
+
+    reply.setCookie(SESSION_COOKIE, pre_session_id, authCookieOptions(ACCESS_TOKEN_MAX_AGE, request));
+    reply.setCookie(REFRESH_TOKEN_COOKIE, refreshToken, authCookieOptions(REFRESH_TOKEN_MAX_AGE, request));
+
+    logger.info('TOTP enrolled and session activated', { user_id: session.user_id, username: session.username });
+
+    reply.send({
+      success: true,
+      data: {
+        user_id: session.user_id,
+        username: session.username,
+        role: session.role,
+        access_token: pre_session_id,
+        refresh_token: refreshToken,
+        token_type: 'bearer',
+        expires_in: ACCESS_TOKEN_MAX_AGE,
+        totp_enrolled: true,
       },
     });
   });
