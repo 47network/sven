@@ -79,6 +79,21 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batch 158-162 — Agent Operations (Telemetry Export, Cost Allocation, Network Policy, Disaster Recovery, Performance Profiling)
+- **Batch 158**: Agent Telemetry Export — telemetry_hub BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 159**: Agent Cost Allocation — cost_ledger BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 160**: Agent Network Policy — net_firewall BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 161**: Agent Disaster Recovery — recovery_vault BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 162**: Agent Performance Profiling — perf_lab BK, 3 tables, 4 EK events, 6 task handlers
+- 5 migration SQL files (timestamps 20260617950000–20260617990000)
+- 5 shared TypeScript type modules with 25+ types total
+- 5 SKILL.md definitions
+- 20 SUBJECT_MAP entries in event-bus
+- 30 switch cases + 30 handler methods in task-executor
+- 15 .gitattributes privacy entries
+- 143 Jest tests — all passing
+
+
 ### Batch 153-157 — Agent Resilience (Circuit Breaker, Rate Limiter, Canary Deploy, Feature Flags, Chaos Testing)
 - **Batch 153**: Agent Circuit Breaker — circuit_panel BK, 3 tables, 4 EK events, 6 task handlers
 - **Batch 154**: Agent Rate Limiter — rate_gate BK, 3 tables, 4 EK events, 6 task handlers

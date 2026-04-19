@@ -179,3 +179,8 @@ export * from './agent-rate-limiter.js';
 export * from './agent-canary-deploy.js';
 export * from './agent-feature-flags.js';
 export * from './agent-chaos-testing.js';
+export * from './agent-telemetry-export.js';
+export * from './agent-cost-allocation.js';
+export * from './agent-network-policy.js';
+export * from './agent-disaster-recovery.js';
+export * from './agent-performance-profiling.js';

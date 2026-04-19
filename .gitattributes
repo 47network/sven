@@ -537,3 +537,28 @@ skills/agent-rate-limiter/SKILL.md filter=sven-private
 skills/agent-canary-deploy/SKILL.md filter=sven-private
 skills/agent-feature-flags/SKILL.md filter=sven-private
 skills/agent-chaos-testing/SKILL.md filter=sven-private
+
+# Batch 158 — Agent Telemetry Export
+services/gateway-api/migrations/20260617950000_agent_telemetry_export.sql filter=sven-private
+packages/shared/src/agent-telemetry-export.ts filter=sven-private
+skills/agent-telemetry-export/SKILL.md filter=sven-private
+
+# Batch 159 — Agent Cost Allocation
+services/gateway-api/migrations/20260617960000_agent_cost_allocation.sql filter=sven-private
+packages/shared/src/agent-cost-allocation.ts filter=sven-private
+skills/agent-cost-allocation/SKILL.md filter=sven-private
+
+# Batch 160 — Agent Network Policy
+services/gateway-api/migrations/20260617970000_agent_network_policy.sql filter=sven-private
+packages/shared/src/agent-network-policy.ts filter=sven-private
+skills/agent-network-policy/SKILL.md filter=sven-private
+
+# Batch 161 — Agent Disaster Recovery
+services/gateway-api/migrations/20260617980000_agent_disaster_recovery.sql filter=sven-private
+packages/shared/src/agent-disaster-recovery.ts filter=sven-private
+skills/agent-disaster-recovery/SKILL.md filter=sven-private
+
+# Batch 162 — Agent Performance Profiling
+services/gateway-api/migrations/20260617990000_agent_performance_profiling.sql filter=sven-private
+packages/shared/src/agent-performance-profiling.ts filter=sven-private
+skills/agent-performance-profiling/SKILL.md filter=sven-private
