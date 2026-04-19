@@ -385,3 +385,8 @@ export * from './agent-artifact-builder';
 export * from './agent-tenant-provisioner';
 export * from './agent-index-optimizer';
 export * from './agent-dependency-scanner';
+export * from './agent-encryption-manager';
+export * from './agent-certificate-rotator';
+export * from './agent-vulnerability-assessor';
+export * from './agent-compliance-reporter';
+export * from './agent-identity-resolver';

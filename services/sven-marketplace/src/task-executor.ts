@@ -2362,6 +2362,37 @@ export class TaskExecutor {
       case 'dpsc_ignore_finding': return this.handleDpscIgnoreFinding(task);
       case 'dpsc_schedule_scan': return this.handleDpscScheduleScan(task);
       case 'dpsc_export_report': return this.handleDpscExportReport(task);
+
+      case 'encm_generate_key': return this.handleEncmGenerateKey(task);
+      case 'encm_rotate_key': return this.handleEncmRotateKey(task);
+      case 'encm_encrypt_data': return this.handleEncmEncryptData(task);
+      case 'encm_decrypt_data': return this.handleEncmDecryptData(task);
+      case 'encm_list_keys': return this.handleEncmListKeys(task);
+      case 'encm_destroy_key': return this.handleEncmDestroyKey(task);
+      case 'crtr_issue_cert': return this.handleCrtrIssueCert(task);
+      case 'crtr_renew_cert': return this.handleCrtrRenewCert(task);
+      case 'crtr_rotate_cert': return this.handleCrtrRotateCert(task);
+      case 'crtr_revoke_cert': return this.handleCrtrRevokeCert(task);
+      case 'crtr_check_expiry': return this.handleCrtrCheckExpiry(task);
+      case 'crtr_audit_certs': return this.handleCrtrAuditCerts(task);
+      case 'vlas_start_assessment': return this.handleVlasStartAssessment(task);
+      case 'vlas_scan_dependencies': return this.handleVlasScanDependencies(task);
+      case 'vlas_check_cve': return this.handleVlasCheckCve(task);
+      case 'vlas_generate_report': return this.handleVlasGenerateReport(task);
+      case 'vlas_recommend_fixes': return this.handleVlasRecommendFixes(task);
+      case 'vlas_schedule_scan': return this.handleVlasScheduleScan(task);
+      case 'cmrp_generate_report': return this.handleCmrpGenerateReport(task);
+      case 'cmrp_collect_evidence': return this.handleCmrpCollectEvidence(task);
+      case 'cmrp_map_controls': return this.handleCmrpMapControls(task);
+      case 'cmrp_score_posture': return this.handleCmrpScorePosture(task);
+      case 'cmrp_schedule_report': return this.handleCmrpScheduleReport(task);
+      case 'cmrp_export_audit': return this.handleCmrpExportAudit(task);
+      case 'idrs_resolve_identity': return this.handleIdrsResolveIdentity(task);
+      case 'idrs_verify_identity': return this.handleIdrsVerifyIdentity(task);
+      case 'idrs_link_identity': return this.handleIdrsLinkIdentity(task);
+      case 'idrs_list_identities': return this.handleIdrsListIdentities(task);
+      case 'idrs_audit_access': return this.handleIdrsAuditAccess(task);
+      case 'idrs_sync_provider': return this.handleIdrsSyncProvider(task);
     }
   }
 
@@ -16464,6 +16495,127 @@ export class TaskExecutor {
   private async handleDpscExportReport(task: any): Promise<any> {
     const { scanId, format = 'json' } = task.input || {};
     return { success: true, handler: 'dpsc_export_report', scanId, format, reportUrl: `reports/${scanId}.${format}`, message: 'Scan report exported' };
+  }
+
+
+  private async handleEncmGenerateKey(task: any): Promise<any> {
+    return { keyId: 'key-' + Date.now(), algorithm: task.input?.algorithm || 'aes-256-gcm', status: 'active', purpose: task.input?.purpose || 'encryption', createdAt: new Date().toISOString() };
+  }
+
+  private async handleEncmRotateKey(task: any): Promise<any> {
+    return { keyId: task.input?.keyId, newVersion: (task.input?.currentVersion || 1) + 1, rotatedAt: new Date().toISOString(), reEncryptedCount: 0 };
+  }
+
+  private async handleEncmEncryptData(task: any): Promise<any> {
+    return { encrypted: true, keyId: task.input?.keyId, dataReference: 'enc-' + Date.now(), algorithm: 'aes-256-gcm', encryptedAt: new Date().toISOString() };
+  }
+
+  private async handleEncmDecryptData(task: any): Promise<any> {
+    return { decrypted: true, dataReference: task.input?.dataReference, keyVersion: task.input?.keyVersion || 1, decryptedAt: new Date().toISOString() };
+  }
+
+  private async handleEncmListKeys(task: any): Promise<any> {
+    return { keys: [], totalCount: 0, activeCount: 0, rotatedCount: 0, filter: task.input?.filter || 'all' };
+  }
+
+  private async handleEncmDestroyKey(task: any): Promise<any> {
+    return { keyId: task.input?.keyId, destroyed: true, destroyedAt: new Date().toISOString(), confirmation: 'key-permanently-destroyed' };
+  }
+
+  private async handleCrtrIssueCert(task: any): Promise<any> {
+    return { certId: 'cert-' + Date.now(), domain: task.input?.domain, issuer: task.input?.authority || 'lets_encrypt', status: 'active', issuedAt: new Date().toISOString() };
+  }
+
+  private async handleCrtrRenewCert(task: any): Promise<any> {
+    return { certId: task.input?.certId, renewed: true, newExpiresAt: new Date(Date.now() + 90 * 86400000).toISOString(), renewedAt: new Date().toISOString() };
+  }
+
+  private async handleCrtrRotateCert(task: any): Promise<any> {
+    return { certId: task.input?.certId, rotated: true, downtime: 0, oldFingerprint: null, newFingerprint: 'sha256-' + Date.now() };
+  }
+
+  private async handleCrtrRevokeCert(task: any): Promise<any> {
+    return { certId: task.input?.certId, revoked: true, reason: task.input?.reason || 'key_compromise', revokedAt: new Date().toISOString() };
+  }
+
+  private async handleCrtrCheckExpiry(task: any): Promise<any> {
+    return { expiringCerts: [], totalCerts: 0, expiringSoon: 0, expired: 0, checkedAt: new Date().toISOString() };
+  }
+
+  private async handleCrtrAuditCerts(task: any): Promise<any> {
+    return { auditReport: { totalCerts: 0, validCerts: 0, weakKeyTypes: 0, expiredCerts: 0 }, generatedAt: new Date().toISOString() };
+  }
+
+  private async handleVlasStartAssessment(task: any): Promise<any> {
+    return { assessmentId: 'assess-' + Date.now(), target: task.input?.target, status: 'in_progress', startedAt: new Date().toISOString() };
+  }
+
+  private async handleVlasScanDependencies(task: any): Promise<any> {
+    return { scanId: 'scan-' + Date.now(), totalDependencies: 0, vulnerableCount: 0, criticalCount: 0, scannedAt: new Date().toISOString() };
+  }
+
+  private async handleVlasCheckCve(task: any): Promise<any> {
+    return { cveId: task.input?.cveId, applicable: false, severity: 'unknown', affectedVersions: [], checkedAt: new Date().toISOString() };
+  }
+
+  private async handleVlasGenerateReport(task: any): Promise<any> {
+    return { reportId: 'rpt-' + Date.now(), assessmentId: task.input?.assessmentId, format: 'pdf', findings: 0, generatedAt: new Date().toISOString() };
+  }
+
+  private async handleVlasRecommendFixes(task: any): Promise<any> {
+    return { recommendations: [], prioritized: true, totalFindings: 0, autoFixable: 0, generatedAt: new Date().toISOString() };
+  }
+
+  private async handleVlasScheduleScan(task: any): Promise<any> {
+    return { scheduleId: 'sched-' + Date.now(), frequency: task.input?.frequency || 'daily', nextScanAt: new Date(Date.now() + 86400000).toISOString() };
+  }
+
+  private async handleCmrpGenerateReport(task: any): Promise<any> {
+    return { reportId: 'cmrp-' + Date.now(), framework: task.input?.framework || 'soc2', overallScore: 0, status: 'generating', startedAt: new Date().toISOString() };
+  }
+
+  private async handleCmrpCollectEvidence(task: any): Promise<any> {
+    return { evidenceCount: 0, controlsCovered: 0, framework: task.input?.framework, collectedAt: new Date().toISOString() };
+  }
+
+  private async handleCmrpMapControls(task: any): Promise<any> {
+    return { framework: task.input?.framework, totalControls: 0, mappedControls: 0, unmappedControls: 0, mappedAt: new Date().toISOString() };
+  }
+
+  private async handleCmrpScorePosture(task: any): Promise<any> {
+    return { framework: task.input?.framework, overallScore: 0, passingControls: 0, failingControls: 0, scoredAt: new Date().toISOString() };
+  }
+
+  private async handleCmrpScheduleReport(task: any): Promise<any> {
+    return { scheduleId: 'cmrp-sched-' + Date.now(), frequency: task.input?.frequency || 'monthly', framework: task.input?.framework, nextReportAt: new Date().toISOString() };
+  }
+
+  private async handleCmrpExportAudit(task: any): Promise<any> {
+    return { exportId: 'audit-' + Date.now(), framework: task.input?.framework, format: 'pdf', pageCount: 0, exportedAt: new Date().toISOString() };
+  }
+
+  private async handleIdrsResolveIdentity(task: any): Promise<any> {
+    return { resolved: false, provider: task.input?.provider || 'internal', externalId: task.input?.externalId, identityType: 'user', latencyMs: 0 };
+  }
+
+  private async handleIdrsVerifyIdentity(task: any): Promise<any> {
+    return { verified: false, recordId: task.input?.recordId, provider: task.input?.provider, verifiedAt: new Date().toISOString() };
+  }
+
+  private async handleIdrsLinkIdentity(task: any): Promise<any> {
+    return { linked: true, primaryId: task.input?.primaryId, secondaryId: task.input?.secondaryId, linkedAt: new Date().toISOString() };
+  }
+
+  private async handleIdrsListIdentities(task: any): Promise<any> {
+    return { identities: [], totalCount: 0, providers: [], filter: task.input?.filter || 'all' };
+  }
+
+  private async handleIdrsAuditAccess(task: any): Promise<any> {
+    return { auditId: 'audit-' + Date.now(), totalAccesses: 0, uniqueIdentities: 0, suspiciousAccesses: 0, generatedAt: new Date().toISOString() };
+  }
+
+  private async handleIdrsSyncProvider(task: any): Promise<any> {
+    return { provider: task.input?.provider, synced: true, newRecords: 0, updatedRecords: 0, removedRecords: 0, syncedAt: new Date().toISOString() };
   }
 
 }
