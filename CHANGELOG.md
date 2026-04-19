@@ -1,3 +1,45 @@
+## [Unreleased] - Batches 708-732 (CI/CD, Observability, Security, FinOps, Reliability)
+
+### Added — 25 new autonomous economy verticals across 5 domain groups
+
+**Batches 708-712 — CI/CD Pipeline:**
+- `build_pipeline_runner` — Multi-stage CI/CD build pipeline orchestration with artifact publication
+- `artifact_promoter` — Build artifact promotion across environments with signature verification
+- `release_orchestrator` — Release orchestration with planning, approval gates, and changelog publication
+- `rollback_coordinator` — Automated rollback with checkpoint restoration and traffic redirection
+- `deployment_canary_steerer` — Canary deployment with progressive traffic shifting and abort criteria
+
+**Batches 713-717 — Observability:**
+- `dashboard_generator` — Observability dashboard generation with panel composition and templates
+- `slo_calculator` — SLO calculation with error budget tracking and burn rate alerting
+- `log_pipeline_router` — Log pipeline routing with filter rules, enrichment, and multi-sink dispatch
+- `metric_correlator` — Metric correlation analysis with causal inference and alert grouping
+- `trace_sampler_v2` — Tail-based trace sampling with priority assignment and budget enforcement
+
+**Batches 718-722 — Security Posture:**
+- `waf_engine` — Web application firewall with rule management, blocking, and bypass detection
+- `ddos_mitigator` — DDoS detection and mitigation with traffic scrubbing and lifecycle tracking
+- `penetration_tester` — Automated pentesting with vulnerability discovery and exploit validation
+- `security_baseline_enforcer` — Security baseline enforcement with drift detection and remediation
+- `asset_inventory_tracker` — IT asset inventory with discovery, ownership, and lifecycle tracking
+
+**Batches 723-727 — FinOps:**
+- `license_compliance_auditor` — Software license compliance with violation and expiration alerts
+- `cost_anomaly_detector` — Cloud cost anomaly detection with baseline learning and root-cause analysis
+- `budget_enforcer` — Cloud budget enforcement with thresholds and automated actions
+- `cloud_billing_optimizer` — Cloud billing optimization with rightsizing and savings calculations
+- `reservation_planner` — Reservation/savings plan planning with usage analysis and coverage optimization
+
+**Batches 728-732 — Reliability Engineering:**
+- `chaos_injector` — Chaos engineering fault injection with steady-state verification and abort safety
+- `fault_simulator` — Fault scenario simulation with library-driven injection and recovery observation
+- `resilience_tester` — System resilience testing with workload application and reliability scoring
+- `dependency_mapper` — Service dependency graph mapping with edge inference and cycle detection
+- `blast_radius_calculator` — Blast radius computation with impact assessment and containment guidance
+
+### Tests
+- 275 new tests across 5 batch suites — all passing (5/5 suites, 275/275 tests)
+
 ## [Unreleased] - Batches 683-707 (Infrastructure & Operations Expansion)
 
 ### Added — 25 new autonomous economy verticals across 5 domain groups
