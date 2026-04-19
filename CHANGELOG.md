@@ -1,3 +1,12 @@
+## Batches 538-542 — Workflow & Orchestration
+- **Batch 538** — pipeline_executor: Pipeline execution and step orchestration
+- **Batch 539** — task_dispatcher: Task dispatch and worker assignment
+- **Batch 540** — step_coordinator: Step coordination across distributed workflows
+- **Batch 541** — saga_runner: Saga pattern execution with compensation
+- **Batch 542** — compensation_handler: Compensation and rollback handling for failed sagas
+- Migrations: 20260621750000–20260621790000
+- EK prefixes: plex, tkdp, stcd, sgrn, cmph
+
 ## Batches 473-477 — Observability & Monitoring
 - **Batch 473** — incident_tracker: End-to-end incident management with escalation and SLA tracking
 - **Batch 474** — sla_reporter: SLA compliance monitoring with breach detection and trend analysis

@@ -3413,6 +3413,36 @@ export class TaskExecutor {
       case 'dnmg_recover': return this.handleDnmgRecover(task);
       case 'dnmg_report': return this.handleDnmgReport(task);
       case 'dnmg_monitor': return this.handleDnmgMonitor(task);
+      case 'plex_run': return this.handlePlexRun(task);
+      case 'plex_step': return this.handlePlexStep(task);
+      case 'plex_finish': return this.handlePlexFinish(task);
+      case 'plex_fail': return this.handlePlexFail(task);
+      case 'plex_report': return this.handlePlexReport(task);
+      case 'plex_monitor': return this.handlePlexMonitor(task);
+      case 'tkdp_dispatch': return this.handleTkdpDispatch(task);
+      case 'tkdp_assign': return this.handleTkdpAssign(task);
+      case 'tkdp_ack': return this.handleTkdpAck(task);
+      case 'tkdp_fail': return this.handleTkdpFail(task);
+      case 'tkdp_report': return this.handleTkdpReport(task);
+      case 'tkdp_monitor': return this.handleTkdpMonitor(task);
+      case 'stcd_queue': return this.handleStcdQueue(task);
+      case 'stcd_start': return this.handleStcdStart(task);
+      case 'stcd_sync': return this.handleStcdSync(task);
+      case 'stcd_block': return this.handleStcdBlock(task);
+      case 'stcd_report': return this.handleStcdReport(task);
+      case 'stcd_monitor': return this.handleStcdMonitor(task);
+      case 'sgrn_start': return this.handleSgrnStart(task);
+      case 'sgrn_execute': return this.handleSgrnExecute(task);
+      case 'sgrn_complete': return this.handleSgrnComplete(task);
+      case 'sgrn_compensate': return this.handleSgrnCompensate(task);
+      case 'sgrn_report': return this.handleSgrnReport(task);
+      case 'sgrn_monitor': return this.handleSgrnMonitor(task);
+      case 'cmph_trigger': return this.handleCmphTrigger(task);
+      case 'cmph_rollback': return this.handleCmphRollback(task);
+      case 'cmph_recover': return this.handleCmphRecover(task);
+      case 'cmph_escalate': return this.handleCmphEscalate(task);
+      case 'cmph_report': return this.handleCmphReport(task);
+      case 'cmph_monitor': return this.handleCmphMonitor(task);
     }
   }
 
