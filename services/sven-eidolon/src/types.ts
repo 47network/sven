@@ -148,6 +148,11 @@ export type EidolonBuildingKind =
   | 'secrets_rotator'
   | 'infra_scanner'
   | 'health_dashboard'
+  | 'change_manager'
+  | 'service_catalog'
+  | 'uptime_reporter'
+  | 'latency_profiler'
+  | 'throughput_analyzer'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -940,6 +945,26 @@ export type EidolonEventKind =
   | 'hdsh.widget_added'
   | 'hdsh.alert_configured'
   | 'hdsh.snapshot_taken'
+  | 'chmg.change_created'
+  | 'chmg.change_approved'
+  | 'chmg.change_implemented'
+  | 'chmg.change_rolled_back'
+  | 'svct.service_registered'
+  | 'svct.service_updated'
+  | 'svct.service_deprecated'
+  | 'svct.dependency_mapped'
+  | 'uptr.report_generated'
+  | 'uptr.incident_recorded'
+  | 'uptr.sla_breached'
+  | 'uptr.sla_recovered'
+  | 'ltpf.profile_completed'
+  | 'ltpf.anomaly_detected'
+  | 'ltpf.baseline_set'
+  | 'ltpf.alert_triggered'
+  | 'thpt.analysis_completed'
+  | 'thpt.drop_detected'
+  | 'thpt.baseline_set'
+  | 'thpt.forecast_generated'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1525,6 +1550,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'secrets_rotator':
     case 'infra_scanner':
     case 'health_dashboard':
+    case 'change_manager':
+    case 'service_catalog':
+    case 'uptime_reporter':
+    case 'latency_profiler':
+    case 'throughput_analyzer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

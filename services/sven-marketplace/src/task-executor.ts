@@ -2873,6 +2873,36 @@ export class TaskExecutor {
       case 'hdsh_snapshot': return this.handleHdshSnapshot(task);
       case 'hdsh_export': return this.handleHdshExport(task);
       case 'hdsh_clone': return this.handleHdshClone(task);
+      case 'chmg_create': return this.handleChmgCreate(task);
+      case 'chmg_approve': return this.handleChmgApprove(task);
+      case 'chmg_implement': return this.handleChmgImplement(task);
+      case 'chmg_rollback': return this.handleChmgRollback(task);
+      case 'chmg_audit': return this.handleChmgAudit(task);
+      case 'chmg_schedule': return this.handleChmgSchedule(task);
+      case 'svct_register': return this.handleSvctRegister(task);
+      case 'svct_update': return this.handleSvctUpdate(task);
+      case 'svct_dependencies': return this.handleSvctDependencies(task);
+      case 'svct_owners': return this.handleSvctOwners(task);
+      case 'svct_deprecate': return this.handleSvctDeprecate(task);
+      case 'svct_search': return this.handleSvctSearch(task);
+      case 'uptr_report': return this.handleUptrReport(task);
+      case 'uptr_incident': return this.handleUptrIncident(task);
+      case 'uptr_sla': return this.handleUptrSla(task);
+      case 'uptr_compare': return this.handleUptrCompare(task);
+      case 'uptr_incidents': return this.handleUptrIncidents(task);
+      case 'uptr_forecast': return this.handleUptrForecast(task);
+      case 'ltpf_profile': return this.handleLtpfProfile(task);
+      case 'ltpf_baseline': return this.handleLtpfBaseline(task);
+      case 'ltpf_anomalies': return this.handleLtpfAnomalies(task);
+      case 'ltpf_compare': return this.handleLtpfCompare(task);
+      case 'ltpf_trend': return this.handleLtpfTrend(task);
+      case 'ltpf_alert': return this.handleLtpfAlert(task);
+      case 'thpt_analyze': return this.handleThptAnalyze(task);
+      case 'thpt_baseline': return this.handleThptBaseline(task);
+      case 'thpt_drops': return this.handleThptDrops(task);
+      case 'thpt_trend': return this.handleThptTrend(task);
+      case 'thpt_compare': return this.handleThptCompare(task);
+      case 'thpt_forecast': return this.handleThptForecast(task);
     }
   }
 

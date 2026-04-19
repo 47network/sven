@@ -127,6 +127,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 448-452 — Observability & Service Management
+- **Batch 448**: change_manager — Infrastructure change management with risk assessment, approval workflows, rollback plans
+- **Batch 449**: service_catalog — Service catalog with ownership tracking, dependency graphs, tier management
+- **Batch 450**: uptime_reporter — Uptime reporting against SLA targets, downtime incident tracking, forecasting
+- **Batch 451**: latency_profiler — Endpoint latency profiling with percentile tracking, anomaly detection, baselines
+- **Batch 452**: throughput_analyzer — Throughput metric analysis, trend detection, drop alerting, capacity forecasting
+- 5 migrations (20260620850000-20260620890000), 5 type files, 5 SKILL.md files
+- 5 BK + 20 EK + 5 districtFor, 20 SUBJECT_MAP entries, 30 cases + 30 handlers
+
 ### Batches 423-427 — Security & Compliance
 - **cert_rotator**: TLS/SSL certificate lifecycle, renewal, rotation, revocation (6 handlers)
 - **key_escrow**: Secure key storage, rotation, backup, access auditing (6 handlers)

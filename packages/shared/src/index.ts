@@ -473,3 +473,8 @@ export * from './agent-environment-prober';
 export * from './agent-secrets-rotator';
 export * from './agent-infra-scanner';
 export * from './agent-health-dashboard';
+export * from './agent-change-manager';
+export * from './agent-service-catalog';
+export * from './agent-uptime-reporter';
+export * from './agent-latency-profiler';
+export * from './agent-throughput-analyzer';
