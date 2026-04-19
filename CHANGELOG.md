@@ -1,3 +1,42 @@
+## Batches 658-682 — Database Operations / Compliance & Audit / Edge Computing / ML Pipeline / API Gateway
+
+### Batches 658-662: Database Operations
+- deadlock_resolver (dlrs) — Database deadlock detection and resolution
+- wal_archiver (wlar) — WAL archiving with retention enforcement
+- replica_lag_checker (rlck) — Replica lag monitoring and promotion triggers
+- tablespace_manager (tbsm) — Tablespace management with auto-expansion
+- cursor_optimizer (copt) — Cursor optimization with plan caching
+
+### Batches 663-667: Compliance & Audit
+- regulation_tracker (rgtr) — Regulatory change tracking and gap analysis
+- gdpr_validator (gdpv) — GDPR compliance with consent and breach detection
+- sox_auditor (soxa) — SOX control testing and evidence collection
+- data_retention_officer (drof) — Data retention policy enforcement
+- pci_checker (pcic) — PCI DSS compliance and vulnerability scanning
+
+### Batches 668-672: Edge Computing
+- edge_deployer (edde) — Edge function deployment with rollback
+- cdn_optimizer (cdno) — CDN cache invalidation and compression
+- latency_reducer (ltre) — Latency reduction with route optimization
+- geo_router (geor) — Geographic routing with failover
+- edge_cache_manager (ecmg) — Edge cache TTL and capacity management
+
+### Batches 673-677: ML Pipeline
+- feature_store (ftst) — ML feature ingestion and drift detection
+- model_registry (mreg) — Model version management and promotion
+- experiment_tracker (extr) — Experiment metric logging and comparison
+- data_labeler (dlab) — Data labeling with consensus scoring
+- training_scheduler (trsc) — Training job scheduling with GPU allocation
+
+### Batches 678-682: API Gateway
+- rate_limiter_v2 (rlv2) — Advanced rate limiting with token buckets
+- api_versioner (apvr) — API version deprecation and sunset management
+- request_transformer (rqtr) — Request body and header transformation
+- cors_manager (crsm) — CORS policy management and violation blocking
+- ip_filter (ipfl) — IP filtering with geolocation restrictions
+
+Each vertical: migration + shared types + barrel export + SKILL.md + Eidolon BK/EK/districtFor + SUBJECT_MAP + task-executor cases + .gitattributes + tests (275/275 passing).
+
 ## Batches 608-632 — Secrets, Auth, Geo, Data Gov, Feature Flags
 
 ### Batches 608-612: Secrets & Credential Management

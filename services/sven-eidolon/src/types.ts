@@ -358,6 +358,31 @@ export type EidolonBuildingKind =
   | 'spend_tracker'
   | 'margin_calculator'
   | 'chargeback_auditor'
+  | 'deadlock_resolver'
+  | 'wal_archiver'
+  | 'replica_lag_checker'
+  | 'tablespace_manager'
+  | 'cursor_optimizer'
+  | 'regulation_tracker'
+  | 'gdpr_validator'
+  | 'sox_auditor'
+  | 'data_retention_officer'
+  | 'pci_checker'
+  | 'edge_deployer'
+  | 'cdn_optimizer'
+  | 'latency_reducer'
+  | 'geo_router'
+  | 'edge_cache_manager'
+  | 'feature_store'
+  | 'model_registry'
+  | 'experiment_tracker'
+  | 'data_labeler'
+  | 'training_scheduler'
+  | 'rate_limiter_v2'
+  | 'api_versioner'
+  | 'request_transformer'
+  | 'cors_manager'
+  | 'ip_filter'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1995,6 +2020,106 @@ export type EidolonEventKind =
   | 'cbau.evidence_collected'
   | 'cbau.dispute_resolved'
   | 'cbau.pattern_detected'
+  | 'dlrs.deadlock_detected'
+  | 'dlrs.victim_chosen'
+  | 'dlrs.lock_released'
+  | 'dlrs.prevention_applied'
+  | 'wlar.segment_archived'
+  | 'wlar.retention_enforced'
+  | 'wlar.restore_point_created'
+  | 'wlar.lag_detected'
+  | 'rlck.lag_measured'
+  | 'rlck.threshold_exceeded'
+  | 'rlck.replica_promoted'
+  | 'rlck.sync_restored'
+  | 'tbsm.space_allocated'
+  | 'tbsm.quota_enforced'
+  | 'tbsm.expansion_triggered'
+  | 'tbsm.cleanup_completed'
+  | 'copt.cursor_optimized'
+  | 'copt.plan_cached'
+  | 'copt.regression_detected'
+  | 'copt.hint_applied'
+  | 'rgtr.regulation_detected'
+  | 'rgtr.deadline_approaching'
+  | 'rgtr.compliance_gap_found'
+  | 'rgtr.update_applied'
+  | 'gdpv.data_mapped'
+  | 'gdpv.consent_verified'
+  | 'gdpv.breach_detected'
+  | 'gdpv.erasure_completed'
+  | 'soxa.control_tested'
+  | 'soxa.deficiency_found'
+  | 'soxa.evidence_collected'
+  | 'soxa.report_generated'
+  | 'drof.policy_applied'
+  | 'drof.data_purged'
+  | 'drof.hold_placed'
+  | 'drof.exception_granted'
+  | 'pcic.scan_completed'
+  | 'pcic.vulnerability_found'
+  | 'pcic.remediation_verified'
+  | 'pcic.certification_updated'
+  | 'edde.function_deployed'
+  | 'edde.region_activated'
+  | 'edde.rollback_triggered'
+  | 'edde.health_verified'
+  | 'cdno.cache_invalidated'
+  | 'cdno.origin_shielded'
+  | 'cdno.compression_applied'
+  | 'cdno.hit_ratio_improved'
+  | 'ltre.bottleneck_found'
+  | 'ltre.route_optimized'
+  | 'ltre.prefetch_enabled'
+  | 'ltre.p99_improved'
+  | 'geor.request_routed'
+  | 'geor.failover_triggered'
+  | 'geor.region_weighted'
+  | 'geor.compliance_enforced'
+  | 'ecmg.entry_cached'
+  | 'ecmg.ttl_adjusted'
+  | 'ecmg.stale_purged'
+  | 'ecmg.capacity_rebalanced'
+  | 'ftst.feature_ingested'
+  | 'ftst.set_materialized'
+  | 'ftst.drift_detected'
+  | 'ftst.serving_updated'
+  | 'mreg.model_registered'
+  | 'mreg.version_promoted'
+  | 'mreg.stage_transitioned'
+  | 'mreg.artifact_stored'
+  | 'extr.run_started'
+  | 'extr.metric_logged'
+  | 'extr.comparison_generated'
+  | 'extr.best_run_selected'
+  | 'dlab.task_created'
+  | 'dlab.label_applied'
+  | 'dlab.consensus_reached'
+  | 'dlab.quality_checked'
+  | 'trsc.job_queued'
+  | 'trsc.gpu_allocated'
+  | 'trsc.training_completed'
+  | 'trsc.checkpoint_saved'
+  | 'rlv2.limit_exceeded'
+  | 'rlv2.bucket_refilled'
+  | 'rlv2.client_throttled'
+  | 'rlv2.quota_adjusted'
+  | 'apvr.version_registered'
+  | 'apvr.deprecation_scheduled'
+  | 'apvr.migration_guided'
+  | 'apvr.sunset_enforced'
+  | 'rqtr.body_transformed'
+  | 'rqtr.header_injected'
+  | 'rqtr.path_rewritten'
+  | 'rqtr.param_mapped'
+  | 'crsm.policy_applied'
+  | 'crsm.origin_allowed'
+  | 'crsm.preflight_cached'
+  | 'crsm.violation_blocked'
+  | 'ipfl.ip_blocked'
+  | 'ipfl.range_whitelisted'
+  | 'ipfl.geo_restricted'
+  | 'ipfl.anomaly_flagged'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2810,6 +2935,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'spend_tracker':
     case 'margin_calculator':
     case 'chargeback_auditor':
+    case 'deadlock_resolver':
+    case 'wal_archiver':
+    case 'replica_lag_checker':
+    case 'tablespace_manager':
+    case 'cursor_optimizer':
+    case 'regulation_tracker':
+    case 'gdpr_validator':
+    case 'sox_auditor':
+    case 'data_retention_officer':
+    case 'pci_checker':
+    case 'edge_deployer':
+    case 'cdn_optimizer':
+    case 'latency_reducer':
+    case 'geo_router':
+    case 'edge_cache_manager':
+    case 'feature_store':
+    case 'model_registry':
+    case 'experiment_tracker':
+    case 'data_labeler':
+    case 'training_scheduler':
+    case 'rate_limiter_v2':
+    case 'api_versioner':
+    case 'request_transformer':
+    case 'cors_manager':
+    case 'ip_filter':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
