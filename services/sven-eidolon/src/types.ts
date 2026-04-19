@@ -1533,6 +1533,31 @@ export type EidolonBuildingKind =
   | 'drift_reconciler_auditor'
   | 'drift_reconciler_reporter'
   | 'drift_reconciler_optimizer'
+  | 'cost_analyzer'
+  | 'cost_analyzer_monitor'
+  | 'cost_analyzer_auditor'
+  | 'cost_analyzer_reporter'
+  | 'cost_analyzer_optimizer'
+  | 'billing_engine'
+  | 'billing_engine_monitor'
+  | 'billing_engine_auditor'
+  | 'billing_engine_reporter'
+  | 'billing_engine_optimizer'
+  | 'invoice_builder'
+  | 'invoice_builder_monitor'
+  | 'invoice_builder_auditor'
+  | 'invoice_builder_reporter'
+  | 'invoice_builder_optimizer'
+  | 'payment_processor'
+  | 'payment_processor_monitor'
+  | 'payment_processor_auditor'
+  | 'payment_processor_reporter'
+  | 'payment_processor_optimizer'
+  | 'revenue_tracker'
+  | 'revenue_tracker_monitor'
+  | 'revenue_tracker_auditor'
+  | 'revenue_tracker_reporter'
+  | 'revenue_tracker_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5375,6 +5400,81 @@ export type EidolonEventKind =
   | 'dro.plan_created'
   | 'dro.optimization_applied'
   | 'dro.export_emitted'
+  | 'ca.entry_created'
+  | 'ca.config_updated'
+  | 'ca.export_emitted'
+  | 'cam.check_passed'
+  | 'cam.alert_raised'
+  | 'cam.export_emitted'
+  | 'caa.entry_logged'
+  | 'caa.violation_found'
+  | 'caa.export_emitted'
+  | 'car.report_generated'
+  | 'car.insight_found'
+  | 'car.export_emitted'
+  | 'cao.plan_created'
+  | 'cao.optimization_applied'
+  | 'cao.export_emitted'
+  | 'be.entry_created'
+  | 'be.config_updated'
+  | 'be.export_emitted'
+  | 'bem.check_passed'
+  | 'bem.alert_raised'
+  | 'bem.export_emitted'
+  | 'bea.entry_logged'
+  | 'bea.violation_found'
+  | 'bea.export_emitted'
+  | 'ber.report_generated'
+  | 'ber.insight_found'
+  | 'ber.export_emitted'
+  | 'beo.plan_created'
+  | 'beo.optimization_applied'
+  | 'beo.export_emitted'
+  | 'ib.entry_created'
+  | 'ib.config_updated'
+  | 'ib.export_emitted'
+  | 'ibm.check_passed'
+  | 'ibm.alert_raised'
+  | 'ibm.export_emitted'
+  | 'iba.entry_logged'
+  | 'iba.violation_found'
+  | 'iba.export_emitted'
+  | 'ibr.report_generated'
+  | 'ibr.insight_found'
+  | 'ibr.export_emitted'
+  | 'ibo.plan_created'
+  | 'ibo.optimization_applied'
+  | 'ibo.export_emitted'
+  | 'pp.entry_created'
+  | 'pp.config_updated'
+  | 'pp.export_emitted'
+  | 'ppm.check_passed'
+  | 'ppm.alert_raised'
+  | 'ppm.export_emitted'
+  | 'ppa.entry_logged'
+  | 'ppa.violation_found'
+  | 'ppa.export_emitted'
+  | 'ppr.report_generated'
+  | 'ppr.insight_found'
+  | 'ppr.export_emitted'
+  | 'ppo.plan_created'
+  | 'ppo.optimization_applied'
+  | 'ppo.export_emitted'
+  | 'rt.entry_created'
+  | 'rt.config_updated'
+  | 'rt.export_emitted'
+  | 'rtm.check_passed'
+  | 'rtm.alert_raised'
+  | 'rtm.export_emitted'
+  | 'rta.entry_logged'
+  | 'rta.violation_found'
+  | 'rta.export_emitted'
+  | 'rtr.report_generated'
+  | 'rtr.insight_found'
+  | 'rtr.export_emitted'
+  | 'rto.plan_created'
+  | 'rto.optimization_applied'
+  | 'rto.export_emitted'
   | 'bg.entry_created'
   | 'bg.config_updated'
   | 'bg.export_emitted'
@@ -9210,6 +9310,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'drift_reconciler_auditor':
     case 'drift_reconciler_reporter':
     case 'drift_reconciler_optimizer':
+    case 'cost_analyzer':
+    case 'cost_analyzer_monitor':
+    case 'cost_analyzer_auditor':
+    case 'cost_analyzer_reporter':
+    case 'cost_analyzer_optimizer':
+    case 'billing_engine':
+    case 'billing_engine_monitor':
+    case 'billing_engine_auditor':
+    case 'billing_engine_reporter':
+    case 'billing_engine_optimizer':
+    case 'invoice_builder':
+    case 'invoice_builder_monitor':
+    case 'invoice_builder_auditor':
+    case 'invoice_builder_reporter':
+    case 'invoice_builder_optimizer':
+    case 'payment_processor':
+    case 'payment_processor_monitor':
+    case 'payment_processor_auditor':
+    case 'payment_processor_reporter':
+    case 'payment_processor_optimizer':
+    case 'revenue_tracker':
+    case 'revenue_tracker_monitor':
+    case 'revenue_tracker_auditor':
+    case 'revenue_tracker_reporter':
+    case 'revenue_tracker_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
