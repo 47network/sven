@@ -27,6 +27,19 @@
 
 # Changelog
 
+## Batches 478-482 — DevOps & Deployment
+- New verticals: secret_injector, deploy_verifier, env_provisioner, release_tagger, stack_auditor
+- 5 migrations (20260621150000-20260621190000)
+- 5 type files with 3 interfaces each (15 total)
+- 5 SKILL.md files in skills/autonomous-economy/
+- 5 BK + 20 EK + 5 districtFor in types.ts
+- 20 SUBJECT_MAP entries in event-bus.ts
+- 30 task executor cases + 30 handler methods
+- 15 .gitattributes privacy entries
+- 60 tests passing
+
+
+
 ## Batches 443-447 — Infrastructure Operations
 - **config_syncer** (Batch 443): Synchronize config across environments, detect drift, resolve conflicts, track sync history
 - **environment_prober** (Batch 444): Probe environments for health/latency/availability, schedule recurring probes, uptime tracking

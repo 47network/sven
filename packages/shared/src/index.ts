@@ -503,3 +503,8 @@ export * from './agent-sla-reporter';
 export * from './agent-anomaly-detector';
 export * from './agent-resource-scaler';
 export * from './agent-outage-predictor';
+export * from './agent-secret-injector';
+export * from './agent-deploy-verifier';
+export * from './agent-env-provisioner';
+export * from './agent-release-tagger';
+export * from './agent-stack-auditor';
