@@ -1383,6 +1383,31 @@ export type EidolonBuildingKind =
   | 'deploy_gate_auditor'
   | 'deploy_gate_reporter'
   | 'deploy_gate_optimizer'
+  | 'artifact_vault'
+  | 'artifact_vault_monitor'
+  | 'artifact_vault_auditor'
+  | 'artifact_vault_reporter'
+  | 'artifact_vault_optimizer'
+  | 'pipeline_conductor'
+  | 'pipeline_conductor_monitor'
+  | 'pipeline_conductor_auditor'
+  | 'pipeline_conductor_reporter'
+  | 'pipeline_conductor_optimizer'
+  | 'build_accelerator'
+  | 'build_accelerator_monitor'
+  | 'build_accelerator_auditor'
+  | 'build_accelerator_reporter'
+  | 'build_accelerator_optimizer'
+  | 'test_forge'
+  | 'test_forge_monitor'
+  | 'test_forge_auditor'
+  | 'test_forge_reporter'
+  | 'test_forge_optimizer'
+  | 'release_drafter'
+  | 'release_drafter_monitor'
+  | 'release_drafter_auditor'
+  | 'release_drafter_reporter'
+  | 'release_drafter_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5435,6 +5460,81 @@ export type EidolonEventKind =
   | 'dgo.plan_created'
   | 'dgo.optimization_applied'
   | 'dgo.export_emitted'
+  | 'av.entry_created'
+  | 'av.config_updated'
+  | 'av.export_emitted'
+  | 'avm.check_passed'
+  | 'avm.alert_raised'
+  | 'avm.export_emitted'
+  | 'ava.entry_logged'
+  | 'ava.violation_found'
+  | 'ava.export_emitted'
+  | 'avr.report_generated'
+  | 'avr.insight_found'
+  | 'avr.export_emitted'
+  | 'avo.plan_created'
+  | 'avo.optimization_applied'
+  | 'avo.export_emitted'
+  | 'pc.entry_created'
+  | 'pc.config_updated'
+  | 'pc.export_emitted'
+  | 'pcm.check_passed'
+  | 'pcm.alert_raised'
+  | 'pcm.export_emitted'
+  | 'pca.entry_logged'
+  | 'pca.violation_found'
+  | 'pca.export_emitted'
+  | 'pcr.report_generated'
+  | 'pcr.insight_found'
+  | 'pcr.export_emitted'
+  | 'pco.plan_created'
+  | 'pco.optimization_applied'
+  | 'pco.export_emitted'
+  | 'ba.entry_created'
+  | 'ba.config_updated'
+  | 'ba.export_emitted'
+  | 'bam.check_passed'
+  | 'bam.alert_raised'
+  | 'bam.export_emitted'
+  | 'baa.entry_logged'
+  | 'baa.violation_found'
+  | 'baa.export_emitted'
+  | 'bar.report_generated'
+  | 'bar.insight_found'
+  | 'bar.export_emitted'
+  | 'bao.plan_created'
+  | 'bao.optimization_applied'
+  | 'bao.export_emitted'
+  | 'tf.entry_created'
+  | 'tf.config_updated'
+  | 'tf.export_emitted'
+  | 'tfm.check_passed'
+  | 'tfm.alert_raised'
+  | 'tfm.export_emitted'
+  | 'tfa.entry_logged'
+  | 'tfa.violation_found'
+  | 'tfa.export_emitted'
+  | 'tfr.report_generated'
+  | 'tfr.insight_found'
+  | 'tfr.export_emitted'
+  | 'tfo.plan_created'
+  | 'tfo.optimization_applied'
+  | 'tfo.export_emitted'
+  | 'rd.entry_created'
+  | 'rd.config_updated'
+  | 'rd.export_emitted'
+  | 'rdm.check_passed'
+  | 'rdm.alert_raised'
+  | 'rdm.export_emitted'
+  | 'rda.entry_logged'
+  | 'rda.violation_found'
+  | 'rda.export_emitted'
+  | 'rdr.report_generated'
+  | 'rdr.insight_found'
+  | 'rdr.export_emitted'
+  | 'rdo.plan_created'
+  | 'rdo.optimization_applied'
+  | 'rdo.export_emitted'
   | 'ct.experiment_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -8460,6 +8560,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'deploy_gate_auditor':
     case 'deploy_gate_reporter':
     case 'deploy_gate_optimizer':
+    case 'artifact_vault':
+    case 'artifact_vault_monitor':
+    case 'artifact_vault_auditor':
+    case 'artifact_vault_reporter':
+    case 'artifact_vault_optimizer':
+    case 'pipeline_conductor':
+    case 'pipeline_conductor_monitor':
+    case 'pipeline_conductor_auditor':
+    case 'pipeline_conductor_reporter':
+    case 'pipeline_conductor_optimizer':
+    case 'build_accelerator':
+    case 'build_accelerator_monitor':
+    case 'build_accelerator_auditor':
+    case 'build_accelerator_reporter':
+    case 'build_accelerator_optimizer':
+    case 'test_forge':
+    case 'test_forge_monitor':
+    case 'test_forge_auditor':
+    case 'test_forge_reporter':
+    case 'test_forge_optimizer':
+    case 'release_drafter':
+    case 'release_drafter_monitor':
+    case 'release_drafter_auditor':
+    case 'release_drafter_reporter':
+    case 'release_drafter_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
