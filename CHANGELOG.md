@@ -79,6 +79,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 258-262 — Network Advanced Services
+- **Batch 258 — Service Mesh**: agent_mesh_configs/services/traffic_rules tables, mTLS + sidecar modes, 6 task handlers, SKILL.md (12.99)
+- **Batch 259 — WAN Optimizer**: agent_wan_configs/tunnels/metrics tables, compression + dedup, 6 task handlers, SKILL.md (11.99)
+- **Batch 260 — Link Aggregator**: agent_lag_groups/members/stats tables, LACP + bonding modes, 6 task handlers, SKILL.md (8.99)
+- **Batch 261 — Protocol Gateway**: agent_proto_gateways/mappings/metrics tables, protocol translation, 6 task handlers, SKILL.md (9.99)
+- **Batch 262 — VLAN Manager**: agent_vlan_configs/ports/acls tables, VLAN segmentation + ACLs, 6 task handlers, SKILL.md (7.99)
+- 20 SUBJECT_MAP entries, 5 BK/EK/districtFor values, 15 .gitattributes entries, 90 tests passing
+
+
 ### Batches 253-257 — Network Services Core
 - **Batch 253 — Load Balancer**: agent_lb_configs/backends/metrics tables, LbAlgorithm types, 6 task handlers, SKILL.md (9.99)
 - **Batch 254 — Health Checker**: agent_health_targets/results/incidents tables, HealthCheckType types, 6 task handlers, SKILL.md (5.99)

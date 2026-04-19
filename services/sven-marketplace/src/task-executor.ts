@@ -1706,6 +1706,36 @@ export class TaskExecutor {
       case 'ts_adjust_bandwidth': return this.handleTsAdjustBandwidth(task);
       case 'ts_priority_queue': return this.handleTsPriorityQueue(task);
       case 'ts_export_metrics': return this.handleTsExportMetrics(task);
+      case 'mesh_deploy': return this.handleMeshDeploy(task);
+      case 'mesh_register_service': return this.handleMeshRegisterService(task);
+      case 'mesh_create_rule': return this.handleMeshCreateRule(task);
+      case 'mesh_circuit_breaker': return this.handleMeshCircuitBreaker(task);
+      case 'mesh_topology': return this.handleMeshTopology(task);
+      case 'mesh_observability': return this.handleMeshObservability(task);
+      case 'wan_create_optimizer': return this.handleWanCreateOptimizer(task);
+      case 'wan_create_tunnel': return this.handleWanCreateTunnel(task);
+      case 'wan_view_savings': return this.handleWanViewSavings(task);
+      case 'wan_optimize_tcp': return this.handleWanOptimizeTcp(task);
+      case 'wan_tunnel_status': return this.handleWanTunnelStatus(task);
+      case 'wan_export_metrics': return this.handleWanExportMetrics(task);
+      case 'lag_create_group': return this.handleLagCreateGroup(task);
+      case 'lag_add_member': return this.handleLagAddMember(task);
+      case 'lag_remove_member': return this.handleLagRemoveMember(task);
+      case 'lag_failover_test': return this.handleLagFailoverTest(task);
+      case 'lag_view_balance': return this.handleLagViewBalance(task);
+      case 'lag_view_stats': return this.handleLagViewStats(task);
+      case 'proto_create_gateway': return this.handleProtoCreateGateway(task);
+      case 'proto_add_mapping': return this.handleProtoAddMapping(task);
+      case 'proto_test_translation': return this.handleProtoTestTranslation(task);
+      case 'proto_view_metrics': return this.handleProtoViewMetrics(task);
+      case 'proto_list_protocols': return this.handleProtoListProtocols(task);
+      case 'proto_gateway_health': return this.handleProtoGatewayHealth(task);
+      case 'vlan_create': return this.handleVlanCreate(task);
+      case 'vlan_assign_port': return this.handleVlanAssignPort(task);
+      case 'vlan_create_acl': return this.handleVlanCreateAcl(task);
+      case 'vlan_topology': return this.handleVlanTopology(task);
+      case 'vlan_trunk_config': return this.handleVlanTrunkConfig(task);
+      case 'vlan_stats': return this.handleVlanStats(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -11848,5 +11878,185 @@ export class TaskExecutor {
     const config = task.input || {};
     this.logger.info('handleTsExportMetrics', { taskId: task.id, agentId: task.agent_id });
     return { success: true, service: 'traffic_shaper', action: 'ts_export_metrics', exportFormat: config.exportFormat || 'prometheus', metricsCount: config.metricsCount || '42' };
+  }
+
+  private async handleMeshDeploy(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleMeshDeploy', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'service_mesh', action: 'mesh_deploy', meshName: config.meshName || 'prod-mesh', meshId: config.meshId || 'SM-' };
+  }
+
+  private async handleMeshRegisterService(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleMeshRegisterService', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'service_mesh', action: 'mesh_register_service', serviceName: config.serviceName || 'api-svc', serviceId: config.serviceId || 'MS-' };
+  }
+
+  private async handleMeshCreateRule(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleMeshCreateRule', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'service_mesh', action: 'mesh_create_rule', ruleName: config.ruleName || 'canary-split', ruleId: config.ruleId || 'MR-' };
+  }
+
+  private async handleMeshCircuitBreaker(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleMeshCircuitBreaker', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'service_mesh', action: 'mesh_circuit_breaker', threshold: config.threshold || '5', enabled: config.enabled || 'true' };
+  }
+
+  private async handleMeshTopology(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleMeshTopology', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'service_mesh', action: 'mesh_topology', serviceCount: config.serviceCount || '12', connections: config.connections || '34' };
+  }
+
+  private async handleMeshObservability(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleMeshObservability', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'service_mesh', action: 'mesh_observability', metricsEndpoint: config.metricsEndpoint || '/metrics', tracingEnabled: config.tracingEnabled || 'true' };
+  }
+
+  private async handleWanCreateOptimizer(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleWanCreateOptimizer', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'wan_optimizer', action: 'wan_create_optimizer', compressionAlgo: config.compressionAlgo || 'lz4', optimizerId: config.optimizerId || 'WO-' };
+  }
+
+  private async handleWanCreateTunnel(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleWanCreateTunnel', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'wan_optimizer', action: 'wan_create_tunnel', tunnelName: config.tunnelName || 'dc1-dc2', tunnelId: config.tunnelId || 'WT-' };
+  }
+
+  private async handleWanViewSavings(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleWanViewSavings', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'wan_optimizer', action: 'wan_view_savings', savedPercent: config.savedPercent || '42.5', savedBytes: config.savedBytes || '1073741824' };
+  }
+
+  private async handleWanOptimizeTcp(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleWanOptimizeTcp', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'wan_optimizer', action: 'wan_optimize_tcp', windowScale: config.windowScale || 'enabled', sackEnabled: config.sackEnabled || 'true' };
+  }
+
+  private async handleWanTunnelStatus(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleWanTunnelStatus', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'wan_optimizer', action: 'wan_tunnel_status', status: config.status || 'active', latencyMs: config.latencyMs || '23' };
+  }
+
+  private async handleWanExportMetrics(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleWanExportMetrics', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'wan_optimizer', action: 'wan_export_metrics', format: config.format || 'prometheus', dataPoints: config.dataPoints || '156' };
+  }
+
+  private async handleLagCreateGroup(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleLagCreateGroup', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'link_aggregator', action: 'lag_create_group', groupName: config.groupName || 'bond0', groupId: config.groupId || 'LG-' };
+  }
+
+  private async handleLagAddMember(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleLagAddMember', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'link_aggregator', action: 'lag_add_member', interface: config.interface || 'eth1', memberId: config.memberId || 'LM-' };
+  }
+
+  private async handleLagRemoveMember(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleLagRemoveMember', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'link_aggregator', action: 'lag_remove_member', interface: config.interface || 'eth2', drained: config.drained || 'true' };
+  }
+
+  private async handleLagFailoverTest(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleLagFailoverTest', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'link_aggregator', action: 'lag_failover_test', failedLink: config.failedLink || 'eth1', failoverMs: config.failoverMs || '45' };
+  }
+
+  private async handleLagViewBalance(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleLagViewBalance', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'link_aggregator', action: 'lag_view_balance', balanceScore: config.balanceScore || '0.95', activeLinks: config.activeLinks || '4' };
+  }
+
+  private async handleLagViewStats(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleLagViewStats', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'link_aggregator', action: 'lag_view_stats', throughputMbps: config.throughputMbps || '3800', failoverCount: config.failoverCount || '2' };
+  }
+
+  private async handleProtoCreateGateway(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleProtoCreateGateway', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'protocol_gateway', action: 'proto_create_gateway', sourceProto: config.sourceProto || 'mqtt', gatewayId: config.gatewayId || 'PG-' };
+  }
+
+  private async handleProtoAddMapping(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleProtoAddMapping', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'protocol_gateway', action: 'proto_add_mapping', mappingName: config.mappingName || 'temp-to-json', mappingId: config.mappingId || 'PM-' };
+  }
+
+  private async handleProtoTestTranslation(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleProtoTestTranslation', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'protocol_gateway', action: 'proto_test_translation', inputMessage: config.inputMessage || '{temp:22}', outputValid: config.outputValid || 'true' };
+  }
+
+  private async handleProtoViewMetrics(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleProtoViewMetrics', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'protocol_gateway', action: 'proto_view_metrics', translatedCount: config.translatedCount || '45678', errorRate: config.errorRate || '0.001' };
+  }
+
+  private async handleProtoListProtocols(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleProtoListProtocols', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'protocol_gateway', action: 'proto_list_protocols', sourceProtocols: config.sourceProtocols || '6', targetProtocols: config.targetProtocols || '7' };
+  }
+
+  private async handleProtoGatewayHealth(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleProtoGatewayHealth', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'protocol_gateway', action: 'proto_gateway_health', status: config.status || 'healthy', uptimeHours: config.uptimeHours || '720' };
+  }
+
+  private async handleVlanCreate(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleVlanCreate', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'vlan_manager', action: 'vlan_create', vlanId: config.vlanId || '100', configId: config.configId || 'VC-' };
+  }
+
+  private async handleVlanAssignPort(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleVlanAssignPort', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'vlan_manager', action: 'vlan_assign_port', portName: config.portName || 'ge-0/0/1', assigned: config.assigned || 'true' };
+  }
+
+  private async handleVlanCreateAcl(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleVlanCreateAcl', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'vlan_manager', action: 'vlan_create_acl', aclName: config.aclName || 'inter-vlan-filter', aclId: config.aclId || 'VA-' };
+  }
+
+  private async handleVlanTopology(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleVlanTopology', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'vlan_manager', action: 'vlan_topology', vlanCount: config.vlanCount || '8', portCount: config.portCount || '48' };
+  }
+
+  private async handleVlanTrunkConfig(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleVlanTrunkConfig', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'vlan_manager', action: 'vlan_trunk_config', trunkPort: config.trunkPort || 'ge-0/0/24', allowedVlans: config.allowedVlans || '100,200,300' };
+  }
+
+  private async handleVlanStats(task: any): Promise<any> {
+    const config = task.input || {};
+    this.logger.info('handleVlanStats', { taskId: task.id, agentId: task.agent_id });
+    return { success: true, service: 'vlan_manager', action: 'vlan_stats', totalPackets: config.totalPackets || '9876543', broadcastPercent: config.broadcastPercent || '2.1' };
   }
 }
