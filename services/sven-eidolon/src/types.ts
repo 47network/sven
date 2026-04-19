@@ -153,6 +153,11 @@ export type EidolonBuildingKind =
   | 'uptime_reporter'
   | 'latency_profiler'
   | 'throughput_analyzer'
+  | 'cost_optimizer'
+  | 'resource_tagger'
+  | 'quota_manager'
+  | 'access_reviewer'
+  | 'failover_tester'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -965,6 +970,26 @@ export type EidolonEventKind =
   | 'thpt.drop_detected'
   | 'thpt.baseline_set'
   | 'thpt.forecast_generated'
+  | 'copt.scan_completed'
+  | 'copt.recommendation_generated'
+  | 'copt.optimization_applied'
+  | 'copt.report_generated'
+  | 'rtag.audit_completed'
+  | 'rtag.tags_applied'
+  | 'rtag.policy_created'
+  | 'rtag.violation_found'
+  | 'qtmg.check_completed'
+  | 'qtmg.threshold_breached'
+  | 'qtmg.increase_requested'
+  | 'qtmg.quota_exhausted'
+  | 'acrv.review_completed'
+  | 'acrv.access_revoked'
+  | 'acrv.stale_found'
+  | 'acrv.report_generated'
+  | 'fovt.test_completed'
+  | 'fovt.recovery_measured'
+  | 'fovt.score_calculated'
+  | 'fovt.test_failed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1555,6 +1580,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'uptime_reporter':
     case 'latency_profiler':
     case 'throughput_analyzer':
+    case 'cost_optimizer':
+    case 'resource_tagger':
+    case 'quota_manager':
+    case 'access_reviewer':
+    case 'failover_tester':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

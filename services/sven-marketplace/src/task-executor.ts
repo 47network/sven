@@ -2903,6 +2903,36 @@ export class TaskExecutor {
       case 'thpt_trend': return this.handleThptTrend(task);
       case 'thpt_compare': return this.handleThptCompare(task);
       case 'thpt_forecast': return this.handleThptForecast(task);
+      case 'copt_scan': return this.handleCoptScan(task);
+      case 'copt_recommend': return this.handleCoptRecommend(task);
+      case 'copt_implement': return this.handleCoptImplement(task);
+      case 'copt_report': return this.handleCoptReport(task);
+      case 'copt_compare': return this.handleCoptCompare(task);
+      case 'copt_forecast': return this.handleCoptForecast(task);
+      case 'rtag_audit': return this.handleRtagAudit(task);
+      case 'rtag_auto_tag': return this.handleRtagAutoTag(task);
+      case 'rtag_policy': return this.handleRtagPolicy(task);
+      case 'rtag_compliance': return this.handleRtagCompliance(task);
+      case 'rtag_untagged': return this.handleRtagUntagged(task);
+      case 'rtag_bulk': return this.handleRtagBulk(task);
+      case 'qtmg_check': return this.handleQtmgCheck(task);
+      case 'qtmg_alert': return this.handleQtmgAlert(task);
+      case 'qtmg_increase': return this.handleQtmgIncrease(task);
+      case 'qtmg_history': return this.handleQtmgHistory(task);
+      case 'qtmg_forecast': return this.handleQtmgForecast(task);
+      case 'qtmg_list': return this.handleQtmgList(task);
+      case 'acrv_review': return this.handleAcrvReview(task);
+      case 'acrv_stale': return this.handleAcrvStale(task);
+      case 'acrv_recommend': return this.handleAcrvRecommend(task);
+      case 'acrv_revoke': return this.handleAcrvRevoke(task);
+      case 'acrv_report': return this.handleAcrvReport(task);
+      case 'acrv_schedule': return this.handleAcrvSchedule(task);
+      case 'fovt_run': return this.handleFovtRun(task);
+      case 'fovt_schedule': return this.handleFovtSchedule(task);
+      case 'fovt_recovery': return this.handleFovtRecovery(task);
+      case 'fovt_score': return this.handleFovtScore(task);
+      case 'fovt_compare': return this.handleFovtCompare(task);
+      case 'fovt_report': return this.handleFovtReport(task);
     }
   }
 

@@ -478,3 +478,8 @@ export * from './agent-service-catalog';
 export * from './agent-uptime-reporter';
 export * from './agent-latency-profiler';
 export * from './agent-throughput-analyzer';
+export * from './agent-cost-optimizer';
+export * from './agent-resource-tagger';
+export * from './agent-quota-manager';
+export * from './agent-access-reviewer';
+export * from './agent-failover-tester';
