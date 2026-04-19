@@ -36,6 +36,18 @@
 
 # Changelog
 
+## Batches 553-557 — Notification & Alerting
+- threshold_monitor: Threshold monitoring with configurable breach detection
+- escalation_router: Multi-level escalation routing and timeout management
+- notification_templater: Notification template rendering and delivery queue management
+- digest_aggregator: Notification digest compilation and batched dispatch
+- channel_gateway: Multi-channel delivery gateway with failover support
+- 5 migrations, shared types, barrel exports, SKILL.md files
+- Eidolon BK/EK/districtFor wiring, event-bus SUBJECT_MAP entries
+- Task-executor switch cases, .gitattributes privacy filters
+- 55/55 tests passing
+
+
 ## Batches 548-552 — Data Processing & ETL
 - batch_transformer: Batch data transformation and processing pipeline
 - data_validator: Data quality validation and rule enforcement
