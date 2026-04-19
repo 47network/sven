@@ -483,6 +483,31 @@ export type EidolonBuildingKind =
   | 'risk_score_calculator'
   | 'chargeback_disputer'
   | 'kyc_verifier'
+  | 'ingress_gateway_router'
+  | 'request_throttler'
+  | 'tenant_quota_enforcer'
+  | 'schema_registry_publisher'
+  | 'contract_validator'
+  | 'kafka_event_replayer'
+  | 'dead_letter_processor'
+  | 'message_router'
+  | 'protocol_translator'
+  | 'kafka_topic_partitioner'
+  | 'distributed_cache_warmer'
+  | 'cache_invalidator'
+  | 'cdn_purger'
+  | 'asset_optimizer'
+  | 'media_thumbnail_generator'
+  | 'pdf_renderer'
+  | 'document_converter'
+  | 'ocr_extractor'
+  | 'barcode_scanner_svc'
+  | 'qr_code_generator'
+  | 'email_template_engine'
+  | 'sms_dispatcher'
+  | 'mobile_push_router'
+  | 'voice_call_dialer'
+  | 'fax_gateway'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -2620,6 +2645,106 @@ export type EidolonEventKind =
   | 'kycv.document_validated'
   | 'kycv.liveness_checked'
   | 'kycv.verdict_issued'
+  | 'igwr.route_matched'
+  | 'igwr.upstream_selected'
+  | 'igwr.request_proxied'
+  | 'igwr.failure_handled'
+  | 'rqth.budget_evaluated'
+  | 'rqth.token_consumed'
+  | 'rqth.request_throttled'
+  | 'rqth.window_rolled'
+  | 'tqen.quota_loaded'
+  | 'tqen.usage_measured'
+  | 'tqen.limit_exceeded'
+  | 'tqen.notification_dispatched'
+  | 'srpu.schema_registered'
+  | 'srpu.compatibility_checked'
+  | 'srpu.version_promoted'
+  | 'srpu.consumers_notified'
+  | 'ctvl.contract_loaded'
+  | 'ctvl.payload_validated'
+  | 'ctvl.violation_recorded'
+  | 'ctvl.fix_suggested'
+  | 'kerp.replay_planned'
+  | 'kerp.offset_seeked'
+  | 'kerp.events_replayed'
+  | 'kerp.completion_verified'
+  | 'dlpr.entry_received'
+  | 'dlpr.cause_analyzed'
+  | 'dlpr.retry_scheduled'
+  | 'dlpr.archive_written'
+  | 'msgr.message_received'
+  | 'msgr.rule_matched'
+  | 'msgr.destination_selected'
+  | 'msgr.delivery_confirmed'
+  | 'ptrl.input_parsed'
+  | 'ptrl.protocol_mapped'
+  | 'ptrl.payload_emitted'
+  | 'ptrl.error_handled'
+  | 'ktpa.key_hashed'
+  | 'ktpa.partition_assigned'
+  | 'ktpa.skew_detected'
+  | 'ktpa.rebalance_triggered'
+  | 'dcwm.targets_selected'
+  | 'dcwm.payload_prefetched'
+  | 'dcwm.cache_populated'
+  | 'dcwm.coverage_measured'
+  | 'cinv.event_received'
+  | 'cinv.keys_resolved'
+  | 'cinv.invalidation_dispatched'
+  | 'cinv.confirmation_received'
+  | 'cdnp.purge_requested'
+  | 'cdnp.edges_targeted'
+  | 'cdnp.purge_executed'
+  | 'cdnp.completion_verified'
+  | 'asop.asset_received'
+  | 'asop.compression_applied'
+  | 'asop.format_converted'
+  | 'asop.upload_completed'
+  | 'mtgn.media_received'
+  | 'mtgn.frames_extracted'
+  | 'mtgn.thumbnails_rendered'
+  | 'mtgn.storage_uploaded'
+  | 'pdfr.template_loaded'
+  | 'pdfr.content_merged'
+  | 'pdfr.pdf_rendered'
+  | 'pdfr.delivery_completed'
+  | 'dccv.source_loaded'
+  | 'dccv.format_detected'
+  | 'dccv.conversion_executed'
+  | 'dccv.output_persisted'
+  | 'ocrx.image_received'
+  | 'ocrx.regions_detected'
+  | 'ocrx.text_extracted'
+  | 'ocrx.confidence_reported'
+  | 'bcss.image_received'
+  | 'bcss.barcode_detected'
+  | 'bcss.payload_decoded'
+  | 'bcss.metadata_attached'
+  | 'qrcg.payload_validated'
+  | 'qrcg.qr_rendered'
+  | 'qrcg.error_correction_applied'
+  | 'qrcg.asset_persisted'
+  | 'etmp.template_loaded'
+  | 'etmp.context_merged'
+  | 'etmp.email_rendered'
+  | 'etmp.delivery_queued'
+  | 'smsd.message_validated'
+  | 'smsd.carrier_routed'
+  | 'smsd.sms_sent'
+  | 'smsd.receipt_recorded'
+  | 'mppr.notification_received'
+  | 'mppr.platform_routed'
+  | 'mppr.push_dispatched'
+  | 'mppr.receipt_processed'
+  | 'vcdl.call_initiated'
+  | 'vcdl.script_executed'
+  | 'vcdl.response_captured'
+  | 'vcdl.call_completed'
+  | 'faxg.fax_queued'
+  | 'faxg.transmission_started'
+  | 'faxg.pages_sent'
+  | 'faxg.delivery_confirmed'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -3560,6 +3685,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'risk_score_calculator':
     case 'chargeback_disputer':
     case 'kyc_verifier':
+    case 'ingress_gateway_router':
+    case 'request_throttler':
+    case 'tenant_quota_enforcer':
+    case 'schema_registry_publisher':
+    case 'contract_validator':
+    case 'kafka_event_replayer':
+    case 'dead_letter_processor':
+    case 'message_router':
+    case 'protocol_translator':
+    case 'kafka_topic_partitioner':
+    case 'distributed_cache_warmer':
+    case 'cache_invalidator':
+    case 'cdn_purger':
+    case 'asset_optimizer':
+    case 'media_thumbnail_generator':
+    case 'pdf_renderer':
+    case 'document_converter':
+    case 'ocr_extractor':
+    case 'barcode_scanner_svc':
+    case 'qr_code_generator':
+    case 'email_template_engine':
+    case 'sms_dispatcher':
+    case 'mobile_push_router':
+    case 'voice_call_dialer':
+    case 'fax_gateway':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
