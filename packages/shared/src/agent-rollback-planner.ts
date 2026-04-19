@@ -1,4 +1,4 @@
-export interface BlueGreenEntry {
+export interface RollbackPlannerEntry {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface BlueGreenEntry {
   updatedAt: string;
 }
 
-export interface BlueGreenConfig {
+export interface RollbackPlannerConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface BlueGreenResult {
+export interface RollbackPlannerResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

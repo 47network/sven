@@ -1,4 +1,4 @@
-export interface BlueGreenEntry {
+export interface ChangeManagementReport {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface BlueGreenEntry {
   updatedAt: string;
 }
 
-export interface BlueGreenConfig {
+export interface ChangeManagementReportConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface BlueGreenResult {
+export interface ChangeManagementReportResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;
