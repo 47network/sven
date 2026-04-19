@@ -523,3 +523,8 @@ export * from './agent-stream-joiner';
 export * from './agent-batch-scheduler';
 export * from './agent-partition-manager';
 export * from './agent-watermark-tracker';
+export * from './agent-dead-letter-handler';
+export * from './agent-backfill-runner';
+export * from './agent-lineage-tracer';
+export * from './agent-data-cataloger';
+export * from './agent-change-capture';

@@ -27,6 +27,13 @@
 
 # Changelog
 
+## Batches 498-502 — Data Pipeline & ETL Part 2
+- Added dead_letter_handler, backfill_runner, lineage_tracer, data_cataloger, change_capture verticals
+- 5 migrations (20260621350000-20260621390000), 5 type files, 5 barrel exports
+- 5 SKILL.md files, 5 BK + 20 EK + 5 districtFor, 20 SUBJECT_MAP entries
+- 30 task-executor cases + 30 handler methods, 15 .gitattributes entries
+- 60/60 tests passing
+
 ## Batches 493-497 — Data Pipeline & ETL
 - Added data_deduplicator, stream_joiner, batch_scheduler, partition_manager, watermark_tracker verticals
 - 5 migrations (20260621300000-20260621340000), 5 type files, 5 barrel exports
