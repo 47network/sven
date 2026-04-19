@@ -1,65 +1,23 @@
-// Batch 179: Agent Runbook Automation Types
-
-export type RunbookCategory = 'operations' | 'incident' | 'deployment' | 'maintenance' | 'security' | 'recovery' | 'scaling';
-export type RunbookTriggerType = 'manual' | 'event' | 'schedule' | 'alert' | 'threshold' | 'api';
-export type RunbookExecutionStatus = 'pending' | 'awaiting_approval' | 'running' | 'paused' | 'completed' | 'failed' | 'rolled_back' | 'cancelled';
-export type RunbookApprovalStatus = 'pending' | 'approved' | 'rejected' | 'timed_out';
-
-export interface RunbookStep {
-  index: number;
-  name: string;
-  action: string;
-  params: Record<string, unknown>;
-  requiresApproval: boolean;
-  timeoutMinutes: number;
-  continueOnFailure: boolean;
-}
-
-export interface Runbook {
+export interface RunbookAutomationPlan {
   id: string;
-  name: string;
-  description: string | null;
-  category: RunbookCategory;
-  triggerType: RunbookTriggerType;
-  triggerConditions: Record<string, unknown>;
-  steps: RunbookStep[];
-  requiredApprovals: number;
-  timeoutMinutes: number;
-  rollbackSteps: RunbookStep[];
-  version: number;
+  agentId: string;
   enabled: boolean;
-  metadata: Record<string, unknown>;
+  config: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface RunbookExecution {
+export interface RunbookAutomationConfig {
   id: string;
-  runbookId: string;
-  triggeredBy: string | null;
-  triggerEvent: string | null;
-  status: RunbookExecutionStatus;
-  currentStep: number;
-  stepResults: Record<string, unknown>[];
-  startedAt: string | null;
-  completedAt: string | null;
-  durationSeconds: number | null;
-  errorMessage: string | null;
-  rollbackExecuted: boolean;
-  metadata: Record<string, unknown>;
-  createdAt: string;
-  updatedAt: string;
+  configId: string;
+  data: Record<string, unknown>;
+  timestamp: string;
 }
 
-export interface RunbookApproval {
+export interface RunbookAutomationResult {
   id: string;
-  executionId: string;
-  stepIndex: number;
-  approverAgentId: string | null;
-  status: RunbookApprovalStatus;
-  approvedAt: string | null;
-  comments: string | null;
-  metadata: Record<string, unknown>;
+  configId: string;
+  criteria: Record<string, unknown>;
+  active: boolean;
   createdAt: string;
-  updatedAt: string;
 }
