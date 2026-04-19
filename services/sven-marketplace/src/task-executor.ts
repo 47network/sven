@@ -3293,6 +3293,36 @@ export class TaskExecutor {
       case 'symg_sync': return this.handleSymgSync(task);
       case 'symg_report': return this.handleSymgReport(task);
       case 'symg_monitor': return this.handleSymgMonitor(task);
+      case 'psdp_send': return this.handlePsdpSend(task);
+      case 'psdp_batch': return this.handlePsdpBatch(task);
+      case 'psdp_refresh': return this.handlePsdpRefresh(task);
+      case 'psdp_monitor': return this.handlePsdpMonitor(task);
+      case 'psdp_report': return this.handlePsdpReport(task);
+      case 'psdp_configure': return this.handlePsdpConfigure(task);
+      case 'emrd_render': return this.handleEmrdRender(task);
+      case 'emrd_compile': return this.handleEmrdCompile(task);
+      case 'emrd_cache': return this.handleEmrdCache(task);
+      case 'emrd_preview': return this.handleEmrdPreview(task);
+      case 'emrd_report': return this.handleEmrdReport(task);
+      case 'emrd_monitor': return this.handleEmrdMonitor(task);
+      case 'smgw_send': return this.handleSmgwSend(task);
+      case 'smgw_switch': return this.handleSmgwSwitch(task);
+      case 'smgw_check': return this.handleSmgwCheck(task);
+      case 'smgw_verify': return this.handleSmgwVerify(task);
+      case 'smgw_report': return this.handleSmgwReport(task);
+      case 'smgw_monitor': return this.handleSmgwMonitor(task);
+      case 'chsl_select': return this.handleChslSelect(task);
+      case 'chsl_evaluate': return this.handleChslEvaluate(task);
+      case 'chsl_apply': return this.handleChslApply(task);
+      case 'chsl_fallback': return this.handleChslFallback(task);
+      case 'chsl_report': return this.handleChslReport(task);
+      case 'chsl_monitor': return this.handleChslMonitor(task);
+      case 'dltr_track': return this.handleDltrTrack(task);
+      case 'dltr_bounce': return this.handleDltrBounce(task);
+      case 'dltr_record': return this.handleDltrRecord(task);
+      case 'dltr_update': return this.handleDltrUpdate(task);
+      case 'dltr_report': return this.handleDltrReport(task);
+      case 'dltr_monitor': return this.handleDltrMonitor(task);
     }
   }
 

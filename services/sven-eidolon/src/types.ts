@@ -218,6 +218,11 @@ export type EidolonBuildingKind =
   | 'autocomplete_engine'
   | 'relevance_tuner'
   | 'synonym_manager'
+  | 'push_dispatcher'
+  | 'email_renderer'
+  | 'sms_gateway'
+  | 'channel_selector'
+  | 'delivery_tracker'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1290,6 +1295,26 @@ export type EidolonEventKind =
   | 'symg.set_merged'
   | 'symg.expansion_applied'
   | 'symg.dictionary_synced'
+  | 'psdp.push_sent'
+  | 'psdp.batch_dispatched'
+  | 'psdp.token_refreshed'
+  | 'psdp.delivery_confirmed'
+  | 'emrd.email_rendered'
+  | 'emrd.template_compiled'
+  | 'emrd.layout_cached'
+  | 'emrd.preview_generated'
+  | 'smgw.sms_sent'
+  | 'smgw.provider_switched'
+  | 'smgw.rate_checked'
+  | 'smgw.delivery_verified'
+  | 'chsl.channel_selected'
+  | 'chsl.rule_evaluated'
+  | 'chsl.preference_applied'
+  | 'chsl.fallback_used'
+  | 'dltr.delivery_tracked'
+  | 'dltr.bounce_detected'
+  | 'dltr.open_recorded'
+  | 'dltr.status_updated'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1945,6 +1970,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'autocomplete_engine':
     case 'relevance_tuner':
     case 'synonym_manager':
+    case 'push_dispatcher':
+    case 'email_renderer':
+    case 'sms_gateway':
+    case 'channel_selector':
+    case 'delivery_tracker':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
