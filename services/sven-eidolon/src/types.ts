@@ -583,6 +583,31 @@ export type EidolonBuildingKind =
   | 'catalog_facet_aggregator'
   | 'catalog_availability_sync'
   | 'catalog_pricing_publisher'
+  | 'cms_content_modeler'
+  | 'cms_content_publisher'
+  | 'cms_asset_uploader'
+  | 'cms_revision_tracker'
+  | 'cms_workflow_router'
+  | 'seo_sitemap_generator'
+  | 'seo_metadata_curator'
+  | 'seo_canonical_resolver'
+  | 'seo_redirect_manager'
+  | 'seo_structured_data_emitter'
+  | 'cdn_cache_invalidator'
+  | 'cdn_origin_shield'
+  | 'cdn_purge_dispatcher'
+  | 'cdn_token_minter'
+  | 'cdn_log_aggregator'
+  | 'dns_zone_synchronizer'
+  | 'dns_record_validator'
+  | 'dns_health_probe'
+  | 'dns_propagation_checker'
+  | 'dns_failover_router'
+  | 'edge_rule_compiler'
+  | 'edge_geo_router'
+  | 'edge_bot_filter'
+  | 'edge_rate_shaper'
+  | 'edge_security_responder'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -3120,6 +3145,106 @@ export type EidolonEventKind =
   | 'cppb.changes_validated'
   | 'cppb.records_persisted'
   | 'cppb.events_published'
+  | 'ccmd.schema_received'
+  | 'ccmd.fields_validated'
+  | 'ccmd.model_persisted'
+  | 'ccmd.version_tagged'
+  | 'ccpb.request_received'
+  | 'ccpb.draft_validated'
+  | 'ccpb.content_published'
+  | 'ccpb.cache_warmed'
+  | 'caup.upload_received'
+  | 'caup.scan_completed'
+  | 'caup.asset_stored'
+  | 'caup.metadata_indexed'
+  | 'crvt.change_observed'
+  | 'crvt.diff_computed'
+  | 'crvt.revision_persisted'
+  | 'crvt.history_pruned'
+  | 'cwfr.transition_requested'
+  | 'cwfr.policy_evaluated'
+  | 'cwfr.state_advanced'
+  | 'cwfr.notification_dispatched'
+  | 'ssmg.job_received'
+  | 'ssmg.urls_collected'
+  | 'ssmg.sitemap_built'
+  | 'ssmg.sitemap_published'
+  | 'smdc.record_received'
+  | 'smdc.fields_normalized'
+  | 'smdc.metadata_persisted'
+  | 'smdc.preview_emitted'
+  | 'scnr.request_received'
+  | 'scnr.candidates_evaluated'
+  | 'scnr.canonical_selected'
+  | 'scnr.result_returned'
+  | 'srdm.rule_received'
+  | 'srdm.loop_checked'
+  | 'srdm.rule_persisted'
+  | 'srdm.cache_invalidated'
+  | 'ssde.payload_received'
+  | 'ssde.schema_validated'
+  | 'ssde.json_ld_emitted'
+  | 'ssde.usage_recorded'
+  | 'ccin.request_received'
+  | 'ccin.scope_resolved'
+  | 'ccin.purge_dispatched'
+  | 'ccin.completion_recorded'
+  | 'cosh.request_received'
+  | 'cosh.coalesced'
+  | 'cosh.origin_called'
+  | 'cosh.response_returned'
+  | 'cpdp.batch_received'
+  | 'cpdp.targets_resolved'
+  | 'cpdp.purges_dispatched'
+  | 'cpdp.results_aggregated'
+  | 'ctkm.request_received'
+  | 'ctkm.policy_evaluated'
+  | 'ctkm.token_minted'
+  | 'ctkm.audit_recorded'
+  | 'clga.shipment_received'
+  | 'clga.records_parsed'
+  | 'clga.metrics_aggregated'
+  | 'clga.summary_persisted'
+  | 'dzns.sync_received'
+  | 'dzns.diff_computed'
+  | 'dzns.changes_applied'
+  | 'dzns.serial_advanced'
+  | 'drcv.set_received'
+  | 'drcv.syntax_checked'
+  | 'drcv.semantics_validated'
+  | 'drcv.report_emitted'
+  | 'dnhp.target_scheduled'
+  | 'dnhp.probe_executed'
+  | 'dnhp.result_evaluated'
+  | 'dnhp.status_recorded'
+  | 'dpck.job_received'
+  | 'dpck.resolvers_queried'
+  | 'dpck.consensus_evaluated'
+  | 'dpck.report_returned'
+  | 'dfor.signal_received'
+  | 'dfor.policy_evaluated'
+  | 'dfor.records_swapped'
+  | 'dfor.notification_dispatched'
+  | 'ercp.source_received'
+  | 'ercp.rules_parsed'
+  | 'ercp.bundle_compiled'
+  | 'ercp.bundle_published'
+  | 'egrt.request_received'
+  | 'egrt.geo_resolved'
+  | 'egrt.policy_applied'
+  | 'egrt.route_returned'
+  | 'ebot.request_received'
+  | 'ebot.signals_evaluated'
+  | 'ebot.verdict_issued'
+  | 'ebot.action_applied'
+  | 'erts.request_received'
+  | 'erts.bucket_evaluated'
+  | 'erts.action_decided'
+  | 'erts.headers_emitted'
+  | 'esrp.signal_received'
+  | 'esrp.incident_classified'
+  | 'esrp.response_dispatched'
+  | 'esrp.outcome_recorded'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -4160,6 +4285,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'catalog_facet_aggregator':
     case 'catalog_availability_sync':
     case 'catalog_pricing_publisher':
+    case 'cms_content_modeler':
+    case 'cms_content_publisher':
+    case 'cms_asset_uploader':
+    case 'cms_revision_tracker':
+    case 'cms_workflow_router':
+    case 'seo_sitemap_generator':
+    case 'seo_metadata_curator':
+    case 'seo_canonical_resolver':
+    case 'seo_redirect_manager':
+    case 'seo_structured_data_emitter':
+    case 'cdn_cache_invalidator':
+    case 'cdn_origin_shield':
+    case 'cdn_purge_dispatcher':
+    case 'cdn_token_minter':
+    case 'cdn_log_aggregator':
+    case 'dns_zone_synchronizer':
+    case 'dns_record_validator':
+    case 'dns_health_probe':
+    case 'dns_propagation_checker':
+    case 'dns_failover_router':
+    case 'edge_rule_compiler':
+    case 'edge_geo_router':
+    case 'edge_bot_filter':
+    case 'edge_rate_shaper':
+    case 'edge_security_responder':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
