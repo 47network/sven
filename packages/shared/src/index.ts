@@ -416,3 +416,8 @@ export * from './agent-service-mesh-manager';
 export * from './agent-data-sync-engine';
 export * from './agent-webhook-orchestrator';
 export * from './agent-protocol-adapter';
+export * from './agent-access-control-manager';
+export * from './agent-threat-detection-engine';
+export * from './agent-secret-manager';
+export * from './agent-encryption-engine';
+export * from './agent-audit-trail-manager';
