@@ -289,3 +289,8 @@ export * from './agent-flow-collector.js';
 export * from './agent-sflow-agent.js';
 export * from './agent-netflow-exporter.js';
 export * from './agent-arp-inspector.js';
+export * from './agent-packet-sniffer.js';
+export * from './agent-bandwidth-monitor.js';
+export * from './agent-latency-probe.js';
+export * from './agent-jitter-analyzer.js';
+export * from './agent-packet-loss-tracker.js';

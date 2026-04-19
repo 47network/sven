@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 268-272 — Network Diagnostics
+- **packet_sniffer**: Capture & dissect network packets ($11.99, engineer)
+- **bandwidth_monitor**: Real-time bandwidth utilization tracking ($7.99, analyst)
+- **latency_probe**: Multi-protocol latency measurement ($6.99, analyst)
+- **jitter_analyzer**: Jitter sampling and MOS quality reports ($8.99, analyst)
+- **packet_loss_tracker**: Loss detection and trend analysis ($7.99, analyst)
+
 
 ### Batches 263-267 — Network Monitoring
 - **Batch 263 — Network Tap**: agent_tap_configs/sessions/filters tables, BPF capture + mirroring, 6 task handlers, SKILL.md (8.99)
