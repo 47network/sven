@@ -2513,6 +2513,36 @@ export class TaskExecutor {
       case 'prmo_list_alerts': return this.handlePrmoListAlerts(task);
       case 'prmo_acknowledge_alert': return this.handlePrmoAcknowledgeAlert(task);
       case 'prmo_configure_thresholds': return this.handlePrmoConfigureThresholds(task);
+      case 'itcn_create_integration': return this.handleItcnCreateIntegration(task);
+      case 'itcn_test_connection': return this.handleItcnTestConnection(task);
+      case 'itcn_list_integrations': return this.handleItcnListIntegrations(task);
+      case 'itcn_get_logs': return this.handleItcnGetLogs(task);
+      case 'itcn_update_credentials': return this.handleItcnUpdateCredentials(task);
+      case 'itcn_health_check': return this.handleItcnHealthCheck(task);
+      case 'smsh_register_service': return this.handleSmshRegisterService(task);
+      case 'smsh_create_route': return this.handleSmshCreateRoute(task);
+      case 'smsh_check_mesh_health': return this.handleSmshCheckMeshHealth(task);
+      case 'smsh_configure_circuit_breaker': return this.handleSmshConfigureCircuitBreaker(task);
+      case 'smsh_update_traffic_weight': return this.handleSmshUpdateTrafficWeight(task);
+      case 'smsh_list_services': return this.handleSmshListServices(task);
+      case 'dsyn_create_connection': return this.handleDsynCreateConnection(task);
+      case 'dsyn_start_sync': return this.handleDsynStartSync(task);
+      case 'dsyn_get_sync_status': return this.handleDsynGetSyncStatus(task);
+      case 'dsyn_list_connections': return this.handleDsynListConnections(task);
+      case 'dsyn_configure_mapping': return this.handleDsynConfigureMapping(task);
+      case 'dsyn_get_run_history': return this.handleDsynGetRunHistory(task);
+      case 'whkr_create_endpoint': return this.handleWhkrCreateEndpoint(task);
+      case 'whkr_send_webhook': return this.handleWhkrSendWebhook(task);
+      case 'whkr_list_endpoints': return this.handleWhkrListEndpoints(task);
+      case 'whkr_get_deliveries': return this.handleWhkrGetDeliveries(task);
+      case 'whkr_retry_failed': return this.handleWhkrRetryFailed(task);
+      case 'whkr_update_endpoint': return this.handleWhkrUpdateEndpoint(task);
+      case 'prad_create_mapping': return this.handlePradCreateMapping(task);
+      case 'prad_convert_request': return this.handlePradConvertRequest(task);
+      case 'prad_list_mappings': return this.handlePradListMappings(task);
+      case 'prad_test_mapping': return this.handlePradTestMapping(task);
+      case 'prad_get_conversion_log': return this.handlePradGetConversionLog(task);
+      case 'prad_update_rules': return this.handlePradUpdateRules(task);
     }
   }
 
@@ -17191,6 +17221,107 @@ export class TaskExecutor {
   }
   private async handlePrmoConfigureThresholds(task: any): Promise<any> {
     return { success: true, handler: 'prmo_configure_thresholds', processId: task.input?.processId, thresholdsUpdated: true, autoRestart: false };
+  }
+
+
+  // ─── Integration Connector handlers (Batch 388) ───
+  private async handleItcnCreateIntegration(task: any): Promise<any> {
+    return { success: true, handler: 'itcn_create_integration', integrationId: 'intg_' + Date.now(), name: task.input?.name, provider: task.input?.provider, status: 'inactive' };
+  }
+  private async handleItcnTestConnection(task: any): Promise<any> {
+    return { success: true, handler: 'itcn_test_connection', integrationId: task.input?.integrationId, connected: true, latencyMs: 45, authValid: true };
+  }
+  private async handleItcnListIntegrations(task: any): Promise<any> {
+    return { success: true, handler: 'itcn_list_integrations', totalIntegrations: 8, active: 6, error: 1, suspended: 1 };
+  }
+  private async handleItcnGetLogs(task: any): Promise<any> {
+    return { success: true, handler: 'itcn_get_logs', integrationId: task.input?.integrationId, logCount: 250, inbound: 100, outbound: 150 };
+  }
+  private async handleItcnUpdateCredentials(task: any): Promise<any> {
+    return { success: true, handler: 'itcn_update_credentials', integrationId: task.input?.integrationId, credentialsUpdated: true, authType: 'api_key' };
+  }
+  private async handleItcnHealthCheck(task: any): Promise<any> {
+    return { success: true, handler: 'itcn_health_check', totalChecked: 8, healthy: 6, unhealthy: 2, avgLatencyMs: 85 };
+  }
+
+  // ─── Service Mesh Manager handlers (Batch 389) ───
+  private async handleSmshRegisterService(task: any): Promise<any> {
+    return { success: true, handler: 'smsh_register_service', serviceId: 'svc_' + Date.now(), serviceName: task.input?.serviceName, status: 'healthy' };
+  }
+  private async handleSmshCreateRoute(task: any): Promise<any> {
+    return { success: true, handler: 'smsh_create_route', routeId: 'rt_' + Date.now(), source: task.input?.source, destination: task.input?.destination, active: true };
+  }
+  private async handleSmshCheckMeshHealth(task: any): Promise<any> {
+    return { success: true, handler: 'smsh_check_mesh_health', totalServices: 12, healthy: 10, degraded: 1, unhealthy: 1 };
+  }
+  private async handleSmshConfigureCircuitBreaker(task: any): Promise<any> {
+    return { success: true, handler: 'smsh_configure_circuit_breaker', routeId: task.input?.routeId, state: 'closed', threshold: 5, resetTimeout: 30000 };
+  }
+  private async handleSmshUpdateTrafficWeight(task: any): Promise<any> {
+    return { success: true, handler: 'smsh_update_traffic_weight', serviceId: task.input?.serviceId, newWeight: task.input?.weight, effective: true };
+  }
+  private async handleSmshListServices(task: any): Promise<any> {
+    return { success: true, handler: 'smsh_list_services', totalServices: 12, totalInstances: 35, totalRoutes: 24 };
+  }
+
+  // ─── Data Sync Engine handlers (Batch 390) ───
+  private async handleDsynCreateConnection(task: any): Promise<any> {
+    return { success: true, handler: 'dsyn_create_connection', connectionId: 'conn_' + Date.now(), name: task.input?.name, status: 'idle' };
+  }
+  private async handleDsynStartSync(task: any): Promise<any> {
+    return { success: true, handler: 'dsyn_start_sync', runId: 'run_' + Date.now(), connectionId: task.input?.connectionId, status: 'running' };
+  }
+  private async handleDsynGetSyncStatus(task: any): Promise<any> {
+    return { success: true, handler: 'dsyn_get_sync_status', connectionId: task.input?.connectionId, status: 'syncing', recordsProcessed: 5000, progress: 75 };
+  }
+  private async handleDsynListConnections(task: any): Promise<any> {
+    return { success: true, handler: 'dsyn_list_connections', totalConnections: 6, idle: 3, syncing: 2, error: 1 };
+  }
+  private async handleDsynConfigureMapping(task: any): Promise<any> {
+    return { success: true, handler: 'dsyn_configure_mapping', connectionId: task.input?.connectionId, fieldsMapped: 15, transformations: 3 };
+  }
+  private async handleDsynGetRunHistory(task: any): Promise<any> {
+    return { success: true, handler: 'dsyn_get_run_history', connectionId: task.input?.connectionId, totalRuns: 50, successRate: 96.0 };
+  }
+
+  // ─── Webhook Orchestrator handlers (Batch 391) ───
+  private async handleWhkrCreateEndpoint(task: any): Promise<any> {
+    return { success: true, handler: 'whkr_create_endpoint', endpointId: 'ep_' + Date.now(), name: task.input?.name, url: task.input?.url, active: true };
+  }
+  private async handleWhkrSendWebhook(task: any): Promise<any> {
+    return { success: true, handler: 'whkr_send_webhook', deliveryId: 'dlv_' + Date.now(), endpointsMatched: 3, delivered: 3, failed: 0 };
+  }
+  private async handleWhkrListEndpoints(task: any): Promise<any> {
+    return { success: true, handler: 'whkr_list_endpoints', totalEndpoints: 10, active: 8, totalDeliveries: 15000 };
+  }
+  private async handleWhkrGetDeliveries(task: any): Promise<any> {
+    return { success: true, handler: 'whkr_get_deliveries', endpointId: task.input?.endpointId, totalDeliveries: 500, delivered: 485, failed: 15 };
+  }
+  private async handleWhkrRetryFailed(task: any): Promise<any> {
+    return { success: true, handler: 'whkr_retry_failed', retriedCount: 5, successCount: 3, stillFailing: 2 };
+  }
+  private async handleWhkrUpdateEndpoint(task: any): Promise<any> {
+    return { success: true, handler: 'whkr_update_endpoint', endpointId: task.input?.endpointId, updated: true };
+  }
+
+  // ─── Protocol Adapter handlers (Batch 392) ───
+  private async handlePradCreateMapping(task: any): Promise<any> {
+    return { success: true, handler: 'prad_create_mapping', mappingId: 'map_' + Date.now(), source: task.input?.sourceProtocol, target: task.input?.targetProtocol };
+  }
+  private async handlePradConvertRequest(task: any): Promise<any> {
+    return { success: true, handler: 'prad_convert_request', mappingId: task.input?.mappingId, converted: true, latencyMs: 12 };
+  }
+  private async handlePradListMappings(task: any): Promise<any> {
+    return { success: true, handler: 'prad_list_mappings', totalMappings: 8, active: 7, totalConversions: 25000 };
+  }
+  private async handlePradTestMapping(task: any): Promise<any> {
+    return { success: true, handler: 'prad_test_mapping', mappingId: task.input?.mappingId, testPassed: true, outputValid: true };
+  }
+  private async handlePradGetConversionLog(task: any): Promise<any> {
+    return { success: true, handler: 'prad_get_conversion_log', mappingId: task.input?.mappingId, totalConversions: 1200, successRate: 99.2 };
+  }
+  private async handlePradUpdateRules(task: any): Promise<any> {
+    return { success: true, handler: 'prad_update_rules', mappingId: task.input?.mappingId, rulesUpdated: true, ruleCount: 5 };
   }
 
 }

@@ -411,3 +411,8 @@ export * from './agent-rule-engine';
 export * from './agent-event-reactor';
 export * from './agent-schedule-coordinator';
 export * from './agent-process-monitor';
+export * from './agent-integration-connector';
+export * from './agent-service-mesh-manager';
+export * from './agent-data-sync-engine';
+export * from './agent-webhook-orchestrator';
+export * from './agent-protocol-adapter';
