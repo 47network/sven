@@ -1133,6 +1133,31 @@ export type EidolonBuildingKind =
   | 'network_segmenter_auditor'
   | 'network_segmenter_reporter'
   | 'network_segmenter_optimizer'
+  | 'dns_lookup'
+  | 'dns_lookup_monitor'
+  | 'dns_lookup_auditor'
+  | 'dns_lookup_reporter'
+  | 'dns_lookup_optimizer'
+  | 'traffic_governor'
+  | 'traffic_governor_monitor'
+  | 'traffic_governor_auditor'
+  | 'traffic_governor_reporter'
+  | 'traffic_governor_optimizer'
+  | 'endpoint_health'
+  | 'endpoint_health_monitor'
+  | 'endpoint_health_auditor'
+  | 'endpoint_health_reporter'
+  | 'endpoint_health_optimizer'
+  | 'frame_inspector'
+  | 'frame_inspector_monitor'
+  | 'frame_inspector_auditor'
+  | 'frame_inspector_reporter'
+  | 'frame_inspector_optimizer'
+  | 'bandwidth_allocator'
+  | 'bandwidth_allocator_monitor'
+  | 'bandwidth_allocator_auditor'
+  | 'bandwidth_allocator_reporter'
+  | 'bandwidth_allocator_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5245,6 +5270,81 @@ export type EidolonEventKind =
   | 'nso.plan_created'
   | 'nso.optimization_applied'
   | 'nso.export_emitted'
+  | 'dl.entry_created'
+  | 'dl.config_updated'
+  | 'dl.export_emitted'
+  | 'dlm.check_passed'
+  | 'dlm.alert_raised'
+  | 'dlm.export_emitted'
+  | 'dla.entry_logged'
+  | 'dla.violation_found'
+  | 'dla.export_emitted'
+  | 'dlr.report_generated'
+  | 'dlr.insight_found'
+  | 'dlr.export_emitted'
+  | 'dlo.plan_created'
+  | 'dlo.optimization_applied'
+  | 'dlo.export_emitted'
+  | 'tg.entry_created'
+  | 'tg.config_updated'
+  | 'tg.export_emitted'
+  | 'tgm.check_passed'
+  | 'tgm.alert_raised'
+  | 'tgm.export_emitted'
+  | 'tga.entry_logged'
+  | 'tga.violation_found'
+  | 'tga.export_emitted'
+  | 'tgr.report_generated'
+  | 'tgr.insight_found'
+  | 'tgr.export_emitted'
+  | 'tgo.plan_created'
+  | 'tgo.optimization_applied'
+  | 'tgo.export_emitted'
+  | 'eh.entry_created'
+  | 'eh.config_updated'
+  | 'eh.export_emitted'
+  | 'ehm.check_passed'
+  | 'ehm.alert_raised'
+  | 'ehm.export_emitted'
+  | 'eha.entry_logged'
+  | 'eha.violation_found'
+  | 'eha.export_emitted'
+  | 'ehr.report_generated'
+  | 'ehr.insight_found'
+  | 'ehr.export_emitted'
+  | 'eho.plan_created'
+  | 'eho.optimization_applied'
+  | 'eho.export_emitted'
+  | 'fi.entry_created'
+  | 'fi.config_updated'
+  | 'fi.export_emitted'
+  | 'fim.check_passed'
+  | 'fim.alert_raised'
+  | 'fim.export_emitted'
+  | 'fia.entry_logged'
+  | 'fia.violation_found'
+  | 'fia.export_emitted'
+  | 'fir.report_generated'
+  | 'fir.insight_found'
+  | 'fir.export_emitted'
+  | 'fio.plan_created'
+  | 'fio.optimization_applied'
+  | 'fio.export_emitted'
+  | 'ba.entry_created'
+  | 'ba.config_updated'
+  | 'ba.export_emitted'
+  | 'bam.check_passed'
+  | 'bam.alert_raised'
+  | 'bam.export_emitted'
+  | 'baa.entry_logged'
+  | 'baa.violation_found'
+  | 'baa.export_emitted'
+  | 'bar.report_generated'
+  | 'bar.insight_found'
+  | 'bar.export_emitted'
+  | 'bao.plan_created'
+  | 'bao.optimization_applied'
+  | 'bao.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -7210,6 +7310,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'network_segmenter_auditor':
     case 'network_segmenter_reporter':
     case 'network_segmenter_optimizer':
+    case 'dns_lookup':
+    case 'dns_lookup_monitor':
+    case 'dns_lookup_auditor':
+    case 'dns_lookup_reporter':
+    case 'dns_lookup_optimizer':
+    case 'traffic_governor':
+    case 'traffic_governor_monitor':
+    case 'traffic_governor_auditor':
+    case 'traffic_governor_reporter':
+    case 'traffic_governor_optimizer':
+    case 'endpoint_health':
+    case 'endpoint_health_monitor':
+    case 'endpoint_health_auditor':
+    case 'endpoint_health_reporter':
+    case 'endpoint_health_optimizer':
+    case 'frame_inspector':
+    case 'frame_inspector_monitor':
+    case 'frame_inspector_auditor':
+    case 'frame_inspector_reporter':
+    case 'frame_inspector_optimizer':
+    case 'bandwidth_allocator':
+    case 'bandwidth_allocator_monitor':
+    case 'bandwidth_allocator_auditor':
+    case 'bandwidth_allocator_reporter':
+    case 'bandwidth_allocator_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
