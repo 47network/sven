@@ -223,6 +223,11 @@ export type EidolonBuildingKind =
   | 'sms_gateway'
   | 'channel_selector'
   | 'delivery_tracker'
+  | 'blob_archiver'
+  | 'file_deduplicator'
+  | 'storage_tierer'
+  | 'media_transcoder'
+  | 'thumbnail_generator'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1315,6 +1320,26 @@ export type EidolonEventKind =
   | 'dltr.bounce_detected'
   | 'dltr.open_recorded'
   | 'dltr.status_updated'
+  | 'blar.blob_archived'
+  | 'blar.tier_migrated'
+  | 'blar.retention_applied'
+  | 'blar.archive_verified'
+  | 'fldp.duplicate_found'
+  | 'fldp.hash_computed'
+  | 'fldp.dedup_completed'
+  | 'fldp.space_reclaimed'
+  | 'sttr.tier_assigned'
+  | 'sttr.data_migrated'
+  | 'sttr.policy_evaluated'
+  | 'sttr.cost_optimized'
+  | 'mdtc.transcode_started'
+  | 'mdtc.format_converted'
+  | 'mdtc.quality_adjusted'
+  | 'mdtc.job_completed'
+  | 'thgn.thumbnail_created'
+  | 'thgn.size_variant_generated'
+  | 'thgn.cache_populated'
+  | 'thgn.batch_processed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1975,6 +2000,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'sms_gateway':
     case 'channel_selector':
     case 'delivery_tracker':
+    case 'blob_archiver':
+    case 'file_deduplicator':
+    case 'storage_tierer':
+    case 'media_transcoder':
+    case 'thumbnail_generator':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

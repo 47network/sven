@@ -3323,6 +3323,36 @@ export class TaskExecutor {
       case 'dltr_update': return this.handleDltrUpdate(task);
       case 'dltr_report': return this.handleDltrReport(task);
       case 'dltr_monitor': return this.handleDltrMonitor(task);
+      case 'blar_archive': return this.handleBlarArchive(task);
+      case 'blar_migrate': return this.handleBlarMigrate(task);
+      case 'blar_retain': return this.handleBlarRetain(task);
+      case 'blar_verify': return this.handleBlarVerify(task);
+      case 'blar_report': return this.handleBlarReport(task);
+      case 'blar_monitor': return this.handleBlarMonitor(task);
+      case 'fldp_find': return this.handleFldpFind(task);
+      case 'fldp_hash': return this.handleFldpHash(task);
+      case 'fldp_dedup': return this.handleFldpDedup(task);
+      case 'fldp_reclaim': return this.handleFldpReclaim(task);
+      case 'fldp_report': return this.handleFldpReport(task);
+      case 'fldp_monitor': return this.handleFldpMonitor(task);
+      case 'sttr_assign': return this.handleSttrAssign(task);
+      case 'sttr_migrate': return this.handleSttrMigrate(task);
+      case 'sttr_evaluate': return this.handleSttrEvaluate(task);
+      case 'sttr_optimize': return this.handleSttrOptimize(task);
+      case 'sttr_report': return this.handleSttrReport(task);
+      case 'sttr_monitor': return this.handleSttrMonitor(task);
+      case 'mdtc_start': return this.handleMdtcStart(task);
+      case 'mdtc_convert': return this.handleMdtcConvert(task);
+      case 'mdtc_adjust': return this.handleMdtcAdjust(task);
+      case 'mdtc_complete': return this.handleMdtcComplete(task);
+      case 'mdtc_report': return this.handleMdtcReport(task);
+      case 'mdtc_monitor': return this.handleMdtcMonitor(task);
+      case 'thgn_create': return this.handleThgnCreate(task);
+      case 'thgn_variant': return this.handleThgnVariant(task);
+      case 'thgn_populate': return this.handleThgnPopulate(task);
+      case 'thgn_batch': return this.handleThgnBatch(task);
+      case 'thgn_report': return this.handleThgnReport(task);
+      case 'thgn_monitor': return this.handleThgnMonitor(task);
     }
   }
 

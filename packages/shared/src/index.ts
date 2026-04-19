@@ -548,3 +548,8 @@ export * from './agent-email-renderer';
 export * from './agent-sms-gateway';
 export * from './agent-channel-selector';
 export * from './agent-delivery-tracker';
+export * from './agent-blob-archiver';
+export * from './agent-file-deduplicator';
+export * from './agent-storage-tierer';
+export * from './agent-media-transcoder';
+export * from './agent-thumbnail-generator';

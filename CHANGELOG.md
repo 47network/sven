@@ -27,6 +27,13 @@
 
 # Changelog
 
+## Batches 523-527 — Storage & File Management
+- blob_archiver: Blob storage archival and lifecycle management
+- file_deduplicator: File deduplication and hash-based storage optimization
+- storage_tierer: Storage tier assignment and data migration policies
+- media_transcoder: Media format transcoding and quality optimization
+- thumbnail_generator: Thumbnail generation and image variant management
+
 ## Batches 518-522 — Notification & Messaging
 - push_dispatcher: Push notification dispatching and token management
 - email_renderer: Email template rendering and layout compilation
