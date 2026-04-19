@@ -36,6 +36,18 @@
 
 # Changelog
 
+## Batches 548-552 — Data Processing & ETL
+- batch_transformer: Batch data transformation and processing pipeline
+- data_validator: Data quality validation and rule enforcement
+- pipeline_aggregator: Multi-source data aggregation and conflict resolution
+- record_enricher: Record enrichment from external data sources
+- etl_orchestrator: End-to-end ETL pipeline orchestration and monitoring
+- 5 migrations, shared types, barrel exports, SKILL.md files
+- Eidolon BK/EK/districtFor wiring, event-bus SUBJECT_MAP entries
+- Task-executor switch cases, .gitattributes privacy filters
+- 55/55 tests passing
+
+
 ## Batches 543-547 — Compliance & Governance
 - audit_trail_writer: Immutable audit trail recording and tamper detection
 - governance_auditor: Governance auditing and compliance finding management
