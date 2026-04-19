@@ -632,3 +632,28 @@ skills/agent-webhook-manager/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260618140000_agent_certificate_manager.sql filter=sven-private
 packages/shared/src/agent-certificate-manager.ts filter=sven-private
 skills/agent-certificate-manager/SKILL.md filter=sven-private
+
+# Batch 178: Quota Enforcement
+services/gateway-api/migrations/20260618150000_agent_quota_enforcement.sql filter=sven-private
+packages/shared/src/agent-quota-enforcement.ts filter=sven-private
+skills/agent-quota-enforcement/SKILL.md filter=sven-private
+
+# Batch 179: Runbook Automation
+services/gateway-api/migrations/20260618160000_agent_runbook_automation.sql filter=sven-private
+packages/shared/src/agent-runbook-automation.ts filter=sven-private
+skills/agent-runbook-automation/SKILL.md filter=sven-private
+
+# Batch 180: Network Scanner
+services/gateway-api/migrations/20260618170000_agent_network_scanner.sql filter=sven-private
+packages/shared/src/agent-network-scanner.ts filter=sven-private
+skills/agent-network-scanner/SKILL.md filter=sven-private
+
+# Batch 181: DNS Manager
+services/gateway-api/migrations/20260618180000_agent_dns_manager.sql filter=sven-private
+packages/shared/src/agent-dns-manager.ts filter=sven-private
+skills/agent-dns-manager/SKILL.md filter=sven-private
+
+# Batch 182: Inventory Sync
+services/gateway-api/migrations/20260618190000_agent_inventory_sync.sql filter=sven-private
+packages/shared/src/agent-inventory-sync.ts filter=sven-private
+skills/agent-inventory-sync/SKILL.md filter=sven-private

@@ -137,6 +137,11 @@ export type EidolonBuildingKind =
   | 'correlation_hub'
   | 'webhook_station'
   | 'certificate_vault'
+  | 'quota_gate'
+  | 'runbook_forge'
+  | 'network_scanner'
+  | 'dns_tower'
+  | 'inventory_depot'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -667,6 +672,11 @@ export type EidolonEventKind =
   | 'logcorr.rule_triggered' | 'logcorr.incident_opened' | 'logcorr.root_cause_found' | 'logcorr.incident_resolved'
   | 'webhook.endpoint_registered' | 'webhook.delivery_sent' | 'webhook.delivery_failed' | 'webhook.retry_exhausted'
   | 'cert.certificate_imported' | 'cert.renewal_requested' | 'cert.renewal_completed' | 'cert.expiry_warning'
+  | 'quota.policy_created' | 'quota.limit_reached' | 'quota.overage_detected' | 'quota.enforcement_applied'
+  | 'runbook.runbook_triggered' | 'runbook.step_completed' | 'runbook.execution_finished' | 'runbook.approval_required'
+  | 'netscan.scan_started' | 'netscan.host_discovered' | 'netscan.vulnerability_found' | 'netscan.scan_completed'
+  | 'dns.zone_created' | 'dns.record_updated' | 'dns.health_check_failed' | 'dns.failover_triggered'
+  | 'inventory.asset_discovered' | 'inventory.sync_completed' | 'inventory.conflict_detected' | 'inventory.asset_decommissioned'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -807,6 +817,11 @@ export type EidolonEventKind =
   | 'logcorr.rule_triggered' | 'logcorr.incident_opened' | 'logcorr.root_cause_found' | 'logcorr.incident_resolved'
   | 'webhook.endpoint_registered' | 'webhook.delivery_sent' | 'webhook.delivery_failed' | 'webhook.retry_exhausted'
   | 'cert.certificate_imported' | 'cert.renewal_requested' | 'cert.renewal_completed' | 'cert.expiry_warning'
+  | 'quota.policy_created' | 'quota.limit_reached' | 'quota.overage_detected' | 'quota.enforcement_applied'
+  | 'runbook.runbook_triggered' | 'runbook.step_completed' | 'runbook.execution_finished' | 'runbook.approval_required'
+  | 'netscan.scan_started' | 'netscan.host_discovered' | 'netscan.vulnerability_found' | 'netscan.scan_completed'
+  | 'dns.zone_created' | 'dns.record_updated' | 'dns.health_check_failed' | 'dns.failover_triggered'
+  | 'inventory.asset_discovered' | 'inventory.sync_completed' | 'inventory.conflict_detected' | 'inventory.asset_decommissioned'
   | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
   | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
@@ -817,6 +832,11 @@ export type EidolonEventKind =
   | 'logcorr.rule_triggered' | 'logcorr.incident_opened' | 'logcorr.root_cause_found' | 'logcorr.incident_resolved'
   | 'webhook.endpoint_registered' | 'webhook.delivery_sent' | 'webhook.delivery_failed' | 'webhook.retry_exhausted'
   | 'cert.certificate_imported' | 'cert.renewal_requested' | 'cert.renewal_completed' | 'cert.expiry_warning'
+  | 'quota.policy_created' | 'quota.limit_reached' | 'quota.overage_detected' | 'quota.enforcement_applied'
+  | 'runbook.runbook_triggered' | 'runbook.step_completed' | 'runbook.execution_finished' | 'runbook.approval_required'
+  | 'netscan.scan_started' | 'netscan.host_discovered' | 'netscan.vulnerability_found' | 'netscan.scan_completed'
+  | 'dns.zone_created' | 'dns.record_updated' | 'dns.health_check_failed' | 'dns.failover_triggered'
+  | 'inventory.asset_discovered' | 'inventory.sync_completed' | 'inventory.conflict_detected' | 'inventory.asset_decommissioned'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1144,6 +1164,12 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'remediation_forge':
     case 'certificate_vault':
       return 'civic';
+    case 'quota_gate':
+    case 'runbook_forge':
+    case 'inventory_depot':
+      return 'infrastructure';
+    case 'network_scanner':
+    case 'dns_tower':
       return 'civic';
   }
 }

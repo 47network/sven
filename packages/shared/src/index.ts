@@ -199,3 +199,8 @@ export * from './agent-drift-remediation.js';
 export * from './agent-log-correlation.js';
 export * from './agent-webhook-manager.js';
 export * from './agent-certificate-manager.js';
+export * from './agent-quota-enforcement.js';
+export * from './agent-runbook-automation.js';
+export * from './agent-network-scanner.js';
+export * from './agent-dns-manager.js';
+export * from './agent-inventory-sync.js';

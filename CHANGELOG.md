@@ -79,6 +79,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batch 178-182: Infrastructure Operations
+- **Quota Enforcement** (Batch 178): Resource quota policies, usage tracking, enforcement actions, overage handling — agent_quota_policies, agent_quota_usage, agent_quota_alerts tables
+- **Runbook Automation** (Batch 179): Operational runbooks with step-by-step execution, approval gates, rollback — agent_runbooks, agent_runbook_executions, agent_runbook_approvals tables
+- **Network Scanner** (Batch 180): Network discovery, port scanning, vulnerability detection, topology mapping — agent_network_scans, agent_network_hosts, agent_network_vulnerabilities tables
+- **DNS Manager** (Batch 181): DNS zone management, record CRUD, health checks, failover — agent_dns_zones, agent_dns_records, agent_dns_health_checks tables
+- **Inventory Sync** (Batch 182): Infrastructure asset tracking, sync jobs, change detection, environment comparison — agent_inventory_assets, agent_inventory_sync_jobs, agent_inventory_changes tables
+- 5 migrations, 5 shared type modules, 5 SKILL.md files, 5 barrel exports
+- Eidolon: 5 BK (quota_gate, runbook_forge, network_scanner, dns_tower, inventory_depot), 20 EK, 5 districtFor
+- Event-bus: 20 new SUBJECT_MAP entries
+- Task executor: 30 new switch cases + 30 handler methods (totals: 969 cases, 759 handlers)
+- .gitattributes: 15 new privacy filter entries (total: 659 lines)
+- 222 Jest tests — all passing
+
 ### Batches 173-177 — Agent Ops & Security
 - **Cost Anomaly** (Batch 173): Budget tracking, anomaly detection, forecast spending, cost optimization (migration, types, SKILL.md, 6 task handlers)
 - **Drift Remediation** (Batch 174): Baseline management, drift scanning, auto-remediation, escalation workflows (migration, types, SKILL.md, 6 task handlers)

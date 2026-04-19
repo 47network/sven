@@ -470,6 +470,31 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.cert.renewed': 'cert.renewed',
   'sven.cert.deployed': 'cert.deployed',
   'sven.cert.expiry_warning': 'cert.expiry_warning',
+  // Batch 178: Quota Enforcement
+  'sven.quota.policy_created': 'quota.policy_created',
+  'sven.quota.limit_reached': 'quota.limit_reached',
+  'sven.quota.overage_detected': 'quota.overage_detected',
+  'sven.quota.enforcement_applied': 'quota.enforcement_applied',
+  // Batch 179: Runbook Automation
+  'sven.runbook.runbook_triggered': 'runbook.runbook_triggered',
+  'sven.runbook.step_completed': 'runbook.step_completed',
+  'sven.runbook.execution_finished': 'runbook.execution_finished',
+  'sven.runbook.approval_required': 'runbook.approval_required',
+  // Batch 180: Network Scanner
+  'sven.netscan.scan_started': 'netscan.scan_started',
+  'sven.netscan.host_discovered': 'netscan.host_discovered',
+  'sven.netscan.vulnerability_found': 'netscan.vulnerability_found',
+  'sven.netscan.scan_completed': 'netscan.scan_completed',
+  // Batch 181: DNS Manager
+  'sven.dns.zone_created': 'dns.zone_created',
+  'sven.dns.record_updated': 'dns.record_updated',
+  'sven.dns.health_check_failed': 'dns.health_check_failed',
+  'sven.dns.failover_triggered': 'dns.failover_triggered',
+  // Batch 182: Inventory Sync
+  'sven.inventory.asset_discovered': 'inventory.asset_discovered',
+  'sven.inventory.sync_completed': 'inventory.sync_completed',
+  'sven.inventory.conflict_detected': 'inventory.conflict_detected',
+  'sven.inventory.asset_decommissioned': 'inventory.asset_decommissioned',
   'sven.vault.secret_stored': 'vault.secret_stored',
   'sven.vault.secret_rotated': 'vault.secret_rotated',
   'sven.vault.access_logged': 'vault.access_logged',
