@@ -483,3 +483,8 @@ export * from './agent-resource-tagger';
 export * from './agent-quota-manager';
 export * from './agent-access-reviewer';
 export * from './agent-failover-tester';
+export * from './agent-ssl-inspector';
+export * from './agent-proxy-configurator';
+export * from './agent-webhook-router';
+export * from './agent-egress-filter';
+export * from './agent-request-validator';
