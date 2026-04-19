@@ -3473,6 +3473,36 @@ export class TaskExecutor {
       case 'rtsc_schedule': return this.handleRtscSchedule(task);
       case 'rtsc_report': return this.handleRtscReport(task);
       case 'rtsc_monitor': return this.handleRtscMonitor(task);
+      case 'btfm_queue': return this.handleBtfmQueue(task);
+      case 'btfm_start': return this.handleBtfmStart(task);
+      case 'btfm_complete': return this.handleBtfmComplete(task);
+      case 'btfm_error': return this.handleBtfmError(task);
+      case 'btfm_report': return this.handleBtfmReport(task);
+      case 'btfm_monitor': return this.handleBtfmMonitor(task);
+      case 'dvld_start': return this.handleDvldStart(task);
+      case 'dvld_pass': return this.handleDvldPass(task);
+      case 'dvld_fail': return this.handleDvldFail(task);
+      case 'dvld_update': return this.handleDvldUpdate(task);
+      case 'dvld_report': return this.handleDvldReport(task);
+      case 'dvld_monitor': return this.handleDvldMonitor(task);
+      case 'pagr_start': return this.handlePagrStart(task);
+      case 'pagr_ingest': return this.handlePagrIngest(task);
+      case 'pagr_complete': return this.handlePagrComplete(task);
+      case 'pagr_conflict': return this.handlePagrConflict(task);
+      case 'pagr_report': return this.handlePagrReport(task);
+      case 'pagr_monitor': return this.handlePagrMonitor(task);
+      case 'rcen_start': return this.handleRcenStart(task);
+      case 'rcen_enrich': return this.handleRcenEnrich(task);
+      case 'rcen_unavail': return this.handleRcenUnavail(task);
+      case 'rcen_complete': return this.handleRcenComplete(task);
+      case 'rcen_report': return this.handleRcenReport(task);
+      case 'rcen_monitor': return this.handleRcenMonitor(task);
+      case 'etlo_start': return this.handleEtloStart(task);
+      case 'etlo_stage': return this.handleEtloStage(task);
+      case 'etlo_finish': return this.handleEtloFinish(task);
+      case 'etlo_fail': return this.handleEtloFail(task);
+      case 'etlo_report': return this.handleEtloReport(task);
+      case 'etlo_monitor': return this.handleEtloMonitor(task);
     }
   }
 

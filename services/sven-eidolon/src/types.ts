@@ -248,6 +248,11 @@ export type EidolonBuildingKind =
   | 'regulation_scanner'
   | 'consent_manager'
   | 'retention_scheduler'
+  | 'batch_transformer'
+  | 'data_validator'
+  | 'pipeline_aggregator'
+  | 'record_enricher'
+  | 'etl_orchestrator'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1445,6 +1450,26 @@ export type EidolonEventKind =
   | 'rtsc.data_purged'
   | 'rtsc.retention_extended'
   | 'rtsc.schedule_updated'
+  | 'btfm.job_queued'
+  | 'btfm.transform_started'
+  | 'btfm.transform_completed'
+  | 'btfm.error_occurred'
+  | 'dvld.validation_started'
+  | 'dvld.validation_passed'
+  | 'dvld.validation_failed'
+  | 'dvld.rule_updated'
+  | 'pagr.aggregation_started'
+  | 'pagr.source_ingested'
+  | 'pagr.aggregation_completed'
+  | 'pagr.conflict_detected'
+  | 'rcen.enrichment_started'
+  | 'rcen.record_enriched'
+  | 'rcen.source_unavailable'
+  | 'rcen.batch_completed'
+  | 'etlo.pipeline_started'
+  | 'etlo.stage_completed'
+  | 'etlo.pipeline_finished'
+  | 'etlo.pipeline_failed'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2150,6 +2175,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'regulation_scanner':
     case 'consent_manager':
     case 'retention_scheduler':
+    case 'batch_transformer':
+    case 'data_validator':
+    case 'pipeline_aggregator':
+    case 'record_enricher':
+    case 'etl_orchestrator':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
