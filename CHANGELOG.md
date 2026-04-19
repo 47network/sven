@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 288-292 — Observability & Monitoring
+- **metric_exporter**: Metrics collection, export, and alerting ($12.99, analyst)
+- **log_shipper**: Log aggregation, pipeline management, and shipping ($11.99, engineer)
+- **alert_manager**: Alert routing, deduplication, and incident management ($13.99, analyst)
+- **incident_responder**: Automated incident response and remediation ($17.99, engineer)
+- **uptime_monitor**: Endpoint uptime monitoring and SLA tracking ($9.99, analyst)
+
 ### Batches 283-287 — CI/CD Pipeline Tools
 - **pipeline_runner**: CI/CD pipeline orchestration and execution ($16.99, engineer)
 - **test_orchestrator**: Automated test suite orchestration and coverage ($13.99, analyst)

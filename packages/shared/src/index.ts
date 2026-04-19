@@ -309,3 +309,8 @@ export * from './agent-test-orchestrator';
 export * from './agent-deploy-manager';
 export * from './agent-rollback-controller';
 export * from './agent-release-gatekeeper';
+export * from './agent-metric-exporter';
+export * from './agent-log-shipper';
+export * from './agent-alert-manager';
+export * from './agent-incident-responder';
+export * from './agent-uptime-monitor';
