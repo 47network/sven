@@ -1,3 +1,26 @@
+## [Unreleased] - Batches 683-707 (Infrastructure & Operations Expansion)
+
+### Added — 25 new autonomous economy verticals across 5 domain groups
+
+**Batches 683-687: Message Queue Operations**
+- queue_drainer, message_dedupe, dlq_replayer, broker_balancer, topic_partitioner
+
+**Batches 688-692: Identity & Access**
+- sso_federator, role_provisioner, mfa_enforcer, session_revoker, scim_provisioner
+
+**Batches 693-697: Networking & DNS**
+- dns_zone_manager, bgp_advertiser, anycast_balancer, subnet_allocator, route_propagator
+
+**Batches 698-702: Container Orchestration**
+- hpa_tuner, ingress_router, namespace_isolator, daemon_dispatcher, statefulset_orchestrator
+
+**Batches 703-707: Storage Management**
+- storage_provisioner, volume_snapshotter, pvc_resizer, csi_driver_manager, storage_tiering_engine
+
+Each vertical includes: migration SQL, shared TS types + barrel export, SKILL.md,
+Eidolon BK/EK/districtFor wiring, event-bus SUBJECT_MAP, task-executor switch cases,
+.gitattributes privacy filter. **275/275 tests passing.**
+
 ## Batches 658-682 — Database Operations / Compliance & Audit / Edge Computing / ML Pipeline / API Gateway
 
 ### Batches 658-662: Database Operations

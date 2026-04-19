@@ -383,6 +383,31 @@ export type EidolonBuildingKind =
   | 'request_transformer'
   | 'cors_manager'
   | 'ip_filter'
+  | 'queue_drainer'
+  | 'message_dedupe'
+  | 'dlq_replayer'
+  | 'broker_balancer'
+  | 'topic_partitioner'
+  | 'sso_federator'
+  | 'role_provisioner'
+  | 'mfa_enforcer'
+  | 'session_revoker'
+  | 'scim_provisioner'
+  | 'dns_zone_manager'
+  | 'bgp_advertiser'
+  | 'anycast_balancer'
+  | 'subnet_allocator'
+  | 'route_propagator'
+  | 'hpa_tuner'
+  | 'ingress_router'
+  | 'namespace_isolator'
+  | 'daemon_dispatcher'
+  | 'statefulset_orchestrator'
+  | 'storage_provisioner'
+  | 'volume_snapshotter'
+  | 'pvc_resizer'
+  | 'csi_driver_manager'
+  | 'storage_tiering_engine'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -2120,6 +2145,106 @@ export type EidolonEventKind =
   | 'ipfl.range_whitelisted'
   | 'ipfl.geo_restricted'
   | 'ipfl.anomaly_flagged'
+  | 'qudr.drain_started'
+  | 'qudr.batch_processed'
+  | 'qudr.queue_emptied'
+  | 'qudr.backpressure_applied'
+  | 'mdpd.duplicate_detected'
+  | 'mdpd.window_rotated'
+  | 'mdpd.cache_evicted'
+  | 'mdpd.bloom_rebuilt'
+  | 'dlqr.replay_initiated'
+  | 'dlqr.message_redelivered'
+  | 'dlqr.poison_isolated'
+  | 'dlqr.replay_completed'
+  | 'brbl.load_measured'
+  | 'brbl.partition_reassigned'
+  | 'brbl.broker_added'
+  | 'brbl.rebalance_completed'
+  | 'tppt.partition_created'
+  | 'tppt.key_routed'
+  | 'tppt.skew_detected'
+  | 'tppt.split_triggered'
+  | 'ssfd.idp_registered'
+  | 'ssfd.assertion_validated'
+  | 'ssfd.attribute_mapped'
+  | 'ssfd.session_established'
+  | 'rlpv.role_assigned'
+  | 'rlpv.role_revoked'
+  | 'rlpv.policy_synced'
+  | 'rlpv.expiration_processed'
+  | 'mfen.challenge_issued'
+  | 'mfen.factor_verified'
+  | 'mfen.bypass_blocked'
+  | 'mfen.recovery_initiated'
+  | 'srvk.session_terminated'
+  | 'srvk.token_invalidated'
+  | 'srvk.cache_purged'
+  | 'srvk.broadcast_sent'
+  | 'scpv.user_created'
+  | 'scpv.user_updated'
+  | 'scpv.group_synced'
+  | 'scpv.deprovisioning_completed'
+  | 'dnzm.zone_created'
+  | 'dnzm.record_updated'
+  | 'dnzm.dnssec_signed'
+  | 'dnzm.transfer_completed'
+  | 'bgpa.prefix_advertised'
+  | 'bgpa.session_established'
+  | 'bgpa.route_withdrawn'
+  | 'bgpa.community_tagged'
+  | 'acbl.node_added'
+  | 'acbl.health_check_passed'
+  | 'acbl.traffic_steered'
+  | 'acbl.node_drained'
+  | 'sbna.subnet_allocated'
+  | 'sbna.cidr_split'
+  | 'sbna.allocation_released'
+  | 'sbna.utilization_alerted'
+  | 'rtpr.route_added'
+  | 'rtpr.route_redistributed'
+  | 'rtpr.metric_adjusted'
+  | 'rtpr.convergence_completed'
+  | 'hpat.policy_applied'
+  | 'hpat.scale_up_triggered'
+  | 'hpat.scale_down_triggered'
+  | 'hpat.threshold_adjusted'
+  | 'igrt.rule_added'
+  | 'igrt.tls_renewed'
+  | 'igrt.canary_promoted'
+  | 'igrt.traffic_shifted'
+  | 'nsis.namespace_created'
+  | 'nsis.network_policy_applied'
+  | 'nsis.quota_enforced'
+  | 'nsis.violation_detected'
+  | 'dmds.daemonset_deployed'
+  | 'dmds.node_targeted'
+  | 'dmds.update_rolled'
+  | 'dmds.pod_terminated'
+  | 'sfso.replica_added'
+  | 'sfso.volume_attached'
+  | 'sfso.ordering_enforced'
+  | 'sfso.upgrade_completed'
+  | 'stpv.volume_provisioned'
+  | 'stpv.class_created'
+  | 'stpv.binding_completed'
+  | 'stpv.reclaim_executed'
+  | 'vlsn.snapshot_taken'
+  | 'vlsn.snapshot_restored'
+  | 'vlsn.retention_pruned'
+  | 'vlsn.consistency_verified'
+  | 'pvcr.expansion_requested'
+  | 'pvcr.filesystem_grown'
+  | 'pvcr.capacity_validated'
+  | 'pvcr.resize_completed'
+  | 'csdm.driver_installed'
+  | 'csdm.capability_registered'
+  | 'csdm.upgrade_rolled'
+  | 'csdm.health_verified'
+  | 'stte.tier_promoted'
+  | 'stte.tier_demoted'
+  | 'stte.access_pattern_analyzed'
+  | 'stte.cost_optimized'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2960,6 +3085,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'request_transformer':
     case 'cors_manager':
     case 'ip_filter':
+    case 'queue_drainer':
+    case 'message_dedupe':
+    case 'dlq_replayer':
+    case 'broker_balancer':
+    case 'topic_partitioner':
+    case 'sso_federator':
+    case 'role_provisioner':
+    case 'mfa_enforcer':
+    case 'session_revoker':
+    case 'scim_provisioner':
+    case 'dns_zone_manager':
+    case 'bgp_advertiser':
+    case 'anycast_balancer':
+    case 'subnet_allocator':
+    case 'route_propagator':
+    case 'hpa_tuner':
+    case 'ingress_router':
+    case 'namespace_isolator':
+    case 'daemon_dispatcher':
+    case 'statefulset_orchestrator':
+    case 'storage_provisioner':
+    case 'volume_snapshotter':
+    case 'pvc_resizer':
+    case 'csi_driver_manager':
+    case 'storage_tiering_engine':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
