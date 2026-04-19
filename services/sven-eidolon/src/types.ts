@@ -123,6 +123,11 @@ export type EidolonBuildingKind =
   | 'event_correlator'
   | 'trace_collector'
   | 'dashboard_builder'
+  | 'pentest_runner'
+  | 'intrusion_guard'
+  | 'rbac_enforcer'
+  | 'siem_connector'
+  | 'forensic_analyzer'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -802,6 +807,26 @@ export type EidolonEventKind =
   | 'dshb.snapshot_taken'
   | 'dshb.dashboard_shared'
   | 'dshb.template_imported'
+  | 'pntr.scan_completed'
+  | 'pntr.finding_verified'
+  | 'pntr.report_generated'
+  | 'pntr.retest_scheduled'
+  | 'idgd.intrusion_detected'
+  | 'idgd.source_blocked'
+  | 'idgd.rule_triggered'
+  | 'idgd.event_analyzed'
+  | 'rbce.role_created'
+  | 'rbce.role_assigned'
+  | 'rbce.permission_checked'
+  | 'rbce.assignment_revoked'
+  | 'siem.events_ingested'
+  | 'siem.event_enriched'
+  | 'siem.dashboard_created'
+  | 'siem.report_exported'
+  | 'fran.case_created'
+  | 'fran.evidence_collected'
+  | 'fran.timeline_analyzed'
+  | 'fran.case_closed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1509,6 +1534,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'event_correlator':
     case 'trace_collector':
     case 'dashboard_builder':
+    case 'pentest_runner':
+    case 'intrusion_guard':
+    case 'rbac_enforcer':
+    case 'siem_connector':
+    case 'forensic_analyzer':
       case 'network_firewall':
       case 'threat_detector':
       return 'industrial';

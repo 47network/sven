@@ -2138,6 +2138,46 @@ export class TaskExecutor {
       case 'dshb_share_dashboard': return this.handleDshbShareDashboard(task);
       case 'dshb_import_template': return this.handleDshbImportTemplate(task);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
+
+      // Batch 328: Pentest Runner
+      case 'pntr_run_scan': return this.handlePntrRunScan(task);
+      case 'pntr_verify_finding': return this.handlePntrVerifyFinding(task);
+      case 'pntr_generate_report': return this.handlePntrGenerateReport(task);
+      case 'pntr_schedule_retest': return this.handlePntrScheduleRetest(task);
+      case 'pntr_export_findings': return this.handlePntrExportFindings(task);
+      case 'pntr_compare_scans': return this.handlePntrCompareScans(task);
+
+      // Batch 329: Intrusion Guard
+      case 'idgd_create_rule': return this.handleIdgdCreateRule(task);
+      case 'idgd_monitor_traffic': return this.handleIdgdMonitorTraffic(task);
+      case 'idgd_block_source': return this.handleIdgdBlockSource(task);
+      case 'idgd_analyze_event': return this.handleIdgdAnalyzeEvent(task);
+      case 'idgd_whitelist_source': return this.handleIdgdWhitelistSource(task);
+      case 'idgd_export_events': return this.handleIdgdExportEvents(task);
+
+      // Batch 330: RBAC Enforcer
+      case 'rbce_create_role': return this.handleRbceCreateRole(task);
+      case 'rbce_assign_role': return this.handleRbceAssignRole(task);
+      case 'rbce_check_permission': return this.handleRbceCheckPermission(task);
+      case 'rbce_audit_access': return this.handleRbceAuditAccess(task);
+      case 'rbce_revoke_assignment': return this.handleRbceRevokeAssignment(task);
+      case 'rbce_export_policies': return this.handleRbceExportPolicies(task);
+
+      // Batch 331: SIEM Connector
+      case 'siem_ingest_events': return this.handleSiemIngestEvents(task);
+      case 'siem_enrich_event': return this.handleSiemEnrichEvent(task);
+      case 'siem_create_dashboard': return this.handleSiemCreateDashboard(task);
+      case 'siem_correlate_events': return this.handleSiemCorrelateEvents(task);
+      case 'siem_export_report': return this.handleSiemExportReport(task);
+      case 'siem_configure_source': return this.handleSiemConfigureSource(task);
+
+      // Batch 332: Forensic Analyzer
+      case 'fran_create_case': return this.handleFranCreateCase(task);
+      case 'fran_collect_evidence': return this.handleFranCollectEvidence(task);
+      case 'fran_analyze_timeline': return this.handleFranAnalyzeTimeline(task);
+      case 'fran_generate_findings': return this.handleFranGenerateFindings(task);
+      case 'fran_close_case': return this.handleFranCloseCase(task);
+      case 'fran_export_case': return this.handleFranExportCase(task);
     }
   }
 
@@ -15297,6 +15337,137 @@ export class TaskExecutor {
 
   private async handleDshbImportTemplate(task: any): Promise<any> {
     return { skill: 'dashboard_builder', action: 'import-template', templateName: task.metadata?.templateName, configId: task.metadata?.configId, overwrite: task.metadata?.overwrite || false };
+  }
+
+
+  // === Batch 328: Pentest Runner Handlers ===
+
+  private async handlePntrRunScan(task: any): Promise<any> {
+    return { skill: 'pentest_runner', action: 'run-scan', targetScope: task.metadata?.targetScope || [], scanType: task.metadata?.scanType || 'full', safeMode: task.metadata?.safeMode !== false };
+  }
+
+  private async handlePntrVerifyFinding(task: any): Promise<any> {
+    return { skill: 'pentest_runner', action: 'verify-finding', findingId: task.metadata?.findingId, verificationMethod: task.metadata?.verificationMethod || 'automated' };
+  }
+
+  private async handlePntrGenerateReport(task: any): Promise<any> {
+    return { skill: 'pentest_runner', action: 'generate-report', configId: task.metadata?.configId, format: task.metadata?.format || 'json', includeRemediation: task.metadata?.includeRemediation !== false };
+  }
+
+  private async handlePntrScheduleRetest(task: any): Promise<any> {
+    return { skill: 'pentest_runner', action: 'schedule-retest', configId: task.metadata?.configId, findingIds: task.metadata?.findingIds || [], scheduledAt: task.metadata?.scheduledAt };
+  }
+
+  private async handlePntrExportFindings(task: any): Promise<any> {
+    return { skill: 'pentest_runner', action: 'export-findings', configId: task.metadata?.configId, format: task.metadata?.format || 'csv', severityFilter: task.metadata?.severityFilter };
+  }
+
+  private async handlePntrCompareScans(task: any): Promise<any> {
+    return { skill: 'pentest_runner', action: 'compare-scans', scanIdA: task.metadata?.scanIdA, scanIdB: task.metadata?.scanIdB };
+  }
+
+  // === Batch 329: Intrusion Guard Handlers ===
+
+  private async handleIdgdCreateRule(task: any): Promise<any> {
+    return { skill: 'intrusion_guard', action: 'create-rule', ruleName: task.metadata?.ruleName, pattern: task.metadata?.pattern, action: task.metadata?.ruleAction || 'alert', protocol: task.metadata?.protocol || 'any' };
+  }
+
+  private async handleIdgdMonitorTraffic(task: any): Promise<any> {
+    return { skill: 'intrusion_guard', action: 'monitor-traffic', configId: task.metadata?.configId, sensitivity: task.metadata?.sensitivity || 'medium', duration: task.metadata?.duration || 3600 };
+  }
+
+  private async handleIdgdBlockSource(task: any): Promise<any> {
+    return { skill: 'intrusion_guard', action: 'block-source', sourceIp: task.metadata?.sourceIp, durationMinutes: task.metadata?.durationMinutes || 60, reason: task.metadata?.reason };
+  }
+
+  private async handleIdgdAnalyzeEvent(task: any): Promise<any> {
+    return { skill: 'intrusion_guard', action: 'analyze-event', eventId: task.metadata?.eventId, includeContext: task.metadata?.includeContext !== false };
+  }
+
+  private async handleIdgdWhitelistSource(task: any): Promise<any> {
+    return { skill: 'intrusion_guard', action: 'whitelist-source', sourceIp: task.metadata?.sourceIp, reason: task.metadata?.reason, permanent: task.metadata?.permanent || false };
+  }
+
+  private async handleIdgdExportEvents(task: any): Promise<any> {
+    return { skill: 'intrusion_guard', action: 'export-events', configId: task.metadata?.configId, timeRange: task.metadata?.timeRange || '24h', format: task.metadata?.format || 'json' };
+  }
+
+  // === Batch 330: RBAC Enforcer Handlers ===
+
+  private async handleRbceCreateRole(task: any): Promise<any> {
+    return { skill: 'rbac_enforcer', action: 'create-role', roleName: task.metadata?.roleName, permissions: task.metadata?.permissions || [], parentRoleId: task.metadata?.parentRoleId };
+  }
+
+  private async handleRbceAssignRole(task: any): Promise<any> {
+    return { skill: 'rbac_enforcer', action: 'assign-role', roleId: task.metadata?.roleId, subjectId: task.metadata?.subjectId, subjectType: task.metadata?.subjectType || 'agent', scope: task.metadata?.scope };
+  }
+
+  private async handleRbceCheckPermission(task: any): Promise<any> {
+    return { skill: 'rbac_enforcer', action: 'check-permission', subjectId: task.metadata?.subjectId, permission: task.metadata?.permission, scope: task.metadata?.scope };
+  }
+
+  private async handleRbceAuditAccess(task: any): Promise<any> {
+    return { skill: 'rbac_enforcer', action: 'audit-access', configId: task.metadata?.configId, timeRange: task.metadata?.timeRange || '24h', subjectFilter: task.metadata?.subjectFilter };
+  }
+
+  private async handleRbceRevokeAssignment(task: any): Promise<any> {
+    return { skill: 'rbac_enforcer', action: 'revoke-assignment', assignmentId: task.metadata?.assignmentId, reason: task.metadata?.reason || 'manual_revocation' };
+  }
+
+  private async handleRbceExportPolicies(task: any): Promise<any> {
+    return { skill: 'rbac_enforcer', action: 'export-policies', configId: task.metadata?.configId, format: task.metadata?.format || 'json', includeAssignments: task.metadata?.includeAssignments !== false };
+  }
+
+  // === Batch 331: SIEM Connector Handlers ===
+
+  private async handleSiemIngestEvents(task: any): Promise<any> {
+    return { skill: 'siem_connector', action: 'ingest-events', events: task.metadata?.events || [], source: task.metadata?.source, normalize: task.metadata?.normalize !== false };
+  }
+
+  private async handleSiemEnrichEvent(task: any): Promise<any> {
+    return { skill: 'siem_connector', action: 'enrich-event', eventId: task.metadata?.eventId, enrichmentSources: task.metadata?.enrichmentSources || ['threat_intel', 'geo_ip'] };
+  }
+
+  private async handleSiemCreateDashboard(task: any): Promise<any> {
+    return { skill: 'siem_connector', action: 'create-dashboard', dashboardName: task.metadata?.dashboardName, dashboardType: task.metadata?.dashboardType || 'threat_overview', queries: task.metadata?.queries || [] };
+  }
+
+  private async handleSiemCorrelateEvents(task: any): Promise<any> {
+    return { skill: 'siem_connector', action: 'correlate-events', configId: task.metadata?.configId, timeRange: task.metadata?.timeRange || '1h', correlationRules: task.metadata?.correlationRules || [] };
+  }
+
+  private async handleSiemExportReport(task: any): Promise<any> {
+    return { skill: 'siem_connector', action: 'export-report', configId: task.metadata?.configId, reportType: task.metadata?.reportType || 'compliance', format: task.metadata?.format || 'pdf' };
+  }
+
+  private async handleSiemConfigureSource(task: any): Promise<any> {
+    return { skill: 'siem_connector', action: 'configure-source', sourceName: task.metadata?.sourceName, sourceType: task.metadata?.sourceType, parsingRules: task.metadata?.parsingRules || {} };
+  }
+
+  // === Batch 332: Forensic Analyzer Handlers ===
+
+  private async handleFranCreateCase(task: any): Promise<any> {
+    return { skill: 'forensic_analyzer', action: 'create-case', caseName: task.metadata?.caseName, caseType: task.metadata?.caseType || 'incident', severity: task.metadata?.severity || 'medium' };
+  }
+
+  private async handleFranCollectEvidence(task: any): Promise<any> {
+    return { skill: 'forensic_analyzer', action: 'collect-evidence', caseId: task.metadata?.caseId, evidenceType: task.metadata?.evidenceType || 'log', source: task.metadata?.source };
+  }
+
+  private async handleFranAnalyzeTimeline(task: any): Promise<any> {
+    return { skill: 'forensic_analyzer', action: 'analyze-timeline', caseId: task.metadata?.caseId, timeRange: task.metadata?.timeRange, sources: task.metadata?.sources || [] };
+  }
+
+  private async handleFranGenerateFindings(task: any): Promise<any> {
+    return { skill: 'forensic_analyzer', action: 'generate-findings', caseId: task.metadata?.caseId, includeEvidence: task.metadata?.includeEvidence !== false };
+  }
+
+  private async handleFranCloseCase(task: any): Promise<any> {
+    return { skill: 'forensic_analyzer', action: 'close-case', caseId: task.metadata?.caseId, summary: task.metadata?.summary, lessonsLearned: task.metadata?.lessonsLearned || [] };
+  }
+
+  private async handleFranExportCase(task: any): Promise<any> {
+    return { skill: 'forensic_analyzer', action: 'export-case', caseId: task.metadata?.caseId, format: task.metadata?.format || 'json', includeEvidence: task.metadata?.includeEvidence !== false };
   }
 
 }

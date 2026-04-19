@@ -349,3 +349,8 @@ export * from './agent-metrics-hub';
 export * from './agent-event-correlator';
 export * from './agent-trace-collector';
 export * from './agent-dashboard-builder';
+export * from './agent-pentest-runner';
+export * from './agent-intrusion-guard';
+export * from './agent-rbac-enforcer';
+export * from './agent-siem-connector';
+export * from './agent-forensic-analyzer';

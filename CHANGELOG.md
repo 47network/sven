@@ -78,6 +78,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 328-332 — Security & Intelligence
+- **pentest_runner** — Automated penetration testing with scan management, finding verification, and report generation ($24.99/scan, engineer)
+- **intrusion_guard** — Real-time intrusion detection with rule-based traffic monitoring and source blocking ($19.99/session, engineer)
+- **rbac_enforcer** — Role-based access control enforcement with permission checking and audit trails ($15.99/policy, engineer)
+- **siem_connector** — SIEM integration hub for event ingestion, enrichment, and security dashboard creation ($21.99/integration, analyst)
+- **forensic_analyzer** — Digital forensics case management with evidence collection and timeline analysis ($29.99/case, analyst)
+- 15 new database tables (configs + findings/events/roles/cases + reports/rules/assignments/dashboards/evidence)
+- 20 new EidolonEventKind values (pntr.*, idgd.*, rbce.*, siem.*, fran.*)
+- 30 new task executor cases + handler methods
+- 150 tests passing
+
 ### Batches 323-327 — Observability & Monitoring
 - **log_streamer**: Log streaming, aggregation, pattern alerts, and retention management ($11.99/task)
 - **metrics_hub**: Metrics collection, Prometheus export, alerting rules, and window aggregation ($14.99/task)
