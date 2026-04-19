@@ -933,6 +933,31 @@ export type EidolonBuildingKind =
   | 'secret_rotation_auditor'
   | 'secret_rotation_reporter'
   | 'secret_rotation_optimizer'
+  | 'cert_manager'
+  | 'cert_manager_monitor'
+  | 'cert_manager_auditor'
+  | 'cert_manager_reporter'
+  | 'cert_manager_optimizer'
+  | 'access_control'
+  | 'access_control_monitor'
+  | 'access_control_auditor'
+  | 'access_control_reporter'
+  | 'access_control_optimizer'
+  | 'policy_evaluator'
+  | 'policy_evaluator_monitor'
+  | 'policy_evaluator_auditor'
+  | 'policy_evaluator_reporter'
+  | 'policy_evaluator_optimizer'
+  | 'compliance_gate'
+  | 'compliance_gate_monitor'
+  | 'compliance_gate_auditor'
+  | 'compliance_gate_reporter'
+  | 'compliance_gate_optimizer'
+  | 'drift_remediation'
+  | 'drift_remediation_monitor'
+  | 'drift_remediation_auditor'
+  | 'drift_remediation_reporter'
+  | 'drift_remediation_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4745,6 +4770,81 @@ export type EidolonEventKind =
   | 'sro.plan_created'
   | 'sro.optimization_applied'
   | 'sro.export_emitted'
+  | 'cm.entry_created'
+  | 'cm.config_updated'
+  | 'cm.export_emitted'
+  | 'cmm.check_passed'
+  | 'cmm.alert_raised'
+  | 'cmm.export_emitted'
+  | 'cma.entry_logged'
+  | 'cma.violation_found'
+  | 'cma.export_emitted'
+  | 'cmr.report_generated'
+  | 'cmr.insight_found'
+  | 'cmr.export_emitted'
+  | 'cmo.plan_created'
+  | 'cmo.optimization_applied'
+  | 'cmo.export_emitted'
+  | 'ac.rule_created'
+  | 'ac.config_updated'
+  | 'ac.export_emitted'
+  | 'acm.check_passed'
+  | 'acm.alert_raised'
+  | 'acm.export_emitted'
+  | 'aca.entry_logged'
+  | 'aca.violation_found'
+  | 'aca.export_emitted'
+  | 'acr.report_generated'
+  | 'acr.insight_found'
+  | 'acr.export_emitted'
+  | 'aco.plan_created'
+  | 'aco.optimization_applied'
+  | 'aco.export_emitted'
+  | 'pe.rule_created'
+  | 'pe.config_updated'
+  | 'pe.export_emitted'
+  | 'pem.check_passed'
+  | 'pem.alert_raised'
+  | 'pem.export_emitted'
+  | 'pea.entry_logged'
+  | 'pea.violation_found'
+  | 'pea.export_emitted'
+  | 'per.report_generated'
+  | 'per.insight_found'
+  | 'per.export_emitted'
+  | 'peo.plan_created'
+  | 'peo.optimization_applied'
+  | 'peo.export_emitted'
+  | 'cg.rule_created'
+  | 'cg.config_updated'
+  | 'cg.export_emitted'
+  | 'cgm.check_passed'
+  | 'cgm.alert_raised'
+  | 'cgm.export_emitted'
+  | 'cga.entry_logged'
+  | 'cga.violation_found'
+  | 'cga.export_emitted'
+  | 'cgr.report_generated'
+  | 'cgr.insight_found'
+  | 'cgr.export_emitted'
+  | 'cgo.plan_created'
+  | 'cgo.optimization_applied'
+  | 'cgo.export_emitted'
+  | 'dr.plan_created'
+  | 'dr.config_updated'
+  | 'dr.export_emitted'
+  | 'drm.check_passed'
+  | 'drm.alert_raised'
+  | 'drm.export_emitted'
+  | 'dra.entry_logged'
+  | 'dra.violation_found'
+  | 'dra.export_emitted'
+  | 'drr.report_generated'
+  | 'drr.insight_found'
+  | 'drr.export_emitted'
+  | 'dro.plan_created'
+  | 'dro.optimization_applied'
+  | 'dro.export_emitted'
   | 'nfpm.analysis_completed'
   | 'nfpm.alert_triggered'
   | 'nfpm.export_emitted'
@@ -6210,6 +6310,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'secret_rotation_auditor':
     case 'secret_rotation_reporter':
     case 'secret_rotation_optimizer':
+    case 'cert_manager':
+    case 'cert_manager_monitor':
+    case 'cert_manager_auditor':
+    case 'cert_manager_reporter':
+    case 'cert_manager_optimizer':
+    case 'access_control':
+    case 'access_control_monitor':
+    case 'access_control_auditor':
+    case 'access_control_reporter':
+    case 'access_control_optimizer':
+    case 'policy_evaluator':
+    case 'policy_evaluator_monitor':
+    case 'policy_evaluator_auditor':
+    case 'policy_evaluator_reporter':
+    case 'policy_evaluator_optimizer':
+    case 'compliance_gate':
+    case 'compliance_gate_monitor':
+    case 'compliance_gate_auditor':
+    case 'compliance_gate_reporter':
+    case 'compliance_gate_optimizer':
+    case 'drift_remediation':
+    case 'drift_remediation_monitor':
+    case 'drift_remediation_auditor':
+    case 'drift_remediation_reporter':
+    case 'drift_remediation_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

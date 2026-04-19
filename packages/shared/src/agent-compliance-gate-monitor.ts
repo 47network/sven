@@ -1,4 +1,4 @@
-export interface AccessControlRule {
+export interface ComplianceGateMonitorCheck {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface AccessControlRule {
   updatedAt: string;
 }
 
-export interface AccessControlConfig {
+export interface ComplianceGateMonitorConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface AccessControlResult {
+export interface ComplianceGateMonitorResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;
