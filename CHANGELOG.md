@@ -1,3 +1,45 @@
+## [Unreleased] - Batches 783-807 (Gateway, Event Routing, Cache/CDN, Documents, Messaging)
+
+### Added — 25 new autonomous economy verticals across 5 domain groups
+
+**Batches 783-787 — Gateway & Messaging Infrastructure:**
+- `ingress_gateway_router` — Route matching with upstream selection and proxying
+- `request_throttler` — Token bucket throttling with rolling-window resets
+- `tenant_quota_enforcer` — Tenant quota measurement with overage notification
+- `schema_registry_publisher` — Schema registration with compatibility verification
+- `contract_validator` — Contract validation with violation recording
+
+**Batches 788-792 — Event Routing & Replay:**
+- `kafka_event_replayer` — Bounded Kafka offset replay with completion verification
+- `dead_letter_processor` — DLQ analysis with retry scheduling and archival
+- `message_router` — Rule-based message routing with delivery confirmation
+- `protocol_translator` — Cross-protocol translation (AMQP/MQTT/HTTP/gRPC)
+- `kafka_topic_partitioner` — Partition assignment with skew detection
+
+**Batches 793-797 — Cache & CDN Operations:**
+- `distributed_cache_warmer` — Cache prefetch with coverage measurement
+- `cache_invalidator` — Event-driven invalidation with propagation confirmation
+- `cdn_purger` — Multi-edge CDN purge with completion verification
+- `asset_optimizer` — Compression and format conversion with CDN upload
+- `media_thumbnail_generator` — Multi-size thumbnail rendering and storage
+
+**Batches 798-802 — Document & Media Processing:**
+- `pdf_renderer` — Template-based high-fidelity PDF rendering
+- `document_converter` — Cross-format conversion (docx/pdf/html/markdown)
+- `ocr_extractor` — Multi-language OCR with per-region confidence
+- `barcode_scanner_svc` — Multi-format barcode detection and decoding
+- `qr_code_generator` — QR generation with error-correction tuning
+
+**Batches 803-807 — Messaging Channels:**
+- `email_template_engine` — i18n-aware email rendering and queueing
+- `sms_dispatcher` — Carrier-routed SMS with delivery receipts
+- `mobile_push_router` — Cross-platform push (APNS/FCM/web)
+- `voice_call_dialer` — TTS voice calls with response capture
+- `fax_gateway` — Legacy fax transmission with delivery confirmation
+
+### Tests
+- 275 new tests across 5 batch suites — all passing (5/5 suites, 275/275 tests)
+
 ## [Unreleased] - Batches 758-782 (Workflow, Search, Moderation, Recommendation, Fraud)
 
 ### Added — 25 new autonomous economy verticals across 5 domain groups
