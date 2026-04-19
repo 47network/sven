@@ -908,6 +908,31 @@ export type EidolonBuildingKind =
   | 'canary_deploy_auditor'
   | 'canary_deploy_reporter'
   | 'canary_deploy_optimizer'
+  | 'blue_green_deploy'
+  | 'blue_green_deploy_monitor'
+  | 'blue_green_deploy_auditor'
+  | 'blue_green_deploy_reporter'
+  | 'blue_green_deploy_optimizer'
+  | 'rolling_update'
+  | 'rolling_update_monitor'
+  | 'rolling_update_auditor'
+  | 'rolling_update_reporter'
+  | 'rolling_update_optimizer'
+  | 'feature_switch'
+  | 'feature_switch_monitor'
+  | 'feature_switch_auditor'
+  | 'feature_switch_reporter'
+  | 'feature_switch_optimizer'
+  | 'config_drift'
+  | 'config_drift_monitor'
+  | 'config_drift_auditor'
+  | 'config_drift_reporter'
+  | 'config_drift_optimizer'
+  | 'secret_rotation'
+  | 'secret_rotation_monitor'
+  | 'secret_rotation_auditor'
+  | 'secret_rotation_reporter'
+  | 'secret_rotation_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4645,6 +4670,81 @@ export type EidolonEventKind =
   | 'cdo.plan_created'
   | 'cdo.optimization_applied'
   | 'cdo.export_emitted'
+  | 'bgd.plan_created'
+  | 'bgd.config_updated'
+  | 'bgd.export_emitted'
+  | 'bgdm.check_passed'
+  | 'bgdm.alert_raised'
+  | 'bgdm.export_emitted'
+  | 'bgda.entry_logged'
+  | 'bgda.violation_found'
+  | 'bgda.export_emitted'
+  | 'bgdr.report_generated'
+  | 'bgdr.insight_found'
+  | 'bgdr.export_emitted'
+  | 'bgdo.plan_created'
+  | 'bgdo.optimization_applied'
+  | 'bgdo.export_emitted'
+  | 'ru.plan_created'
+  | 'ru.config_updated'
+  | 'ru.export_emitted'
+  | 'rum.check_passed'
+  | 'rum.alert_raised'
+  | 'rum.export_emitted'
+  | 'rua.entry_logged'
+  | 'rua.violation_found'
+  | 'rua.export_emitted'
+  | 'rur.report_generated'
+  | 'rur.insight_found'
+  | 'rur.export_emitted'
+  | 'ruo.plan_created'
+  | 'ruo.optimization_applied'
+  | 'ruo.export_emitted'
+  | 'fs.rule_created'
+  | 'fs.config_updated'
+  | 'fs.export_emitted'
+  | 'fsm.check_passed'
+  | 'fsm.alert_raised'
+  | 'fsm.export_emitted'
+  | 'fsa.entry_logged'
+  | 'fsa.violation_found'
+  | 'fsa.export_emitted'
+  | 'fsr.report_generated'
+  | 'fsr.insight_found'
+  | 'fsr.export_emitted'
+  | 'fso.plan_created'
+  | 'fso.optimization_applied'
+  | 'fso.export_emitted'
+  | 'cfd.entry_detected'
+  | 'cfd.config_updated'
+  | 'cfd.export_emitted'
+  | 'cfdm.check_passed'
+  | 'cfdm.alert_raised'
+  | 'cfdm.export_emitted'
+  | 'cfda.entry_logged'
+  | 'cfda.violation_found'
+  | 'cfda.export_emitted'
+  | 'cfdr.report_generated'
+  | 'cfdr.insight_found'
+  | 'cfdr.export_emitted'
+  | 'cfdo.plan_created'
+  | 'cfdo.optimization_applied'
+  | 'cfdo.export_emitted'
+  | 'sr.plan_created'
+  | 'sr.config_updated'
+  | 'sr.export_emitted'
+  | 'srm.check_passed'
+  | 'srm.alert_raised'
+  | 'srm.export_emitted'
+  | 'sra.entry_logged'
+  | 'sra.violation_found'
+  | 'sra.export_emitted'
+  | 'srr.report_generated'
+  | 'srr.insight_found'
+  | 'srr.export_emitted'
+  | 'sro.plan_created'
+  | 'sro.optimization_applied'
+  | 'sro.export_emitted'
   | 'nfpm.analysis_completed'
   | 'nfpm.alert_triggered'
   | 'nfpm.export_emitted'
@@ -6085,6 +6185,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'canary_deploy_auditor':
     case 'canary_deploy_reporter':
     case 'canary_deploy_optimizer':
+    case 'blue_green_deploy':
+    case 'blue_green_deploy_monitor':
+    case 'blue_green_deploy_auditor':
+    case 'blue_green_deploy_reporter':
+    case 'blue_green_deploy_optimizer':
+    case 'rolling_update':
+    case 'rolling_update_monitor':
+    case 'rolling_update_auditor':
+    case 'rolling_update_reporter':
+    case 'rolling_update_optimizer':
+    case 'feature_switch':
+    case 'feature_switch_monitor':
+    case 'feature_switch_auditor':
+    case 'feature_switch_reporter':
+    case 'feature_switch_optimizer':
+    case 'config_drift':
+    case 'config_drift_monitor':
+    case 'config_drift_auditor':
+    case 'config_drift_reporter':
+    case 'config_drift_optimizer':
+    case 'secret_rotation':
+    case 'secret_rotation_monitor':
+    case 'secret_rotation_auditor':
+    case 'secret_rotation_reporter':
+    case 'secret_rotation_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
