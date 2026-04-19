@@ -273,6 +273,11 @@ export type EidolonBuildingKind =
   | 'parallel_joiner'
   | 'timeout_watcher'
   | 'retry_orchestrator'
+  | 'toxicity_scanner'
+  | 'spam_classifier'
+  | 'nsfw_detector'
+  | 'bias_auditor'
+  | 'content_fingerprinter'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1570,6 +1575,26 @@ export type EidolonEventKind =
   | 'rtyo.attempt_made'
   | 'rtyo.success_after_retry'
   | 'rtyo.max_retries_exceeded'
+  | 'txsc.scan_completed'
+  | 'txsc.toxic_detected'
+  | 'txsc.content_cleared'
+  | 'txsc.escalation_triggered'
+  | 'spmc.classification_done'
+  | 'spmc.spam_detected'
+  | 'spmc.false_positive'
+  | 'spmc.model_updated'
+  | 'nsfw.scan_completed'
+  | 'nsfw.content_flagged'
+  | 'nsfw.content_approved'
+  | 'nsfw.review_requested'
+  | 'bsad.audit_completed'
+  | 'bsad.bias_detected'
+  | 'bsad.mitigation_suggested'
+  | 'bsad.compliance_verified'
+  | 'cfpr.fingerprint_created'
+  | 'cfpr.duplicate_found'
+  | 'cfpr.near_match_detected'
+  | 'cfpr.index_updated'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2300,6 +2325,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'parallel_joiner':
     case 'timeout_watcher':
     case 'retry_orchestrator':
+    case 'toxicity_scanner':
+    case 'spam_classifier':
+    case 'nsfw_detector':
+    case 'bias_auditor':
+    case 'content_fingerprinter':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

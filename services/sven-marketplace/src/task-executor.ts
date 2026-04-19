@@ -3623,6 +3623,36 @@ export class TaskExecutor {
       case 'rtyo_exceeded': return this.handleRtyoExceeded(task);
       case 'rtyo_report': return this.handleRtyoReport(task);
       case 'rtyo_monitor': return this.handleRtyoMonitor(task);
+      case 'txsc_scan': return this.handleTxscScan(task);
+      case 'txsc_detect': return this.handleTxscDetect(task);
+      case 'txsc_clear': return this.handleTxscClear(task);
+      case 'txsc_escalate': return this.handleTxscEscalate(task);
+      case 'txsc_report': return this.handleTxscReport(task);
+      case 'txsc_monitor': return this.handleTxscMonitor(task);
+      case 'spmc_classify': return this.handleSpmcClassify(task);
+      case 'spmc_detect': return this.handleSpmcDetect(task);
+      case 'spmc_falsepos': return this.handleSpmcFalsepos(task);
+      case 'spmc_update': return this.handleSpmcUpdate(task);
+      case 'spmc_report': return this.handleSpmcReport(task);
+      case 'spmc_monitor': return this.handleSpmcMonitor(task);
+      case 'nsfw_scan': return this.handleNsfwScan(task);
+      case 'nsfw_flag': return this.handleNsfwFlag(task);
+      case 'nsfw_approve': return this.handleNsfwApprove(task);
+      case 'nsfw_review': return this.handleNsfwReview(task);
+      case 'nsfw_report': return this.handleNsfwReport(task);
+      case 'nsfw_monitor': return this.handleNsfwMonitor(task);
+      case 'bsad_audit': return this.handleBsadAudit(task);
+      case 'bsad_detect': return this.handleBsadDetect(task);
+      case 'bsad_mitigate': return this.handleBsadMitigate(task);
+      case 'bsad_verify': return this.handleBsadVerify(task);
+      case 'bsad_report': return this.handleBsadReport(task);
+      case 'bsad_monitor': return this.handleBsadMonitor(task);
+      case 'cfpr_fingerprint': return this.handleCfprFingerprint(task);
+      case 'cfpr_duplicate': return this.handleCfprDuplicate(task);
+      case 'cfpr_nearmatch': return this.handleCfprNearmatch(task);
+      case 'cfpr_index': return this.handleCfprIndex(task);
+      case 'cfpr_report': return this.handleCfprReport(task);
+      case 'cfpr_monitor': return this.handleCfprMonitor(task);
     }
   }
 

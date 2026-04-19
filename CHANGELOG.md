@@ -36,6 +36,18 @@
 
 # Changelog
 
+## Batches 573-577 — Content Moderation & Safety
+- toxicity_scanner: Content toxicity scanning with severity classification
+- spam_classifier: Multi-signal spam classification with ML-based scoring
+- nsfw_detector: NSFW content detection for images and text media
+- bias_auditor: Algorithmic bias auditing with fairness metrics
+- content_fingerprinter: Content fingerprinting for duplicate and near-duplicate detection
+- 5 migrations, shared types, barrel exports, SKILL.md files
+- Eidolon BK/EK/districtFor wiring, event-bus SUBJECT_MAP entries
+- Task-executor switch cases, .gitattributes privacy filters
+- 55/55 tests passing
+
+
 ## Batches 568-572 — Workflow Orchestration
 - step_sequencer: Multi-step workflow sequencing with dependency tracking
 - gate_keeper: Conditional gate evaluation for workflow progression control
