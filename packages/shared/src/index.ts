@@ -189,3 +189,8 @@ export * from './agent-secret-rotation.js';
 export * from './agent-traffic-mirror.js';
 export * from './agent-compliance-report.js';
 export * from './agent-capacity-planning.js';
+export * from './agent-topology-map.js';
+export * from './agent-forensic-analysis.js';
+export * from './agent-patch-management.js';
+export * from './agent-access-review.js';
+export * from './agent-release-train.js';

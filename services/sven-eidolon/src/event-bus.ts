@@ -682,6 +682,31 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.capacity.breach_warning': 'capacity.breach_warning',
   'sven.capacity.action_proposed': 'capacity.action_proposed',
   'sven.capacity.action_completed': 'capacity.action_completed',
+  // Batch 168 — Agent Topology Map
+  'sven.topology.scan_started': 'topology.scan_started',
+  'sven.topology.scan_completed': 'topology.scan_completed',
+  'sven.topology.drift_detected': 'topology.drift_detected',
+  'sven.topology.snapshot_created': 'topology.snapshot_created',
+  // Batch 169 — Agent Forensic Analysis
+  'sven.forensic.case_opened': 'forensic.case_opened',
+  'sven.forensic.evidence_collected': 'forensic.evidence_collected',
+  'sven.forensic.analysis_completed': 'forensic.analysis_completed',
+  'sven.forensic.case_concluded': 'forensic.case_concluded',
+  // Batch 170 — Agent Patch Management
+  'sven.patch.advisory_found': 'patch.advisory_found',
+  'sven.patch.test_passed': 'patch.test_passed',
+  'sven.patch.deployed': 'patch.deployed',
+  'sven.patch.rolled_back': 'patch.rolled_back',
+  // Batch 171 — Agent Access Review
+  'sven.access.campaign_started': 'access.campaign_started',
+  'sven.access.review_completed': 'access.review_completed',
+  'sven.access.permission_revoked': 'access.permission_revoked',
+  'sven.access.compliance_reported': 'access.compliance_reported',
+  // Batch 172 — Agent Release Train
+  'sven.release.train_planned': 'release.train_planned',
+  'sven.release.gates_passed': 'release.gates_passed',
+  'sven.release.train_deployed': 'release.train_deployed',
+  'sven.release.train_rolled_back': 'release.train_rolled_back',
 };
 
 export class EidolonEventBus {

@@ -587,3 +587,28 @@ skills/agent-compliance-report/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260618040000_agent_capacity_planning.sql filter=sven-private
 packages/shared/src/agent-capacity-planning.ts filter=sven-private
 skills/agent-capacity-planning/SKILL.md filter=sven-private
+
+# Batch 168 — Agent Topology Map
+services/gateway-api/migrations/20260618050000_agent_topology_map.sql filter=sven-private
+packages/shared/src/agent-topology-map.ts filter=sven-private
+skills/agent-topology-map/SKILL.md filter=sven-private
+
+# Batch 169 — Agent Forensic Analysis
+services/gateway-api/migrations/20260618060000_agent_forensic_analysis.sql filter=sven-private
+packages/shared/src/agent-forensic-analysis.ts filter=sven-private
+skills/agent-forensic-analysis/SKILL.md filter=sven-private
+
+# Batch 170 — Agent Patch Management
+services/gateway-api/migrations/20260618070000_agent_patch_management.sql filter=sven-private
+packages/shared/src/agent-patch-management.ts filter=sven-private
+skills/agent-patch-management/SKILL.md filter=sven-private
+
+# Batch 171 — Agent Access Review
+services/gateway-api/migrations/20260618080000_agent_access_review.sql filter=sven-private
+packages/shared/src/agent-access-review.ts filter=sven-private
+skills/agent-access-review/SKILL.md filter=sven-private
+
+# Batch 172 — Agent Release Train
+services/gateway-api/migrations/20260618090000_agent_release_train.sql filter=sven-private
+packages/shared/src/agent-release-train.ts filter=sven-private
+skills/agent-release-train/SKILL.md filter=sven-private

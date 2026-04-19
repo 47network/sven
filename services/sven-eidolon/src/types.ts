@@ -127,6 +127,11 @@ export type EidolonBuildingKind =
   | 'mirror_tap'
   | 'compliance_desk'
   | 'capacity_planner'
+  | 'topology_grid'
+  | 'forensic_lab'
+  | 'patch_depot'
+  | 'access_court'
+  | 'release_station'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -647,6 +652,11 @@ export type EidolonEventKind =
   | 'capacity.breach_warning'
   | 'capacity.action_proposed'
   | 'capacity.action_completed'
+  | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
+  | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
+  | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
+  | 'access.campaign_started' | 'access.review_completed' | 'access.permission_revoked' | 'access.compliance_reported'
+  | 'release.train_planned' | 'release.gates_passed' | 'release.train_deployed' | 'release.train_rolled_back'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -777,6 +787,16 @@ export type EidolonEventKind =
   | 'trafficmirror.mirror_created' | 'trafficmirror.diff_detected' | 'trafficmirror.replay_completed' | 'trafficmirror.mirror_stopped'
   | 'compliance.assessment_started' | 'compliance.finding_submitted' | 'compliance.report_generated' | 'compliance.framework_updated'
   | 'capacity.forecast_generated' | 'capacity.breach_warning' | 'capacity.action_proposed' | 'capacity.action_completed'
+  | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
+  | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
+  | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
+  | 'access.campaign_started' | 'access.review_completed' | 'access.permission_revoked' | 'access.compliance_reported'
+  | 'release.train_planned' | 'release.gates_passed' | 'release.train_deployed' | 'release.train_rolled_back'
+  | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
+  | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
+  | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
+  | 'access.campaign_started' | 'access.review_completed' | 'access.permission_revoked' | 'access.compliance_reported'
+  | 'release.train_planned' | 'release.gates_passed' | 'release.train_deployed' | 'release.train_rolled_back'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1088,6 +1108,16 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'compliance_desk':
       return 'market';
     case 'capacity_planner':
+    case 'topology_grid':
+      return 'infrastructure';
+    case 'forensic_lab':
+      return 'civic';
+    case 'patch_depot':
+      return 'infrastructure';
+    case 'access_court':
+      return 'civic';
+    case 'release_station':
+      return 'infrastructure';
       return 'civic';
   }
 }
