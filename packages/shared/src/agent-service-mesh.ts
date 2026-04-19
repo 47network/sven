@@ -1,54 +1,44 @@
-export type MeshProtocol = 'http' | 'grpc' | 'tcp' | 'udp';
-export type MtlsMode = 'strict' | 'permissive' | 'disabled';
-export type MeshPolicyType = 'traffic' | 'security' | 'observability' | 'fault_injection';
+export type MeshSidecarMode = 'automatic' | 'manual' | 'disabled';
+export type MeshObservability = 'minimal' | 'standard' | 'full' | 'debug';
+export type MeshProtocol = 'http' | 'http2' | 'grpc' | 'tcp' | 'tls';
 
-export interface MeshService {
+export interface AgentMeshConfig {
   id: string;
-  agentId: string;
-  name: string;
+  agent_id: string;
+  mesh_name: string;
   namespace: string;
+  mtls_enabled: boolean;
+  sidecar_mode: MeshSidecarMode;
+  observability_level: MeshObservability;
+  retry_policy: Record<string, unknown>;
+  circuit_breaker: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AgentMeshService {
+  id: string;
+  mesh_id: string;
+  service_name: string;
+  service_port: number;
   protocol: MeshProtocol;
-  port: number;
-  targetPort: number;
-  sidecarEnabled: boolean;
-  mtlsMode: MtlsMode;
-  healthCheckPath: string | null;
+  version: string;
   replicas: number;
-  createdAt: string;
-  updatedAt: string;
+  health_check_path: string;
+  traffic_policy: Record<string, unknown>;
+  created_at: string;
 }
 
-export interface MeshRoute {
+export interface AgentMeshTrafficRule {
   id: string;
-  serviceId: string;
-  matchPath: string;
-  matchMethod: string | null;
-  destinationServiceId: string;
-  weight: number;
-  timeoutMs: number;
-  retryAttempts: number;
-  circuitBreakerThreshold: number;
-  rateLimitRps: number | null;
-  createdAt: string;
-}
-
-export interface MeshPolicy {
-  id: string;
-  agentId: string;
-  name: string;
-  policyType: MeshPolicyType;
-  targetServiceId: string | null;
-  rules: Record<string, unknown>[];
-  enabled: boolean;
-  priority: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ServiceMeshStats {
-  totalServices: number;
-  totalRoutes: number;
-  totalPolicies: number;
-  mtlsStrictCount: number;
-  sidecarEnabledCount: number;
+  mesh_id: string;
+  rule_name: string;
+  source_service: string | null;
+  destination_service: string;
+  match_criteria: Record<string, unknown>;
+  weight_percent: number;
+  timeout_ms: number;
+  retries: number;
+  created_at: string;
 }

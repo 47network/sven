@@ -279,3 +279,8 @@ export * from './agent-health-checker.js';
 export * from './agent-reverse-proxy.js';
 export * from './agent-nat-gateway.js';
 export * from './agent-traffic-shaper.js';
+export * from './agent-service-mesh.js';
+export * from './agent-wan-optimizer.js';
+export * from './agent-link-aggregator.js';
+export * from './agent-protocol-gateway.js';
+export * from './agent-vlan-manager.js';
