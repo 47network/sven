@@ -1,3 +1,7 @@
+## Batches 1558-1582 — Tenant Isolator, Permission Resolver, Token Vault, Session Keeper, Auth Gateway
+- 25 verticals (5 groups × 5): multi-tenancy + permissions + token management + session lifecycle + auth routing
+- 275 tests passing | migration timestamps 20260631950000–20260632190000
+
 ## Batches 1533-1557 — Capacity Forecaster, Resource Autoscaler, Cost Tracker, Budget Guardian, Quota Limiter
 - 25 verticals (5 groups × 5): capacity planning + resource scaling + cost management + budget enforcement + quota limiting
 - 275 tests passing | migration timestamps 20260631700000–20260631940000
