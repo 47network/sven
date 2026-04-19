@@ -1,3 +1,7 @@
+## Batches 1583-1607 — Hook Forwarder, Event Bridge, Stream Funneler, Msg Exchange, PubSub Router
+- 25 verticals (5 groups × 5): webhook forwarding + event bridging + stream processing + message exchange + pub/sub routing
+- 275 tests passing | migration timestamps 20260632200000–20260632440000
+
 ## Batches 1558-1582 — Tenant Isolator, Permission Resolver, Token Vault, Session Keeper, Auth Gateway
 - 25 verticals (5 groups × 5): multi-tenancy + permissions + token management + session lifecycle + auth routing
 - 275 tests passing | migration timestamps 20260631950000–20260632190000

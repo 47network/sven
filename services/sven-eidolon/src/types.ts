@@ -1283,6 +1283,31 @@ export type EidolonBuildingKind =
   | 'auth_gateway_auditor'
   | 'auth_gateway_reporter'
   | 'auth_gateway_optimizer'
+  | 'hook_forwarder'
+  | 'hook_forwarder_monitor'
+  | 'hook_forwarder_auditor'
+  | 'hook_forwarder_reporter'
+  | 'hook_forwarder_optimizer'
+  | 'event_bridge'
+  | 'event_bridge_monitor'
+  | 'event_bridge_auditor'
+  | 'event_bridge_reporter'
+  | 'event_bridge_optimizer'
+  | 'stream_funneler'
+  | 'stream_funneler_monitor'
+  | 'stream_funneler_auditor'
+  | 'stream_funneler_reporter'
+  | 'stream_funneler_optimizer'
+  | 'msg_exchange'
+  | 'msg_exchange_monitor'
+  | 'msg_exchange_auditor'
+  | 'msg_exchange_reporter'
+  | 'msg_exchange_optimizer'
+  | 'pubsub_router'
+  | 'pubsub_router_monitor'
+  | 'pubsub_router_auditor'
+  | 'pubsub_router_reporter'
+  | 'pubsub_router_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5035,6 +5060,81 @@ export type EidolonEventKind =
   | 'ago.plan_created'
   | 'ago.optimization_applied'
   | 'ago.export_emitted'
+  | 'hf.entry_created'
+  | 'hf.config_updated'
+  | 'hf.export_emitted'
+  | 'hfm.check_passed'
+  | 'hfm.alert_raised'
+  | 'hfm.export_emitted'
+  | 'hfa.entry_logged'
+  | 'hfa.violation_found'
+  | 'hfa.export_emitted'
+  | 'hfr.report_generated'
+  | 'hfr.insight_found'
+  | 'hfr.export_emitted'
+  | 'hfo.plan_created'
+  | 'hfo.optimization_applied'
+  | 'hfo.export_emitted'
+  | 'eb.entry_created'
+  | 'eb.config_updated'
+  | 'eb.export_emitted'
+  | 'ebm.check_passed'
+  | 'ebm.alert_raised'
+  | 'ebm.export_emitted'
+  | 'eba.entry_logged'
+  | 'eba.violation_found'
+  | 'eba.export_emitted'
+  | 'ebr.report_generated'
+  | 'ebr.insight_found'
+  | 'ebr.export_emitted'
+  | 'ebo.plan_created'
+  | 'ebo.optimization_applied'
+  | 'ebo.export_emitted'
+  | 'sf.entry_created'
+  | 'sf.config_updated'
+  | 'sf.export_emitted'
+  | 'sfm.check_passed'
+  | 'sfm.alert_raised'
+  | 'sfm.export_emitted'
+  | 'sfa.entry_logged'
+  | 'sfa.violation_found'
+  | 'sfa.export_emitted'
+  | 'sfr.report_generated'
+  | 'sfr.insight_found'
+  | 'sfr.export_emitted'
+  | 'sfo.plan_created'
+  | 'sfo.optimization_applied'
+  | 'sfo.export_emitted'
+  | 'me.entry_created'
+  | 'me.config_updated'
+  | 'me.export_emitted'
+  | 'mem.check_passed'
+  | 'mem.alert_raised'
+  | 'mem.export_emitted'
+  | 'mea.entry_logged'
+  | 'mea.violation_found'
+  | 'mea.export_emitted'
+  | 'mer.report_generated'
+  | 'mer.insight_found'
+  | 'mer.export_emitted'
+  | 'meo.plan_created'
+  | 'meo.optimization_applied'
+  | 'meo.export_emitted'
+  | 'psr.entry_created'
+  | 'psr.config_updated'
+  | 'psr.export_emitted'
+  | 'psrm.check_passed'
+  | 'psrm.alert_raised'
+  | 'psrm.export_emitted'
+  | 'psra.entry_logged'
+  | 'psra.violation_found'
+  | 'psra.export_emitted'
+  | 'psrr.report_generated'
+  | 'psrr.insight_found'
+  | 'psrr.export_emitted'
+  | 'psro.plan_created'
+  | 'psro.optimization_applied'
+  | 'psro.export_emitted'
   | 'ct.experiment_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -7960,6 +8060,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'auth_gateway_auditor':
     case 'auth_gateway_reporter':
     case 'auth_gateway_optimizer':
+    case 'hook_forwarder':
+    case 'hook_forwarder_monitor':
+    case 'hook_forwarder_auditor':
+    case 'hook_forwarder_reporter':
+    case 'hook_forwarder_optimizer':
+    case 'event_bridge':
+    case 'event_bridge_monitor':
+    case 'event_bridge_auditor':
+    case 'event_bridge_reporter':
+    case 'event_bridge_optimizer':
+    case 'stream_funneler':
+    case 'stream_funneler_monitor':
+    case 'stream_funneler_auditor':
+    case 'stream_funneler_reporter':
+    case 'stream_funneler_optimizer':
+    case 'msg_exchange':
+    case 'msg_exchange_monitor':
+    case 'msg_exchange_auditor':
+    case 'msg_exchange_reporter':
+    case 'msg_exchange_optimizer':
+    case 'pubsub_router':
+    case 'pubsub_router_monitor':
+    case 'pubsub_router_auditor':
+    case 'pubsub_router_reporter':
+    case 'pubsub_router_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
