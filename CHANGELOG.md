@@ -79,6 +79,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 198–202: Service Infrastructure
+- **Service Registry** (Batch 198): service discovery, health checks, endpoint management
+- **Ingress Controller** (Batch 199): traffic routing, TLS termination, CORS, rate limiting
+- **Fault Injector** (Batch 200): chaos engineering, resilience testing, fault reports
+- **Connection Pool** (Batch 201): pool management, health monitoring, utilization metrics
+- **Retry Handler** (Batch 202): retry policies, backoff strategies, dead-letter queues
+- 5 migrations, 5 shared types, 5 SKILL.md, 5 barrel exports
+- 5 BK values, 20 EK values, 20 SUBJECT_MAP entries, 30 switch cases, 30 handlers
+- 15 .gitattributes entries, 180 Jest tests — all passing
+
+
 ### Batches 193–197: Observability & Configuration
 - **Log Aggregator** (Batch 193): log sources, entries, pipelines with multi-format parsing
 - **Metric Collector** (Batch 194): Prometheus/StatsD/OTel metric sources, time-series, threshold alerts
