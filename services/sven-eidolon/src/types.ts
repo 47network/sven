@@ -1233,6 +1233,31 @@ export type EidolonBuildingKind =
   | 'incident_handler_auditor'
   | 'incident_handler_reporter'
   | 'incident_handler_optimizer'
+  | 'capacity_forecaster'
+  | 'capacity_forecaster_monitor'
+  | 'capacity_forecaster_auditor'
+  | 'capacity_forecaster_reporter'
+  | 'capacity_forecaster_optimizer'
+  | 'resource_autoscaler'
+  | 'resource_autoscaler_monitor'
+  | 'resource_autoscaler_auditor'
+  | 'resource_autoscaler_reporter'
+  | 'resource_autoscaler_optimizer'
+  | 'cost_tracker'
+  | 'cost_tracker_monitor'
+  | 'cost_tracker_auditor'
+  | 'cost_tracker_reporter'
+  | 'cost_tracker_optimizer'
+  | 'budget_guardian'
+  | 'budget_guardian_monitor'
+  | 'budget_guardian_auditor'
+  | 'budget_guardian_reporter'
+  | 'budget_guardian_optimizer'
+  | 'quota_limiter'
+  | 'quota_limiter_monitor'
+  | 'quota_limiter_auditor'
+  | 'quota_limiter_reporter'
+  | 'quota_limiter_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4865,6 +4890,51 @@ export type EidolonEventKind =
   | 'rao.plan_created'
   | 'rao.optimization_applied'
   | 'rao.export_emitted'
+  | 'ct.entry_created'
+  | 'ct.config_updated'
+  | 'ct.export_emitted'
+  | 'ctm.check_passed'
+  | 'ctm.alert_raised'
+  | 'ctm.export_emitted'
+  | 'cta.entry_logged'
+  | 'cta.violation_found'
+  | 'cta.export_emitted'
+  | 'ctr.report_generated'
+  | 'ctr.insight_found'
+  | 'ctr.export_emitted'
+  | 'cto.plan_created'
+  | 'cto.optimization_applied'
+  | 'cto.export_emitted'
+  | 'bg.entry_created'
+  | 'bg.config_updated'
+  | 'bg.export_emitted'
+  | 'bgm.check_passed'
+  | 'bgm.alert_raised'
+  | 'bgm.export_emitted'
+  | 'bga.entry_logged'
+  | 'bga.violation_found'
+  | 'bga.export_emitted'
+  | 'bgr.report_generated'
+  | 'bgr.insight_found'
+  | 'bgr.export_emitted'
+  | 'bgo.plan_created'
+  | 'bgo.optimization_applied'
+  | 'bgo.export_emitted'
+  | 'ql.entry_created'
+  | 'ql.config_updated'
+  | 'ql.export_emitted'
+  | 'qlm.check_passed'
+  | 'qlm.alert_raised'
+  | 'qlm.export_emitted'
+  | 'qla.entry_logged'
+  | 'qla.violation_found'
+  | 'qla.export_emitted'
+  | 'qlr.report_generated'
+  | 'qlr.insight_found'
+  | 'qlr.export_emitted'
+  | 'qlo.plan_created'
+  | 'qlo.optimization_applied'
+  | 'qlo.export_emitted'
   | 'ct.experiment_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -4895,6 +4965,21 @@ export type EidolonEventKind =
   | 'cfo.plan_created'
   | 'cfo.optimization_applied'
   | 'cfo.export_emitted'
+  | 'ra.entry_created'
+  | 'ra.config_updated'
+  | 'ra.export_emitted'
+  | 'ram.check_passed'
+  | 'ram.alert_raised'
+  | 'ram.export_emitted'
+  | 'raa.entry_logged'
+  | 'raa.violation_found'
+  | 'raa.export_emitted'
+  | 'rar.report_generated'
+  | 'rar.insight_found'
+  | 'rar.export_emitted'
+  | 'rao.plan_created'
+  | 'rao.optimization_applied'
+  | 'rao.export_emitted'
   | 'ca.entry_created'
   | 'ca.config_updated'
   | 'ca.export_emitted'
@@ -5360,6 +5445,21 @@ export type EidolonEventKind =
   | 'iho.plan_created'
   | 'iho.optimization_applied'
   | 'iho.export_emitted'
+  | 'cf.entry_created'
+  | 'cf.config_updated'
+  | 'cf.export_emitted'
+  | 'cfm.check_passed'
+  | 'cfm.alert_raised'
+  | 'cfm.export_emitted'
+  | 'cfa.entry_logged'
+  | 'cfa.violation_found'
+  | 'cfa.export_emitted'
+  | 'cfr.report_generated'
+  | 'cfr.insight_found'
+  | 'cfr.export_emitted'
+  | 'cfo.plan_created'
+  | 'cfo.optimization_applied'
+  | 'cfo.export_emitted'
   | 'vp.entry_created'
   | 'vp.config_updated'
   | 'vp.export_emitted'
@@ -7710,6 +7810,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'incident_handler_auditor':
     case 'incident_handler_reporter':
     case 'incident_handler_optimizer':
+    case 'capacity_forecaster':
+    case 'capacity_forecaster_monitor':
+    case 'capacity_forecaster_auditor':
+    case 'capacity_forecaster_reporter':
+    case 'capacity_forecaster_optimizer':
+    case 'resource_autoscaler':
+    case 'resource_autoscaler_monitor':
+    case 'resource_autoscaler_auditor':
+    case 'resource_autoscaler_reporter':
+    case 'resource_autoscaler_optimizer':
+    case 'cost_tracker':
+    case 'cost_tracker_monitor':
+    case 'cost_tracker_auditor':
+    case 'cost_tracker_reporter':
+    case 'cost_tracker_optimizer':
+    case 'budget_guardian':
+    case 'budget_guardian_monitor':
+    case 'budget_guardian_auditor':
+    case 'budget_guardian_reporter':
+    case 'budget_guardian_optimizer':
+    case 'quota_limiter':
+    case 'quota_limiter_monitor':
+    case 'quota_limiter_auditor':
+    case 'quota_limiter_reporter':
+    case 'quota_limiter_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
