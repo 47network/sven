@@ -608,6 +608,31 @@ export type EidolonBuildingKind =
   | 'edge_bot_filter'
   | 'edge_rate_shaper'
   | 'edge_security_responder'
+  | 'object_storage_uploader'
+  | 'object_storage_lifecycle_manager'
+  | 'object_storage_replicator'
+  | 'object_storage_signed_url_minter'
+  | 'object_storage_integrity_checker'
+  | 'queue_message_publisher'
+  | 'queue_message_consumer'
+  | 'queue_dead_letter_router'
+  | 'queue_visibility_manager'
+  | 'queue_throughput_scaler'
+  | 'stream_partition_assigner'
+  | 'stream_offset_committer'
+  | 'stream_compactor'
+  | 'stream_consumer_lag_monitor'
+  | 'stream_replay_coordinator'
+  | 'search_index_writer'
+  | 'search_query_planner'
+  | 'search_ranking_calibrator'
+  | 'search_synonym_manager'
+  | 'search_aggregation_executor'
+  | 'cache_namespace_provisioner'
+  | 'cache_warming_orchestrator'
+  | 'cache_eviction_policy_runner'
+  | 'cache_consistency_validator'
+  | 'cache_hit_ratio_reporter'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -3245,6 +3270,106 @@ export type EidolonEventKind =
   | 'esrp.incident_classified'
   | 'esrp.response_dispatched'
   | 'esrp.outcome_recorded'
+  | 'osup.request_received'
+  | 'osup.parts_streamed'
+  | 'osup.checksum_verified'
+  | 'osup.object_committed'
+  | 'oslm.rule_received'
+  | 'oslm.objects_evaluated'
+  | 'oslm.transitions_applied'
+  | 'oslm.audit_recorded'
+  | 'osrp.job_received'
+  | 'osrp.diff_computed'
+  | 'osrp.objects_replicated'
+  | 'osrp.checksum_validated'
+  | 'osum.request_received'
+  | 'osum.policy_evaluated'
+  | 'osum.url_minted'
+  | 'osum.audit_recorded'
+  | 'osic.scan_scheduled'
+  | 'osic.objects_hashed'
+  | 'osic.mismatches_flagged'
+  | 'osic.report_emitted'
+  | 'qmpb.message_received'
+  | 'qmpb.envelope_validated'
+  | 'qmpb.message_published'
+  | 'qmpb.ack_recorded'
+  | 'qmcs.lease_acquired'
+  | 'qmcs.message_processed'
+  | 'qmcs.outcome_recorded'
+  | 'qmcs.lease_released'
+  | 'qdlr.failure_observed'
+  | 'qdlr.policy_evaluated'
+  | 'qdlr.message_routed'
+  | 'qdlr.audit_recorded'
+  | 'qvmg.request_received'
+  | 'qvmg.timeout_evaluated'
+  | 'qvmg.visibility_extended'
+  | 'qvmg.outcome_recorded'
+  | 'qtps.signal_received'
+  | 'qtps.policy_evaluated'
+  | 'qtps.consumers_scaled'
+  | 'qtps.outcome_recorded'
+  | 'sppa.round_started'
+  | 'sppa.consumers_inventoried'
+  | 'sppa.assignments_computed'
+  | 'sppa.assignments_committed'
+  | 'sofc.commit_received'
+  | 'sofc.lag_validated'
+  | 'sofc.offset_persisted'
+  | 'sofc.ack_returned'
+  | 'stcm.job_received'
+  | 'stcm.segments_scanned'
+  | 'stcm.tombstones_collapsed'
+  | 'stcm.compacted_persisted'
+  | 'sclm.snapshot_taken'
+  | 'sclm.lag_computed'
+  | 'sclm.thresholds_evaluated'
+  | 'sclm.alerts_emitted'
+  | 'srpc.plan_received'
+  | 'srpc.range_validated'
+  | 'srpc.replay_executed'
+  | 'srpc.outcome_recorded'
+  | 'sxiw.batch_received'
+  | 'sxiw.documents_validated'
+  | 'sxiw.segment_written'
+  | 'sxiw.commit_finalized'
+  | 'sxqp.query_received'
+  | 'sxqp.plan_constructed'
+  | 'sxqp.cost_estimated'
+  | 'sxqp.plan_returned'
+  | 'sxrc.job_received'
+  | 'sxrc.signals_collected'
+  | 'sxrc.weights_calibrated'
+  | 'sxrc.profile_published'
+  | 'sxsm.set_received'
+  | 'sxsm.consistency_checked'
+  | 'sxsm.set_persisted'
+  | 'sxsm.indices_refreshed'
+  | 'sxae.request_received'
+  | 'sxae.plan_resolved'
+  | 'sxae.aggregation_executed'
+  | 'sxae.results_returned'
+  | 'cnpv.request_received'
+  | 'cnpv.quota_evaluated'
+  | 'cnpv.namespace_created'
+  | 'cnpv.audit_recorded'
+  | 'cwor.plan_received'
+  | 'cwor.keys_resolved'
+  | 'cwor.values_loaded'
+  | 'cwor.outcome_recorded'
+  | 'cepr.round_started'
+  | 'cepr.policy_evaluated'
+  | 'cepr.entries_evicted'
+  | 'cepr.metrics_recorded'
+  | 'ccsv.check_scheduled'
+  | 'ccsv.samples_compared'
+  | 'ccsv.divergence_flagged'
+  | 'ccsv.report_emitted'
+  | 'chrr.window_received'
+  | 'chrr.counters_aggregated'
+  | 'chrr.ratio_computed'
+  | 'chrr.report_emitted'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -4310,6 +4435,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'edge_bot_filter':
     case 'edge_rate_shaper':
     case 'edge_security_responder':
+    case 'object_storage_uploader':
+    case 'object_storage_lifecycle_manager':
+    case 'object_storage_replicator':
+    case 'object_storage_signed_url_minter':
+    case 'object_storage_integrity_checker':
+    case 'queue_message_publisher':
+    case 'queue_message_consumer':
+    case 'queue_dead_letter_router':
+    case 'queue_visibility_manager':
+    case 'queue_throughput_scaler':
+    case 'stream_partition_assigner':
+    case 'stream_offset_committer':
+    case 'stream_compactor':
+    case 'stream_consumer_lag_monitor':
+    case 'stream_replay_coordinator':
+    case 'search_index_writer':
+    case 'search_query_planner':
+    case 'search_ranking_calibrator':
+    case 'search_synonym_manager':
+    case 'search_aggregation_executor':
+    case 'cache_namespace_provisioner':
+    case 'cache_warming_orchestrator':
+    case 'cache_eviction_policy_runner':
+    case 'cache_consistency_validator':
+    case 'cache_hit_ratio_reporter':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
