@@ -78,6 +78,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 348-352 — Observability & Infrastructure
+- **log_router** (Batch 348): Log routing pipelines with filtering, sampling, and multi-destination support
+- **config_sync** (Batch 349): Configuration synchronization with conflict resolution and encryption
+- **health_prober** (Batch 350): Health probe management with alerting and target recovery
+- **quota_enforcer** (Batch 351): Resource quota enforcement with overage policies and violation tracking
+- **topology_mapper** (Batch 352): Service topology discovery, dependency mapping, and change detection
+- 5 migration files, 5 shared type files, 5 SKILL.md files
+- 20 EK values, 20 SUBJECT_MAP entries, 30 switch cases, 30 handler methods
+- 15 .gitattributes entries, 168 tests passing
+
 ### Batches 343-347 — Developer Tooling
 - **api_documenter** (Batch 343): API spec generation, doc publishing, spec validation, version diffing
 - **sdk_generator** (Batch 344): SDK code generation, package builds, test execution, package publishing

@@ -369,3 +369,9 @@ export * from './agent-sdk-generator';
 export * from './agent-contract-tester';
 export * from './agent-mock-server';
 export * from './agent-test-harness';
+
+export * from './agent-log-router';
+export * from './agent-config-sync';
+export * from './agent-health-prober';
+export * from './agent-quota-enforcer';
+export * from './agent-topology-mapper';

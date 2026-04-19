@@ -2270,6 +2270,37 @@ export class TaskExecutor {
       case 'tshr_detect_flaky': return this.handleTshrDetectFlaky(task);
       case 'tshr_generate_report': return this.handleTshrGenerateReport(task);
       case 'tshr_schedule_run': return this.handleTshrScheduleRun(task);
+
+      case 'lgrt_create_pipeline': return this.handleLgrtCreatePipeline(task);
+      case 'lgrt_configure_filter': return this.handleLgrtConfigureFilter(task);
+      case 'lgrt_route_logs': return this.handleLgrtRouteLogs(task);
+      case 'lgrt_adjust_sampling': return this.handleLgrtAdjustSampling(task);
+      case 'lgrt_analyze_throughput': return this.handleLgrtAnalyzeThroughput(task);
+      case 'lgrt_drain_pipeline': return this.handleLgrtDrainPipeline(task);
+      case 'cfsn_sync_namespace': return this.handleCfsnSyncNamespace(task);
+      case 'cfsn_resolve_conflict': return this.handleCfsnResolveConflict(task);
+      case 'cfsn_encrypt_config': return this.handleCfsnEncryptConfig(task);
+      case 'cfsn_rollback_version': return this.handleCfsnRollbackVersion(task);
+      case 'cfsn_diff_configs': return this.handleCfsnDiffConfigs(task);
+      case 'cfsn_export_snapshot': return this.handleCfsnExportSnapshot(task);
+      case 'htpr_create_probe': return this.handleHtprCreateProbe(task);
+      case 'htpr_run_probe': return this.handleHtprRunProbe(task);
+      case 'htpr_configure_thresholds': return this.handleHtprConfigureThresholds(task);
+      case 'htpr_acknowledge_alert': return this.handleHtprAcknowledgeAlert(task);
+      case 'htpr_generate_report': return this.handleHtprGenerateReport(task);
+      case 'htpr_test_connectivity': return this.handleHtprTestConnectivity(task);
+      case 'qten_set_quota': return this.handleQtenSetQuota(task);
+      case 'qten_check_usage': return this.handleQtenCheckUsage(task);
+      case 'qten_enforce_policy': return this.handleQtenEnforcePolicy(task);
+      case 'qten_reset_period': return this.handleQtenResetPeriod(task);
+      case 'qten_review_violations': return this.handleQtenReviewViolations(task);
+      case 'qten_adjust_limits': return this.handleQtenAdjustLimits(task);
+      case 'tpmp_discover_nodes': return this.handleTpmpDiscoverNodes(task);
+      case 'tpmp_map_edges': return this.handleTpmpMapEdges(task);
+      case 'tpmp_detect_changes': return this.handleTpmpDetectChanges(task);
+      case 'tpmp_analyze_dependencies': return this.handleTpmpAnalyzeDependencies(task);
+      case 'tpmp_export_map': return this.handleTpmpExportMap(task);
+      case 'tpmp_check_health': return this.handleTpmpCheckHealth(task);
     }
   }
 
@@ -16015,5 +16046,106 @@ export class TaskExecutor {
   private async handleTshrDetectFlaky(task: any) { return { success: true, handler: 'tshr_detect_flaky', flakyTests: [], totalRuns: 10, flakyRate: '0%' }; }
   private async handleTshrGenerateReport(task: any) { return { success: true, handler: 'tshr_generate_report', reportGenerated: true, format: 'html', passRate: '100%' }; }
   private async handleTshrScheduleRun(task: any) { return { success: true, handler: 'tshr_schedule_run', scheduled: true, frequency: task.input?.frequency || 'daily', nextRun: '' }; }
+
+
+  // --- Batch 348: Log Router handlers ---
+  private async handleLgrtCreatePipeline(task: any) {
+    return { skill: 'log_router', action: 'create-pipeline', pipelineName: task.metadata?.pipelineName, sourcePattern: task.metadata?.sourcePattern, destination: task.metadata?.destination || 'stdout', stages: task.metadata?.stages || [] };
+  }
+  private async handleLgrtConfigureFilter(task: any) {
+    return { skill: 'log_router', action: 'configure-filter', pipelineId: task.metadata?.pipelineId, filterRules: task.metadata?.filterRules || [], level: task.metadata?.level || 'info' };
+  }
+  private async handleLgrtRouteLogs(task: any) {
+    return { skill: 'log_router', action: 'route-logs', pipelineId: task.metadata?.pipelineId, entries: task.metadata?.entries || [], destination: task.metadata?.destination };
+  }
+  private async handleLgrtAdjustSampling(task: any) {
+    return { skill: 'log_router', action: 'adjust-sampling', pipelineId: task.metadata?.pipelineId, samplingRate: task.metadata?.samplingRate || 1.0, mode: task.metadata?.mode || 'fixed_rate' };
+  }
+  private async handleLgrtAnalyzeThroughput(task: any) {
+    return { skill: 'log_router', action: 'analyze-throughput', pipelineId: task.metadata?.pipelineId, timeRange: task.metadata?.timeRange || '1h' };
+  }
+  private async handleLgrtDrainPipeline(task: any) {
+    return { skill: 'log_router', action: 'drain-pipeline', pipelineId: task.metadata?.pipelineId, timeout: task.metadata?.timeout || 30000 };
+  }
+
+  // --- Batch 349: Config Sync handlers ---
+  private async handleCfsnSyncNamespace(task: any) {
+    return { skill: 'config_sync', action: 'sync-namespace', namespace: task.metadata?.namespace, strategy: task.metadata?.strategy || 'eventual', targetNodes: task.metadata?.targetNodes || [] };
+  }
+  private async handleCfsnResolveConflict(task: any) {
+    return { skill: 'config_sync', action: 'resolve-conflict', entryId: task.metadata?.entryId, resolution: task.metadata?.resolution || 'last_write_wins', preferredValue: task.metadata?.preferredValue };
+  }
+  private async handleCfsnEncryptConfig(task: any) {
+    return { skill: 'config_sync', action: 'encrypt-config', entryId: task.metadata?.entryId, algorithm: task.metadata?.algorithm || 'aes-256-gcm' };
+  }
+  private async handleCfsnRollbackVersion(task: any) {
+    return { skill: 'config_sync', action: 'rollback-version', entryId: task.metadata?.entryId, targetVersion: task.metadata?.targetVersion, reason: task.metadata?.reason };
+  }
+  private async handleCfsnDiffConfigs(task: any) {
+    return { skill: 'config_sync', action: 'diff-configs', namespace: task.metadata?.namespace, nodeA: task.metadata?.nodeA, nodeB: task.metadata?.nodeB };
+  }
+  private async handleCfsnExportSnapshot(task: any) {
+    return { skill: 'config_sync', action: 'export-snapshot', namespace: task.metadata?.namespace, format: task.metadata?.format || 'json', includeHistory: task.metadata?.includeHistory || false };
+  }
+
+  // --- Batch 350: Health Prober handlers ---
+  private async handleHtprCreateProbe(task: any) {
+    return { skill: 'health_prober', action: 'create-probe', proberName: task.metadata?.proberName, targetUrl: task.metadata?.targetUrl, probeType: task.metadata?.probeType || 'http', intervalSeconds: task.metadata?.intervalSeconds || 30 };
+  }
+  private async handleHtprRunProbe(task: any) {
+    return { skill: 'health_prober', action: 'run-probe', configId: task.metadata?.configId, timeout: task.metadata?.timeout || 5000 };
+  }
+  private async handleHtprConfigureThresholds(task: any) {
+    return { skill: 'health_prober', action: 'configure-thresholds', configId: task.metadata?.configId, successThreshold: task.metadata?.successThreshold || 1, failureThreshold: task.metadata?.failureThreshold || 3, severity: task.metadata?.severity || 'warning' };
+  }
+  private async handleHtprAcknowledgeAlert(task: any) {
+    return { skill: 'health_prober', action: 'acknowledge-alert', alertId: task.metadata?.alertId, acknowledgedBy: task.metadata?.acknowledgedBy };
+  }
+  private async handleHtprGenerateReport(task: any) {
+    return { skill: 'health_prober', action: 'generate-report', configId: task.metadata?.configId, timeRange: task.metadata?.timeRange || '24h', format: task.metadata?.format || 'json' };
+  }
+  private async handleHtprTestConnectivity(task: any) {
+    return { skill: 'health_prober', action: 'test-connectivity', targetUrl: task.metadata?.targetUrl, probeType: task.metadata?.probeType || 'http', timeout: task.metadata?.timeout || 5000 };
+  }
+
+  // --- Batch 351: Quota Enforcer handlers ---
+  private async handleQtenSetQuota(task: any) {
+    return { skill: 'quota_enforcer', action: 'set-quota', resourceType: task.metadata?.resourceType, quotaLimit: task.metadata?.quotaLimit, period: task.metadata?.period || 'monthly', enforcementMode: task.metadata?.enforcementMode || 'soft' };
+  }
+  private async handleQtenCheckUsage(task: any) {
+    return { skill: 'quota_enforcer', action: 'check-usage', configId: task.metadata?.configId, includeHistory: task.metadata?.includeHistory || false };
+  }
+  private async handleQtenEnforcePolicy(task: any) {
+    return { skill: 'quota_enforcer', action: 'enforce-policy', configId: task.metadata?.configId, overagePolicy: task.metadata?.overagePolicy || 'throttle' };
+  }
+  private async handleQtenResetPeriod(task: any) {
+    return { skill: 'quota_enforcer', action: 'reset-period', configId: task.metadata?.configId, reason: task.metadata?.reason || 'scheduled' };
+  }
+  private async handleQtenReviewViolations(task: any) {
+    return { skill: 'quota_enforcer', action: 'review-violations', configId: task.metadata?.configId, unresolvedOnly: task.metadata?.unresolvedOnly !== false };
+  }
+  private async handleQtenAdjustLimits(task: any) {
+    return { skill: 'quota_enforcer', action: 'adjust-limits', configId: task.metadata?.configId, newLimit: task.metadata?.newLimit, reason: task.metadata?.reason };
+  }
+
+  // --- Batch 352: Topology Mapper handlers ---
+  private async handleTpmpDiscoverNodes(task: any) {
+    return { skill: 'topology_mapper', action: 'discover-nodes', mapName: task.metadata?.mapName, discoveryMethod: task.metadata?.discoveryMethod || 'active', depthLimit: task.metadata?.depthLimit || 5 };
+  }
+  private async handleTpmpMapEdges(task: any) {
+    return { skill: 'topology_mapper', action: 'map-edges', configId: task.metadata?.configId, sourceNodeId: task.metadata?.sourceNodeId, includeExternal: task.metadata?.includeExternal || false };
+  }
+  private async handleTpmpDetectChanges(task: any) {
+    return { skill: 'topology_mapper', action: 'detect-changes', configId: task.metadata?.configId, sinceTimestamp: task.metadata?.sinceTimestamp };
+  }
+  private async handleTpmpAnalyzeDependencies(task: any) {
+    return { skill: 'topology_mapper', action: 'analyze-dependencies', configId: task.metadata?.configId, nodeId: task.metadata?.nodeId, direction: task.metadata?.direction || 'downstream' };
+  }
+  private async handleTpmpExportMap(task: any) {
+    return { skill: 'topology_mapper', action: 'export-map', configId: task.metadata?.configId, format: task.metadata?.format || 'json', includeHealth: task.metadata?.includeHealth !== false };
+  }
+  private async handleTpmpCheckHealth(task: any) {
+    return { skill: 'topology_mapper', action: 'check-health', configId: task.metadata?.configId, nodeFilter: task.metadata?.nodeFilter, timeout: task.metadata?.timeout || 10000 };
+  }
 
 }
