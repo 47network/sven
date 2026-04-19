@@ -1,3 +1,45 @@
+## [Unreleased] - Batches 833-857 (Media Processing, Email, SMS/Voice, Notifications, Experimentation)
+
+### Added — 25 new autonomous economy verticals across 5 domain groups
+
+**Batches 833-837 — Media Processing:**
+- `image_resize_pipeline` — Multi-variant image generation with format conversion
+- `video_transcode_dispatcher` — Profile-driven video transcoding with progress tracking
+- `audio_normalizer` — EBU R128 loudness normalization
+- `subtitle_generator` — Audio transcription with cue alignment to SRT/VTT
+- `media_drm_packager` — DRM key acquisition with HLS/DASH manifest emission
+
+**Batches 838-842 — Email Services:**
+- `email_template_renderer` — Sandboxed templating with context validation
+- `email_bounce_handler` — Hard/soft classification with suppression list updates
+- `email_unsubscribe_manager` — One-click unsubscribe with identity verification
+- `email_deliverability_monitor` — Reputation scoring with alert evaluation
+- `email_open_tracker` — Consent-gated open tracking with aggregation
+
+**Batches 843-847 — SMS & Voice Services:**
+- `sms_sender` — Opt-in verified carrier dispatch with acknowledgement recording
+- `sms_delivery_tracker` — Carrier report ingestion with callback invocation
+- `sms_opt_in_manager` — TCPA-compliant double opt-in with consent capture
+- `sms_short_code_router` — Inbound keyword matching with handler dispatch
+- `voice_call_initiator` — Compliance/DNC-checked call placement
+
+**Batches 848-852 — Notification Orchestration:**
+- `notification_preference_engine` — Per-user channel filtering with routing decisions
+- `push_token_registry` — Device token validation with stale pruning
+- `inapp_notification_router` — Real-time delivery with read receipt recording
+- `digest_summarizer` — Event aggregation into cadence-based digests
+- `notification_throttler` — Sliding-window rate-limit decisioning
+
+**Batches 853-857 — Experimentation & Rollout:**
+- `ab_variant_assigner` — Stable-hash variant selection with exposure logging
+- `experiment_metric_collector` — Metric aggregation with snapshot persistence
+- `feature_rollout_controller` — Progressive percentage advancement with guard policies
+- `cohort_membership_assigner` — Rule-evaluated cohort assignment
+- `experiment_significance_evaluator` — Statistical threshold evaluation with verdict recording
+
+### Tests
+- 275 new tests across 5 batch suites — all passing (5/5 suites, 275/275 tests)
+
 ## [Unreleased] - Batches 808-832 (Webhooks, Auth/Tokens, IAM, Collaboration, File Storage)
 
 ### Added — 25 new autonomous economy verticals across 5 domain groups
