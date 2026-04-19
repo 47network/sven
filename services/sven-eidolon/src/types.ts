@@ -132,6 +132,11 @@ export type EidolonBuildingKind =
   | 'patch_depot'
   | 'access_court'
   | 'release_station'
+  | 'cost_watchtower'
+  | 'remediation_forge'
+  | 'correlation_hub'
+  | 'webhook_station'
+  | 'certificate_vault'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -657,6 +662,11 @@ export type EidolonEventKind =
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
   | 'access.campaign_started' | 'access.review_completed' | 'access.permission_revoked' | 'access.compliance_reported'
   | 'release.train_planned' | 'release.gates_passed' | 'release.train_deployed' | 'release.train_rolled_back'
+  | 'cost.budget_created' | 'cost.anomaly_detected' | 'cost.forecast_generated' | 'cost.budget_exceeded'
+  | 'drift.baseline_set' | 'drift.drift_detected' | 'drift.remediation_applied' | 'drift.escalated'
+  | 'logcorr.rule_triggered' | 'logcorr.incident_opened' | 'logcorr.root_cause_found' | 'logcorr.incident_resolved'
+  | 'webhook.endpoint_registered' | 'webhook.delivery_sent' | 'webhook.delivery_failed' | 'webhook.retry_exhausted'
+  | 'cert.certificate_imported' | 'cert.renewal_requested' | 'cert.renewal_completed' | 'cert.expiry_warning'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -792,11 +802,21 @@ export type EidolonEventKind =
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
   | 'access.campaign_started' | 'access.review_completed' | 'access.permission_revoked' | 'access.compliance_reported'
   | 'release.train_planned' | 'release.gates_passed' | 'release.train_deployed' | 'release.train_rolled_back'
+  | 'cost.budget_created' | 'cost.anomaly_detected' | 'cost.forecast_generated' | 'cost.budget_exceeded'
+  | 'drift.baseline_set' | 'drift.drift_detected' | 'drift.remediation_applied' | 'drift.escalated'
+  | 'logcorr.rule_triggered' | 'logcorr.incident_opened' | 'logcorr.root_cause_found' | 'logcorr.incident_resolved'
+  | 'webhook.endpoint_registered' | 'webhook.delivery_sent' | 'webhook.delivery_failed' | 'webhook.retry_exhausted'
+  | 'cert.certificate_imported' | 'cert.renewal_requested' | 'cert.renewal_completed' | 'cert.expiry_warning'
   | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
   | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
   | 'access.campaign_started' | 'access.review_completed' | 'access.permission_revoked' | 'access.compliance_reported'
   | 'release.train_planned' | 'release.gates_passed' | 'release.train_deployed' | 'release.train_rolled_back'
+  | 'cost.budget_created' | 'cost.anomaly_detected' | 'cost.forecast_generated' | 'cost.budget_exceeded'
+  | 'drift.baseline_set' | 'drift.drift_detected' | 'drift.remediation_applied' | 'drift.escalated'
+  | 'logcorr.rule_triggered' | 'logcorr.incident_opened' | 'logcorr.root_cause_found' | 'logcorr.incident_resolved'
+  | 'webhook.endpoint_registered' | 'webhook.delivery_sent' | 'webhook.delivery_failed' | 'webhook.retry_exhausted'
+  | 'cert.certificate_imported' | 'cert.renewal_requested' | 'cert.renewal_completed' | 'cert.expiry_warning'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1117,7 +1137,13 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'access_court':
       return 'civic';
     case 'release_station':
+    case 'cost_watchtower':
+    case 'correlation_hub':
+    case 'webhook_station':
       return 'infrastructure';
+    case 'remediation_forge':
+    case 'certificate_vault':
+      return 'civic';
       return 'civic';
   }
 }

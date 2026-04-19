@@ -707,6 +707,31 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.release.gates_passed': 'release.gates_passed',
   'sven.release.train_deployed': 'release.train_deployed',
   'sven.release.train_rolled_back': 'release.train_rolled_back',
+  // Batch 173 — Cost Anomaly
+  'sven.cost.budget_created': 'cost.budget_created',
+  'sven.cost.anomaly_detected': 'cost.anomaly_detected',
+  'sven.cost.forecast_generated': 'cost.forecast_generated',
+  'sven.cost.budget_exceeded': 'cost.budget_exceeded',
+  // Batch 174 — Drift Remediation
+  'sven.drift.baseline_set': 'drift.baseline_set',
+  'sven.drift.drift_detected': 'drift.drift_detected',
+  'sven.drift.remediation_applied': 'drift.remediation_applied',
+  'sven.drift.escalated': 'drift.escalated',
+  // Batch 175 — Log Correlation
+  'sven.logcorr.rule_triggered': 'logcorr.rule_triggered',
+  'sven.logcorr.incident_opened': 'logcorr.incident_opened',
+  'sven.logcorr.root_cause_found': 'logcorr.root_cause_found',
+  'sven.logcorr.incident_resolved': 'logcorr.incident_resolved',
+  // Batch 176 — Webhook Manager
+  'sven.webhook.endpoint_registered': 'webhook.endpoint_registered',
+  'sven.webhook.delivery_sent': 'webhook.delivery_sent',
+  'sven.webhook.delivery_failed': 'webhook.delivery_failed',
+  'sven.webhook.retry_exhausted': 'webhook.retry_exhausted',
+  // Batch 177 — Certificate Manager
+  'sven.cert.certificate_imported': 'cert.certificate_imported',
+  'sven.cert.renewal_requested': 'cert.renewal_requested',
+  'sven.cert.renewal_completed': 'cert.renewal_completed',
+  'sven.cert.expiry_warning': 'cert.expiry_warning',
 };
 
 export class EidolonEventBus {

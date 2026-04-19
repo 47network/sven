@@ -194,3 +194,8 @@ export * from './agent-forensic-analysis.js';
 export * from './agent-patch-management.js';
 export * from './agent-access-review.js';
 export * from './agent-release-train.js';
+export * from './agent-cost-anomaly.js';
+export * from './agent-drift-remediation.js';
+export * from './agent-log-correlation.js';
+export * from './agent-webhook-manager.js';
+export * from './agent-certificate-manager.js';

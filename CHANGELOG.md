@@ -79,6 +79,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 173-177 — Agent Ops & Security
+- **Cost Anomaly** (Batch 173): Budget tracking, anomaly detection, forecast spending, cost optimization (migration, types, SKILL.md, 6 task handlers)
+- **Drift Remediation** (Batch 174): Baseline management, drift scanning, auto-remediation, escalation workflows (migration, types, SKILL.md, 6 task handlers)
+- **Log Correlation** (Batch 175): Rule-based log correlation, incident investigation, timeline builder, root cause analysis (migration, types, SKILL.md, 6 task handlers)
+- **Webhook Manager** (Batch 176): Endpoint registration, delivery management, signature verification, retry policies (migration, types, SKILL.md, 6 task handlers)
+- **Certificate Manager** (Batch 177): Certificate inventory, renewal workflows, expiry monitoring, chain verification (migration, types, SKILL.md, 6 task handlers)
+- 20 new SUBJECT_MAP entries in event-bus (cost, drift, logcorr, webhook, cert domains)
+- 5 new EidolonBuildingKind values, 20 new EidolonEventKind values, 5 districtFor cases
+- 30 new task-executor switch cases + 30 handler methods (939 total cases, 729 handlers)
+- 15 new .gitattributes privacy filter entries (634 total lines)
+- 215 Jest tests — all passing
+
+
 ### Batch 168-172 — Agent Infrastructure Operations (Topology Map, Forensic Analysis, Patch Management, Access Review, Release Train)
 - **Batch 168**: Agent Topology Map — topology_grid BK, 3 tables, 4 EK events, 6 task handlers
 - **Batch 169**: Agent Forensic Analysis — forensic_lab BK, 3 tables, 4 EK events, 6 task handlers

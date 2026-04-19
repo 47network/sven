@@ -612,3 +612,23 @@ skills/agent-access-review/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260618090000_agent_release_train.sql filter=sven-private
 packages/shared/src/agent-release-train.ts filter=sven-private
 skills/agent-release-train/SKILL.md filter=sven-private
+# Batch 173 — Cost Anomaly
+services/gateway-api/migrations/20260618100000_agent_cost_anomaly.sql filter=sven-private
+packages/shared/src/agent-cost-anomaly.ts filter=sven-private
+skills/agent-cost-anomaly/SKILL.md filter=sven-private
+# Batch 174 — Drift Remediation
+services/gateway-api/migrations/20260618110000_agent_drift_remediation.sql filter=sven-private
+packages/shared/src/agent-drift-remediation.ts filter=sven-private
+skills/agent-drift-remediation/SKILL.md filter=sven-private
+# Batch 175 — Log Correlation
+services/gateway-api/migrations/20260618120000_agent_log_correlation.sql filter=sven-private
+packages/shared/src/agent-log-correlation.ts filter=sven-private
+skills/agent-log-correlation/SKILL.md filter=sven-private
+# Batch 176 — Webhook Manager
+services/gateway-api/migrations/20260618130000_agent_webhook_manager.sql filter=sven-private
+packages/shared/src/agent-webhook-manager.ts filter=sven-private
+skills/agent-webhook-manager/SKILL.md filter=sven-private
+# Batch 177 — Certificate Manager
+services/gateway-api/migrations/20260618140000_agent_certificate_manager.sql filter=sven-private
+packages/shared/src/agent-certificate-manager.ts filter=sven-private
+skills/agent-certificate-manager/SKILL.md filter=sven-private
