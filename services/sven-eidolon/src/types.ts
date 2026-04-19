@@ -833,6 +833,31 @@ export type EidolonBuildingKind =
   | 'vpn_tunnel_key_rotator'
   | 'vpn_tunnel_traffic_analyzer'
   | 'vpn_tunnel_compliance_auditor'
+  | 'container_registry_scanner'
+  | 'container_registry_replicator'
+  | 'container_registry_cleaner'
+  | 'container_image_signer'
+  | 'container_registry_auditor'
+  | 'container_runtime_monitor'
+  | 'container_runtime_enforcer'
+  | 'container_runtime_profiler'
+  | 'container_cgroup_optimizer'
+  | 'container_runtime_auditor'
+  | 'pod_scheduler_optimizer'
+  | 'pod_affinity_manager'
+  | 'pod_priority_controller'
+  | 'pod_disruption_handler'
+  | 'pod_scheduling_auditor'
+  | 'service_mesh_configurator'
+  | 'service_mesh_traffic_shaper'
+  | 'service_mesh_policy_enforcer'
+  | 'service_mesh_observability_agent'
+  | 'service_mesh_auditor'
+  | 'cluster_autoscaler_manager'
+  | 'cluster_node_provisioner'
+  | 'cluster_capacity_planner'
+  | 'cluster_scaling_policy_enforcer'
+  | 'cluster_autoscaling_auditor'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4345,6 +4370,81 @@ export type EidolonEventKind =
   | 'vtca.analysis_completed'
   | 'vtca.alert_triggered'
   | 'vtca.export_emitted'
+  | 'crs.scan_initiated'
+  | 'crs.vuln_detected'
+  | 'crs.export_emitted'
+  | 'crr.replication_started'
+  | 'crr.sync_completed'
+  | 'crr.export_emitted'
+  | 'crc.cleanup_started'
+  | 'crc.images_removed'
+  | 'crc.export_emitted'
+  | 'cis.signing_initiated'
+  | 'cis.signature_applied'
+  | 'cis.export_emitted'
+  | 'cra.audit_started'
+  | 'cra.findings_reported'
+  | 'cra.export_emitted'
+  | 'crm.monitoring_started'
+  | 'crm.anomaly_detected'
+  | 'crm.export_emitted'
+  | 'cre.policy_applied'
+  | 'cre.violation_blocked'
+  | 'cre.export_emitted'
+  | 'crp.profiling_started'
+  | 'crp.profile_generated'
+  | 'crp.export_emitted'
+  | 'cco.analysis_started'
+  | 'cco.limits_adjusted'
+  | 'cco.export_emitted'
+  | 'crta.audit_started'
+  | 'crta.findings_reported'
+  | 'crta.export_emitted'
+  | 'pso.optimization_started'
+  | 'pso.placement_decided'
+  | 'pso.export_emitted'
+  | 'pam.rules_applied'
+  | 'pam.topology_balanced'
+  | 'pam.export_emitted'
+  | 'ppc.priority_assigned'
+  | 'ppc.preemption_executed'
+  | 'ppc.export_emitted'
+  | 'pdh.budget_enforced'
+  | 'pdh.eviction_completed'
+  | 'pdh.export_emitted'
+  | 'psa.audit_started'
+  | 'psa.findings_reported'
+  | 'psa.export_emitted'
+  | 'smc.config_applied'
+  | 'smc.proxy_updated'
+  | 'smc.export_emitted'
+  | 'smts.rules_applied'
+  | 'smts.traffic_shifted'
+  | 'smts.export_emitted'
+  | 'smpe.policy_applied'
+  | 'smpe.violation_detected'
+  | 'smpe.export_emitted'
+  | 'smoa.tracing_started'
+  | 'smoa.metrics_collected'
+  | 'smoa.export_emitted'
+  | 'sma.audit_started'
+  | 'sma.findings_reported'
+  | 'sma.export_emitted'
+  | 'cam.scaling_initiated'
+  | 'cam.nodes_adjusted'
+  | 'cam.export_emitted'
+  | 'cnp.provisioning_started'
+  | 'cnp.node_ready'
+  | 'cnp.export_emitted'
+  | 'ccp.planning_started'
+  | 'ccp.forecast_generated'
+  | 'ccp.export_emitted'
+  | 'cspe.policy_applied'
+  | 'cspe.limit_enforced'
+  | 'cspe.export_emitted'
+  | 'caa.audit_started'
+  | 'caa.findings_reported'
+  | 'caa.export_emitted'
   | 'nfpm.analysis_completed'
   | 'nfpm.alert_triggered'
   | 'nfpm.export_emitted'
@@ -5710,6 +5810,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'vpn_tunnel_key_rotator':
     case 'vpn_tunnel_traffic_analyzer':
     case 'vpn_tunnel_compliance_auditor':
+    case 'container_registry_scanner':
+    case 'container_registry_replicator':
+    case 'container_registry_cleaner':
+    case 'container_image_signer':
+    case 'container_registry_auditor':
+    case 'container_runtime_monitor':
+    case 'container_runtime_enforcer':
+    case 'container_runtime_profiler':
+    case 'container_cgroup_optimizer':
+    case 'container_runtime_auditor':
+    case 'pod_scheduler_optimizer':
+    case 'pod_affinity_manager':
+    case 'pod_priority_controller':
+    case 'pod_disruption_handler':
+    case 'pod_scheduling_auditor':
+    case 'service_mesh_configurator':
+    case 'service_mesh_traffic_shaper':
+    case 'service_mesh_policy_enforcer':
+    case 'service_mesh_observability_agent':
+    case 'service_mesh_auditor':
+    case 'cluster_autoscaler_manager':
+    case 'cluster_node_provisioner':
+    case 'cluster_capacity_planner':
+    case 'cluster_scaling_policy_enforcer':
+    case 'cluster_autoscaling_auditor':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

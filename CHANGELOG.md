@@ -2,6 +2,20 @@
 
 - **Batch 1108-1112 · Network Firewall Management** — policy manager, rule auditor, threat detector, traffic analyzer, compliance checker
 - **Batch 1113-1117 · Network ACL Management** — policy builder, rule validator, access auditor, change tracker, compliance monitor
+
+## [Batches 1133-1157] — Container & Orchestration Management
+
+### Added — 25 verticals (Container Registry, Container Runtime, Pod Scheduling, Service Mesh, Cluster Autoscaling)
+- **Container Registry** (1133-1137): scanner, replicator, cleaner, image-signer, auditor
+- **Container Runtime** (1138-1142): monitor, enforcer, profiler, cgroup-optimizer, auditor
+- **Pod Scheduling** (1143-1147): scheduler-optimizer, affinity-manager, priority-controller, disruption-handler, auditor
+- **Service Mesh** (1148-1152): configurator, traffic-shaper, policy-enforcer, observability-agent, auditor
+- **Cluster Autoscaling** (1153-1157): autoscaler-manager, node-provisioner, capacity-planner, scaling-policy-enforcer, auditor
+
+Each vertical includes: SKILL.md, shared types, eidolon integration (BK + EK + districtFor),
+NATS event-bus subjects, marketplace task-executor handler, gateway migration,
+barrel export, .gitattributes privacy filter, and dedicated test suite (275 tests).
+
 - **Batch 1118-1122 · DNS Management** — zone provisioner, record verifier, propagation prober, health monitor, failover manager
 - **Batch 1123-1127 · Load Balancer Management** — pool manager, health checker, traffic router, SSL terminator, rate limiter
 - **Batch 1128-1132 · VPN Tunnel Management** — tunnel provisioner, tunnel monitor, key rotator, traffic analyzer, compliance auditor
