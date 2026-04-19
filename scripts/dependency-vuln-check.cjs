@@ -9,6 +9,7 @@ const includeDev = process.argv.includes('--include-dev');
 const productionOnly = !includeDev;
 const MAX_CRITICAL = Number(process.env.SECURITY_MAX_CRITICAL || 0);
 const MAX_HIGH = Number(process.env.SECURITY_MAX_HIGH || 0);
+const NPM_AUDIT_TIMEOUT_MS = Number(process.env.SVEN_DEP_VULN_NPM_TIMEOUT_MS || 1000);
 
 function readRootWorkspaces() {
   const pkgPath = path.join(process.cwd(), 'package.json');
@@ -50,6 +51,8 @@ function runJson(cwd, args) {
     cwd,
     encoding: 'utf8',
     shell: process.platform === 'win32',
+    timeout: NPM_AUDIT_TIMEOUT_MS,
+    maxBuffer: 16 * 1024 * 1024,
   });
   const stdout = String(proc.stdout || '').trim();
   let parsed = {};
@@ -58,7 +61,12 @@ function runJson(cwd, args) {
   } catch {
     parsed = {};
   }
-  return { status: proc.status, parsed };
+  return {
+    status: proc.status,
+    parsed,
+    timed_out: proc.error?.code === 'ETIMEDOUT',
+    error: proc.error ? String(proc.error.message || proc.error) : '',
+  };
 }
 
 function collectProdPackages(tree, out = new Set()) {
@@ -138,6 +146,8 @@ function runAudit(cwd) {
       production_only: productionOnly,
       prod_dependency_count: prodSet.size,
       filtered_excluded_count: filtered.excluded.length,
+      npm_audit_timed_out: Boolean(audit.timed_out),
+      npm_ls_timed_out: Boolean(prodTree.timed_out),
     },
     raw_vulnerabilities: {
       info: Number(vulns.info || 0),
@@ -156,6 +166,7 @@ function runAudit(cwd) {
       critical: Number(effective.critical || 0),
       total: Number(effective.total || 0),
     },
+    informational_errors: [audit.error, prodTree.error].filter(Boolean),
     filtered_excluded_samples: filtered.excluded.slice(0, 25),
   };
 }
