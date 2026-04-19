@@ -97,6 +97,11 @@ export type EidolonBuildingKind =
   | 'change_bureau'
   | 'deploy_gateway'
   | 'asset_vault'
+  | 'token_mint'
+  | 'sandbox_chamber'
+  | 'swarm_nexus'
+  | 'consensus_forum'
+  | 'anomaly_watchtower'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -677,6 +682,11 @@ export type EidolonEventKind =
   | 'changemgmt.request_submitted' | 'changemgmt.approval_decided' | 'changemgmt.change_completed' | 'changemgmt.rollback_initiated'
   | 'bluegreen.version_deployed' | 'bluegreen.stage_switched' | 'bluegreen.traffic_shifted' | 'bluegreen.rollback_triggered'
   | 'assetmgmt.asset_registered' | 'assetmgmt.asset_transferred' | 'assetmgmt.license_granted' | 'assetmgmt.asset_deprecated'
+  | 'tokenmint.token_defined' | 'tokenmint.tokens_minted' | 'tokenmint.tokens_burned' | 'tokenmint.balance_updated'
+  | 'sandbox.env_provisioned' | 'sandbox.execution_completed' | 'sandbox.violation_detected' | 'sandbox.env_terminated'
+  | 'swarm.cluster_formed' | 'swarm.member_joined' | 'swarm.task_distributed' | 'swarm.cluster_dissolved'
+  | 'consensus.proposal_created' | 'consensus.vote_cast' | 'consensus.quorum_reached' | 'consensus.proposal_executed'
+  | 'anomaly.detector_created' | 'anomaly.anomaly_detected' | 'anomaly.anomaly_resolved' | 'anomaly.baseline_updated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -928,6 +938,16 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'change_bureau':
     case 'deploy_gateway':
     case 'asset_vault':
+      return 'civic';
+    case 'token_mint':
+      return 'market';
+    case 'sandbox_chamber':
+      return 'civic';
+    case 'swarm_nexus':
+      return 'civic';
+    case 'consensus_forum':
+      return 'civic';
+    case 'anomaly_watchtower':
       return 'civic';
   }
 }

@@ -7,6 +7,36 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## Batch 138 – Agent Token Minting
+- Migration: token_definitions, mint_operations, token_balances
+- Types: TokenType, MintReason, MintStatus, TokenDefinition, MintOperation, TokenBalance
+- Skill: agent-token-minting (treasury archetype)
+- Eidolon: BK token_mint, 4 EK events, districtFor → market
+
+## Batch 139 – Agent Sandbox Isolation
+- Migration: sandbox_environments, sandbox_executions, sandbox_violations
+- Types: IsolationLevel, SandboxStatus, NetworkPolicy, ViolationType
+- Skill: agent-sandbox-isolation (infrastructure archetype)
+- Eidolon: BK sandbox_chamber, 4 EK events, districtFor → civic
+
+## Batch 140 – Agent Swarm Coordination
+- Migration: swarm_clusters, swarm_members, swarm_tasks
+- Types: SwarmStrategy, SwarmStatus, SwarmRole, SwarmCluster, SwarmMember
+- Skill: agent-swarm-coordination (coordination archetype)
+- Eidolon: BK swarm_nexus, 4 EK events, districtFor → civic
+
+## Batch 141 – Agent Consensus Protocol
+- Migration: consensus_proposals, consensus_votes, consensus_executions
+- Types: ProposalType, ProposalStatus, VoteChoice, ConsensusProposal
+- Skill: agent-consensus-protocol (governance archetype)
+- Eidolon: BK consensus_forum, 4 EK events, districtFor → civic
+
+## Batch 142 – Agent Anomaly Detection
+- Migration: anomaly_detectors, detected_anomalies, anomaly_baselines
+- Types: AnomalyAlgorithm, AnomalySeverity, BaselinePeriod
+- Skill: agent-anomaly-detection (observability archetype)
+- Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
+
 ## [Unreleased]
 
 ### Batch 137 — Agent Asset Management

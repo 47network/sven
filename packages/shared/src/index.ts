@@ -159,3 +159,8 @@ export * from './agent-audit-trail.js';
 export * from './agent-change-management.js';
 export * from './agent-blue-green.js';
 export * from './agent-asset-management.js';
+export * from './agent-token-minting.js';
+export * from './agent-sandbox-isolation.js';
+export * from './agent-swarm-coordination.js';
+export * from './agent-consensus-protocol.js';
+export * from './agent-anomaly-detection.js';
