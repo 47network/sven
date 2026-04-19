@@ -79,6 +79,47 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batch 152 — Agent Federation Protocol
+- Migration: `20260617890000_agent_federation_protocol.sql` (3 tables, 6 indexes)
+- Types: FederationPeer, FederationLink, FederationMessage, FederationProtocolStats
+- Skill: `agent-federation-protocol` — cross-instance agent federation
+- Eidolon: `federation_hub` BK, 4 EK events, districtFor → civic
+- Event-bus: 4 SUBJECT_MAP entries (sven.federation.*)
+- Task executor: 6 switch cases + 6 handler methods
+
+### Batch 151 — Agent Service Discovery
+- Migration: `20260617880000_agent_service_discovery.sql` (3 tables, 6 indexes)
+- Types: ServiceRegistryEntry, DiscoveryProbe, ServiceDependency, ServiceDiscoveryStats
+- Skill: `agent-service-discovery` — auto-discover agent capabilities
+- Eidolon: `discovery_beacon` BK, 4 EK events, districtFor → civic
+- Event-bus: 4 SUBJECT_MAP entries (sven.discovery.*)
+- Task executor: 6 switch cases + 6 handler methods
+
+### Batch 150 — Agent Inventory Tracking
+- Migration: `20260617870000_agent_inventory_tracking.sql` (3 tables, 6 indexes)
+- Types: AgentInventoryItem, InventoryTransaction, InventoryReservation, InventoryTrackingStats
+- Skill: `agent-inventory-tracking` — track digital assets and resources
+- Eidolon: `inventory_vault` BK, 4 EK events, districtFor → market
+- Event-bus: 4 SUBJECT_MAP entries (sven.inventory.*)
+- Task executor: 6 switch cases + 6 handler methods
+
+### Batch 149 — Agent Hot Patching
+- Migration: `20260617860000_agent_hot_patching.sql` (3 tables, 6 indexes)
+- Types: AgentPatch, PatchChain, PatchAuditEntry, HotPatchingStats
+- Skill: `agent-hot-patching` — live agent behavior modification
+- Eidolon: `patch_workshop` BK, 4 EK events, districtFor → civic
+- Event-bus: 4 SUBJECT_MAP entries (sven.hotpatch.*)
+- Task executor: 6 switch cases + 6 handler methods
+
+### Batch 148 — Agent Mesh Routing
+- Migration: `20260617850000_agent_mesh_routing.sql` (3 tables, 6 indexes)
+- Types: MeshRouteTable, MeshRouteEntry, MeshRouteLog, MeshRoutingStats
+- Skill: `agent-mesh-routing` — intelligent mesh network routing
+- Eidolon: `mesh_router` BK, 4 EK events, districtFor → civic
+- Event-bus: 4 SUBJECT_MAP entries (sven.meshroute.*)
+- Task executor: 6 switch cases + 6 handler methods
+
+
 ### Batch 137 — Agent Asset Management
 - Migration: `20260617740000_agent_asset_management.sql` (digital_assets, asset_transfers, asset_licenses)
 - Shared types: AssetCategory, DigitalAsset, AssetTransfer, AssetLicense, AssetManagementStats
