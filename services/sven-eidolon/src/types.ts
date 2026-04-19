@@ -1608,6 +1608,31 @@ export type EidolonBuildingKind =
   | 'refund_processor_auditor'
   | 'refund_processor_reporter'
   | 'refund_processor_optimizer'
+  | 'currency_converter'
+  | 'currency_converter_monitor'
+  | 'currency_converter_auditor'
+  | 'currency_converter_reporter'
+  | 'currency_converter_optimizer'
+  | 'wallet_manager'
+  | 'wallet_manager_monitor'
+  | 'wallet_manager_auditor'
+  | 'wallet_manager_reporter'
+  | 'wallet_manager_optimizer'
+  | 'escrow_handler'
+  | 'escrow_handler_monitor'
+  | 'escrow_handler_auditor'
+  | 'escrow_handler_reporter'
+  | 'escrow_handler_optimizer'
+  | 'payout_scheduler'
+  | 'payout_scheduler_monitor'
+  | 'payout_scheduler_auditor'
+  | 'payout_scheduler_reporter'
+  | 'payout_scheduler_optimizer'
+  | 'commission_engine'
+  | 'commission_engine_monitor'
+  | 'commission_engine_auditor'
+  | 'commission_engine_reporter'
+  | 'commission_engine_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5147,6 +5172,66 @@ export type EidolonEventKind =
   | 'cco.analysis_started'
   | 'cco.limits_adjusted'
   | 'cco.export_emitted'
+  | 'wm.entry_created'
+  | 'wm.config_updated'
+  | 'wm.export_emitted'
+  | 'wmm.check_passed'
+  | 'wmm.alert_raised'
+  | 'wmm.export_emitted'
+  | 'wma.entry_logged'
+  | 'wma.violation_found'
+  | 'wma.export_emitted'
+  | 'wmr.report_generated'
+  | 'wmr.insight_found'
+  | 'wmr.export_emitted'
+  | 'wmo.plan_created'
+  | 'wmo.optimization_applied'
+  | 'wmo.export_emitted'
+  | 'eh.entry_created'
+  | 'eh.config_updated'
+  | 'eh.export_emitted'
+  | 'ehm.check_passed'
+  | 'ehm.alert_raised'
+  | 'ehm.export_emitted'
+  | 'eha.entry_logged'
+  | 'eha.violation_found'
+  | 'eha.export_emitted'
+  | 'ehr.report_generated'
+  | 'ehr.insight_found'
+  | 'ehr.export_emitted'
+  | 'eho.plan_created'
+  | 'eho.optimization_applied'
+  | 'eho.export_emitted'
+  | 'ps.entry_created'
+  | 'ps.config_updated'
+  | 'ps.export_emitted'
+  | 'psm.check_passed'
+  | 'psm.alert_raised'
+  | 'psm.export_emitted'
+  | 'psa.entry_logged'
+  | 'psa.violation_found'
+  | 'psa.export_emitted'
+  | 'psr.report_generated'
+  | 'psr.insight_found'
+  | 'psr.export_emitted'
+  | 'pso.plan_created'
+  | 'pso.optimization_applied'
+  | 'pso.export_emitted'
+  | 'ce.entry_created'
+  | 'ce.config_updated'
+  | 'ce.export_emitted'
+  | 'cem.check_passed'
+  | 'cem.alert_raised'
+  | 'cem.export_emitted'
+  | 'cea.entry_logged'
+  | 'cea.violation_found'
+  | 'cea.export_emitted'
+  | 'cer.report_generated'
+  | 'cer.insight_found'
+  | 'cer.export_emitted'
+  | 'ceo.plan_created'
+  | 'ceo.optimization_applied'
+  | 'ceo.export_emitted'
   | 'crta.audit_started'
   | 'crta.findings_reported'
   | 'crta.export_emitted'
@@ -5315,6 +5400,21 @@ export type EidolonEventKind =
   | 'rpo.plan_created'
   | 'rpo.optimization_applied'
   | 'rpo.export_emitted'
+  | 'cc.entry_created'
+  | 'cc.config_updated'
+  | 'cc.export_emitted'
+  | 'ccm.check_passed'
+  | 'ccm.alert_raised'
+  | 'ccm.export_emitted'
+  | 'cca.entry_logged'
+  | 'cca.violation_found'
+  | 'cca.export_emitted'
+  | 'ccr.report_generated'
+  | 'ccr.insight_found'
+  | 'ccr.export_emitted'
+  | 'cco.plan_created'
+  | 'cco.optimization_applied'
+  | 'cco.export_emitted'
   | 'ct.entry_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -9585,6 +9685,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'refund_processor_auditor':
     case 'refund_processor_reporter':
     case 'refund_processor_optimizer':
+    case 'currency_converter':
+    case 'currency_converter_monitor':
+    case 'currency_converter_auditor':
+    case 'currency_converter_reporter':
+    case 'currency_converter_optimizer':
+    case 'wallet_manager':
+    case 'wallet_manager_monitor':
+    case 'wallet_manager_auditor':
+    case 'wallet_manager_reporter':
+    case 'wallet_manager_optimizer':
+    case 'escrow_handler':
+    case 'escrow_handler_monitor':
+    case 'escrow_handler_auditor':
+    case 'escrow_handler_reporter':
+    case 'escrow_handler_optimizer':
+    case 'payout_scheduler':
+    case 'payout_scheduler_monitor':
+    case 'payout_scheduler_auditor':
+    case 'payout_scheduler_reporter':
+    case 'payout_scheduler_optimizer':
+    case 'commission_engine':
+    case 'commission_engine_monitor':
+    case 'commission_engine_auditor':
+    case 'commission_engine_reporter':
+    case 'commission_engine_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
