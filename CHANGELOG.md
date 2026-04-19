@@ -10,6 +10,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Batch 113 — Log Rotation**: agent_log_rotation_policies, agent_log_archives, agent_log_retention_jobs tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon log_rotator building
+- **Batch 114 — IP Allowlisting**: agent_ip_allowlists, agent_ip_rules, agent_ip_access_logs tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon ip_gatekeeper building
+- **Batch 115 — Webhook Retry**: agent_webhook_endpoints, agent_webhook_deliveries, agent_webhook_dead_letters tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon webhook_relay building
+- **Batch 116 — Storage Tiering**: agent_storage_tiers, agent_storage_lifecycle_rules, agent_storage_migrations tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon storage_tower building
+- **Batch 117 — Network Peering**: agent_peering_connections, agent_peering_routes, agent_transit_gateways tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon peering_bridge building
 - **Batch 108**: Agent Edge Computing — edge node provisioning, function deployment, latency metrics (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 109**: Agent API Versioning — version lifecycle, deprecation tracking, compatibility checks (migration, types, skill, eidolon, event-bus, task-executor, tests)
 - **Batch 110**: Agent Compliance Scanner — policy management, scan orchestration, remediation tracking (migration, types, skill, eidolon, event-bus, task-executor, tests)

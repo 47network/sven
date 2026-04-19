@@ -134,3 +134,8 @@ export * from './agent-api-versioning.js';
 export * from './agent-compliance-scanner.js';
 export * from './agent-backup-scheduling.js';
 export * from './agent-traffic-shaping.js';
+export * from './agent-log-rotation.js';
+export * from './agent-ip-allowlisting.js';
+export * from './agent-webhook-retry.js';
+export * from './agent-storage-tiering.js';
+export * from './agent-network-peering.js';
