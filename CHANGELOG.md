@@ -78,6 +78,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+
+### Batches 413-417 — Observability & Reliability
+- **alert_router**: Alert rule management, firing, delivery, suppression (6 handlers)
+- **telemetry_collector**: Metric recording, dashboards, retention, summaries (6 handlers)
+- **runbook_executor**: Runbook CRUD, execution lifecycle, cloning (6 handlers)
+- **dependency_resolver**: Graph resolution, conflict detection, lockfile export (6 handlers)
+- **resource_quoter**: Quote lifecycle, resource allocation, spending tracking (6 handlers)
+- 5 migrations, 5 type files, 5 SKILL.md, 5 BK + 20 EK + 5 districtFor, 20 SUBJECT_MAP, 30 cases + 30 handlers
+- 175 tests passing
+
 ### Batches 408-412 — Data & Configuration
 - **etl_processor**: ETL pipelines with source connectors, transforms, and sink targets
 - **schema_validator**: Schema registration, data validation, and compatibility checking

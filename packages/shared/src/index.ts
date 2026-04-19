@@ -436,3 +436,8 @@ export * from './agent-schema-validator';
 export * from './agent-config-registry';
 export * from './agent-feature-flag-engine';
 export * from './agent-health-monitor';
+export * from './agent-alert-router';
+export * from './agent-telemetry-collector';
+export * from './agent-runbook-executor';
+export * from './agent-dependency-resolver';
+export * from './agent-resource-quoter';

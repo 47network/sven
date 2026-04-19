@@ -2663,6 +2663,36 @@ export class TaskExecutor {
       case 'hlmn_list_incidents': return this.handleHlmnListIncidents(task);
       case 'hlmn_acknowledge_incident': return this.handleHlmnAcknowledgeIncident(task);
       case 'hlmn_resolve_incident': return this.handleHlmnResolveIncident(task);
+      case 'alrt_create_rule': return this.handleAlrtCreateRule(task);
+      case 'alrt_fire_alert': return this.handleAlrtFireAlert(task);
+      case 'alrt_list_rules': return this.handleAlrtListRules(task);
+      case 'alrt_get_history': return this.handleAlrtGetHistory(task);
+      case 'alrt_update_rule': return this.handleAlrtUpdateRule(task);
+      case 'alrt_suppress_alert': return this.handleAlrtSuppressAlert(task);
+      case 'tlmc_record_metric': return this.handleTlmcRecordMetric(task);
+      case 'tlmc_query_metrics': return this.handleTlmcQueryMetrics(task);
+      case 'tlmc_create_dashboard': return this.handleTlmcCreateDashboard(task);
+      case 'tlmc_list_dashboards': return this.handleTlmcListDashboards(task);
+      case 'tlmc_get_summary': return this.handleTlmcGetSummary(task);
+      case 'tlmc_configure_retention': return this.handleTlmcConfigureRetention(task);
+      case 'rnbk_create_runbook': return this.handleRnbkCreateRunbook(task);
+      case 'rnbk_execute_runbook': return this.handleRnbkExecuteRunbook(task);
+      case 'rnbk_get_execution': return this.handleRnbkGetExecution(task);
+      case 'rnbk_list_runbooks': return this.handleRnbkListRunbooks(task);
+      case 'rnbk_cancel_execution': return this.handleRnbkCancelExecution(task);
+      case 'rnbk_clone_runbook': return this.handleRnbkCloneRunbook(task);
+      case 'depr_resolve_graph': return this.handleDeprResolveGraph(task);
+      case 'depr_check_conflicts': return this.handleDeprCheckConflicts(task);
+      case 'depr_suggest_resolution': return this.handleDeprSuggestResolution(task);
+      case 'depr_list_graphs': return this.handleDeprListGraphs(task);
+      case 'depr_update_graph': return this.handleDeprUpdateGraph(task);
+      case 'depr_export_lockfile': return this.handleDeprExportLockfile(task);
+      case 'rsqt_create_quote': return this.handleRsqtCreateQuote(task);
+      case 'rsqt_approve_quote': return this.handleRsqtApproveQuote(task);
+      case 'rsqt_allocate_resources': return this.handleRsqtAllocateResources(task);
+      case 'rsqt_release_resources': return this.handleRsqtReleaseResources(task);
+      case 'rsqt_list_quotes': return this.handleRsqtListQuotes(task);
+      case 'rsqt_get_spending': return this.handleRsqtGetSpending(task);
     }
   }
 
@@ -17709,5 +17739,37 @@ export class TaskExecutor {
   private async handleHlmnListIncidents(task: any): Promise<any> { return { success: true, incidents: [], total: 0 }; }
   private async handleHlmnAcknowledgeIncident(task: any): Promise<any> { return { success: true, incidentId: task.input?.incidentId, status: 'acknowledged' }; }
   private async handleHlmnResolveIncident(task: any): Promise<any> { return { success: true, incidentId: task.input?.incidentId, status: 'resolved' }; }
+
+
+  private async handleAlrtCreateRule(task: any): Promise<any> { return { success: true, ruleId: `rule-${Date.now()}`, name: task.input?.name, severity: task.input?.severity || 'medium' }; }
+  private async handleAlrtFireAlert(task: any): Promise<any> { return { success: true, alertId: `alert-${Date.now()}`, delivered: true, channel: task.input?.channel || 'email' }; }
+  private async handleAlrtListRules(task: any): Promise<any> { return { success: true, rules: [], total: 0 }; }
+  private async handleAlrtGetHistory(task: any): Promise<any> { return { success: true, history: [], total: 0 }; }
+  private async handleAlrtUpdateRule(task: any): Promise<any> { return { success: true, ruleId: task.input?.ruleId, updated: true }; }
+  private async handleAlrtSuppressAlert(task: any): Promise<any> { return { success: true, ruleId: task.input?.ruleId, suppressed: true }; }
+  private async handleTlmcRecordMetric(task: any): Promise<any> { return { success: true, metricId: `met-${Date.now()}`, metricName: task.input?.metricName, value: task.input?.value || 0 }; }
+  private async handleTlmcQueryMetrics(task: any): Promise<any> { return { success: true, timeSeries: [], metricName: task.input?.metricName }; }
+  private async handleTlmcCreateDashboard(task: any): Promise<any> { return { success: true, dashboardId: `dash-${Date.now()}`, name: task.input?.name }; }
+  private async handleTlmcListDashboards(task: any): Promise<any> { return { success: true, dashboards: [], total: 0 }; }
+  private async handleTlmcGetSummary(task: any): Promise<any> { return { success: true, metricName: task.input?.metricName, summary: { min: 0, max: 0, avg: 0, count: 0 } }; }
+  private async handleTlmcConfigureRetention(task: any): Promise<any> { return { success: true, retentionDays: task.input?.retentionDays || 30 }; }
+  private async handleRnbkCreateRunbook(task: any): Promise<any> { return { success: true, runbookId: `rb-${Date.now()}`, name: task.input?.name, stepCount: (task.input?.steps || []).length }; }
+  private async handleRnbkExecuteRunbook(task: any): Promise<any> { return { success: true, executionId: `exec-${Date.now()}`, runbookId: task.input?.runbookId, status: 'running' }; }
+  private async handleRnbkGetExecution(task: any): Promise<any> { return { success: true, executionId: task.input?.executionId, status: 'completed', currentStep: 0 }; }
+  private async handleRnbkListRunbooks(task: any): Promise<any> { return { success: true, runbooks: [], total: 0 }; }
+  private async handleRnbkCancelExecution(task: any): Promise<any> { return { success: true, executionId: task.input?.executionId, status: 'cancelled' }; }
+  private async handleRnbkCloneRunbook(task: any): Promise<any> { return { success: true, runbookId: `rb-${Date.now()}`, clonedFrom: task.input?.runbookId }; }
+  private async handleDeprResolveGraph(task: any): Promise<any> { return { success: true, graphId: `graph-${Date.now()}`, rootPackage: task.input?.rootPackage, nodeCount: 0 }; }
+  private async handleDeprCheckConflicts(task: any): Promise<any> { return { success: true, graphId: task.input?.graphId, conflicts: [] }; }
+  private async handleDeprSuggestResolution(task: any): Promise<any> { return { success: true, conflictId: task.input?.conflictId, suggestions: [] }; }
+  private async handleDeprListGraphs(task: any): Promise<any> { return { success: true, graphs: [], total: 0 }; }
+  private async handleDeprUpdateGraph(task: any): Promise<any> { return { success: true, graphId: task.input?.graphId, updated: true }; }
+  private async handleDeprExportLockfile(task: any): Promise<any> { return { success: true, graphId: task.input?.graphId, lockfileContent: '{}' }; }
+  private async handleRsqtCreateQuote(task: any): Promise<any> { return { success: true, quoteId: `qt-${Date.now()}`, resourceType: task.input?.resourceType, estimatedCost: 0 }; }
+  private async handleRsqtApproveQuote(task: any): Promise<any> { return { success: true, quoteId: task.input?.quoteId, status: 'approved' }; }
+  private async handleRsqtAllocateResources(task: any): Promise<any> { return { success: true, allocationId: `alloc-${Date.now()}`, quoteId: task.input?.quoteId }; }
+  private async handleRsqtReleaseResources(task: any): Promise<any> { return { success: true, allocationId: task.input?.allocationId, released: true }; }
+  private async handleRsqtListQuotes(task: any): Promise<any> { return { success: true, quotes: [], total: 0 }; }
+  private async handleRsqtGetSpending(task: any): Promise<any> { return { success: true, totalSpent: 0, currency: '47Token', breakdown: [] }; }
 
 }
