@@ -1,4 +1,4 @@
-export interface CostAllocationEntry {
+export interface ResourceTaggingOptPlan {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface CostAllocationEntry {
   updatedAt: string;
 }
 
-export interface CostAllocationConfig {
+export interface ResourceTaggingOptConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface CostAllocationResult {
+export interface ResourceTaggingOptResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

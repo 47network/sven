@@ -1,4 +1,4 @@
-export interface CostAllocationEntry {
+export interface BillingReconcileEntry {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface CostAllocationEntry {
   updatedAt: string;
 }
 
-export interface CostAllocationConfig {
+export interface BillingReconcileConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface CostAllocationResult {
+export interface BillingReconcileResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

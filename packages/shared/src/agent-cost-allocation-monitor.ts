@@ -1,4 +1,4 @@
-export interface CostAllocationEntry {
+export interface CostAllocationMonitorCheck {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface CostAllocationEntry {
   updatedAt: string;
 }
 
-export interface CostAllocationConfig {
+export interface CostAllocationMonitorConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface CostAllocationResult {
+export interface CostAllocationMonitorResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

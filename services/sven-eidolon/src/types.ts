@@ -983,6 +983,31 @@ export type EidolonBuildingKind =
   | 'capacity_forecast_auditor'
   | 'capacity_forecast_reporter'
   | 'capacity_forecast_optimizer'
+  | 'cost_allocation'
+  | 'cost_allocation_monitor'
+  | 'cost_allocation_auditor'
+  | 'cost_allocation_reporter'
+  | 'cost_allocation_optimizer'
+  | 'budget_tracker'
+  | 'budget_tracker_monitor'
+  | 'budget_tracker_auditor'
+  | 'budget_tracker_reporter'
+  | 'budget_tracker_optimizer'
+  | 'resource_tagging'
+  | 'resource_tagging_monitor'
+  | 'resource_tagging_auditor'
+  | 'resource_tagging_reporter'
+  | 'resource_tagging_optimizer'
+  | 'usage_analytics'
+  | 'usage_analytics_monitor'
+  | 'usage_analytics_auditor'
+  | 'usage_analytics_reporter'
+  | 'usage_analytics_optimizer'
+  | 'billing_reconcile'
+  | 'billing_reconcile_monitor'
+  | 'billing_reconcile_auditor'
+  | 'billing_reconcile_reporter'
+  | 'billing_reconcile_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4645,6 +4670,81 @@ export type EidolonEventKind =
   | 'cfo.plan_created'
   | 'cfo.optimization_applied'
   | 'cfo.export_emitted'
+  | 'ca.entry_created'
+  | 'ca.config_updated'
+  | 'ca.export_emitted'
+  | 'cam.check_passed'
+  | 'cam.alert_raised'
+  | 'cam.export_emitted'
+  | 'caa.entry_logged'
+  | 'caa.violation_found'
+  | 'caa.export_emitted'
+  | 'car.report_generated'
+  | 'car.insight_found'
+  | 'car.export_emitted'
+  | 'cao.plan_created'
+  | 'cao.optimization_applied'
+  | 'cao.export_emitted'
+  | 'bt.entry_created'
+  | 'bt.config_updated'
+  | 'bt.export_emitted'
+  | 'btm.check_passed'
+  | 'btm.alert_raised'
+  | 'btm.export_emitted'
+  | 'bta.entry_logged'
+  | 'bta.violation_found'
+  | 'bta.export_emitted'
+  | 'btr.report_generated'
+  | 'btr.insight_found'
+  | 'btr.export_emitted'
+  | 'bto.plan_created'
+  | 'bto.optimization_applied'
+  | 'bto.export_emitted'
+  | 'rt.rule_created'
+  | 'rt.config_updated'
+  | 'rt.export_emitted'
+  | 'rtm.check_passed'
+  | 'rtm.alert_raised'
+  | 'rtm.export_emitted'
+  | 'rta.entry_logged'
+  | 'rta.violation_found'
+  | 'rta.export_emitted'
+  | 'rtr.report_generated'
+  | 'rtr.insight_found'
+  | 'rtr.export_emitted'
+  | 'rto.plan_created'
+  | 'rto.optimization_applied'
+  | 'rto.export_emitted'
+  | 'ua.entry_created'
+  | 'ua.config_updated'
+  | 'ua.export_emitted'
+  | 'uam.check_passed'
+  | 'uam.alert_raised'
+  | 'uam.export_emitted'
+  | 'uaa.entry_logged'
+  | 'uaa.violation_found'
+  | 'uaa.export_emitted'
+  | 'uar.report_generated'
+  | 'uar.insight_found'
+  | 'uar.export_emitted'
+  | 'uao.plan_created'
+  | 'uao.optimization_applied'
+  | 'uao.export_emitted'
+  | 'br.entry_created'
+  | 'br.config_updated'
+  | 'br.export_emitted'
+  | 'brm.check_passed'
+  | 'brm.alert_raised'
+  | 'brm.export_emitted'
+  | 'bra.entry_logged'
+  | 'bra.violation_found'
+  | 'bra.export_emitted'
+  | 'brr.report_generated'
+  | 'brr.insight_found'
+  | 'brr.export_emitted'
+  | 'bro.plan_created'
+  | 'bro.optimization_applied'
+  | 'bro.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -6460,6 +6560,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'capacity_forecast_auditor':
     case 'capacity_forecast_reporter':
     case 'capacity_forecast_optimizer':
+    case 'cost_allocation':
+    case 'cost_allocation_monitor':
+    case 'cost_allocation_auditor':
+    case 'cost_allocation_reporter':
+    case 'cost_allocation_optimizer':
+    case 'budget_tracker':
+    case 'budget_tracker_monitor':
+    case 'budget_tracker_auditor':
+    case 'budget_tracker_reporter':
+    case 'budget_tracker_optimizer':
+    case 'resource_tagging':
+    case 'resource_tagging_monitor':
+    case 'resource_tagging_auditor':
+    case 'resource_tagging_reporter':
+    case 'resource_tagging_optimizer':
+    case 'usage_analytics':
+    case 'usage_analytics_monitor':
+    case 'usage_analytics_auditor':
+    case 'usage_analytics_reporter':
+    case 'usage_analytics_optimizer':
+    case 'billing_reconcile':
+    case 'billing_reconcile_monitor':
+    case 'billing_reconcile_auditor':
+    case 'billing_reconcile_reporter':
+    case 'billing_reconcile_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
