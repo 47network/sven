@@ -1,29 +1,29 @@
 {
-  "generated_at": "2026-04-19T21:00:43.340Z",
+  "generated_at": "2026-04-19T21:01:57.800Z",
   "source_branch": "public-local-sync",
   "source_head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-19T21:00:42.000Z",
+    "captured_at": "2026-04-19T21:01:56.558Z",
     "branch": "public-local-sync",
     "total_runs": 57
   },
   "final_dod_ci": false,
   "parity_e2e_ci": true,
   "parity_checklist_verify_ci": false,
-  "agent_zero_parity_verify_ci": true,
+  "agent_zero_parity_verify_ci": false,
   "websocket_contract_ci": false,
   "mcp_server_compat_ci": false,
   "a2a_compat_ci": false,
   "multi_device_validation_ci": false,
   "d9_keycloak_interop_ci": true,
   "release_ops_drill_ci": true,
-  "mobile_auth_session_smoke_ci": true,
+  "mobile_auth_session_smoke_ci": false,
   "mobile_release_readiness_ci": false,
   "backup_restore_api_ci": false,
   "flutter_user_app_device_farm_ci": true,
   "desktop_release_ci": false,
-  "ui_e2e_ci": false,
+  "ui_e2e_ci": true,
   "mobile_coverage_gate_ci": false,
   "csrf_auth_e2e_ci": false,
   "client_env_governance_ci": true,
@@ -41,14 +41,13 @@
       "head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
       "head_branch": "public-local-sync",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
       "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
       "run_id": 24639004074,
@@ -83,15 +82,15 @@
       "head_sha": null,
       "head_branch": "public-local-sync",
       "event": null,
-      "status": "pass",
-      "conclusion": "success",
+      "status": "fail",
+      "conclusion": "failure",
       "workflow_id": null,
       "workflow_name": "agent-zero-parity-verify",
       "matched_target_sha": false,
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-19T21:00:39.391Z"
+      "generated_at": "2026-04-19T21:01:53.711Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -121,7 +120,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-19T21:00:40.527Z"
+      "generated_at": "2026-04-19T21:01:54.876Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -136,7 +135,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-19T21:00:41.685Z"
+      "generated_at": "2026-04-19T21:01:56.088Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -171,28 +170,26 @@
       "head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
       "head_branch": "public-local-sync",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310889,
       "workflow_name": "release-ops-drill",
       "matched_target_sha": true,
       "gate_key": "release_ops_drill_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "mobile_auth_session_smoke_ci": {
       "run_id": 24639004069,
       "head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
       "head_branch": "public-local-sync",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310875,
       "workflow_name": "mobile-auth-session-smoke",
       "matched_target_sha": true,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "preserved_previous_pass_non_final_target_sha",
-      "previous_gate_value": true
+      "decision": "target_sha_completed_run"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
@@ -254,14 +251,13 @@
       "head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
       "head_branch": "public-local-sync",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310896,
       "workflow_name": "ui-e2e-accessibility",
       "matched_target_sha": true,
       "gate_key": "ui_e2e_accessibility_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
@@ -447,14 +443,13 @@
         "head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
         "head_branch": "public-local-sync",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
         "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "final_dod_e2e_ci"
     },
@@ -501,32 +496,30 @@
         "head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
         "head_branch": "public-local-sync",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310889,
         "workflow_name": "release-ops-drill",
         "matched_target_sha": true,
         "gate_key": "release_ops_drill_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "release_ops_drill_ci"
     },
     "mobile-auth-session-smoke": {
-      "pass": true,
+      "pass": false,
       "provenance": {
         "run_id": 24639004069,
         "head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
         "head_branch": "public-local-sync",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310875,
         "workflow_name": "mobile-auth-session-smoke",
         "matched_target_sha": true,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "preserved_previous_pass_non_final_target_sha",
-        "previous_gate_value": true
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
@@ -567,20 +560,19 @@
       "gate_key": "desktop_tauri_release_ci"
     },
     "ui-e2e-accessibility": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": 24639004070,
         "head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
         "head_branch": "public-local-sync",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310896,
         "workflow_name": "ui-e2e-accessibility",
         "matched_target_sha": true,
         "gate_key": "ui_e2e_accessibility_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "ui_e2e_accessibility_ci"
     },
@@ -625,7 +617,7 @@
         "head_sha": "a9af6474d5e8c03a6646281556a1363b86ad37df",
         "head_branch": "public-local-sync",
         "event": "push",
-        "status": "queued",
+        "status": "in_progress",
         "conclusion": null,
         "workflow_id": 261310856,
         "workflow_name": "deployment-pipeline",
