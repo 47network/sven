@@ -79,6 +79,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batch 183-187: Operations & Security
+- **Patch Manager** (Batch 183): Software patch policies, CVE rollouts, compliance tracking, vulnerability scanning — agent_patch_policies, agent_patch_releases, agent_patch_compliance tables
+- **Firewall Controller** (Batch 184): Firewall rulesets, security groups, network rules, threat detection/blocking — agent_firewall_rulesets, agent_firewall_rules, agent_firewall_threats tables
+- **Backup Orchestrator** (Batch 185): Backup plans, scheduled/manual jobs, disaster recovery, restoration verification — agent_backup_plans, agent_backup_jobs, agent_backup_restores tables
+- **Storage Optimizer** (Batch 186): Storage volume analysis, deduplication, tiering, cost optimization, lifecycle management — agent_storage_volumes, agent_storage_analyses, agent_storage_actions tables
+- **Health Monitor** (Batch 187): Service health endpoints, uptime tracking, incident detection, SLA monitoring — agent_health_endpoints, agent_health_checks, agent_health_incidents tables
+- 5 migrations, 5 shared type modules, 5 SKILL.md files, 5 barrel exports
+- Eidolon: 5 BK (patch_manager, firewall_controller, backup_orchestrator, storage_optimizer, health_monitor), 20 EK, 5 districtFor
+- Event-bus: 20 new SUBJECT_MAP entries
+- Task executor: 30 new switch cases + 30 handler methods
+- .gitattributes: 15 new privacy filter entries
+- 195 Jest tests — all passing
+
 ### Batch 178-182: Infrastructure Operations
 - **Quota Enforcement** (Batch 178): Resource quota policies, usage tracking, enforcement actions, overage handling — agent_quota_policies, agent_quota_usage, agent_quota_alerts tables
 - **Runbook Automation** (Batch 179): Operational runbooks with step-by-step execution, approval gates, rollback — agent_runbooks, agent_runbook_executions, agent_runbook_approvals tables
