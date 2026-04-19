@@ -263,6 +263,11 @@ export type EidolonBuildingKind =
   | 'suggestion_engine'
   | 'autocomplete_builder'
   | 'catalog_crawler'
+  | 'resource_allocator'
+  | 'demand_forecaster'
+  | 'burst_handler'
+  | 'reservation_clerk'
+  | 'utilization_tracker'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1520,6 +1525,26 @@ export type EidolonEventKind =
   | 'ctcr.page_indexed'
   | 'ctcr.crawl_completed'
   | 'ctcr.error_encountered'
+  | 'rsal.allocation_requested'
+  | 'rsal.resource_assigned'
+  | 'rsal.allocation_released'
+  | 'rsal.contention_detected'
+  | 'dmfc.forecast_generated'
+  | 'dmfc.spike_predicted'
+  | 'dmfc.model_retrained'
+  | 'dmfc.accuracy_computed'
+  | 'brsh.burst_detected'
+  | 'brsh.throttle_applied'
+  | 'brsh.burst_subsided'
+  | 'brsh.overflow_rejected'
+  | 'rsvk.reservation_created'
+  | 'rsvk.reservation_confirmed'
+  | 'rsvk.reservation_cancelled'
+  | 'rsvk.slot_released'
+  | 'utlz.snapshot_recorded'
+  | 'utlz.threshold_exceeded'
+  | 'utlz.trend_computed'
+  | 'utlz.report_generated'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2240,6 +2265,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'suggestion_engine':
     case 'autocomplete_builder':
     case 'catalog_crawler':
+    case 'resource_allocator':
+    case 'demand_forecaster':
+    case 'burst_handler':
+    case 'reservation_clerk':
+    case 'utilization_tracker':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

@@ -3563,6 +3563,36 @@ export class TaskExecutor {
       case 'ctcr_error': return this.handleCtcrError(task);
       case 'ctcr_report': return this.handleCtcrReport(task);
       case 'ctcr_monitor': return this.handleCtcrMonitor(task);
+      case 'rsal_request': return this.handleRsalRequest(task);
+      case 'rsal_assign': return this.handleRsalAssign(task);
+      case 'rsal_release': return this.handleRsalRelease(task);
+      case 'rsal_contend': return this.handleRsalContend(task);
+      case 'rsal_report': return this.handleRsalReport(task);
+      case 'rsal_monitor': return this.handleRsalMonitor(task);
+      case 'dmfc_forecast': return this.handleDmfcForecast(task);
+      case 'dmfc_spike': return this.handleDmfcSpike(task);
+      case 'dmfc_retrain': return this.handleDmfcRetrain(task);
+      case 'dmfc_accuracy': return this.handleDmfcAccuracy(task);
+      case 'dmfc_report': return this.handleDmfcReport(task);
+      case 'dmfc_monitor': return this.handleDmfcMonitor(task);
+      case 'brsh_detect': return this.handleBrshDetect(task);
+      case 'brsh_throttle': return this.handleBrshThrottle(task);
+      case 'brsh_subside': return this.handleBrshSubside(task);
+      case 'brsh_reject': return this.handleBrshReject(task);
+      case 'brsh_report': return this.handleBrshReport(task);
+      case 'brsh_monitor': return this.handleBrshMonitor(task);
+      case 'rsvk_create': return this.handleRsvkCreate(task);
+      case 'rsvk_confirm': return this.handleRsvkConfirm(task);
+      case 'rsvk_cancel': return this.handleRsvkCancel(task);
+      case 'rsvk_release': return this.handleRsvkRelease(task);
+      case 'rsvk_report': return this.handleRsvkReport(task);
+      case 'rsvk_monitor': return this.handleRsvkMonitor(task);
+      case 'utlz_snapshot': return this.handleUtlzSnapshot(task);
+      case 'utlz_threshold': return this.handleUtlzThreshold(task);
+      case 'utlz_trend': return this.handleUtlzTrend(task);
+      case 'utlz_generate': return this.handleUtlzGenerate(task);
+      case 'utlz_report': return this.handleUtlzReport(task);
+      case 'utlz_monitor': return this.handleUtlzMonitor(task);
     }
   }
 
