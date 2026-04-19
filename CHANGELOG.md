@@ -36,6 +36,18 @@
 
 # Changelog
 
+## Batches 543-547 — Compliance & Governance
+- audit_trail_writer: Immutable audit trail recording and tamper detection
+- governance_auditor: Governance auditing and compliance finding management
+- regulation_scanner: Regulatory compliance scanning and violation detection
+- consent_manager: User consent lifecycle management and preference tracking
+- retention_scheduler: Data retention scheduling and automated purge management
+- 5 migrations, shared types, barrel exports, SKILL.md files
+- Eidolon BK/EK/districtFor wiring, event-bus SUBJECT_MAP entries
+- Task-executor switch cases, .gitattributes privacy filters
+- 55/55 tests passing
+
+
 ## Batches 533-537 — Billing & Subscription
 - invoice_generator: Invoice generation and line item management
 - subscription_lifecycle: Subscription lifecycle and renewal processing
