@@ -239,3 +239,8 @@ export * from './agent-packet-analyzer.js';
 export * from './agent-bandwidth-controller.js';
 export * from './agent-firewall-manager.js';
 export * from './agent-proxy-server.js';
+export * from './agent-ssl-manager.js';
+export * from './agent-session-manager.js';
+export * from './agent-endpoint-resolver.js';
+export * from './agent-vulnerability-scanner.js';
+export * from './agent-traffic-analyzer.js';
