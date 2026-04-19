@@ -79,6 +79,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 388-392 — Integration & Connectivity
+- **integration-connector** (Batch 388): External API integration management with auth, health checks, retry policies, and request logging
+- **service-mesh-manager** (Batch 389): Microservice mesh orchestration with discovery, routing, circuit breakers, and load balancing
+- **data-sync-engine** (Batch 390): Data synchronization between heterogeneous sources with incremental, full, and bidirectional modes
+- **webhook-orchestrator** (Batch 391): Webhook endpoint management with delivery tracking, retry policies, and signature verification
+- **protocol-adapter** (Batch 392): Protocol translation (HTTP, gRPC, WebSocket, MQTT) with configurable payload transformation
+- 5 migrations (15 new tables), 5 shared type files, 5 SKILL.md files
+- 20 SUBJECT_MAP entries, 5 BK values, 20 EK values, 5 districtFor cases
+- 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries, 133 tests passing
+
 ### Batches 383-387 — Automation & Workflow
 - **workflow_automator** (Batch 383): Multi-step workflow execution with branching, pause/resume, and parallel steps
 - **rule_engine** (Batch 384): Business rule evaluation with sequential/parallel modes and conflict resolution
