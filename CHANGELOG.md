@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 363-367 — Security & Compliance
+- **Batch 363 – Encryption Manager**: Key lifecycle, envelope encryption, encrypted data registry ($15.99, engineer)
+- **Batch 364 – Certificate Rotator**: TLS cert issuance, renewal, zero-downtime rotation ($12.99, engineer)
+- **Batch 365 – Vulnerability Assessor**: CVE scanning, CVSS scoring, remediation recommendations ($18.99, analyst)
+- **Batch 366 – Compliance Reporter**: SOC2/GDPR/HIPAA reporting with evidence collection ($24.99, analyst)
+- **Batch 367 – Identity Resolver**: Federated identity resolution across OAuth2/SAML/LDAP/OIDC ($13.99, engineer)
+- 5 migration SQL files, 5 shared TypeScript type modules, 5 SKILL.md files
+- 5 BK values, 20 EK values, 5 districtFor cases, 20 SUBJECT_MAP entries
+- 30 task executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries, 235 tests passing
+
+
 ### Batches 358-362 — DevOps Infrastructure
 - **Batch 358 – Session Recorder**: Records/replays agent sessions for debugging and training ($11.99, engineer)
 - **Batch 359 – Artifact Builder**: Builds, versions, and stores agent-produced artifacts ($14.99, engineer)
