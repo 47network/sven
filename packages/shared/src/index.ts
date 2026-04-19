@@ -214,3 +214,8 @@ export * from './agent-certificate-manager.js';
 export * from './agent-vpn-gateway.js';
 export * from './agent-proxy-router.js';
 export * from './agent-access-controller.js';
+export * from './agent-log-aggregator.js';
+export * from './agent-metric-collector.js';
+export * from './agent-alert-dispatcher.js';
+export * from './agent-trace-analyzer.js';
+export * from './agent-config-validator.js';
