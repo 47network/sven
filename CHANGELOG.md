@@ -1,3 +1,7 @@
+## Batches 1658-1682 — Config Loader, Env Injector, Feature Flipper, Rollout Strategist, Deploy Gate
+- 25 verticals (5 groups × 5): configuration loading + env injection + feature flipping + rollout strategy + deploy gating
+- 275 tests passing | migration timestamps 20260632950000–20260633190000
+
 ## Batches 1633-1657 — Vitals Probe, Readiness Gate, Liveness Check, Graceful Shutdown, Warmup Controller
 - 25 verticals (5 groups × 5): health probing + readiness gating + liveness verification + graceful shutdown + warmup control
 - 275 tests passing | migration timestamps 20260632700000–20260632940000
