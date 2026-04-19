@@ -92,6 +92,11 @@ export type EidolonBuildingKind =
   | 'cost_bureau'
   | 'data_forge'
   | 'alert_hub'
+  | 'geo_watchtower'
+  | 'audit_archive'
+  | 'change_bureau'
+  | 'deploy_gateway'
+  | 'asset_vault'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -667,6 +672,11 @@ export type EidolonEventKind =
   | 'costopt.report_generated' | 'costopt.recommendation_created' | 'costopt.budget_exceeded' | 'costopt.savings_applied'
   | 'datapipe.pipeline_created' | 'datapipe.run_started' | 'datapipe.run_completed' | 'datapipe.transform_added'
   | 'notifrouter.channel_created' | 'notifrouter.notification_sent' | 'notifrouter.escalation_triggered' | 'notifrouter.delivery_failed'
+  | 'geofence.zone_created' | 'geofence.rule_triggered' | 'geofence.alert_fired' | 'geofence.policy_updated'
+  | 'audittrail.entry_logged' | 'audittrail.snapshot_taken' | 'audittrail.retention_applied' | 'audittrail.search_completed'
+  | 'changemgmt.request_submitted' | 'changemgmt.approval_decided' | 'changemgmt.change_completed' | 'changemgmt.rollback_initiated'
+  | 'bluegreen.version_deployed' | 'bluegreen.stage_switched' | 'bluegreen.traffic_shifted' | 'bluegreen.rollback_triggered'
+  | 'assetmgmt.asset_registered' | 'assetmgmt.asset_transferred' | 'assetmgmt.license_granted' | 'assetmgmt.asset_deprecated'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -912,6 +922,12 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'cost_bureau':
     case 'data_forge':
     case 'alert_hub':
+      return 'civic';
+    case 'geo_watchtower':
+    case 'audit_archive':
+    case 'change_bureau':
+    case 'deploy_gateway':
+    case 'asset_vault':
       return 'civic';
   }
 }

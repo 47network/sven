@@ -512,6 +512,36 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.notifrouter.notification_sent': 'notifrouter.notification_sent',
   'sven.notifrouter.escalation_triggered': 'notifrouter.escalation_triggered',
   'sven.notifrouter.delivery_failed': 'notifrouter.delivery_failed',
+
+  // Batch 133 — Geo-Fencing
+  'sven.geofence.zone_created': 'geofence.zone_created',
+  'sven.geofence.rule_triggered': 'geofence.rule_triggered',
+  'sven.geofence.alert_fired': 'geofence.alert_fired',
+  'sven.geofence.policy_updated': 'geofence.policy_updated',
+
+  // Batch 134 — Audit Trail
+  'sven.audittrail.entry_logged': 'audittrail.entry_logged',
+  'sven.audittrail.snapshot_taken': 'audittrail.snapshot_taken',
+  'sven.audittrail.retention_applied': 'audittrail.retention_applied',
+  'sven.audittrail.search_completed': 'audittrail.search_completed',
+
+  // Batch 135 — Change Management
+  'sven.changemgmt.request_submitted': 'changemgmt.request_submitted',
+  'sven.changemgmt.approval_decided': 'changemgmt.approval_decided',
+  'sven.changemgmt.change_completed': 'changemgmt.change_completed',
+  'sven.changemgmt.rollback_initiated': 'changemgmt.rollback_initiated',
+
+  // Batch 136 — Blue-Green Deployment
+  'sven.bluegreen.version_deployed': 'bluegreen.version_deployed',
+  'sven.bluegreen.stage_switched': 'bluegreen.stage_switched',
+  'sven.bluegreen.traffic_shifted': 'bluegreen.traffic_shifted',
+  'sven.bluegreen.rollback_triggered': 'bluegreen.rollback_triggered',
+
+  // Batch 137 — Asset Management
+  'sven.assetmgmt.asset_registered': 'assetmgmt.asset_registered',
+  'sven.assetmgmt.asset_transferred': 'assetmgmt.asset_transferred',
+  'sven.assetmgmt.license_granted': 'assetmgmt.license_granted',
+  'sven.assetmgmt.asset_deprecated': 'assetmgmt.asset_deprecated',
 };
 
 export class EidolonEventBus {

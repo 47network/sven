@@ -452,3 +452,28 @@ skills/agent-data-pipeline/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260617690000_agent_notification_router.sql filter=sven-private
 packages/shared/src/agent-notification-router.ts filter=sven-private
 skills/agent-notification-router/SKILL.md filter=sven-private
+
+# Batch 133 — Agent Geo-Fencing
+services/gateway-api/migrations/20260617700000_agent_geo_fencing.sql filter=sven-private
+packages/shared/src/agent-geo-fencing.ts filter=sven-private
+skills/agent-geo-fencing/SKILL.md filter=sven-private
+
+# Batch 134 — Agent Audit Trail
+services/gateway-api/migrations/20260617710000_agent_audit_trail.sql filter=sven-private
+packages/shared/src/agent-audit-trail.ts filter=sven-private
+skills/agent-audit-trail/SKILL.md filter=sven-private
+
+# Batch 135 — Agent Change Management
+services/gateway-api/migrations/20260617720000_agent_change_management.sql filter=sven-private
+packages/shared/src/agent-change-management.ts filter=sven-private
+skills/agent-change-management/SKILL.md filter=sven-private
+
+# Batch 136 — Agent Blue-Green Deployment
+services/gateway-api/migrations/20260617730000_agent_blue_green.sql filter=sven-private
+packages/shared/src/agent-blue-green.ts filter=sven-private
+skills/agent-blue-green/SKILL.md filter=sven-private
+
+# Batch 137 — Agent Asset Management
+services/gateway-api/migrations/20260617740000_agent_asset_management.sql filter=sven-private
+packages/shared/src/agent-asset-management.ts filter=sven-private
+skills/agent-asset-management/SKILL.md filter=sven-private

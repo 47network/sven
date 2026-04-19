@@ -154,3 +154,8 @@ export * from './agent-health-monitoring.js';
 export * from './agent-cost-optimization.js';
 export * from './agent-data-pipeline.js';
 export * from './agent-notification-router.js';
+export * from './agent-geo-fencing.js';
+export * from './agent-audit-trail.js';
+export * from './agent-change-management.js';
+export * from './agent-blue-green.js';
+export * from './agent-asset-management.js';

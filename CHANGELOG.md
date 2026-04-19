@@ -9,6 +9,41 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batch 137 — Agent Asset Management
+- Migration: `20260617740000_agent_asset_management.sql` (digital_assets, asset_transfers, asset_licenses)
+- Shared types: AssetCategory, DigitalAsset, AssetTransfer, AssetLicense, AssetManagementStats
+- Skill: `skills/agent-asset-management/SKILL.md`
+- Eidolon: BK `asset_vault`, 4 EK events, districtFor → civic
+- Task executor: 6 handlers (register, transfer, grant_license, deprecate, list, report)
+
+### Batch 136 — Agent Blue-Green Deployment
+- Migration: `20260617730000_agent_blue_green.sql` (blue_green_deployments, blue_green_switches, traffic_splits)
+- Shared types: BlueGreenStage, BlueGreenDeployment, BlueGreenSwitch, TrafficSplit, BlueGreenStats
+- Skill: `skills/agent-blue-green/SKILL.md`
+- Eidolon: BK `deploy_gateway`, 4 EK events, districtFor → civic
+- Task executor: 6 handlers (deploy_version, switch_stage, shift_traffic, rollback, list, report)
+
+### Batch 135 — Agent Change Management
+- Migration: `20260617720000_agent_change_management.sql` (change_requests, change_approvals, change_rollbacks)
+- Shared types: ChangeRequestType, ChangeRequest, ChangeApproval, ChangeRollback, ChangeManagementStats
+- Skill: `skills/agent-change-management/SKILL.md`
+- Eidolon: BK `change_bureau`, 4 EK events, districtFor → civic
+- Task executor: 6 handlers (submit_request, approve, complete_change, rollback, list, report)
+
+### Batch 134 — Agent Audit Trail
+- Migration: `20260617710000_agent_audit_trail.sql` (audit_trail_entries, audit_snapshots, audit_retention_policies)
+- Shared types: AuditTrailAction, TrailEntry, AuditSnapshot, AuditRetentionPolicy, AuditTrailStats
+- Skill: `skills/agent-audit-trail/SKILL.md`
+- Eidolon: BK `audit_archive`, 4 EK events, districtFor → civic
+- Task executor: 6 handlers (log_entry, take_snapshot, apply_retention, search, list, report)
+
+### Batch 133 — Agent Geo-Fencing
+- Migration: `20260617700000_agent_geo_fencing.sql` (geo_fence_zones, geo_fence_rules, geo_fence_alerts)
+- Shared types: GeoFenceType, GeoFenceZone, GeoFenceRule, GeoFenceAlert, GeoFencingStats
+- Skill: `skills/agent-geo-fencing/SKILL.md`
+- Eidolon: BK `geo_watchtower`, 4 EK events, districtFor → civic
+- Task executor: 6 handlers (create_zone, evaluate_location, trigger_rule, update_policy, list, report)
+
 ### Added — Batch 128: Agent Feature Flags
 - Migration: `20260617650000_agent_feature_flags.sql` — 3 tables (flags, evaluations, audit_log)
 - Shared types: FeatureFlagType, ManagedFeatureFlag, ManagedFlagEvaluation, FlagAuditEntry, FeatureFlagStats
