@@ -538,3 +538,8 @@ export * from './agent-api-key-rotator';
 export * from './agent-route-balancer';
 export * from './agent-endpoint-cache';
 export * from './agent-response-compressor';
+export * from './agent-index-builder';
+export * from './agent-facet-aggregator';
+export * from './agent-autocomplete-engine';
+export * from './agent-relevance-tuner';
+export * from './agent-synonym-manager';

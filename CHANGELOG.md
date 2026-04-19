@@ -27,6 +27,13 @@
 
 # Changelog
 
+## Batches 513-517 — Search & Indexing
+- index_builder: Search index creation and schema management
+- facet_aggregator: Faceted search aggregation and bucket computation
+- autocomplete_engine: Autocomplete suggestion engine and corpus management
+- relevance_tuner: Search relevance tuning and score optimization
+- synonym_manager: Synonym dictionary management and query expansion
+
 ## Batches 508-512 — API Gateway & Rate Limiting
 - throttle_controller: Request throttling and rate control management
 - api_key_rotator: API key rotation and lifecycle management
