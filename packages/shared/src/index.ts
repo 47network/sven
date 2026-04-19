@@ -299,3 +299,8 @@ export * from './agent-qos-enforcer';
 export * from './agent-acl-auditor';
 export * from './agent-firewall-policy';
 export * from './agent-port-mapper';
+export * from './agent-cloud-provisioner';
+export * from './agent-vm-orchestrator';
+export * from './agent-registry-manager';
+export * from './agent-image-builder';
+export * from './agent-artifact-store';

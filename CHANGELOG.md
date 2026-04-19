@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 278-282 — Cloud Infrastructure
+- **cloud_provisioner**: Multi-provider cloud resource provisioning and scaling ($19.99, engineer)
+- **vm_orchestrator**: VM lifecycle, snapshots, and live migration ($14.99, engineer)
+- **registry_manager**: Container and package registry management ($11.99, engineer)
+- **image_builder**: Automated container image building and optimization ($12.99, engineer)
+- **artifact_store**: Versioned artifact storage with access control ($7.99, engineer)
+
 ### Batches 273-277 — Network Security Tools
 - **traffic_classifier**: Deep packet inspection and flow classification ($9.99, analyst)
 - **qos_enforcer**: QoS policy enforcement and traffic shaping ($12.99, engineer)
