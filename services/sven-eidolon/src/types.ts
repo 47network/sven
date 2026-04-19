@@ -127,7 +127,7 @@ export type EidolonBuildingKind =
   | 'intrusion_guard'
   | 'rbac_enforcer'
   | 'siem_connector'
-  | 'forensic_analyzer'
+  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -826,7 +826,7 @@ export type EidolonEventKind =
   | 'fran.case_created'
   | 'fran.evidence_collected'
   | 'fran.timeline_analyzed'
-  | 'fran.case_closed'
+  | 'fran.case_closed' | 'wfen.workflow_created' | 'wfen.workflow_executed' | 'wfen.step_completed' | 'wfen.execution_failed' | 'tskd.job_scheduled' | 'tskd.job_executed' | 'tskd.job_failed' | 'tskd.schedule_paused' | 'crmg.cron_triggered' | 'crmg.cron_failed' | 'crmg.entry_created' | 'crmg.entry_disabled' | 'jorc.job_submitted' | 'jorc.job_completed' | 'jorc.job_dead_letter' | 'jorc.deps_resolved' | 'btpr.batch_started' | 'btpr.batch_completed' | 'btpr.item_failed' | 'btpr.progress_updated'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1539,6 +1539,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'rbac_enforcer':
     case 'siem_connector':
     case 'forensic_analyzer':
+    case 'workflow_engine':
+    case 'task_scheduler':
+    case 'cron_manager':
+    case 'job_orchestrator':
+    case 'batch_processor':
       case 'network_firewall':
       case 'threat_detector':
       return 'industrial';

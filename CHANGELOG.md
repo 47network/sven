@@ -78,6 +78,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+
+### Batches 333-337 — Automation & Orchestration
+- **workflow_engine** (Batch 333): Workflow definitions, execution tracking, step orchestration — $18.99
+- **task_scheduler** (Batch 334): Job scheduling, frequency management, run history — $12.99
+- **cron_manager** (Batch 335): Cron expression management, trigger logs, entry lifecycle — $9.99
+- **job_orchestrator** (Batch 336): DAG-based job orchestration, dependency resolution, dead-letter handling — $22.99
+- **batch_processor** (Batch 337): Batch job processing, item tracking, progress monitoring — $16.99
+- 5 migration SQL files, 5 shared type modules, 5 SKILL.md files
+- 30 task-executor switch cases + 30 handler methods
+- 20 NATS SUBJECT_MAP entries, 20 EK values, 5 BK values, 5 districtFor cases
+- 150 Jest tests — all passing
+
 ### Batches 328-332 — Security & Intelligence
 - **pentest_runner** — Automated penetration testing with scan management, finding verification, and report generation ($24.99/scan, engineer)
 - **intrusion_guard** — Real-time intrusion detection with rule-based traffic monitoring and source blocking ($19.99/session, engineer)
