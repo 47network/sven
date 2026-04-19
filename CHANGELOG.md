@@ -1,3 +1,7 @@
+## Batches 1083-1107 — Vulnerability/Patch Mgmt + Asset Inventory + Config Mgmt + Endpoint Mgmt (25 verticals)
+
+Adds 25 verticals across vulnerability management, patch management, asset inventory, configuration management, and endpoint management. 11-step pattern × 25 = 275 tests passing.
+
 ## Batches 1058-1082 — Identity Provisioning, Access Reviews, PAM, Secrets Mgmt, Key Mgmt (25 verticals)
 
 - Identity Provisioning (5): creator, updater, deactivator, recertifier, audit_logger

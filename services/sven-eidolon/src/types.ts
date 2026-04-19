@@ -783,6 +783,31 @@ export type EidolonBuildingKind =
   | 'key_mgmt_rotator'
   | 'key_mgmt_revoker'
   | 'key_mgmt_audit_logger'
+  | 'vuln_scan_initiator'
+  | 'vuln_finding_collector'
+  | 'vuln_severity_classifier'
+  | 'vuln_remediation_dispatcher'
+  | 'vuln_audit_logger'
+  | 'patch_inventory_loader'
+  | 'patch_applicability_evaluator'
+  | 'patch_rollout_dispatcher'
+  | 'patch_verification_recorder'
+  | 'patch_audit_logger'
+  | 'asset_inventory_collector'
+  | 'asset_inventory_writer'
+  | 'asset_inventory_reconciler'
+  | 'asset_inventory_reporter'
+  | 'asset_inventory_audit_logger'
+  | 'config_mgmt_loader'
+  | 'config_mgmt_validator'
+  | 'config_mgmt_publisher'
+  | 'config_mgmt_drift_detector'
+  | 'config_mgmt_audit_logger'
+  | 'endpoint_mgmt_enrollment'
+  | 'endpoint_mgmt_policy_pusher'
+  | 'endpoint_mgmt_compliance_checker'
+  | 'endpoint_mgmt_action_dispatcher'
+  | 'endpoint_mgmt_audit_logger'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4120,6 +4145,106 @@ export type EidolonEventKind =
   | 'kmau.fields_validated'
   | 'kmau.record_persisted'
   | 'kmau.export_emitted'
+  | 'vsin.request_received'
+  | 'vsin.scope_resolved'
+  | 'vsin.scan_initiated'
+  | 'vsin.audit_recorded'
+  | 'vfco.item_received'
+  | 'vfco.fields_validated'
+  | 'vfco.finding_persisted'
+  | 'vfco.audit_recorded'
+  | 'vscl.request_received'
+  | 'vscl.cvss_evaluated'
+  | 'vscl.severity_emitted'
+  | 'vscl.audit_recorded'
+  | 'vrdi.request_received'
+  | 'vrdi.policy_evaluated'
+  | 'vrdi.action_dispatched'
+  | 'vrdi.audit_recorded'
+  | 'vlau.record_received'
+  | 'vlau.fields_validated'
+  | 'vlau.record_persisted'
+  | 'vlau.export_emitted'
+  | 'pinl.request_received'
+  | 'pinl.inventory_loaded'
+  | 'pinl.summary_emitted'
+  | 'pinl.audit_recorded'
+  | 'pape.request_received'
+  | 'pape.applicability_evaluated'
+  | 'pape.results_emitted'
+  | 'pape.audit_recorded'
+  | 'prdi.request_received'
+  | 'prdi.policy_evaluated'
+  | 'prdi.rollout_dispatched'
+  | 'prdi.audit_recorded'
+  | 'pvre.record_received'
+  | 'pvre.fields_validated'
+  | 'pvre.verification_persisted'
+  | 'pvre.audit_recorded'
+  | 'ptau.record_received'
+  | 'ptau.fields_validated'
+  | 'ptau.record_persisted'
+  | 'ptau.export_emitted'
+  | 'aico.event_received'
+  | 'aico.fields_validated'
+  | 'aico.asset_persisted'
+  | 'aico.audit_recorded'
+  | 'aiwr.request_received'
+  | 'aiwr.fields_validated'
+  | 'aiwr.asset_persisted'
+  | 'aiwr.audit_recorded'
+  | 'airc.request_received'
+  | 'airc.diff_computed'
+  | 'airc.reconciliation_emitted'
+  | 'airc.audit_recorded'
+  | 'airp.request_received'
+  | 'airp.assets_loaded'
+  | 'airp.report_generated'
+  | 'airp.audit_recorded'
+  | 'aiau.record_received'
+  | 'aiau.fields_validated'
+  | 'aiau.record_persisted'
+  | 'aiau.export_emitted'
+  | 'cmlo.request_received'
+  | 'cmlo.config_loaded'
+  | 'cmlo.snapshot_emitted'
+  | 'cmlo.audit_recorded'
+  | 'cmva.request_received'
+  | 'cmva.schema_validated'
+  | 'cmva.results_emitted'
+  | 'cmva.audit_recorded'
+  | 'cmpu.request_received'
+  | 'cmpu.policy_evaluated'
+  | 'cmpu.config_published'
+  | 'cmpu.audit_recorded'
+  | 'cmdd.request_received'
+  | 'cmdd.drift_evaluated'
+  | 'cmdd.findings_emitted'
+  | 'cmdd.audit_recorded'
+  | 'cmau.record_received'
+  | 'cmau.fields_validated'
+  | 'cmau.record_persisted'
+  | 'cmau.export_emitted'
+  | 'emen.request_received'
+  | 'emen.policy_evaluated'
+  | 'emen.endpoint_enrolled'
+  | 'emen.audit_recorded'
+  | 'empp.request_received'
+  | 'empp.policy_evaluated'
+  | 'empp.policy_pushed'
+  | 'empp.audit_recorded'
+  | 'emcc.request_received'
+  | 'emcc.compliance_evaluated'
+  | 'emcc.results_emitted'
+  | 'emcc.audit_recorded'
+  | 'emad.request_received'
+  | 'emad.policy_evaluated'
+  | 'emad.action_dispatched'
+  | 'emad.audit_recorded'
+  | 'emau.record_received'
+  | 'emau.fields_validated'
+  | 'emau.record_persisted'
+  | 'emau.export_emitted'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -5360,6 +5485,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'key_mgmt_rotator':
     case 'key_mgmt_revoker':
     case 'key_mgmt_audit_logger':
+    case 'vuln_scan_initiator':
+    case 'vuln_finding_collector':
+    case 'vuln_severity_classifier':
+    case 'vuln_remediation_dispatcher':
+    case 'vuln_audit_logger':
+    case 'patch_inventory_loader':
+    case 'patch_applicability_evaluator':
+    case 'patch_rollout_dispatcher':
+    case 'patch_verification_recorder':
+    case 'patch_audit_logger':
+    case 'asset_inventory_collector':
+    case 'asset_inventory_writer':
+    case 'asset_inventory_reconciler':
+    case 'asset_inventory_reporter':
+    case 'asset_inventory_audit_logger':
+    case 'config_mgmt_loader':
+    case 'config_mgmt_validator':
+    case 'config_mgmt_publisher':
+    case 'config_mgmt_drift_detector':
+    case 'config_mgmt_audit_logger':
+    case 'endpoint_mgmt_enrollment':
+    case 'endpoint_mgmt_policy_pusher':
+    case 'endpoint_mgmt_compliance_checker':
+    case 'endpoint_mgmt_action_dispatcher':
+    case 'endpoint_mgmt_audit_logger':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
