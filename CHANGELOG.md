@@ -45,6 +45,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Task executor: 6 handlers (create_model, train, forecast, check_alerts, recommendations, report)
 
 ### Added
+- **Batch 123 — DNS Zone Management**: Migration, shared types (ManagedDnsZone, ManagedDnsRecord, DnsChangeLog, DnsZoneStats), SKILL.md, Eidolon dns_registry BK, 4 EK events, event-bus subjects, 6 task-executor handlers
+- **Batch 124 — TLS Certificate Management**: Migration, shared types (TlsCertificate, CertChallenge, CertDeployment, TlsCertificateStats), SKILL.md, Eidolon cert_tower BK, 4 EK events, event-bus subjects, 6 task-executor handlers
+- **Batch 125 — Secrets Vault**: Migration, shared types (SecretVault, VaultSecret, VaultAccessLog, SecretsVaultStats), SKILL.md, Eidolon secret_vault BK, 4 EK events, event-bus subjects, 6 task-executor handlers
+- **Batch 126 — Compliance Audit**: Migration, shared types (AuditComplianceFramework, ComplianceControl, AuditReport, ComplianceAuditStats), SKILL.md, Eidolon audit_hall BK, 4 EK events, event-bus subjects, 6 task-executor handlers
+- **Batch 127 — Rate Limiting**: Migration, shared types (RateLimitPolicy, RateLimitCounter, RateLimitOverride, RateLimitingStats), SKILL.md, Eidolon rate_gate BK, 4 EK events, event-bus subjects, 6 task-executor handlers
 - **Batch 113 — Log Rotation**: agent_log_rotation_policies, agent_log_archives, agent_log_retention_jobs tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon log_rotator building
 - **Batch 114 — IP Allowlisting**: agent_ip_allowlists, agent_ip_rules, agent_ip_access_logs tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon ip_gatekeeper building
 - **Batch 115 — Webhook Retry**: agent_webhook_endpoints, agent_webhook_deliveries, agent_webhook_dead_letters tables + shared types + SKILL.md + 6 task handlers + NATS events + Eidolon webhook_relay building
