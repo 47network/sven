@@ -555,6 +555,31 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.config.validation_passed': 'config.validation_passed',
   'sven.config.drift_detected': 'config.drift_detected',
   'sven.config.compliance_failed': 'config.compliance_failed',
+  // Batch 198: Service Registry
+  'sven.registry.service_registered': 'registry.service_registered',
+  'sven.registry.service_deregistered': 'registry.service_deregistered',
+  'sven.registry.health_changed': 'registry.health_changed',
+  'sven.registry.endpoint_added': 'registry.endpoint_added',
+  // Batch 199: Ingress Controller
+  'sven.ingress.rule_created': 'ingress.rule_created',
+  'sven.ingress.cert_issued': 'ingress.cert_issued',
+  'sven.ingress.traffic_spike': 'ingress.traffic_spike',
+  'sven.ingress.rate_limited': 'ingress.rate_limited',
+  // Batch 200: Fault Injector
+  'sven.fault.experiment_started': 'fault.experiment_started',
+  'sven.fault.experiment_completed': 'fault.experiment_completed',
+  'sven.fault.observation_recorded': 'fault.observation_recorded',
+  'sven.fault.report_generated': 'fault.report_generated',
+  // Batch 201: Connection Pool
+  'sven.pool.created': 'pool.created',
+  'sven.pool.exhausted': 'pool.exhausted',
+  'sven.pool.health_degraded': 'pool.health_degraded',
+  'sven.pool.connection_error': 'pool.connection_error',
+  // Batch 202: Retry Handler
+  'sven.retry.policy_created': 'retry.policy_created',
+  'sven.retry.attempt_failed': 'retry.attempt_failed',
+  'sven.retry.exhausted': 'retry.exhausted',
+  'sven.retry.dlq_entry_added': 'retry.dlq_entry_added',
   'sven.vault.secret_stored': 'vault.secret_stored',
   'sven.vault.secret_rotated': 'vault.secret_rotated',
   'sven.vault.access_logged': 'vault.access_logged',

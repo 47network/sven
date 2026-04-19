@@ -702,3 +702,23 @@ skills/agent-trace-analyzer/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260618340000_agent_config_validator.sql filter=sven-private
 packages/shared/src/agent-config-validator.ts filter=sven-private
 skills/agent-config-validator/SKILL.md filter=sven-private
+# Batch 198: Service Registry
+services/gateway-api/migrations/20260618350000_agent_service_registry.sql filter=sven-private
+packages/shared/src/agent-service-registry.ts filter=sven-private
+skills/agent-service-registry/SKILL.md filter=sven-private
+# Batch 199: Ingress Controller
+services/gateway-api/migrations/20260618360000_agent_ingress_controller.sql filter=sven-private
+packages/shared/src/agent-ingress-controller.ts filter=sven-private
+skills/agent-ingress-controller/SKILL.md filter=sven-private
+# Batch 200: Fault Injector
+services/gateway-api/migrations/20260618370000_agent_fault_injector.sql filter=sven-private
+packages/shared/src/agent-fault-injector.ts filter=sven-private
+skills/agent-fault-injector/SKILL.md filter=sven-private
+# Batch 201: Connection Pool
+services/gateway-api/migrations/20260618380000_agent_connection_pool.sql filter=sven-private
+packages/shared/src/agent-connection-pool.ts filter=sven-private
+skills/agent-connection-pool/SKILL.md filter=sven-private
+# Batch 202: Retry Handler
+services/gateway-api/migrations/20260618390000_agent_retry_handler.sql filter=sven-private
+packages/shared/src/agent-retry-handler.ts filter=sven-private
+skills/agent-retry-handler/SKILL.md filter=sven-private

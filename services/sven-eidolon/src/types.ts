@@ -157,6 +157,11 @@ export type EidolonBuildingKind =
   | 'alert_dispatcher'
   | 'trace_analyzer'
   | 'config_validator'
+  | 'service_registry'
+  | 'ingress_controller'
+  | 'fault_injector'
+  | 'connection_pool'
+  | 'retry_handler'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -707,6 +712,11 @@ export type EidolonEventKind =
   | 'alert.channel_configured' | 'alert.dispatched' | 'alert.acknowledged' | 'alert.incident_resolved'
   | 'trace.config_created' | 'trace.span_collected' | 'trace.analysis_completed' | 'trace.bottleneck_found'
   | 'config.schema_created' | 'config.validation_passed' | 'config.drift_detected' | 'config.compliance_failed'
+  | 'registry.service_registered' | 'registry.service_deregistered' | 'registry.health_changed' | 'registry.endpoint_added'
+  | 'ingress.rule_created' | 'ingress.cert_issued' | 'ingress.traffic_spike' | 'ingress.rate_limited'
+  | 'fault.experiment_started' | 'fault.experiment_completed' | 'fault.observation_recorded' | 'fault.report_generated'
+  | 'pool.created' | 'pool.exhausted' | 'pool.health_degraded' | 'pool.connection_error'
+  | 'retry.policy_created' | 'retry.attempt_failed' | 'retry.exhausted' | 'retry.dlq_entry_added'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -867,6 +877,11 @@ export type EidolonEventKind =
   | 'alert.channel_configured' | 'alert.dispatched' | 'alert.acknowledged' | 'alert.incident_resolved'
   | 'trace.config_created' | 'trace.span_collected' | 'trace.analysis_completed' | 'trace.bottleneck_found'
   | 'config.schema_created' | 'config.validation_passed' | 'config.drift_detected' | 'config.compliance_failed'
+  | 'registry.service_registered' | 'registry.service_deregistered' | 'registry.health_changed' | 'registry.endpoint_added'
+  | 'ingress.rule_created' | 'ingress.cert_issued' | 'ingress.traffic_spike' | 'ingress.rate_limited'
+  | 'fault.experiment_started' | 'fault.experiment_completed' | 'fault.observation_recorded' | 'fault.report_generated'
+  | 'pool.created' | 'pool.exhausted' | 'pool.health_degraded' | 'pool.connection_error'
+  | 'retry.policy_created' | 'retry.attempt_failed' | 'retry.exhausted' | 'retry.dlq_entry_added'
   | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
   | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
@@ -897,6 +912,11 @@ export type EidolonEventKind =
   | 'alert.channel_configured' | 'alert.dispatched' | 'alert.acknowledged' | 'alert.incident_resolved'
   | 'trace.config_created' | 'trace.span_collected' | 'trace.analysis_completed' | 'trace.bottleneck_found'
   | 'config.schema_created' | 'config.validation_passed' | 'config.drift_detected' | 'config.compliance_failed'
+  | 'registry.service_registered' | 'registry.service_deregistered' | 'registry.health_changed' | 'registry.endpoint_added'
+  | 'ingress.rule_created' | 'ingress.cert_issued' | 'ingress.traffic_spike' | 'ingress.rate_limited'
+  | 'fault.experiment_started' | 'fault.experiment_completed' | 'fault.observation_recorded' | 'fault.report_generated'
+  | 'pool.created' | 'pool.exhausted' | 'pool.health_degraded' | 'pool.connection_error'
+  | 'retry.policy_created' | 'retry.attempt_failed' | 'retry.exhausted' | 'retry.dlq_entry_added'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1251,6 +1271,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'infrastructure';
     case 'alert_dispatcher':
     case 'config_validator':
+    case 'service_registry':
+    case 'ingress_controller':
+    case 'fault_injector':
+    case 'connection_pool':
+    case 'retry_handler':
       return 'civic';
   }
 }

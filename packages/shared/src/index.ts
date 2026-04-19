@@ -219,3 +219,8 @@ export * from './agent-metric-collector.js';
 export * from './agent-alert-dispatcher.js';
 export * from './agent-trace-analyzer.js';
 export * from './agent-config-validator.js';
+export * from './agent-service-registry.js';
+export * from './agent-ingress-controller.js';
+export * from './agent-fault-injector.js';
+export * from './agent-connection-pool.js';
+export * from './agent-retry-handler.js';
