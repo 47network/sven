@@ -1,3 +1,8 @@
+## Batches 1183-1207 — API Proxy, Circuit Breaker, Service Discovery, Health Probe, Canary Deploy
+- 25 verticals (5 groups × 5): full management + monitoring + auditing + reporting + optimization
+- 275 tests passing | migration timestamps 20260628200000–20260628440000
+- Renamed api_gateway → api_proxy (conflict avoidance)
+
 ## Batches 1158-1182 — Ingress Routing, Egress Gateway, Network Policy, Traffic Shaping, Rate Throttle
 - 25 verticals (5 groups × 5): full management + monitoring + auditing + reporting + optimization
 - 275 tests passing | migration timestamps 20260627950000–20260628190000

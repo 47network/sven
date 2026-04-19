@@ -1,56 +1,23 @@
-export type CanaryTarget = 'skill' | 'prompt' | 'config' | 'workflow' | 'handler';
-export type CanaryStatus = 'pending' | 'running' | 'paused' | 'completed' | 'rolled_back' | 'failed';
-export type CanaryDecision = 'promote' | 'rollback' | 'continue' | 'pause';
-export type CanaryVariant = 'baseline' | 'canary';
-
-export interface CanaryDeployConfig {
+export interface CanaryDeployPlan {
   id: string;
   agentId: string;
-  name: string;
-  target: CanaryTarget;
-  baselineVersion: string;
-  canaryVersion: string;
-  trafficPct: number;
-  status: CanaryStatus;
-  successThreshold: number;
-  startedAt: string | null;
-  completedAt: string | null;
-  metadata: Record<string, unknown>;
+  enabled: boolean;
+  config: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface CanaryDeployMetrics {
+export interface CanaryDeployConfig {
   id: string;
-  deployId: string;
-  variant: CanaryVariant;
-  totalRequests: number;
-  successfulRequests: number;
-  failedRequests: number;
-  avgLatencyMs: number | null;
-  errorRate: number | null;
-  windowStart: string;
-  windowEnd: string;
-  createdAt: string;
+  configId: string;
+  data: Record<string, unknown>;
+  timestamp: string;
 }
 
-export interface CanaryDeployDecision {
+export interface CanaryDeployResult {
   id: string;
-  deployId: string;
-  decision: CanaryDecision;
-  reason: string | null;
-  trafficPctBefore: number | null;
-  trafficPctAfter: number | null;
-  decidedBy: string | null;
-  metadata: Record<string, unknown>;
+  configId: string;
+  criteria: Record<string, unknown>;
+  active: boolean;
   createdAt: string;
-}
-
-export interface CanaryDeployStats {
-  totalDeploys: number;
-  activeDeploys: number;
-  promotedDeploys: number;
-  rolledBackDeploys: number;
-  avgSuccessRate: number;
-  avgTrafficPct: number;
 }

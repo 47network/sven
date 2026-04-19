@@ -883,6 +883,31 @@ export type EidolonBuildingKind =
   | 'rate_throttle_auditor'
   | 'rate_throttle_reporter'
   | 'rate_throttle_optimizer'
+  | 'api_proxy'
+  | 'api_proxy_monitor'
+  | 'api_proxy_auditor'
+  | 'api_proxy_reporter'
+  | 'api_proxy_optimizer'
+  | 'circuit_breaker'
+  | 'circuit_breaker_monitor'
+  | 'circuit_breaker_auditor'
+  | 'circuit_breaker_reporter'
+  | 'circuit_breaker_optimizer'
+  | 'service_discovery'
+  | 'service_discovery_monitor'
+  | 'service_discovery_auditor'
+  | 'service_discovery_reporter'
+  | 'service_discovery_optimizer'
+  | 'health_probe'
+  | 'health_probe_monitor'
+  | 'health_probe_auditor'
+  | 'health_probe_reporter'
+  | 'health_probe_optimizer'
+  | 'canary_deploy'
+  | 'canary_deploy_monitor'
+  | 'canary_deploy_auditor'
+  | 'canary_deploy_reporter'
+  | 'canary_deploy_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4545,6 +4570,81 @@ export type EidolonEventKind =
   | 'rto.plan_created'
   | 'rto.optimization_applied'
   | 'rto.export_emitted'
+  | 'ap.rule_created'
+  | 'ap.config_updated'
+  | 'ap.export_emitted'
+  | 'apm.check_passed'
+  | 'apm.alert_raised'
+  | 'apm.export_emitted'
+  | 'apa.entry_logged'
+  | 'apa.violation_found'
+  | 'apa.export_emitted'
+  | 'apr.report_generated'
+  | 'apr.insight_found'
+  | 'apr.export_emitted'
+  | 'apo.plan_created'
+  | 'apo.optimization_applied'
+  | 'apo.export_emitted'
+  | 'cb.rule_created'
+  | 'cb.config_updated'
+  | 'cb.export_emitted'
+  | 'cbm.check_passed'
+  | 'cbm.alert_raised'
+  | 'cbm.export_emitted'
+  | 'cba.entry_logged'
+  | 'cba.violation_found'
+  | 'cba.export_emitted'
+  | 'cbr.report_generated'
+  | 'cbr.insight_found'
+  | 'cbr.export_emitted'
+  | 'cbo.plan_created'
+  | 'cbo.optimization_applied'
+  | 'cbo.export_emitted'
+  | 'sd.entry_registered'
+  | 'sd.config_updated'
+  | 'sd.export_emitted'
+  | 'sdm.check_passed'
+  | 'sdm.alert_raised'
+  | 'sdm.export_emitted'
+  | 'sda.entry_logged'
+  | 'sda.violation_found'
+  | 'sda.export_emitted'
+  | 'sdr.report_generated'
+  | 'sdr.insight_found'
+  | 'sdr.export_emitted'
+  | 'sdo.plan_created'
+  | 'sdo.optimization_applied'
+  | 'sdo.export_emitted'
+  | 'hp.check_passed'
+  | 'hp.config_updated'
+  | 'hp.export_emitted'
+  | 'hpm.check_passed'
+  | 'hpm.alert_raised'
+  | 'hpm.export_emitted'
+  | 'hpa.entry_logged'
+  | 'hpa.violation_found'
+  | 'hpa.export_emitted'
+  | 'hpr.report_generated'
+  | 'hpr.insight_found'
+  | 'hpr.export_emitted'
+  | 'hpo.plan_created'
+  | 'hpo.optimization_applied'
+  | 'hpo.export_emitted'
+  | 'cd.plan_created'
+  | 'cd.config_updated'
+  | 'cd.export_emitted'
+  | 'cdm.check_passed'
+  | 'cdm.alert_raised'
+  | 'cdm.export_emitted'
+  | 'cda.entry_logged'
+  | 'cda.violation_found'
+  | 'cda.export_emitted'
+  | 'cdr.report_generated'
+  | 'cdr.insight_found'
+  | 'cdr.export_emitted'
+  | 'cdo.plan_created'
+  | 'cdo.optimization_applied'
+  | 'cdo.export_emitted'
   | 'nfpm.analysis_completed'
   | 'nfpm.alert_triggered'
   | 'nfpm.export_emitted'
@@ -5960,6 +6060,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'rate_throttle_auditor':
     case 'rate_throttle_reporter':
     case 'rate_throttle_optimizer':
+    case 'api_proxy':
+    case 'api_proxy_monitor':
+    case 'api_proxy_auditor':
+    case 'api_proxy_reporter':
+    case 'api_proxy_optimizer':
+    case 'circuit_breaker':
+    case 'circuit_breaker_monitor':
+    case 'circuit_breaker_auditor':
+    case 'circuit_breaker_reporter':
+    case 'circuit_breaker_optimizer':
+    case 'service_discovery':
+    case 'service_discovery_monitor':
+    case 'service_discovery_auditor':
+    case 'service_discovery_reporter':
+    case 'service_discovery_optimizer':
+    case 'health_probe':
+    case 'health_probe_monitor':
+    case 'health_probe_auditor':
+    case 'health_probe_reporter':
+    case 'health_probe_optimizer':
+    case 'canary_deploy':
+    case 'canary_deploy_monitor':
+    case 'canary_deploy_auditor':
+    case 'canary_deploy_reporter':
+    case 'canary_deploy_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

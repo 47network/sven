@@ -1,4 +1,4 @@
-export interface ServiceDiscoveryEntry {
+export interface CircuitBreakerOptPlan {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface ServiceDiscoveryEntry {
   updatedAt: string;
 }
 
-export interface ServiceDiscoveryConfig {
+export interface CircuitBreakerOptConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface ServiceDiscoveryResult {
+export interface CircuitBreakerOptResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;
