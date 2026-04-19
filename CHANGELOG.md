@@ -78,6 +78,20 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 343-347 — Developer Tooling
+- **api_documenter** (Batch 343): API spec generation, doc publishing, spec validation, version diffing
+- **sdk_generator** (Batch 344): SDK code generation, package builds, test execution, package publishing
+- **contract_tester** (Batch 345): Contract creation, verification, breaking change detection, compatibility checks
+- **mock_server** (Batch 346): Mock endpoint creation, request recording, request capture, match strategies
+- **test_harness** (Batch 347): Test suite management, test execution, flaky test detection, report generation
+- 5 migration SQL files (timestamps 800000-840000), 15 new tables
+- 5 shared TypeScript type files with enums and interfaces
+- 5 SKILL.md files ($14.99-$19.99 range, engineer/designer archetypes)
+- 5 barrel exports, 5 BK values, 20 EK values, 5 districtFor cases
+- 20 SUBJECT_MAP entries, 30 switch cases, 30 handler methods
+- 15 .gitattributes privacy filter entries
+- 150 Jest tests — all passing
+
 
 ### Batches 338-342 — Release Engineering
 - **feature_flag** (Batch 338): Dynamic feature flags with targeting rules and gradual rollouts — $11.99

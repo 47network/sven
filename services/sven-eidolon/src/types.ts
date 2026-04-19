@@ -127,7 +127,7 @@ export type EidolonBuildingKind =
   | 'intrusion_guard'
   | 'rbac_enforcer'
   | 'siem_connector'
-  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor' | 'feature_flag' | 'rollback_manager' | 'blue_green_router' | 'chaos_tester' | 'deployment_gate'
+  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor' | 'feature_flag' | 'rollback_manager' | 'blue_green_router' | 'chaos_tester' | 'deployment_gate' | 'api_documenter' | 'sdk_generator' | 'contract_tester' | 'mock_server' | 'test_harness'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -826,7 +826,7 @@ export type EidolonEventKind =
   | 'fran.case_created'
   | 'fran.evidence_collected'
   | 'fran.timeline_analyzed'
-  | 'fran.case_closed' | 'wfen.workflow_created' | 'wfen.workflow_executed' | 'wfen.step_completed' | 'wfen.execution_failed' | 'tskd.job_scheduled' | 'tskd.job_executed' | 'tskd.job_failed' | 'tskd.schedule_paused' | 'crmg.cron_triggered' | 'crmg.cron_failed' | 'crmg.entry_created' | 'crmg.entry_disabled' | 'jorc.job_submitted' | 'jorc.job_completed' | 'jorc.job_dead_letter' | 'jorc.deps_resolved' | 'btpr.batch_started' | 'btpr.batch_completed' | 'btpr.item_failed' | 'btpr.progress_updated' | 'fflg.flag_created' | 'fflg.flag_evaluated' | 'fflg.rollout_changed' | 'fflg.flag_toggled' | 'rbmg.snapshot_created' | 'rbmg.rollback_executed' | 'rbmg.version_restored' | 'rbmg.snapshot_expired' | 'bgrn.slot_deployed' | 'bgrn.traffic_switched' | 'bgrn.health_changed' | 'bgrn.warmup_completed' | 'chts.experiment_started' | 'chts.experiment_completed' | 'chts.experiment_aborted' | 'chts.hypothesis_validated' | 'dpgt.checks_passed' | 'dpgt.gate_approved' | 'dpgt.gate_rejected' | 'dpgt.override_applied'
+  | 'fran.case_closed' | 'wfen.workflow_created' | 'wfen.workflow_executed' | 'wfen.step_completed' | 'wfen.execution_failed' | 'tskd.job_scheduled' | 'tskd.job_executed' | 'tskd.job_failed' | 'tskd.schedule_paused' | 'crmg.cron_triggered' | 'crmg.cron_failed' | 'crmg.entry_created' | 'crmg.entry_disabled' | 'jorc.job_submitted' | 'jorc.job_completed' | 'jorc.job_dead_letter' | 'jorc.deps_resolved' | 'btpr.batch_started' | 'btpr.batch_completed' | 'btpr.item_failed' | 'btpr.progress_updated' | 'fflg.flag_created' | 'fflg.flag_evaluated' | 'fflg.rollout_changed' | 'fflg.flag_toggled' | 'rbmg.snapshot_created' | 'rbmg.rollback_executed' | 'rbmg.version_restored' | 'rbmg.snapshot_expired' | 'bgrn.slot_deployed' | 'bgrn.traffic_switched' | 'bgrn.health_changed' | 'bgrn.warmup_completed' | 'chts.experiment_started' | 'chts.experiment_completed' | 'chts.experiment_aborted' | 'chts.hypothesis_validated' | 'dpgt.checks_passed' | 'dpgt.gate_approved' | 'dpgt.gate_rejected' | 'dpgt.override_applied' | 'apdc.spec_generated' | 'apdc.docs_published' | 'apdc.spec_validated' | 'apdc.version_diffed' | 'sdkg.sdk_generated' | 'sdkg.package_built' | 'sdkg.tests_passed' | 'sdkg.package_published' | 'ctst.contract_created' | 'ctst.contract_verified' | 'ctst.breaking_detected' | 'ctst.compatibility_checked' | 'mksv.mock_created' | 'mksv.endpoint_added' | 'mksv.recording_started' | 'mksv.request_captured' | 'tshr.suite_completed' | 'tshr.tests_passed' | 'tshr.flaky_detected' | 'tshr.report_generated'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1549,6 +1549,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'blue_green_router':
     case 'chaos_tester':
     case 'deployment_gate':
+    case 'api_documenter':
+    case 'sdk_generator':
+    case 'contract_tester':
+    case 'mock_server':
+    case 'test_harness':
       case 'network_firewall':
       case 'threat_detector':
       return 'industrial';

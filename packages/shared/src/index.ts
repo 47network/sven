@@ -364,3 +364,8 @@ export * from './agent-rollback-manager';
 export * from './agent-blue-green-router';
 export * from './agent-chaos-tester';
 export * from './agent-deployment-gate';
+export * from './agent-api-documenter';
+export * from './agent-sdk-generator';
+export * from './agent-contract-tester';
+export * from './agent-mock-server';
+export * from './agent-test-harness';
