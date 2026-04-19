@@ -1,3 +1,12 @@
+## Batches 468-472 — API Security & Auth
+- **Batch 468** — token_rotator: Automated API token rotation with zero-downtime transitions
+- **Batch 469** — secret_scanner: Continuous secret detection across code and environments
+- **Batch 470** — auth_auditor: Authentication/authorization audit against compliance standards
+- **Batch 471** — permission_mapper: RBAC mapping, hierarchy management, permission analysis
+- **Batch 472** — session_tracker: Real-time session monitoring, anomaly detection, limits
+- Migrations: 20260621050000–20260621090000
+- EK prefixes: tkrt, scsc, auad, pmmp, sntr
+
 ## Batches 463-467 — Data Infrastructure
 - **Batch 463** — data_replicator: Cross-database replication, sync, conflict resolution
 - **Batch 464** — data_partitioner: Table partitioning strategy, rebalancing, retention

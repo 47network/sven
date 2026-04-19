@@ -1585,3 +1585,28 @@ skills/autonomous-economy/table-optimizer/** filter=sven-private
 services/gateway-api/migrations/20260621040000_agent_query_analyzer.sql filter=sven-private
 packages/shared/src/agent-query-analyzer.ts filter=sven-private
 skills/autonomous-economy/query-analyzer/** filter=sven-private
+
+# Batch 468 — token_rotator
+services/gateway-api/migrations/20260621050000_agent_token_rotator.sql filter=sven-private
+packages/shared/src/agent-token-rotator.ts filter=sven-private
+skills/autonomous-economy/token-rotator/** filter=sven-private
+
+# Batch 469 — secret_scanner
+services/gateway-api/migrations/20260621060000_agent_secret_scanner.sql filter=sven-private
+packages/shared/src/agent-secret-scanner.ts filter=sven-private
+skills/autonomous-economy/secret-scanner/** filter=sven-private
+
+# Batch 470 — auth_auditor
+services/gateway-api/migrations/20260621070000_agent_auth_auditor.sql filter=sven-private
+packages/shared/src/agent-auth-auditor.ts filter=sven-private
+skills/autonomous-economy/auth-auditor/** filter=sven-private
+
+# Batch 471 — permission_mapper
+services/gateway-api/migrations/20260621080000_agent_permission_mapper.sql filter=sven-private
+packages/shared/src/agent-permission-mapper.ts filter=sven-private
+skills/autonomous-economy/permission-mapper/** filter=sven-private
+
+# Batch 472 — session_tracker
+services/gateway-api/migrations/20260621090000_agent_session_tracker.sql filter=sven-private
+packages/shared/src/agent-session-tracker.ts filter=sven-private
+skills/autonomous-economy/session-tracker/** filter=sven-private

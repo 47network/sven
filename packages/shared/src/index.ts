@@ -493,3 +493,8 @@ export * from './agent-data-partitioner';
 export * from './agent-data-archiver';
 export * from './agent-table-optimizer';
 export * from './agent-query-analyzer';
+export * from './agent-token-rotator';
+export * from './agent-secret-scanner';
+export * from './agent-auth-auditor';
+export * from './agent-permission-mapper';
+export * from './agent-session-tracker';
