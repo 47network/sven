@@ -1,3 +1,8 @@
+## Batches 1208-1232 — Blue-Green Deploy, Rolling Update, Feature Switch, Config Drift, Secret Rotation
+- 25 verticals (5 groups × 5): full management + monitoring + auditing + reporting + optimization
+- 275 tests passing | migration timestamps 20260628450000–20260628690000
+- Renamed feature_flag → feature_switch (conflict avoidance)
+
 ## Batches 1183-1207 — API Proxy, Circuit Breaker, Service Discovery, Health Probe, Canary Deploy
 - 25 verticals (5 groups × 5): full management + monitoring + auditing + reporting + optimization
 - 275 tests passing | migration timestamps 20260628200000–20260628440000

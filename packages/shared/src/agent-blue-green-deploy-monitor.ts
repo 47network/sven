@@ -1,4 +1,4 @@
-export interface ConfigDriftEntry {
+export interface BlueGreenDeployMonitorCheck {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface ConfigDriftEntry {
   updatedAt: string;
 }
 
-export interface ConfigDriftConfig {
+export interface BlueGreenDeployMonitorConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface ConfigDriftResult {
+export interface BlueGreenDeployMonitorResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;
