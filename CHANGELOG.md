@@ -78,6 +78,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 208–212: Network Infrastructure
+- **Batch 208 — Message Broker**: broker connections, topic lifecycle, pub/sub subscriptions, consumer lag monitoring, partition rebalancing
+- **Batch 209 — Cache Manager**: store provisioning, eviction policies, cache warming, hit-rate metrics, pattern invalidation, tiered caching
+- **Batch 210 — Traffic Router**: path-based routing, traffic rules (rate limit, geo-block, circuit break), canary deployments, A/B testing, analytics
+- **Batch 211 — DNS Resolver**: zone management, record CRUD (A/AAAA/CNAME/MX/TXT/SRV), DNSSEC, query analytics, propagation checks
+- **Batch 212 — Config Server**: namespaced config, environment isolation, secret encryption, change auditing, config diffing, rollback
+- 5 migration SQL files, 5 shared TypeScript type modules, 5 SKILL.md files
+- 5 EidolonBuildingKind values, 20 EidolonEventKind values, 20 SUBJECT_MAP entries
+- 5 districtFor cases, 30 task-executor switch cases, 30 handler methods
+- 15 .gitattributes privacy entries, 178 Jest tests — all passing
+
 
 ### Batches 203–207 — Data Infrastructure
 - **Batch 203 – Stream Processor**: real-time data streaming with sources, transforms, sinks

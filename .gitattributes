@@ -747,3 +747,28 @@ skills/agent-data-catalog/SKILL.md filter=sven-private
 services/gateway-api/migrations/*_agent_query_optimizer.sql filter=sven-private
 packages/shared/src/agent-query-optimizer.ts filter=sven-private
 skills/agent-query-optimizer/SKILL.md filter=sven-private
+
+# Batch 208: message-broker
+services/gateway-api/migrations/20260618450000_agent_message_broker.sql filter=sven-private
+packages/shared/src/agent-message-broker.ts filter=sven-private
+skills/autonomous-economy/message-broker/SKILL.md filter=sven-private
+
+# Batch 209: cache-manager
+services/gateway-api/migrations/20260618460000_agent_cache_manager.sql filter=sven-private
+packages/shared/src/agent-cache-manager.ts filter=sven-private
+skills/autonomous-economy/cache-manager/SKILL.md filter=sven-private
+
+# Batch 210: traffic-router
+services/gateway-api/migrations/20260618470000_agent_traffic_router.sql filter=sven-private
+packages/shared/src/agent-traffic-router.ts filter=sven-private
+skills/autonomous-economy/traffic-router/SKILL.md filter=sven-private
+
+# Batch 211: dns-resolver
+services/gateway-api/migrations/20260618480000_agent_dns_resolver.sql filter=sven-private
+packages/shared/src/agent-dns-resolver.ts filter=sven-private
+skills/autonomous-economy/dns-resolver/SKILL.md filter=sven-private
+
+# Batch 212: config-server
+services/gateway-api/migrations/20260618490000_agent_config_server.sql filter=sven-private
+packages/shared/src/agent-config-server.ts filter=sven-private
+skills/autonomous-economy/config-server/SKILL.md filter=sven-private

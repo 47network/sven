@@ -229,3 +229,8 @@ export * from './agent-schema-validator.js';
 export * from './agent-etl-processor.js';
 export * from './agent-data-catalog.js';
 export * from './agent-query-optimizer.js';
+export * from './agent-message-broker.js';
+export * from './agent-cache-manager.js';
+export * from './agent-traffic-router.js';
+export * from './agent-dns-resolver.js';
+export * from './agent-config-server.js';
