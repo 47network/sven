@@ -354,3 +354,8 @@ export * from './agent-intrusion-guard';
 export * from './agent-rbac-enforcer';
 export * from './agent-siem-connector';
 export * from './agent-forensic-analyzer';
+export * from './agent-workflow-engine';
+export * from './agent-task-scheduler';
+export * from './agent-cron-manager';
+export * from './agent-job-orchestrator';
+export * from './agent-batch-processor';
