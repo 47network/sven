@@ -1,3 +1,45 @@
+## [Unreleased] - Batches 758-782 (Workflow, Search, Moderation, Recommendation, Fraud)
+
+### Added — 25 new autonomous economy verticals across 5 domain groups
+
+**Batches 758-762 — Workflow Orchestration:**
+- `saga_coordinator` — Distributed saga coordination with compensation triggering
+- `workflow_state_machine` — Workflow engine with transitions, guards, and termination
+- `compensating_action_runner` — Compensation execution with idempotency verification
+- `long_running_job_supervisor` — Job supervision with heartbeat tracking and recovery
+- `cron_dispatcher` — Cron dispatching with distributed locking and misfire handling
+
+**Batches 763-767 — Search & Discovery:**
+- `search_index_builder` — Index building with sharding and zero-downtime alias swap
+- `fulltext_query_planner` — Full-text query parsing, planning, and result caching
+- `vector_embedding_indexer` — Vector ANN indexing with recall measurement
+- `faceted_search_engine` — Faceted search with bucket aggregation and pagination
+- `search_relevance_tuner` — Relevance tuning with click signals and A/B evaluation
+
+**Batches 768-772 — Content Moderation & Trust:**
+- `content_moderation_pipeline` — Moderation pipeline with policy and appeal routing
+- `image_classifier` — Image classification with confidence scoring
+- `toxicity_detector` — Toxicity detection with threshold-based recommendations
+- `spam_filter_engine` — Spam filtering with reputation tracking and feedback learning
+- `pii_redactor` — PII redaction with field-level masking and audit recording
+
+**Batches 773-777 — Recommendation & Personalization:**
+- `recommendation_ranker` — Ranking with feature assembly and diversification
+- `collaborative_filter` — Matrix factorization with cold-start handling
+- `content_personalizer` — Personalization with profile loading and engagement tracking
+- `trending_engine` — Trending detection with velocity and rolling windows
+- `similar_item_finder` — Similar-item finding with caching
+
+**Batches 778-782 — Fraud & Risk:**
+- `fraud_detector` — Fraud detection with rule triggers and feedback learning
+- `transaction_screener` — Sanctions and AML screening with decision recording
+- `risk_score_calculator` — Multi-signal risk scoring with tier assignment
+- `chargeback_disputer` — Chargeback automation with evidence assembly
+- `kyc_verifier` — KYC verification with document validation and liveness checks
+
+### Tests
+- 275 new tests across 5 batch suites — all passing (5/5 suites, 275/275 tests)
+
 ## [Unreleased] - Batches 733-757 (Edge/CDN, Config/Flags, Data Pipelines, ML Platform, Notifications)
 
 ### Added — 25 new autonomous economy verticals across 5 domain groups
