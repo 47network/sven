@@ -36,6 +36,18 @@
 
 # Changelog
 
+## Batches 568-572 — Workflow Orchestration
+- step_sequencer: Multi-step workflow sequencing with dependency tracking
+- gate_keeper: Conditional gate evaluation for workflow progression control
+- parallel_joiner: Parallel branch execution with join-barrier synchronization
+- timeout_watcher: Deadline monitoring with escalation on timeout events
+- retry_orchestrator: Configurable retry policies with exponential backoff
+- 5 migrations, shared types, barrel exports, SKILL.md files
+- Eidolon BK/EK/districtFor wiring, event-bus SUBJECT_MAP entries
+- Task-executor switch cases, .gitattributes privacy filters
+- 55/55 tests passing
+
+
 ## Batches 563-567 — Resource Management & Capacity
 - resource_allocator: Dynamic resource allocation and contention management
 - demand_forecaster: Demand forecasting with spike prediction and model retraining
