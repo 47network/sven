@@ -253,6 +253,11 @@ export type EidolonBuildingKind =
   | 'pipeline_aggregator'
   | 'record_enricher'
   | 'etl_orchestrator'
+  | 'threshold_monitor'
+  | 'escalation_router'
+  | 'notification_templater'
+  | 'digest_aggregator'
+  | 'channel_gateway'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1470,6 +1475,26 @@ export type EidolonEventKind =
   | 'etlo.stage_completed'
   | 'etlo.pipeline_finished'
   | 'etlo.pipeline_failed'
+  | 'thmn.threshold_breached'
+  | 'thmn.alert_fired'
+  | 'thmn.threshold_cleared'
+  | 'thmn.rule_configured'
+  | 'esrt.escalation_triggered'
+  | 'esrt.level_advanced'
+  | 'esrt.escalation_resolved'
+  | 'esrt.timeout_reached'
+  | 'ntpl.template_rendered'
+  | 'ntpl.delivery_queued'
+  | 'ntpl.delivery_confirmed'
+  | 'ntpl.template_updated'
+  | 'dgag.digest_compiled'
+  | 'dgag.batch_dispatched'
+  | 'dgag.preference_changed'
+  | 'dgag.schedule_updated'
+  | 'chgw.message_sent'
+  | 'chgw.delivery_failed'
+  | 'chgw.channel_degraded'
+  | 'chgw.failover_activated'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2180,6 +2205,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'pipeline_aggregator':
     case 'record_enricher':
     case 'etl_orchestrator':
+    case 'threshold_monitor':
+    case 'escalation_router':
+    case 'notification_templater':
+    case 'digest_aggregator':
+    case 'channel_gateway':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

@@ -3503,6 +3503,36 @@ export class TaskExecutor {
       case 'etlo_fail': return this.handleEtloFail(task);
       case 'etlo_report': return this.handleEtloReport(task);
       case 'etlo_monitor': return this.handleEtloMonitor(task);
+      case 'thmn_breach': return this.handleThmnBreach(task);
+      case 'thmn_fire': return this.handleThmnFire(task);
+      case 'thmn_clear': return this.handleThmnClear(task);
+      case 'thmn_config': return this.handleThmnConfig(task);
+      case 'thmn_report': return this.handleThmnReport(task);
+      case 'thmn_monitor': return this.handleThmnMonitor(task);
+      case 'esrt_trigger': return this.handleEsrtTrigger(task);
+      case 'esrt_advance': return this.handleEsrtAdvance(task);
+      case 'esrt_resolve': return this.handleEsrtResolve(task);
+      case 'esrt_timeout': return this.handleEsrtTimeout(task);
+      case 'esrt_report': return this.handleEsrtReport(task);
+      case 'esrt_monitor': return this.handleEsrtMonitor(task);
+      case 'ntpl_render': return this.handleNtplRender(task);
+      case 'ntpl_queue': return this.handleNtplQueue(task);
+      case 'ntpl_confirm': return this.handleNtplConfirm(task);
+      case 'ntpl_update': return this.handleNtplUpdate(task);
+      case 'ntpl_report': return this.handleNtplReport(task);
+      case 'ntpl_monitor': return this.handleNtplMonitor(task);
+      case 'dgag_compile': return this.handleDgagCompile(task);
+      case 'dgag_dispatch': return this.handleDgagDispatch(task);
+      case 'dgag_prefer': return this.handleDgagPrefer(task);
+      case 'dgag_schedule': return this.handleDgagSchedule(task);
+      case 'dgag_report': return this.handleDgagReport(task);
+      case 'dgag_monitor': return this.handleDgagMonitor(task);
+      case 'chgw_send': return this.handleChgwSend(task);
+      case 'chgw_fail': return this.handleChgwFail(task);
+      case 'chgw_degrade': return this.handleChgwDegrade(task);
+      case 'chgw_failover': return this.handleChgwFailover(task);
+      case 'chgw_report': return this.handleChgwReport(task);
+      case 'chgw_monitor': return this.handleChgwMonitor(task);
     }
   }
 
