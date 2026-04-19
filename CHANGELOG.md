@@ -1,3 +1,13 @@
+## Batches 1033-1057 — Compliance, KYC, AML, Sanctions, DLP (25 verticals)
+
+- Compliance (5): policy_loader, control_evaluator, evidence_collector, report_generator, audit_logger
+- KYC (5): identity_verifier, document_validator, risk_classifier, decision_recorder, audit_logger
+- AML (5): transaction_monitor, pattern_detector, alert_generator, case_writer, audit_logger
+- Sanctions Screening (5): list_loader, name_screener, match_resolver, decision_recorder, audit_logger
+- Data Loss Prevention (5): content_classifier, policy_evaluator, action_dispatcher, incident_writer, audit_logger
+
+275 tests across 5 suites green. Per-vertical SKILL.md, agent module, eidolon types/event-bus wiring, marketplace task-executor case, gateway-api migration, .gitattributes filter.
+
 ## Batches 1008-1032 — Personalization, Moderation, Trust & Safety, Fraud, Risk Scoring (25 verticals)
 
 - Personalization (5): profile_builder, segment_resolver, content_selector, consent_gate, audit_logger
