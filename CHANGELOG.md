@@ -79,6 +79,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 423-427 — Security & Compliance
+- **cert_rotator**: TLS/SSL certificate lifecycle, renewal, rotation, revocation (6 handlers)
+- **key_escrow**: Secure key storage, rotation, backup, access auditing (6 handlers)
+- **config_auditor**: Configuration compliance scanning, baseline comparison, violation reporting (6 handlers)
+- **uptime_sentinel**: Endpoint monitoring, uptime tracking, SLA reporting (6 handlers)
+- **drift_detector**: Infrastructure drift detection, baseline comparison, auto-remediation (6 handlers)
+- 5 migrations, 5 type files, 5 SKILL.md, 5 BK + 20 EK + 5 districtFor, 20 SUBJECT_MAP, 30 cases + 30 handlers
+- 175 tests passing
+
+
 ### Batches 418-422 — Infrastructure Resilience
 - **incident_commander**: Incident lifecycle, triage, escalation, postmortem generation (6 handlers)
 - **failure_injector**: Chaos engineering experiments, failure injection, resilience reports (6 handlers)

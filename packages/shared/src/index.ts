@@ -447,3 +447,9 @@ export * from './agent-failure-injector';
 export * from './agent-service-mesh-router';
 export * from './agent-cache-optimizer';
 export * from './agent-log-indexer';
+
+export * from './agent-cert-rotator';
+export * from './agent-key-escrow';
+export * from './agent-config-auditor';
+export * from './agent-uptime-sentinel';
+export * from './agent-drift-detector';
