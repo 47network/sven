@@ -79,6 +79,21 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batch 168-172 — Agent Infrastructure Operations (Topology Map, Forensic Analysis, Patch Management, Access Review, Release Train)
+- **Batch 168**: Agent Topology Map — topology_grid BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 169**: Agent Forensic Analysis — forensic_lab BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 170**: Agent Patch Management — patch_depot BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 171**: Agent Access Review — access_court BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 172**: Agent Release Train — release_station BK, 3 tables, 4 EK events, 6 task handlers
+- 5 migration SQL files (timestamps 20260618050000–20260618090000)
+- 5 shared TypeScript type modules with 30+ types total
+- 5 SKILL.md definitions (infrastructure + operations + security + analyst)
+- 20 SUBJECT_MAP entries in event-bus (total ~636)
+- 30 switch cases + 30 handler methods in task-executor (total ~909/699)
+- 15 .gitattributes privacy entries (total ~614)
+- 176 Jest tests — all passing
+
+
 ### Batch 163-167 — Agent Platform (Runtime Sandbox, Secret Rotation, Traffic Mirror, Compliance Report, Capacity Planning)
 - **Batch 163**: Agent Runtime Sandbox — sandbox_pod BK, 3 tables, 4 EK events, 6 task handlers
 - **Batch 164**: Agent Secret Rotation — secret_rotator BK, 3 tables, 4 EK events, 6 task handlers
