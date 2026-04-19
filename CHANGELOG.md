@@ -27,6 +27,13 @@
 
 # Changelog
 
+## Batches 533-537 — Billing & Subscription
+- invoice_generator: Invoice generation and line item management
+- subscription_lifecycle: Subscription lifecycle and renewal processing
+- usage_metering: Usage metering and consumption tracking
+- payment_reconciler: Payment reconciliation and discrepancy resolution
+- dunning_manager: Dunning management and payment recovery workflows
+
 ## Batches 528-532 — Identity & SSO
 - oauth_provider: OAuth 2.0 provider management and client registration
 - saml_bridge: SAML federation bridge and SSO assertion handling

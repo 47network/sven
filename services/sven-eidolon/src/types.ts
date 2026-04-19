@@ -233,6 +233,11 @@ export type EidolonBuildingKind =
   | 'token_minter'
   | 'session_rotator'
   | 'identity_linker'
+  | 'invoice_generator'
+  | 'subscription_lifecycle'
+  | 'usage_metering'
+  | 'payment_reconciler'
+  | 'dunning_manager'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -1365,6 +1370,26 @@ export type EidolonEventKind =
   | 'idlk.provider_connected'
   | 'idlk.merge_completed'
   | 'idlk.conflict_resolved'
+  | 'ivgn.invoice_created'
+  | 'ivgn.line_item_added'
+  | 'ivgn.total_calculated'
+  | 'ivgn.invoice_sent'
+  | 'sblc.subscription_started'
+  | 'sblc.renewal_processed'
+  | 'sblc.upgrade_applied'
+  | 'sblc.cancellation_scheduled'
+  | 'usmr.usage_recorded'
+  | 'usmr.threshold_reached'
+  | 'usmr.overage_detected'
+  | 'usmr.meter_reset'
+  | 'pyrc.payment_matched'
+  | 'pyrc.discrepancy_found'
+  | 'pyrc.reconciliation_completed'
+  | 'pyrc.adjustment_posted'
+  | 'dnmg.reminder_sent'
+  | 'dnmg.retry_scheduled'
+  | 'dnmg.escalation_triggered'
+  | 'dnmg.recovery_completed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -2035,6 +2060,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'token_minter':
     case 'session_rotator':
     case 'identity_linker':
+    case 'invoice_generator':
+    case 'subscription_lifecycle':
+    case 'usage_metering':
+    case 'payment_reconciler':
+    case 'dunning_manager':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

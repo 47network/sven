@@ -3383,6 +3383,36 @@ export class TaskExecutor {
       case 'idlk_resolve': return this.handleIdlkResolve(task);
       case 'idlk_report': return this.handleIdlkReport(task);
       case 'idlk_monitor': return this.handleIdlkMonitor(task);
+      case 'ivgn_create': return this.handleIvgnCreate(task);
+      case 'ivgn_add_item': return this.handleIvgnAddItem(task);
+      case 'ivgn_calculate': return this.handleIvgnCalculate(task);
+      case 'ivgn_send': return this.handleIvgnSend(task);
+      case 'ivgn_report': return this.handleIvgnReport(task);
+      case 'ivgn_monitor': return this.handleIvgnMonitor(task);
+      case 'sblc_start': return this.handleSblcStart(task);
+      case 'sblc_renew': return this.handleSblcRenew(task);
+      case 'sblc_upgrade': return this.handleSblcUpgrade(task);
+      case 'sblc_cancel': return this.handleSblcCancel(task);
+      case 'sblc_report': return this.handleSblcReport(task);
+      case 'sblc_monitor': return this.handleSblcMonitor(task);
+      case 'usmr_record': return this.handleUsmrRecord(task);
+      case 'usmr_threshold': return this.handleUsmrThreshold(task);
+      case 'usmr_overage': return this.handleUsmrOverage(task);
+      case 'usmr_reset': return this.handleUsmrReset(task);
+      case 'usmr_report': return this.handleUsmrReport(task);
+      case 'usmr_monitor': return this.handleUsmrMonitor(task);
+      case 'pyrc_match': return this.handlePyrcMatch(task);
+      case 'pyrc_discrepancy': return this.handlePyrcDiscrepancy(task);
+      case 'pyrc_complete': return this.handlePyrcComplete(task);
+      case 'pyrc_adjust': return this.handlePyrcAdjust(task);
+      case 'pyrc_report': return this.handlePyrcReport(task);
+      case 'pyrc_monitor': return this.handlePyrcMonitor(task);
+      case 'dnmg_remind': return this.handleDnmgRemind(task);
+      case 'dnmg_retry': return this.handleDnmgRetry(task);
+      case 'dnmg_escalate': return this.handleDnmgEscalate(task);
+      case 'dnmg_recover': return this.handleDnmgRecover(task);
+      case 'dnmg_report': return this.handleDnmgReport(task);
+      case 'dnmg_monitor': return this.handleDnmgMonitor(task);
     }
   }
 
