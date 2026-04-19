@@ -34,10 +34,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await api.auth.login(username, password);
-      if (res.data.requires_totp) {
+      if ('requires_totp' in res.data && res.data.requires_totp) {
         setPreSessionId(res.data.pre_session_id);
         setStep('totp');
-      } else if (res.data.requires_totp_enrollment) {
+      } else if ('requires_totp_enrollment' in res.data && res.data.requires_totp_enrollment) {
         setPreSessionId(res.data.pre_session_id);
         setStep('totp-enroll');
         // Automatically request TOTP setup
