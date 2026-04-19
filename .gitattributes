@@ -772,3 +772,18 @@ skills/autonomous-economy/dns-resolver/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260618490000_agent_config_server.sql filter=sven-private
 packages/shared/src/agent-config-server.ts filter=sven-private
 skills/autonomous-economy/config-server/SKILL.md filter=sven-private
+services/gateway-api/migrations/20260618500000_agent_network_monitor.sql filter=sven-private diff=sven-private
+packages/shared/src/agent-network-monitor.ts filter=sven-private diff=sven-private
+skills/autonomous-economy/network-monitor/SKILL.md filter=sven-private diff=sven-private
+services/gateway-api/migrations/20260618510000_agent_packet_analyzer.sql filter=sven-private diff=sven-private
+packages/shared/src/agent-packet-analyzer.ts filter=sven-private diff=sven-private
+skills/autonomous-economy/packet-analyzer/SKILL.md filter=sven-private diff=sven-private
+services/gateway-api/migrations/20260618520000_agent_bandwidth_controller.sql filter=sven-private diff=sven-private
+packages/shared/src/agent-bandwidth-controller.ts filter=sven-private diff=sven-private
+skills/autonomous-economy/bandwidth-controller/SKILL.md filter=sven-private diff=sven-private
+services/gateway-api/migrations/20260618530000_agent_firewall_manager.sql filter=sven-private diff=sven-private
+packages/shared/src/agent-firewall-manager.ts filter=sven-private diff=sven-private
+skills/autonomous-economy/firewall-manager/SKILL.md filter=sven-private diff=sven-private
+services/gateway-api/migrations/20260618540000_agent_proxy_server.sql filter=sven-private diff=sven-private
+packages/shared/src/agent-proxy-server.ts filter=sven-private diff=sven-private
+skills/autonomous-economy/proxy-server/SKILL.md filter=sven-private diff=sven-private

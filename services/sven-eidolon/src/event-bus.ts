@@ -323,7 +323,6 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.config.namespace_created': 'config.namespace_created',
   'sven.config.rollback_applied': 'config.rollback_applied',
   'sven.config.schema_validated': 'config.schema_validated',
-  'sven.health.check_completed': 'health.check_completed',
   'sven.health.threshold_breached': 'health.threshold_breached',
   'sven.health.alert_triggered': 'health.alert_triggered',
   'sven.health.dashboard_updated': 'health.dashboard_updated',
@@ -399,14 +398,12 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.apiver.endpoint_deprecated': 'apiver.endpoint_deprecated',
   'sven.apiver.compat_checked': 'apiver.compat_checked',
   'sven.apiver.version_sunset': 'apiver.version_sunset',
-  'sven.compliance.policy_created': 'compliance.policy_created',
   'sven.compliance.scan_completed': 'compliance.scan_completed',
   'sven.compliance.remediation_assigned': 'compliance.remediation_assigned',
   'sven.compliance.remediation_completed': 'compliance.remediation_completed',
   'sven.backup.schedule_created': 'backup.schedule_created',
   'sven.backup.snapshot_completed': 'backup.snapshot_completed',
   'sven.backup.restore_started': 'backup.restore_started',
-  'sven.backup.restore_completed': 'backup.restore_completed',
   'sven.traffic.rule_created': 'traffic.rule_created',
   'sven.traffic.bandwidth_throttled': 'traffic.bandwidth_throttled',
   'sven.traffic.qos_applied': 'traffic.qos_applied',
@@ -425,9 +422,7 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.ipallow.access_report': 'ipallow.access_report',
 
   // Batch 115 — Webhook Retry
-  'sven.webhook.endpoint_registered': 'webhook.endpoint_registered',
   'sven.webhook.delivery_succeeded': 'webhook.delivery_succeeded',
-  'sven.webhook.delivery_failed': 'webhook.delivery_failed',
   'sven.webhook.dead_letter_created': 'webhook.dead_letter_created',
 
   // Batch 116 — Storage Tiering
@@ -462,9 +457,7 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.capacity.generate_forecast': 'capacity.generate_forecast',
   'sven.capacity.check_alerts': 'capacity.check_alerts',
   'sven.capacity.status_report': 'capacity.status_report',
-  'sven.dns.zone_created': 'dns.zone_created',
   'sven.dns.record_created': 'dns.record_created',
-  'sven.dns.record_updated': 'dns.record_updated',
   'sven.dns.zone_report': 'dns.zone_report',
   'sven.cert.provisioned': 'cert.provisioned',
   'sven.cert.renewed': 'cert.renewed',
@@ -486,8 +479,6 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.netscan.vulnerability_found': 'netscan.vulnerability_found',
   'sven.netscan.scan_completed': 'netscan.scan_completed',
   // Batch 181: DNS Manager
-  'sven.dns.zone_created': 'dns.zone_created',
-  'sven.dns.record_updated': 'dns.record_updated',
   'sven.dns.health_check_failed': 'dns.health_check_failed',
   'sven.dns.failover_triggered': 'dns.failover_triggered',
   // Batch 182: Inventory Sync
@@ -536,7 +527,6 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.access.grant_revoked': 'access.grant_revoked',
   'sven.access.violation_detected': 'access.violation_detected',
   'sven.log.source_registered': 'log.source_registered',
-  'sven.log.entry_ingested': 'log.entry_ingested',
   'sven.log.pipeline_created': 'log.pipeline_created',
   'sven.log.anomaly_detected': 'log.anomaly_detected',
   'sven.metric.source_added': 'metric.source_added',
@@ -622,14 +612,28 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.traffic.rule_applied': 'traffic.rule_applied',
   'sven.traffic.canary_deployed': 'traffic.canary_deployed',
   'sven.traffic.analytics_generated': 'traffic.analytics_generated',
-  'sven.dns.zone_created': 'dns.zone_created',
-  'sven.dns.record_updated': 'dns.record_updated',
   'sven.dns.dnssec_enabled': 'dns.dnssec_enabled',
   'sven.dns.propagation_verified': 'dns.propagation_verified',
-  'sven.config.namespace_created': 'config.namespace_created',
-  'sven.config.entry_updated': 'config.entry_updated',
   'sven.config.secret_encrypted': 'config.secret_encrypted',
   'sven.config.rollback_executed': 'config.rollback_executed',
+  'sven.monitor.check_executed': 'monitor.check_executed',
+  'sven.monitor.alert_triggered': 'monitor.alert_triggered',
+  'sven.monitor.metric_recorded': 'monitor.metric_recorded',
+  'sven.monitor.uptime_reported': 'monitor.uptime_reported',
+  'sven.packet.capture_started': 'packet.capture_started',
+  'sven.packet.analysis_completed': 'packet.analysis_completed',
+  'sven.packet.rule_created': 'packet.rule_created',
+  'sven.packet.anomaly_detected': 'packet.anomaly_detected',
+  'sven.bandwidth.policy_created': 'bandwidth.policy_created',
+  'sven.bandwidth.quota_set': 'bandwidth.quota_set',
+  'sven.bandwidth.usage_reported': 'bandwidth.usage_reported',
+  'sven.bandwidth.throttle_applied': 'bandwidth.throttle_applied',
+  'sven.firewall.traffic_evaluated': 'firewall.traffic_evaluated',
+  'sven.firewall.threat_detected': 'firewall.threat_detected',
+  'sven.proxy.endpoint_created': 'proxy.endpoint_created',
+  'sven.proxy.access_rule_added': 'proxy.access_rule_added',
+  'sven.proxy.cache_configured': 'proxy.cache_configured',
+  'sven.proxy.traffic_logged': 'proxy.traffic_logged',
   'sven.vault.secret_stored': 'vault.secret_stored',
   'sven.vault.secret_rotated': 'vault.secret_rotated',
   'sven.vault.access_logged': 'vault.access_logged',
@@ -638,7 +642,6 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.compliance.control_assessed': 'compliance.control_assessed',
   'sven.compliance.audit_completed': 'compliance.audit_completed',
   'sven.compliance.finding_reported': 'compliance.finding_reported',
-  'sven.ratelimit.policy_created': 'ratelimit.policy_created',
   'sven.ratelimit.request_blocked': 'ratelimit.request_blocked',
   'sven.ratelimit.override_added': 'ratelimit.override_added',
   'sven.ratelimit.status_report': 'ratelimit.status_report',
@@ -754,10 +757,8 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.inventory.item_consumed': 'inventory.item_consumed',
   'sven.inventory.item_transferred': 'inventory.item_transferred',
   'sven.inventory.reservation_created': 'inventory.reservation_created',
-  'sven.discovery.service_registered': 'discovery.service_registered',
   'sven.discovery.probe_completed': 'discovery.probe_completed',
   'sven.discovery.service_unhealthy': 'discovery.service_unhealthy',
-  'sven.discovery.dependency_mapped': 'discovery.dependency_mapped',
   'sven.federation.peer_registered': 'federation.peer_registered',
   'sven.federation.link_created': 'federation.link_created',
   'sven.federation.message_sent': 'federation.message_sent',
@@ -765,7 +766,6 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.circuit.breaker_created': 'circuit.breaker_created',
   'sven.circuit.state_changed': 'circuit.state_changed',
   'sven.circuit.trip_recorded': 'circuit.trip_recorded',
-  'sven.circuit.metrics_collected': 'circuit.metrics_collected',
   'sven.ratelimit.limiter_created': 'ratelimit.limiter_created',
   'sven.ratelimit.tokens_consumed': 'ratelimit.tokens_consumed',
   'sven.ratelimit.violation_recorded': 'ratelimit.violation_recorded',
@@ -774,14 +774,8 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.canary.traffic_adjusted': 'canary.traffic_adjusted',
   'sven.canary.metrics_collected': 'canary.metrics_collected',
   'sven.canary.decision_made': 'canary.decision_made',
-  'sven.featureflag.flag_created': 'featureflag.flag_created',
-  'sven.featureflag.flag_toggled': 'featureflag.flag_toggled',
   'sven.featureflag.rule_added': 'featureflag.rule_added',
-  'sven.featureflag.flag_evaluated': 'featureflag.flag_evaluated',
-  'sven.chaos.experiment_created': 'chaos.experiment_created',
-  'sven.chaos.fault_injected': 'chaos.fault_injected',
   'sven.chaos.fault_removed': 'chaos.fault_removed',
-  'sven.chaos.experiment_completed': 'chaos.experiment_completed',
 
   // Batch 158 — telemetry export
   'sven.telemetry.sink_created': 'telemetry.sink_created',
@@ -816,7 +810,6 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   // Batch 163 — runtime sandbox
   'sven.sandbox.created': 'sandbox.created',
   'sven.sandbox.execution_started': 'sandbox.execution_started',
-  'sven.sandbox.violation_detected': 'sandbox.violation_detected',
   'sven.sandbox.terminated': 'sandbox.terminated',
 
   // Batch 164 — secret rotation
@@ -834,7 +827,6 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   // Batch 166 — compliance report
   'sven.compliance.assessment_started': 'compliance.assessment_started',
   'sven.compliance.finding_submitted': 'compliance.finding_submitted',
-  'sven.compliance.report_generated': 'compliance.report_generated',
   'sven.compliance.framework_updated': 'compliance.framework_updated',
 
   // Batch 167 — capacity planning
@@ -868,7 +860,6 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.release.train_deployed': 'release.train_deployed',
   'sven.release.train_rolled_back': 'release.train_rolled_back',
   // Batch 173 — Cost Anomaly
-  'sven.cost.budget_created': 'cost.budget_created',
   'sven.cost.anomaly_detected': 'cost.anomaly_detected',
   'sven.cost.forecast_generated': 'cost.forecast_generated',
   'sven.cost.budget_exceeded': 'cost.budget_exceeded',
@@ -883,15 +874,12 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.logcorr.root_cause_found': 'logcorr.root_cause_found',
   'sven.logcorr.incident_resolved': 'logcorr.incident_resolved',
   // Batch 176 — Webhook Manager
-  'sven.webhook.endpoint_registered': 'webhook.endpoint_registered',
   'sven.webhook.delivery_sent': 'webhook.delivery_sent',
-  'sven.webhook.delivery_failed': 'webhook.delivery_failed',
   'sven.webhook.retry_exhausted': 'webhook.retry_exhausted',
   // Batch 177 — Certificate Manager
   'sven.cert.certificate_imported': 'cert.certificate_imported',
   'sven.cert.renewal_requested': 'cert.renewal_requested',
   'sven.cert.renewal_completed': 'cert.renewal_completed',
-  'sven.cert.expiry_warning': 'cert.expiry_warning',
 };
 
 export class EidolonEventBus {

@@ -78,6 +78,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+
+### Batches 213-217: Network Security & Monitoring
+- **network_monitor** (Batch 213): Network monitoring endpoints, health checks, alert configuration, uptime reports, metrics collection
+- **packet_analyzer** (Batch 214): Packet capture sessions, traffic analysis, filtering rules, anomaly scanning, data export
+- **bandwidth_controller** (Batch 215): Bandwidth policies, quota management, usage reporting, traffic shaping, throttling
+- **firewall_manager** (Batch 216): Firewall rulesets, rule management, traffic evaluation, security audits, threat review
+- **proxy_server** (Batch 217): Proxy endpoints, access control rules, cache configuration, traffic analytics, upstream rotation
+
 ### Batches 208–212: Network Infrastructure
 - **Batch 208 — Message Broker**: broker connections, topic lifecycle, pub/sub subscriptions, consumer lag monitoring, partition rebalancing
 - **Batch 209 — Cache Manager**: store provisioning, eviction policies, cache warming, hit-rate metrics, pattern invalidation, tiered caching

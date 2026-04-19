@@ -234,3 +234,8 @@ export * from './agent-cache-manager.js';
 export * from './agent-traffic-router.js';
 export * from './agent-dns-resolver.js';
 export * from './agent-config-server.js';
+export * from './agent-network-monitor.js';
+export * from './agent-packet-analyzer.js';
+export * from './agent-bandwidth-controller.js';
+export * from './agent-firewall-manager.js';
+export * from './agent-proxy-server.js';

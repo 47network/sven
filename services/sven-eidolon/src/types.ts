@@ -166,7 +166,7 @@ export type EidolonBuildingKind =
   | 'schema_validator'
   | 'etl_processor'
   | 'data_catalog'
-  | 'query_optimizer' | 'message_broker' | 'cache_manager' | 'traffic_router' | 'dns_resolver' | 'config_server'
+  | 'query_optimizer' | 'message_broker' | 'cache_manager' | 'traffic_router' | 'dns_resolver' | 'config_server' | 'network_monitor' | 'packet_analyzer' | 'bandwidth_controller' | 'firewall_manager' | 'proxy_server'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -726,7 +726,7 @@ export type EidolonEventKind =
   | 'schema.definition_created' | 'schema.validation_failed' | 'schema.evolution_checked' | 'schema.compatibility_broken'
   | 'etl.pipeline_created' | 'etl.run_started' | 'etl.run_completed' | 'etl.run_failed'
   | 'catalog.asset_registered' | 'catalog.lineage_traced' | 'catalog.profile_completed' | 'catalog.quality_scored'
-  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied' | 'broker.connection_established' | 'broker.topic_created' | 'broker.subscription_added' | 'broker.message_published' | 'cache.store_provisioned' | 'cache.policy_configured' | 'cache.warmup_completed' | 'cache.invalidation_triggered' | 'traffic.route_created' | 'traffic.rule_applied' | 'traffic.canary_deployed' | 'traffic.analytics_generated' | 'dns.zone_created' | 'dns.record_updated' | 'dns.dnssec_enabled' | 'dns.propagation_verified' | 'config.namespace_created' | 'config.entry_updated' | 'config.secret_encrypted' | 'config.rollback_executed'
+  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied' | 'broker.connection_established' | 'broker.topic_created' | 'broker.subscription_added' | 'broker.message_published' | 'cache.store_provisioned' | 'cache.policy_configured' | 'cache.warmup_completed' | 'cache.invalidation_triggered' | 'traffic.route_created' | 'traffic.rule_applied' | 'traffic.canary_deployed' | 'traffic.analytics_generated' | 'dns.zone_created' | 'dns.record_updated' | 'dns.dnssec_enabled' | 'dns.propagation_verified' | 'config.namespace_created' | 'config.entry_updated' | 'config.secret_encrypted' | 'config.rollback_executed' | 'monitor.check_executed' | 'monitor.alert_triggered' | 'monitor.metric_recorded' | 'monitor.uptime_reported' | 'packet.capture_started' | 'packet.analysis_completed' | 'packet.rule_created' | 'packet.anomaly_detected' | 'bandwidth.policy_created' | 'bandwidth.quota_set' | 'bandwidth.usage_reported' | 'bandwidth.throttle_applied' | 'firewall.ruleset_created' | 'firewall.rule_added' | 'firewall.traffic_evaluated' | 'firewall.threat_detected' | 'proxy.endpoint_created' | 'proxy.access_rule_added' | 'proxy.cache_configured' | 'proxy.traffic_logged'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -896,7 +896,7 @@ export type EidolonEventKind =
   | 'schema.definition_created' | 'schema.validation_failed' | 'schema.evolution_checked' | 'schema.compatibility_broken'
   | 'etl.pipeline_created' | 'etl.run_started' | 'etl.run_completed' | 'etl.run_failed'
   | 'catalog.asset_registered' | 'catalog.lineage_traced' | 'catalog.profile_completed' | 'catalog.quality_scored'
-  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied' | 'broker.connection_established' | 'broker.topic_created' | 'broker.subscription_added' | 'broker.message_published' | 'cache.store_provisioned' | 'cache.policy_configured' | 'cache.warmup_completed' | 'cache.invalidation_triggered' | 'traffic.route_created' | 'traffic.rule_applied' | 'traffic.canary_deployed' | 'traffic.analytics_generated' | 'dns.zone_created' | 'dns.record_updated' | 'dns.dnssec_enabled' | 'dns.propagation_verified' | 'config.namespace_created' | 'config.entry_updated' | 'config.secret_encrypted' | 'config.rollback_executed'
+  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied' | 'broker.connection_established' | 'broker.topic_created' | 'broker.subscription_added' | 'broker.message_published' | 'cache.store_provisioned' | 'cache.policy_configured' | 'cache.warmup_completed' | 'cache.invalidation_triggered' | 'traffic.route_created' | 'traffic.rule_applied' | 'traffic.canary_deployed' | 'traffic.analytics_generated' | 'dns.zone_created' | 'dns.record_updated' | 'dns.dnssec_enabled' | 'dns.propagation_verified' | 'config.namespace_created' | 'config.entry_updated' | 'config.secret_encrypted' | 'config.rollback_executed' | 'monitor.check_executed' | 'monitor.alert_triggered' | 'monitor.metric_recorded' | 'monitor.uptime_reported' | 'packet.capture_started' | 'packet.analysis_completed' | 'packet.rule_created' | 'packet.anomaly_detected' | 'bandwidth.policy_created' | 'bandwidth.quota_set' | 'bandwidth.usage_reported' | 'bandwidth.throttle_applied' | 'firewall.ruleset_created' | 'firewall.rule_added' | 'firewall.traffic_evaluated' | 'firewall.threat_detected' | 'proxy.endpoint_created' | 'proxy.access_rule_added' | 'proxy.cache_configured' | 'proxy.traffic_logged'
   | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
   | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
@@ -936,7 +936,7 @@ export type EidolonEventKind =
   | 'schema.definition_created' | 'schema.validation_failed' | 'schema.evolution_checked' | 'schema.compatibility_broken'
   | 'etl.pipeline_created' | 'etl.run_started' | 'etl.run_completed' | 'etl.run_failed'
   | 'catalog.asset_registered' | 'catalog.lineage_traced' | 'catalog.profile_completed' | 'catalog.quality_scored'
-  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied' | 'broker.connection_established' | 'broker.topic_created' | 'broker.subscription_added' | 'broker.message_published' | 'cache.store_provisioned' | 'cache.policy_configured' | 'cache.warmup_completed' | 'cache.invalidation_triggered' | 'traffic.route_created' | 'traffic.rule_applied' | 'traffic.canary_deployed' | 'traffic.analytics_generated' | 'dns.zone_created' | 'dns.record_updated' | 'dns.dnssec_enabled' | 'dns.propagation_verified' | 'config.namespace_created' | 'config.entry_updated' | 'config.secret_encrypted' | 'config.rollback_executed'
+  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied' | 'broker.connection_established' | 'broker.topic_created' | 'broker.subscription_added' | 'broker.message_published' | 'cache.store_provisioned' | 'cache.policy_configured' | 'cache.warmup_completed' | 'cache.invalidation_triggered' | 'traffic.route_created' | 'traffic.rule_applied' | 'traffic.canary_deployed' | 'traffic.analytics_generated' | 'dns.zone_created' | 'dns.record_updated' | 'dns.dnssec_enabled' | 'dns.propagation_verified' | 'config.namespace_created' | 'config.entry_updated' | 'config.secret_encrypted' | 'config.rollback_executed' | 'monitor.check_executed' | 'monitor.alert_triggered' | 'monitor.metric_recorded' | 'monitor.uptime_reported' | 'packet.capture_started' | 'packet.analysis_completed' | 'packet.rule_created' | 'packet.anomaly_detected' | 'bandwidth.policy_created' | 'bandwidth.quota_set' | 'bandwidth.usage_reported' | 'bandwidth.throttle_applied' | 'firewall.ruleset_created' | 'firewall.rule_added' | 'firewall.traffic_evaluated' | 'firewall.threat_detected' | 'proxy.endpoint_created' | 'proxy.access_rule_added' | 'proxy.cache_configured' | 'proxy.traffic_logged'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1317,5 +1317,15 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'civic';
     case 'config_server':
       return 'civic';
+    case 'network_monitor':
+      return 'industrial';
+    case 'packet_analyzer':
+      return 'industrial';
+    case 'bandwidth_controller':
+      return 'industrial';
+    case 'firewall_manager':
+      return 'civic';
+    case 'proxy_server':
+      return 'industrial';
   }
 }

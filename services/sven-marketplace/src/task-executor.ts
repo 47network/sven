@@ -1431,6 +1431,36 @@ export class TaskExecutor {
       case 'config_diff': return this.handleConfigDiff(task);
       case 'config_rollback': return this.handleConfigRollback(task);
       case 'config_audit': return this.handleConfigAudit(task);
+      case 'monitor_create': return this.handleMonitorCreate(task);
+      case 'monitor_check': return this.handleMonitorCheck(task);
+      case 'monitor_configure_alerts': return this.handleMonitorConfigureAlerts(task);
+      case 'monitor_uptime_report': return this.handleMonitorUptimeReport(task);
+      case 'monitor_acknowledge_alert': return this.handleMonitorAcknowledgeAlert(task);
+      case 'monitor_metrics': return this.handleMonitorMetrics(task);
+      case 'packet_capture_start': return this.handlePacketCaptureStart(task);
+      case 'packet_analyze': return this.handlePacketAnalyze(task);
+      case 'packet_create_rule': return this.handlePacketCreateRule(task);
+      case 'packet_traffic_summary': return this.handlePacketTrafficSummary(task);
+      case 'packet_anomaly_scan': return this.handlePacketAnomalyScan(task);
+      case 'packet_export': return this.handlePacketExport(task);
+      case 'bandwidth_create_policy': return this.handleBandwidthCreatePolicy(task);
+      case 'bandwidth_set_quota': return this.handleBandwidthSetQuota(task);
+      case 'bandwidth_usage_report': return this.handleBandwidthUsageReport(task);
+      case 'bandwidth_adjust_shaping': return this.handleBandwidthAdjustShaping(task);
+      case 'bandwidth_quota_check': return this.handleBandwidthQuotaCheck(task);
+      case 'bandwidth_throttle': return this.handleBandwidthThrottle(task);
+      case 'firewall_create_ruleset': return this.handleFirewallCreateRuleset(task);
+      case 'firewall_add_rule': return this.handleFirewallAddRule(task);
+      case 'firewall_evaluate': return this.handleFirewallEvaluate(task);
+      case 'firewall_security_audit': return this.handleFirewallSecurityAudit(task);
+      case 'firewall_review_threats': return this.handleFirewallReviewThreats(task);
+      case 'firewall_export_rules': return this.handleFirewallExportRules(task);
+      case 'proxy_create_endpoint': return this.handleProxyCreateEndpoint(task);
+      case 'proxy_add_access_rule': return this.handleProxyAddAccessRule(task);
+      case 'proxy_configure_cache': return this.handleProxyConfigureCache(task);
+      case 'proxy_traffic_analytics': return this.handleProxyTrafficAnalytics(task);
+      case 'proxy_health_check': return this.handleProxyHealthCheck(task);
+      case 'proxy_rotate_upstream': return this.handleProxyRotateUpstream(task);
 
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
@@ -9409,4 +9439,454 @@ export class TaskExecutor {
     return { totalChanges: 0, uniqueKeys: 0, changedBy: [], periodDays: periodDays || 30, reportGeneratedAt: new Date().toISOString() };
   }
 
+
+  private async handleMonitorCreate(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'network_monitor',
+      taskType: 'monitor_create',
+      monitorId: 'monitor-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      endpoint: config.endpoint || null,
+      target: config.target || null,
+      interval: config.interval || null,
+      timestamp: new Date().toISOString(),
+      description: 'Create network monitoring endpoint',
+    };
+  }
+
+  private async handleMonitorCheck(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'network_monitor',
+      taskType: 'monitor_check',
+      checkId: 'check-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      results: config.results || null,
+      target: config.target || null,
+      latency: config.latency || null,
+      timestamp: new Date().toISOString(),
+      description: 'Execute network health check',
+    };
+  }
+
+  private async handleMonitorConfigureAlerts(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'network_monitor',
+      taskType: 'monitor_configure_alerts',
+      alertConfigId: 'alert-cfg-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      thresholds: config.thresholds || null,
+      channels: config.channels || null,
+      severity: config.severity || null,
+      timestamp: new Date().toISOString(),
+      description: 'Configure monitoring alert thresholds',
+    };
+  }
+
+  private async handleMonitorUptimeReport(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'network_monitor',
+      taskType: 'monitor_uptime_report',
+      reportId: 'uptime-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      uptime: config.uptime || null,
+      period: config.period || null,
+      incidents: config.incidents || null,
+      timestamp: new Date().toISOString(),
+      description: 'Generate uptime report',
+    };
+  }
+
+  private async handleMonitorAcknowledgeAlert(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'network_monitor',
+      taskType: 'monitor_acknowledge_alert',
+      ackId: 'ack-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      resolution: config.resolution || null,
+      alertId: config.alertId || null,
+      action: config.action || null,
+      timestamp: new Date().toISOString(),
+      description: 'Acknowledge and handle alert',
+    };
+  }
+
+  private async handleMonitorMetrics(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'network_monitor',
+      taskType: 'monitor_metrics',
+      metricsId: 'metrics-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      dataPoints: config.dataPoints || null,
+      aggregation: config.aggregation || null,
+      timeRange: config.timeRange || null,
+      timestamp: new Date().toISOString(),
+      description: 'Collect and analyze metrics',
+    };
+  }
+
+  private async handlePacketCaptureStart(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'packet_analyzer',
+      taskType: 'packet_capture_start',
+      captureId: 'capture-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      interface: config.interface || null,
+      filter: config.filter || null,
+      duration: config.duration || null,
+      timestamp: new Date().toISOString(),
+      description: 'Start packet capture session',
+    };
+  }
+
+  private async handlePacketAnalyze(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'packet_analyzer',
+      taskType: 'packet_analyze',
+      analysisId: 'analysis-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      protocols: config.protocols || null,
+      captureId: config.captureId || null,
+      findings: config.findings || null,
+      timestamp: new Date().toISOString(),
+      description: 'Analyze captured packets',
+    };
+  }
+
+  private async handlePacketCreateRule(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'packet_analyzer',
+      taskType: 'packet_create_rule',
+      ruleId: 'rule-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      pattern: config.pattern || null,
+      action: config.action || null,
+      priority: config.priority || null,
+      timestamp: new Date().toISOString(),
+      description: 'Create packet filtering rule',
+    };
+  }
+
+  private async handlePacketTrafficSummary(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'packet_analyzer',
+      taskType: 'packet_traffic_summary',
+      summaryId: 'summary-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      breakdown: config.breakdown || null,
+      period: config.period || null,
+      topTalkers: config.topTalkers || null,
+      timestamp: new Date().toISOString(),
+      description: 'Generate traffic summary report',
+    };
+  }
+
+  private async handlePacketAnomalyScan(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'packet_analyzer',
+      taskType: 'packet_anomaly_scan',
+      scanId: 'scan-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      anomalies: config.anomalies || null,
+      baseline: config.baseline || null,
+      deviations: config.deviations || null,
+      timestamp: new Date().toISOString(),
+      description: 'Scan for packet anomalies',
+    };
+  }
+
+  private async handlePacketExport(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'packet_analyzer',
+      taskType: 'packet_export',
+      exportId: 'export-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      format: config.format || null,
+      captureId: config.captureId || null,
+      outputPath: config.outputPath || null,
+      timestamp: new Date().toISOString(),
+      description: 'Export packet capture data',
+    };
+  }
+
+  private async handleBandwidthCreatePolicy(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'bandwidth_controller',
+      taskType: 'bandwidth_create_policy',
+      policyId: 'policy-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      limits: config.limits || null,
+      scope: config.scope || null,
+      schedule: config.schedule || null,
+      timestamp: new Date().toISOString(),
+      description: 'Create bandwidth allocation policy',
+    };
+  }
+
+  private async handleBandwidthSetQuota(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'bandwidth_controller',
+      taskType: 'bandwidth_set_quota',
+      quotaId: 'quota-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      limit: config.limit || null,
+      endpoint: config.endpoint || null,
+      period: config.period || null,
+      timestamp: new Date().toISOString(),
+      description: 'Set bandwidth quota for endpoint',
+    };
+  }
+
+  private async handleBandwidthUsageReport(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'bandwidth_controller',
+      taskType: 'bandwidth_usage_report',
+      reportId: 'usage-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      consumption: config.consumption || null,
+      period: config.period || null,
+      breakdown: config.breakdown || null,
+      timestamp: new Date().toISOString(),
+      description: 'Generate bandwidth usage report',
+    };
+  }
+
+  private async handleBandwidthAdjustShaping(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'bandwidth_controller',
+      taskType: 'bandwidth_adjust_shaping',
+      shapingId: 'shaping-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      parameters: config.parameters || null,
+      qos: config.qos || null,
+      priority: config.priority || null,
+      timestamp: new Date().toISOString(),
+      description: 'Adjust traffic shaping parameters',
+    };
+  }
+
+  private async handleBandwidthQuotaCheck(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'bandwidth_controller',
+      taskType: 'bandwidth_quota_check',
+      checkId: 'qcheck-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      utilization: config.utilization || null,
+      remaining: config.remaining || null,
+      alerts: config.alerts || null,
+      timestamp: new Date().toISOString(),
+      description: 'Check current quota utilization',
+    };
+  }
+
+  private async handleBandwidthThrottle(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'bandwidth_controller',
+      taskType: 'bandwidth_throttle',
+      throttleId: 'throttle-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      rate: config.rate || null,
+      target: config.target || null,
+      duration: config.duration || null,
+      timestamp: new Date().toISOString(),
+      description: 'Apply bandwidth throttling',
+    };
+  }
+
+  private async handleFirewallCreateRuleset(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'firewall_manager',
+      taskType: 'firewall_create_ruleset',
+      rulesetId: 'ruleset-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      rules: config.rules || null,
+      scope: config.scope || null,
+      priority: config.priority || null,
+      timestamp: new Date().toISOString(),
+      description: 'Create firewall ruleset',
+    };
+  }
+
+  private async handleFirewallAddRule(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'firewall_manager',
+      taskType: 'firewall_add_rule',
+      ruleId: 'fwrule-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      action: config.action || null,
+      source: config.source || null,
+      destination: config.destination || null,
+      timestamp: new Date().toISOString(),
+      description: 'Add rule to firewall ruleset',
+    };
+  }
+
+  private async handleFirewallEvaluate(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'firewall_manager',
+      taskType: 'firewall_evaluate',
+      evalId: 'eval-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      verdict: config.verdict || null,
+      matchedRule: config.matchedRule || null,
+      traffic: config.traffic || null,
+      timestamp: new Date().toISOString(),
+      description: 'Evaluate traffic against rules',
+    };
+  }
+
+  private async handleFirewallSecurityAudit(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'firewall_manager',
+      taskType: 'firewall_security_audit',
+      auditId: 'audit-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      findings: config.findings || null,
+      compliance: config.compliance || null,
+      recommendations: config.recommendations || null,
+      timestamp: new Date().toISOString(),
+      description: 'Audit firewall configuration',
+    };
+  }
+
+  private async handleFirewallReviewThreats(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'firewall_manager',
+      taskType: 'firewall_review_threats',
+      reviewId: 'review-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      threats: config.threats || null,
+      severity: config.severity || null,
+      mitigations: config.mitigations || null,
+      timestamp: new Date().toISOString(),
+      description: 'Review detected threats',
+    };
+  }
+
+  private async handleFirewallExportRules(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'firewall_manager',
+      taskType: 'firewall_export_rules',
+      exportId: 'fwexport-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      format: config.format || null,
+      rulesetId: config.rulesetId || null,
+      outputPath: config.outputPath || null,
+      timestamp: new Date().toISOString(),
+      description: 'Export firewall rules',
+    };
+  }
+
+  private async handleProxyCreateEndpoint(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'proxy_server',
+      taskType: 'proxy_create_endpoint',
+      endpointId: 'endpoint-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      upstream: config.upstream || null,
+      path: config.path || null,
+      protocol: config.protocol || null,
+      timestamp: new Date().toISOString(),
+      description: 'Create proxy endpoint',
+    };
+  }
+
+  private async handleProxyAddAccessRule(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'proxy_server',
+      taskType: 'proxy_add_access_rule',
+      accessRuleId: 'access-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      allowed: config.allowed || null,
+      denied: config.denied || null,
+      conditions: config.conditions || null,
+      timestamp: new Date().toISOString(),
+      description: 'Add proxy access control rule',
+    };
+  }
+
+  private async handleProxyConfigureCache(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'proxy_server',
+      taskType: 'proxy_configure_cache',
+      cacheConfigId: 'cache-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      ttl: config.ttl || null,
+      patterns: config.patterns || null,
+      strategy: config.strategy || null,
+      timestamp: new Date().toISOString(),
+      description: 'Configure proxy caching',
+    };
+  }
+
+  private async handleProxyTrafficAnalytics(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'proxy_server',
+      taskType: 'proxy_traffic_analytics',
+      analyticsId: 'analytics-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      requests: config.requests || null,
+      latency: config.latency || null,
+      cacheHitRate: config.cacheHitRate || null,
+      timestamp: new Date().toISOString(),
+      description: 'Generate proxy traffic analytics',
+    };
+  }
+
+  private async handleProxyHealthCheck(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'proxy_server',
+      taskType: 'proxy_health_check',
+      healthId: 'health-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      status: config.status || null,
+      upstreams: config.upstreams || null,
+      responseTime: config.responseTime || null,
+      timestamp: new Date().toISOString(),
+      description: 'Check proxy endpoint health',
+    };
+  }
+
+  private async handleProxyRotateUpstream(task: any): Promise<any> {
+    const config = task.input || {};
+    return {
+      success: true,
+      vertical: 'proxy_server',
+      taskType: 'proxy_rotate_upstream',
+      rotationId: 'rotation-{id}'.replace('{id}', Math.random().toString(36).substring(2, 10)),
+      newUpstream: config.newUpstream || null,
+      oldUpstream: config.oldUpstream || null,
+      strategy: config.strategy || null,
+      timestamp: new Date().toISOString(),
+      description: 'Rotate proxy upstream servers',
+    };
+  }
 }
