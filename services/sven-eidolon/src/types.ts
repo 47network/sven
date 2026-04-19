@@ -1308,6 +1308,31 @@ export type EidolonBuildingKind =
   | 'pubsub_router_auditor'
   | 'pubsub_router_reporter'
   | 'pubsub_router_optimizer'
+  | 'api_throttle'
+  | 'api_throttle_monitor'
+  | 'api_throttle_auditor'
+  | 'api_throttle_reporter'
+  | 'api_throttle_optimizer'
+  | 'lb_director'
+  | 'lb_director_monitor'
+  | 'lb_director_auditor'
+  | 'lb_director_reporter'
+  | 'lb_director_optimizer'
+  | 'breaker_fence'
+  | 'breaker_fence_monitor'
+  | 'breaker_fence_auditor'
+  | 'breaker_fence_reporter'
+  | 'breaker_fence_optimizer'
+  | 'retry_policy'
+  | 'retry_policy_monitor'
+  | 'retry_policy_auditor'
+  | 'retry_policy_reporter'
+  | 'retry_policy_optimizer'
+  | 'timeout_guard'
+  | 'timeout_guard_monitor'
+  | 'timeout_guard_auditor'
+  | 'timeout_guard_reporter'
+  | 'timeout_guard_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5135,6 +5160,81 @@ export type EidolonEventKind =
   | 'psro.plan_created'
   | 'psro.optimization_applied'
   | 'psro.export_emitted'
+  | 'at.entry_created'
+  | 'at.config_updated'
+  | 'at.export_emitted'
+  | 'atm.check_passed'
+  | 'atm.alert_raised'
+  | 'atm.export_emitted'
+  | 'ata.entry_logged'
+  | 'ata.violation_found'
+  | 'ata.export_emitted'
+  | 'atr.report_generated'
+  | 'atr.insight_found'
+  | 'atr.export_emitted'
+  | 'ato.plan_created'
+  | 'ato.optimization_applied'
+  | 'ato.export_emitted'
+  | 'lbd.entry_created'
+  | 'lbd.config_updated'
+  | 'lbd.export_emitted'
+  | 'lbdm.check_passed'
+  | 'lbdm.alert_raised'
+  | 'lbdm.export_emitted'
+  | 'lbda.entry_logged'
+  | 'lbda.violation_found'
+  | 'lbda.export_emitted'
+  | 'lbdr.report_generated'
+  | 'lbdr.insight_found'
+  | 'lbdr.export_emitted'
+  | 'lbdo.plan_created'
+  | 'lbdo.optimization_applied'
+  | 'lbdo.export_emitted'
+  | 'bf.entry_created'
+  | 'bf.config_updated'
+  | 'bf.export_emitted'
+  | 'bfm.check_passed'
+  | 'bfm.alert_raised'
+  | 'bfm.export_emitted'
+  | 'bfa.entry_logged'
+  | 'bfa.violation_found'
+  | 'bfa.export_emitted'
+  | 'bfr.report_generated'
+  | 'bfr.insight_found'
+  | 'bfr.export_emitted'
+  | 'bfo.plan_created'
+  | 'bfo.optimization_applied'
+  | 'bfo.export_emitted'
+  | 'rp.entry_created'
+  | 'rp.config_updated'
+  | 'rp.export_emitted'
+  | 'rpm.check_passed'
+  | 'rpm.alert_raised'
+  | 'rpm.export_emitted'
+  | 'rpa.entry_logged'
+  | 'rpa.violation_found'
+  | 'rpa.export_emitted'
+  | 'rpr.report_generated'
+  | 'rpr.insight_found'
+  | 'rpr.export_emitted'
+  | 'rpo.plan_created'
+  | 'rpo.optimization_applied'
+  | 'rpo.export_emitted'
+  | 'tg.entry_created'
+  | 'tg.config_updated'
+  | 'tg.export_emitted'
+  | 'tgm.check_passed'
+  | 'tgm.alert_raised'
+  | 'tgm.export_emitted'
+  | 'tga.entry_logged'
+  | 'tga.violation_found'
+  | 'tga.export_emitted'
+  | 'tgr.report_generated'
+  | 'tgr.insight_found'
+  | 'tgr.export_emitted'
+  | 'tgo.plan_created'
+  | 'tgo.optimization_applied'
+  | 'tgo.export_emitted'
   | 'ct.experiment_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -8085,6 +8185,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'pubsub_router_auditor':
     case 'pubsub_router_reporter':
     case 'pubsub_router_optimizer':
+    case 'api_throttle':
+    case 'api_throttle_monitor':
+    case 'api_throttle_auditor':
+    case 'api_throttle_reporter':
+    case 'api_throttle_optimizer':
+    case 'lb_director':
+    case 'lb_director_monitor':
+    case 'lb_director_auditor':
+    case 'lb_director_reporter':
+    case 'lb_director_optimizer':
+    case 'breaker_fence':
+    case 'breaker_fence_monitor':
+    case 'breaker_fence_auditor':
+    case 'breaker_fence_reporter':
+    case 'breaker_fence_optimizer':
+    case 'retry_policy':
+    case 'retry_policy_monitor':
+    case 'retry_policy_auditor':
+    case 'retry_policy_reporter':
+    case 'retry_policy_optimizer':
+    case 'timeout_guard':
+    case 'timeout_guard_monitor':
+    case 'timeout_guard_auditor':
+    case 'timeout_guard_reporter':
+    case 'timeout_guard_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

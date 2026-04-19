@@ -1,3 +1,7 @@
+## Batches 1608-1632 — API Throttle, LB Director, Breaker Fence, Retry Policy, Timeout Guard
+- 25 verticals (5 groups × 5): API rate control + load balancing + circuit breaking + retry strategies + timeout enforcement
+- 275 tests passing | migration timestamps 20260632450000–20260632690000
+
 ## Batches 1583-1607 — Hook Forwarder, Event Bridge, Stream Funneler, Msg Exchange, PubSub Router
 - 25 verticals (5 groups × 5): webhook forwarding + event bridging + stream processing + message exchange + pub/sub routing
 - 275 tests passing | migration timestamps 20260632200000–20260632440000
