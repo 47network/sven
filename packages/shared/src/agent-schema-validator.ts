@@ -1,45 +1,35 @@
-// Batch 204: Schema Validator — data schema validation and evolution
+export type SchemaType = 'json_schema' | 'avro' | 'protobuf' | 'openapi' | 'graphql' | 'custom';
+export type SchemaCompatibility = 'backward' | 'forward' | 'full' | 'none';
 
-export type SchemaFormat = 'json_schema' | 'avro' | 'protobuf' | 'thrift' | 'xml_schema' | 'openapi' | 'graphql' | 'parquet';
-export type SchemaDefinitionStatus = 'draft' | 'active' | 'deprecated' | 'archived';
-export type SchemaCompatibilityMode = 'backward' | 'forward' | 'full' | 'none' | 'transitive_backward' | 'transitive_forward' | 'transitive_full';
-
-export interface SchemaDefinition {
+export interface SchemaValidatorConfig {
   id: string;
-  agent_id: string;
+  agentId: string;
+  strictMode: boolean;
+  cacheSchemas: boolean;
+  maxSchemaSizeKb: number;
+  enabled: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AgentSchema {
+  id: string;
+  configId: string;
   name: string;
-  schema_format: SchemaFormat;
-  version: number;
-  schema_content: Record<string, unknown>;
-  status: SchemaDefinitionStatus;
-  fingerprint?: string;
-  created_at: string;
-  updated_at: string;
+  version: string;
+  schemaType: SchemaType;
+  definition: Record<string, unknown>;
+  isLatest: boolean;
+  compatibility: SchemaCompatibility;
+  createdAt: Date;
 }
 
 export interface SchemaValidation {
   id: string;
-  schema_id: string;
-  input_data: Record<string, unknown>;
-  is_valid: boolean;
-  errors: unknown[];
-  warnings: unknown[];
-  validated_at: string;
+  schemaId: string;
+  inputHash: string;
+  isValid: boolean;
+  errors?: Record<string, unknown>[];
+  warnings?: Record<string, unknown>[];
+  validatedAt: Date;
 }
-
-export interface SchemaEvolutionCheck {
-  id: string;
-  schema_id: string;
-  previous_version: number;
-  new_version: number;
-  compatibility_mode: SchemaCompatibilityMode;
-  is_compatible: boolean;
-  breaking_changes: unknown[];
-  checked_at: string;
-}
-
-export type SchemaValidatorEvent =
-  | 'schema.definition_created'
-  | 'schema.validation_failed'
-  | 'schema.evolution_checked'
-  | 'schema.compatibility_broken';

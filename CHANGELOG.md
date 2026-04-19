@@ -78,6 +78,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 408-412 — Data & Configuration
+- **etl_processor**: ETL pipelines with source connectors, transforms, and sink targets
+- **schema_validator**: Schema registration, data validation, and compatibility checking
+- **config_registry**: Centralized configuration with versioning and environment management
+- **feature_flag_engine**: Feature toggles with rollouts, targeting, and A/B testing
+- **health_monitor**: Health checks, status tracking, and incident management
+- 5 migrations, 5 shared types, 5 SKILL.md files, 5 BK + 20 EK + 5 districtFor
+- 20 SUBJECT_MAP entries, 30 switch cases + 30 handlers, 15 .gitattributes entries
+- 175 tests passing
+
 ### Batches 403-407 — Workflow & Orchestration
 - **workflow_orchestrator** (Batch 403): Multi-step workflow engine — branching, parallel execution, pause/resume, configurable error recovery
 - **pipeline_scheduler** (Batch 404): Pipeline scheduling — cron expressions, event/dependency/webhook triggers, catch-up runs, timezone support
