@@ -1,5 +1,21 @@
 # Changelog
 
+## Batches 443-447 — Infrastructure Operations
+- **config_syncer** (Batch 443): Synchronize config across environments, detect drift, resolve conflicts, track sync history
+- **environment_prober** (Batch 444): Probe environments for health/latency/availability, schedule recurring probes, uptime tracking
+- **secrets_rotator** (Batch 445): Rotate secrets on schedule, overdue detection, vault backend integration, post-rotation verification
+- **infra_scanner** (Batch 446): Scan infrastructure for vulnerabilities/misconfigurations, remediation reports, cross-scan comparison
+- **health_dashboard** (Batch 447): Build health dashboards with real-time widgets, charts, alerts, snapshot and export capabilities
+- 5 migration SQL files (20260620800000–20260620840000)
+- 5 shared TypeScript type files with config interfaces
+- 5 SKILL.md files in skills/autonomous-economy/
+- 5 BK + 20 EK + 5 districtFor values in Eidolon types
+- 20 SUBJECT_MAP entries in event-bus
+- 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy filter entries
+
+
+
 ## Batches 438-442 — Release Engineering
 - **feature_flag_manager** (Batch 438): Manage feature flags with boolean/percentage/gradual strategies, targeting, stale detection, audit trail
 - **blue_green_switcher** (Batch 439): Blue-green deployment management with traffic switching, health checks, auto-rollback, switch history
