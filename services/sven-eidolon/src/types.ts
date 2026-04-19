@@ -958,6 +958,31 @@ export type EidolonBuildingKind =
   | 'drift_remediation_auditor'
   | 'drift_remediation_reporter'
   | 'drift_remediation_optimizer'
+  | 'incident_response'
+  | 'incident_response_monitor'
+  | 'incident_response_auditor'
+  | 'incident_response_reporter'
+  | 'incident_response_optimizer'
+  | 'alert_correlation'
+  | 'alert_correlation_monitor'
+  | 'alert_correlation_auditor'
+  | 'alert_correlation_reporter'
+  | 'alert_correlation_optimizer'
+  | 'runbook_automation'
+  | 'runbook_automation_monitor'
+  | 'runbook_automation_auditor'
+  | 'runbook_automation_reporter'
+  | 'runbook_automation_optimizer'
+  | 'chaos_testing'
+  | 'chaos_testing_monitor'
+  | 'chaos_testing_auditor'
+  | 'chaos_testing_reporter'
+  | 'chaos_testing_optimizer'
+  | 'capacity_forecast'
+  | 'capacity_forecast_monitor'
+  | 'capacity_forecast_auditor'
+  | 'capacity_forecast_reporter'
+  | 'capacity_forecast_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -4560,6 +4585,66 @@ export type EidolonEventKind =
   | 'iro.plan_created'
   | 'iro.optimization_applied'
   | 'iro.export_emitted'
+  | 'alc.rule_created'
+  | 'alc.config_updated'
+  | 'alc.export_emitted'
+  | 'alcm.check_passed'
+  | 'alcm.alert_raised'
+  | 'alcm.export_emitted'
+  | 'alca.entry_logged'
+  | 'alca.violation_found'
+  | 'alca.export_emitted'
+  | 'alcr.report_generated'
+  | 'alcr.insight_found'
+  | 'alcr.export_emitted'
+  | 'alco.plan_created'
+  | 'alco.optimization_applied'
+  | 'alco.export_emitted'
+  | 'ra.plan_created'
+  | 'ra.config_updated'
+  | 'ra.export_emitted'
+  | 'ram.check_passed'
+  | 'ram.alert_raised'
+  | 'ram.export_emitted'
+  | 'raa.entry_logged'
+  | 'raa.violation_found'
+  | 'raa.export_emitted'
+  | 'rar.report_generated'
+  | 'rar.insight_found'
+  | 'rar.export_emitted'
+  | 'rao.plan_created'
+  | 'rao.optimization_applied'
+  | 'rao.export_emitted'
+  | 'ct.experiment_created'
+  | 'ct.config_updated'
+  | 'ct.export_emitted'
+  | 'ctm.check_passed'
+  | 'ctm.alert_raised'
+  | 'ctm.export_emitted'
+  | 'cta.entry_logged'
+  | 'cta.violation_found'
+  | 'cta.export_emitted'
+  | 'ctr.report_generated'
+  | 'ctr.insight_found'
+  | 'ctr.export_emitted'
+  | 'cto.plan_created'
+  | 'cto.optimization_applied'
+  | 'cto.export_emitted'
+  | 'cf.plan_created'
+  | 'cf.config_updated'
+  | 'cf.export_emitted'
+  | 'cfm.check_passed'
+  | 'cfm.alert_raised'
+  | 'cfm.export_emitted'
+  | 'cfa.entry_logged'
+  | 'cfa.violation_found'
+  | 'cfa.export_emitted'
+  | 'cfr.report_generated'
+  | 'cfr.insight_found'
+  | 'cfr.export_emitted'
+  | 'cfo.plan_created'
+  | 'cfo.optimization_applied'
+  | 'cfo.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -4845,6 +4930,21 @@ export type EidolonEventKind =
   | 'dro.plan_created'
   | 'dro.optimization_applied'
   | 'dro.export_emitted'
+  | 'ir.plan_created'
+  | 'ir.config_updated'
+  | 'ir.export_emitted'
+  | 'irm.check_passed'
+  | 'irm.alert_raised'
+  | 'irm.export_emitted'
+  | 'ira.entry_logged'
+  | 'ira.violation_found'
+  | 'ira.export_emitted'
+  | 'irr.report_generated'
+  | 'irr.insight_found'
+  | 'irr.export_emitted'
+  | 'iro.plan_created'
+  | 'iro.optimization_applied'
+  | 'iro.export_emitted'
   | 'nfpm.analysis_completed'
   | 'nfpm.alert_triggered'
   | 'nfpm.export_emitted'
@@ -6335,6 +6435,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'drift_remediation_auditor':
     case 'drift_remediation_reporter':
     case 'drift_remediation_optimizer':
+    case 'incident_response':
+    case 'incident_response_monitor':
+    case 'incident_response_auditor':
+    case 'incident_response_reporter':
+    case 'incident_response_optimizer':
+    case 'alert_correlation':
+    case 'alert_correlation_monitor':
+    case 'alert_correlation_auditor':
+    case 'alert_correlation_reporter':
+    case 'alert_correlation_optimizer':
+    case 'runbook_automation':
+    case 'runbook_automation_monitor':
+    case 'runbook_automation_auditor':
+    case 'runbook_automation_reporter':
+    case 'runbook_automation_optimizer':
+    case 'chaos_testing':
+    case 'chaos_testing_monitor':
+    case 'chaos_testing_auditor':
+    case 'chaos_testing_reporter':
+    case 'chaos_testing_optimizer':
+    case 'capacity_forecast':
+    case 'capacity_forecast_monitor':
+    case 'capacity_forecast_auditor':
+    case 'capacity_forecast_reporter':
+    case 'capacity_forecast_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

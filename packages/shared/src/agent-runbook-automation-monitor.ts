@@ -1,4 +1,4 @@
-export interface ChaosTestingExperiment {
+export interface RunbookAutomationMonitorCheck {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface ChaosTestingExperiment {
   updatedAt: string;
 }
 
-export interface ChaosTestingConfig {
+export interface RunbookAutomationMonitorConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface ChaosTestingResult {
+export interface RunbookAutomationMonitorResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

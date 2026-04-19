@@ -1,4 +1,4 @@
-export interface ChaosTestingExperiment {
+export interface CapacityForecastPlan {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface ChaosTestingExperiment {
   updatedAt: string;
 }
 
-export interface ChaosTestingConfig {
+export interface CapacityForecastConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface ChaosTestingResult {
+export interface CapacityForecastResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;
