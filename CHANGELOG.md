@@ -58,6 +58,26 @@
 
 # Changelog
 
+## Batches 633-657 — Container & Orchestration · Search & Indexing · Notification & Alerting · Workflow & Automation · Cost & Billing
+
+### Batches 633-637: Container & Orchestration
+- pod_scaler, container_debugger, image_pruner, namespace_watcher, helm_releaser
+
+### Batches 638-642: Search & Indexing
+- shard_balancer, search_ranker, facet_extractor, synonym_mapper, index_compactor
+
+### Batches 643-647: Notification & Alerting
+- escalation_manager, digest_builder, channel_router, silence_enforcer, threshold_tuner
+
+### Batches 648-652: Workflow & Automation
+- dag_scheduler, step_retrier, approval_gater, hook_dispatcher, cron_orchestrator
+
+### Batches 653-657: Cost & Billing
+- cost_allocator, billing_reconciler, spend_tracker, margin_calculator, chargeback_auditor
+
+Each vertical: migration SQL + shared types + barrel export + SKILL.md + Eidolon BK/EK/districtFor + event-bus SUBJECT_MAP + task-executor cases + .gitattributes + tests (275/275 passing)
+
+
 ## Batches 583-607 — Release Engineering, Deployment Operations, Database Operations, API Gateway & HTTP, Event Messaging
 
 ### Batches 583-587: Release Engineering
