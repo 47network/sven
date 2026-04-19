@@ -1,3 +1,13 @@
+## Batches 1008-1032 — Personalization, Moderation, Trust & Safety, Fraud, Risk Scoring (25 verticals)
+
+- Personalization (5): profile_builder, segment_resolver, content_selector, consent_gate, audit_logger
+- Content Moderation (5): text_classifier, image_screener, appeal_router, decision_logger, policy_updater
+- Trust & Safety (5): signal_collector, score_aggregator, action_dispatcher, review_queue_writer, audit_logger
+- Fraud Detection (5): signal_collector, score_evaluator, decision_dispatcher, case_writer, audit_logger
+- Risk Scoring (5): composite_scorer, threshold_evaluator, decision_dispatcher, appeal_handler, audit_logger
+
+275 tests across 5 suites green. Per-vertical SKILL.md, agent module, eidolon types/event-bus wiring, marketplace task-executor case, gateway-api migration, .gitattributes filter.
+
 ## Batches 983-1007 — Feature Store, Model Registry, Experiment Tracker, A/B Testing, Recommendation
 
 - 983-987 Feature Store: feature_store_value_writer, feature_store_server, feature_store_freshness_monitor, feature_store_lineage_tracker, feature_store_backfill_runner
