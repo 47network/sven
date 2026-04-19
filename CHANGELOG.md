@@ -1,3 +1,7 @@
+## Batches 1708-1732 — Changelog Engine, Version Bumper, Tag Manager, Branch Protector, Merge Resolver
+- 25 verticals (5 groups × 5): changelog generation + version bumping + tag management + branch protection + merge resolution
+- 275 tests passing | migration timestamps 20260633450000–20260633690000
+
 ## Batches 1683-1707 — Artifact Vault, Pipeline Conductor, Build Accelerator, Test Forge, Release Drafter
 - 25 verticals (5 groups × 5): artifact storage + CI/CD pipeline + build caching + test generation + release drafting
 - 275 tests passing | migration timestamps 20260633200000–20260633440000
