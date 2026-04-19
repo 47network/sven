@@ -283,6 +283,31 @@ export type EidolonBuildingKind =
   | 'churn_predictor'
   | 'feedback_aggregator'
   | 'sentiment_tracker'
+  | 'version_tagger'
+  | 'release_gater'
+  | 'changelog_compiler'
+  | 'artifact_signer'
+  | 'license_auditor'
+  | 'deploy_sentinel'
+  | 'rollback_pilot'
+  | 'env_promoter'
+  | 'config_drifter'
+  | 'infra_reconciler'
+  | 'data_seeder'
+  | 'query_profiler'
+  | 'replication_watcher'
+  | 'table_partitioner'
+  | 'vacuum_scheduler'
+  | 'cors_enforcer'
+  | 'header_injector'
+  | 'rate_shaper'
+  | 'payload_sanitizer'
+  | 'response_cacher'
+  | 'webhook_dispatcher'
+  | 'stream_replayer'
+  | 'dlq_processor'
+  | 'message_deduplicator'
+  | 'topic_router'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -1620,6 +1645,106 @@ export type EidolonEventKind =
   | 'sntr.shift_detected'
   | 'sntr.trend_analyzed'
   | 'sntr.alert_raised'
+  | 'vstg.tag_created'
+  | 'vstg.bump_calculated'
+  | 'vstg.release_tagged'
+  | 'vstg.conflict_detected'
+  | 'rlgt.gate_checked'
+  | 'rlgt.release_approved'
+  | 'rlgt.release_blocked'
+  | 'rlgt.override_granted'
+  | 'clcm.entries_collected'
+  | 'clcm.changelog_compiled'
+  | 'clcm.format_validated'
+  | 'clcm.publish_triggered'
+  | 'arsg.artifact_signed'
+  | 'arsg.signature_verified'
+  | 'arsg.key_rotated'
+  | 'arsg.verification_failed'
+  | 'lcad.scan_completed'
+  | 'lcad.violation_found'
+  | 'lcad.report_generated'
+  | 'lcad.exception_granted'
+  | 'dpst.deploy_started'
+  | 'dpst.health_checked'
+  | 'dpst.deploy_completed'
+  | 'dpst.anomaly_detected'
+  | 'rbpl.rollback_initiated'
+  | 'rbpl.snapshot_restored'
+  | 'rbpl.recovery_completed'
+  | 'rbpl.rollback_failed'
+  | 'envp.promotion_started'
+  | 'envp.diff_calculated'
+  | 'envp.promotion_completed'
+  | 'envp.conflict_resolved'
+  | 'cfdr.drift_detected'
+  | 'cfdr.baseline_updated'
+  | 'cfdr.remediation_applied'
+  | 'cfdr.compliance_checked'
+  | 'ifrc.reconcile_started'
+  | 'ifrc.state_compared'
+  | 'ifrc.reconcile_applied'
+  | 'ifrc.drift_corrected'
+  | 'dtsd.seed_started'
+  | 'dtsd.data_inserted'
+  | 'dtsd.seed_completed'
+  | 'dtsd.validation_passed'
+  | 'qypf.profile_started'
+  | 'qypf.slow_detected'
+  | 'qypf.optimization_suggested'
+  | 'qypf.baseline_updated'
+  | 'rpwt.lag_detected'
+  | 'rpwt.replica_synced'
+  | 'rpwt.failover_triggered'
+  | 'rpwt.consistency_checked'
+  | 'tbpt.partition_planned'
+  | 'tbpt.partition_created'
+  | 'tbpt.data_migrated'
+  | 'tbpt.old_dropped'
+  | 'vcsc.vacuum_scheduled'
+  | 'vcsc.bloat_detected'
+  | 'vcsc.vacuum_completed'
+  | 'vcsc.stats_updated'
+  | 'crse.policy_applied'
+  | 'crse.origin_blocked'
+  | 'crse.wildcard_warned'
+  | 'crse.preflight_handled'
+  | 'hdij.header_injected'
+  | 'hdij.rule_matched'
+  | 'hdij.security_added'
+  | 'hdij.cache_header_set'
+  | 'rtsh.traffic_shaped'
+  | 'rtsh.burst_allowed'
+  | 'rtsh.throttle_applied'
+  | 'rtsh.quota_reset'
+  | 'plsn.payload_sanitized'
+  | 'plsn.threat_detected'
+  | 'plsn.xss_blocked'
+  | 'plsn.injection_prevented'
+  | 'rsch.response_cached'
+  | 'rsch.cache_hit'
+  | 'rsch.cache_evicted'
+  | 'rsch.ttl_expired'
+  | 'whkd.webhook_dispatched'
+  | 'whkd.delivery_confirmed'
+  | 'whkd.delivery_failed'
+  | 'whkd.retry_scheduled'
+  | 'strp.replay_started'
+  | 'strp.events_replayed'
+  | 'strp.replay_completed'
+  | 'strp.divergence_detected'
+  | 'dlqp.letter_received'
+  | 'dlqp.reprocess_attempted'
+  | 'dlqp.reprocess_succeeded'
+  | 'dlqp.permanently_failed'
+  | 'msgd.duplicate_detected'
+  | 'msgd.message_passed'
+  | 'msgd.window_expired'
+  | 'msgd.stats_updated'
+  | 'tprt.message_routed'
+  | 'tprt.rule_matched'
+  | 'tprt.fallback_used'
+  | 'tprt.route_updated'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -2360,6 +2485,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'churn_predictor':
     case 'feedback_aggregator':
     case 'sentiment_tracker':
+    case 'version_tagger':
+    case 'release_gater':
+    case 'changelog_compiler':
+    case 'artifact_signer':
+    case 'license_auditor':
+    case 'deploy_sentinel':
+    case 'rollback_pilot':
+    case 'env_promoter':
+    case 'config_drifter':
+    case 'infra_reconciler':
+    case 'data_seeder':
+    case 'query_profiler':
+    case 'replication_watcher':
+    case 'table_partitioner':
+    case 'vacuum_scheduler':
+    case 'cors_enforcer':
+    case 'header_injector':
+    case 'rate_shaper':
+    case 'payload_sanitizer':
+    case 'response_cacher':
+    case 'webhook_dispatcher':
+    case 'stream_replayer':
+    case 'dlq_processor':
+    case 'message_deduplicator':
+    case 'topic_router':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

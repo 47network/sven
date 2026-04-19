@@ -36,6 +36,34 @@
 
 # Changelog
 
+## Batches 583-607 — Release Engineering, Deployment Operations, Database Operations, API Gateway & HTTP, Event Messaging
+
+### Batches 583-587: Release Engineering
+- version_tagger, release_gater, changelog_compiler, artifact_signer, license_auditor
+- Migrations, shared types, SKILL.md, Eidolon BK/EK/districtFor, event-bus, task-executor, .gitattributes
+- 55/55 tests passing
+
+### Batches 588-592: Deployment Operations
+- deploy_sentinel, rollback_pilot, env_promoter, config_drifter, infra_reconciler
+- Full 11-step wiring for each vertical
+- 55/55 tests passing
+
+### Batches 593-597: Database Operations
+- data_seeder, query_profiler, replication_watcher, table_partitioner, vacuum_scheduler
+- Full 11-step wiring for each vertical
+- 55/55 tests passing
+
+### Batches 598-602: API Gateway & HTTP
+- cors_enforcer, header_injector, rate_shaper, payload_sanitizer, response_cacher
+- Full 11-step wiring for each vertical
+- 55/55 tests passing
+
+### Batches 603-607: Event Messaging
+- webhook_dispatcher, stream_replayer, dlq_processor, message_deduplicator, topic_router
+- Full 11-step wiring for each vertical
+- 55/55 tests passing
+
+
 ## Batches 578-582 — Customer Experience & Feedback
 - satisfaction_surveyor: Customer satisfaction surveying with trend detection
 - nps_calculator: Net Promoter Score calculation with benchmark comparison
