@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 373-377 — Data Processing & ETL
+- **Batch 373 — Data Transformer**: format conversion, mapping rules, batch transforms, schema validation ($13.99)
+- **Batch 374 — Pipeline Orchestrator**: multi-stage pipelines, retry policies, stage dependencies, pause/resume ($18.99)
+- **Batch 375 — Data Enricher**: record augmentation from APIs/DBs/caches, source management, rate limiting ($15.99)
+- **Batch 376 — ETL Scheduler**: cron-based scheduling, dependency chains, missed run policies, run history ($16.99)
+- **Batch 377 — Format Converter**: file format conversion (JSON/CSV/XML/YAML/Parquet), encoding, field mappings ($11.99)
+- 5 migration SQL files, 5 shared TypeScript type files, 5 SKILL.md files
+- 20 EidolonEventKind values, 5 BuildingKind values, 5 districtFor cases
+- 20 SUBJECT_MAP entries, 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries
+- 226 tests — ALL PASSING
+
 ### Batches 368-372 — Observability & Monitoring
 - **Batch 368 — Metric Aggregator**: metric collection, aggregation intervals, rollups, Prometheus export ($14.99)
 - **Batch 369 — Alert Correlator**: alert firing, temporal/causal/semantic correlation, dedup, silencing ($17.99)

@@ -395,3 +395,8 @@ export * from './agent-alert-correlator';
 export * from './agent-sla-tracker';
 export * from './agent-log-analyzer';
 export * from './agent-performance-profiler';
+export * from './agent-data-transformer';
+export * from './agent-pipeline-orchestrator';
+export * from './agent-data-enricher';
+export * from './agent-etl-scheduler';
+export * from './agent-format-converter';
