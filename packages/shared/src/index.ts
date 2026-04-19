@@ -543,3 +543,8 @@ export * from './agent-facet-aggregator';
 export * from './agent-autocomplete-engine';
 export * from './agent-relevance-tuner';
 export * from './agent-synonym-manager';
+export * from './agent-push-dispatcher';
+export * from './agent-email-renderer';
+export * from './agent-sms-gateway';
+export * from './agent-channel-selector';
+export * from './agent-delivery-tracker';

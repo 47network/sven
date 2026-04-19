@@ -27,6 +27,13 @@
 
 # Changelog
 
+## Batches 518-522 — Notification & Messaging
+- push_dispatcher: Push notification dispatching and token management
+- email_renderer: Email template rendering and layout compilation
+- sms_gateway: SMS gateway routing and provider management
+- channel_selector: Notification channel selection and routing rules
+- delivery_tracker: Message delivery tracking and analytics
+
 ## Batches 513-517 — Search & Indexing
 - index_builder: Search index creation and schema management
 - facet_aggregator: Faceted search aggregation and bucket computation
