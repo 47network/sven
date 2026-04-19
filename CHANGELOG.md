@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 393-397 — Security & Governance
+- **access_control_manager** (Batch 393): RBAC/ABAC access policy engine — policy creation, access evaluation, MFA configuration, access logs
+- **threat_detection_engine** (Batch 394): Real-time threat detection — rule creation, scanning, event investigation, sensitivity tuning
+- **secret_manager** (Batch 395): Secure secret lifecycle — storage, retrieval, rotation, deletion with full access audit trail
+- **encryption_engine** (Batch 396): Cryptographic operations — AES-256-GCM encryption/decryption, key generation, Ed25519 signing/verification
+- **audit_trail_manager** (Batch 397): Tamper-evident audit logging — event recording, trail queries/exports, integrity verification, retention policies
+
 
 ### Batches 388-392 — Integration & Connectivity
 - **integration-connector** (Batch 388): External API integration management with auth, health checks, retry policies, and request logging
