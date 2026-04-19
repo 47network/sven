@@ -758,6 +758,31 @@ export type EidolonBuildingKind =
   | 'dlp_action_dispatcher'
   | 'dlp_incident_writer'
   | 'dlp_audit_logger'
+  | 'identity_provisioning_creator'
+  | 'identity_provisioning_updater'
+  | 'identity_provisioning_deactivator'
+  | 'identity_provisioning_recertifier'
+  | 'identity_provisioning_audit_logger'
+  | 'access_review_initiator'
+  | 'access_review_collector'
+  | 'access_review_decision_recorder'
+  | 'access_review_remediator'
+  | 'access_review_audit_logger'
+  | 'pam_session_initiator'
+  | 'pam_session_recorder'
+  | 'pam_credential_broker'
+  | 'pam_session_terminator'
+  | 'pam_audit_logger'
+  | 'secrets_mgmt_writer'
+  | 'secrets_mgmt_reader'
+  | 'secrets_mgmt_rotator'
+  | 'secrets_mgmt_revoker'
+  | 'secrets_mgmt_audit_logger'
+  | 'key_mgmt_generator'
+  | 'key_mgmt_distributor'
+  | 'key_mgmt_rotator'
+  | 'key_mgmt_revoker'
+  | 'key_mgmt_audit_logger'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -3995,6 +4020,106 @@ export type EidolonEventKind =
   | 'dpau.fields_validated'
   | 'dpau.record_persisted'
   | 'dpau.export_emitted'
+  | 'ipcr.request_received'
+  | 'ipcr.fields_validated'
+  | 'ipcr.identity_created'
+  | 'ipcr.audit_recorded'
+  | 'ipud.request_received'
+  | 'ipud.fields_validated'
+  | 'ipud.identity_updated'
+  | 'ipud.audit_recorded'
+  | 'ipde.request_received'
+  | 'ipde.policy_evaluated'
+  | 'ipde.identity_deactivated'
+  | 'ipde.audit_recorded'
+  | 'iprc.request_received'
+  | 'iprc.entitlements_loaded'
+  | 'iprc.recertification_recorded'
+  | 'iprc.audit_recorded'
+  | 'ipau.record_received'
+  | 'ipau.fields_validated'
+  | 'ipau.record_persisted'
+  | 'ipau.export_emitted'
+  | 'arin.request_received'
+  | 'arin.scope_resolved'
+  | 'arin.review_initiated'
+  | 'arin.audit_recorded'
+  | 'arcl.item_received'
+  | 'arcl.fields_validated'
+  | 'arcl.response_persisted'
+  | 'arcl.audit_recorded'
+  | 'ardr.record_received'
+  | 'ardr.fields_validated'
+  | 'ardr.decision_persisted'
+  | 'ardr.audit_recorded'
+  | 'arrm.request_received'
+  | 'arrm.policy_evaluated'
+  | 'arrm.action_dispatched'
+  | 'arrm.audit_recorded'
+  | 'arau.record_received'
+  | 'arau.fields_validated'
+  | 'arau.record_persisted'
+  | 'arau.export_emitted'
+  | 'pmsi.request_received'
+  | 'pmsi.policy_evaluated'
+  | 'pmsi.session_started'
+  | 'pmsi.audit_recorded'
+  | 'pmsr.event_received'
+  | 'pmsr.fields_validated'
+  | 'pmsr.event_persisted'
+  | 'pmsr.audit_recorded'
+  | 'pmcb.request_received'
+  | 'pmcb.policy_evaluated'
+  | 'pmcb.credential_brokered'
+  | 'pmcb.audit_recorded'
+  | 'pmst.request_received'
+  | 'pmst.policy_evaluated'
+  | 'pmst.session_terminated'
+  | 'pmst.audit_recorded'
+  | 'pmau.record_received'
+  | 'pmau.fields_validated'
+  | 'pmau.record_persisted'
+  | 'pmau.export_emitted'
+  | 'smwr.request_received'
+  | 'smwr.fields_validated'
+  | 'smwr.secret_persisted'
+  | 'smwr.audit_recorded'
+  | 'smrd.request_received'
+  | 'smrd.policy_evaluated'
+  | 'smrd.secret_returned'
+  | 'smrd.audit_recorded'
+  | 'smro.request_received'
+  | 'smro.policy_evaluated'
+  | 'smro.secret_rotated'
+  | 'smro.audit_recorded'
+  | 'smrv.request_received'
+  | 'smrv.policy_evaluated'
+  | 'smrv.secret_revoked'
+  | 'smrv.audit_recorded'
+  | 'smau.record_received'
+  | 'smau.fields_validated'
+  | 'smau.record_persisted'
+  | 'smau.export_emitted'
+  | 'kmgn.request_received'
+  | 'kmgn.policy_evaluated'
+  | 'kmgn.key_generated'
+  | 'kmgn.audit_recorded'
+  | 'kmds.request_received'
+  | 'kmds.policy_evaluated'
+  | 'kmds.key_distributed'
+  | 'kmds.audit_recorded'
+  | 'kmrt.request_received'
+  | 'kmrt.policy_evaluated'
+  | 'kmrt.key_rotated'
+  | 'kmrt.audit_recorded'
+  | 'kmrv.request_received'
+  | 'kmrv.policy_evaluated'
+  | 'kmrv.key_revoked'
+  | 'kmrv.audit_recorded'
+  | 'kmau.record_received'
+  | 'kmau.fields_validated'
+  | 'kmau.record_persisted'
+  | 'kmau.export_emitted'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -5210,6 +5335,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'dlp_action_dispatcher':
     case 'dlp_incident_writer':
     case 'dlp_audit_logger':
+    case 'identity_provisioning_creator':
+    case 'identity_provisioning_updater':
+    case 'identity_provisioning_deactivator':
+    case 'identity_provisioning_recertifier':
+    case 'identity_provisioning_audit_logger':
+    case 'access_review_initiator':
+    case 'access_review_collector':
+    case 'access_review_decision_recorder':
+    case 'access_review_remediator':
+    case 'access_review_audit_logger':
+    case 'pam_session_initiator':
+    case 'pam_session_recorder':
+    case 'pam_credential_broker':
+    case 'pam_session_terminator':
+    case 'pam_audit_logger':
+    case 'secrets_mgmt_writer':
+    case 'secrets_mgmt_reader':
+    case 'secrets_mgmt_rotator':
+    case 'secrets_mgmt_revoker':
+    case 'secrets_mgmt_audit_logger':
+    case 'key_mgmt_generator':
+    case 'key_mgmt_distributor':
+    case 'key_mgmt_rotator':
+    case 'key_mgmt_revoker':
+    case 'key_mgmt_audit_logger':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

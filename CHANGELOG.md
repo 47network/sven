@@ -1,3 +1,13 @@
+## Batches 1058-1082 — Identity Provisioning, Access Reviews, PAM, Secrets Mgmt, Key Mgmt (25 verticals)
+
+- Identity Provisioning (5): creator, updater, deactivator, recertifier, audit_logger
+- Access Reviews (5): initiator, collector, decision_recorder, remediator, audit_logger
+- Privileged Access Mgmt (5): session_initiator, session_recorder, credential_broker, session_terminator, audit_logger
+- Secrets Management (5): writer, reader, rotator, revoker, audit_logger
+- Key Management (5): generator, distributor, rotator, revoker, audit_logger
+
+275 tests across 5 suites green.
+
 ## Batches 1033-1057 — Compliance, KYC, AML, Sanctions, DLP (25 verticals)
 
 - Compliance (5): policy_loader, control_evaluator, evidence_collector, report_generator, audit_logger
