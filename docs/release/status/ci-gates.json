@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-04-19T22:39:55.156Z",
+  "generated_at": "2026-04-19T22:43:36.552Z",
   "source_branch": "sentinel/fix-open-redirect-robustness-10656979865401126741",
   "source_head_sha": "db82f7a055583f7bd33683240f889efa36d7826b",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-19T22:39:54.764Z",
+    "captured_at": "2026-04-19T22:43:36.002Z",
     "branch": "sentinel/fix-open-redirect-robustness-10656979865401126741",
     "total_runs": 13
   },
   "final_dod_ci": true,
-  "parity_e2e_ci": false,
+  "parity_e2e_ci": true,
   "parity_checklist_verify_ci": false,
   "agent_zero_parity_verify_ci": true,
   "websocket_contract_ci": false,
@@ -54,14 +54,13 @@
       "head_sha": "db82f7a055583f7bd33683240f889efa36d7826b",
       "head_branch": "sentinel/fix-open-redirect-robustness-10656979865401126741",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310885,
       "workflow_name": "parity-e2e",
       "matched_target_sha": true,
       "gate_key": "parity_e2e_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
@@ -90,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-19T22:39:51.997Z"
+      "generated_at": "2026-04-19T22:43:33.076Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -120,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-19T22:39:53.224Z"
+      "generated_at": "2026-04-19T22:43:34.332Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -135,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-19T22:39:54.438Z"
+      "generated_at": "2026-04-19T22:43:35.597Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -456,20 +455,19 @@
       "gate_key": "final_dod_e2e_ci"
     },
     "parity-e2e": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": 24640851350,
         "head_sha": "db82f7a055583f7bd33683240f889efa36d7826b",
         "head_branch": "sentinel/fix-open-redirect-robustness-10656979865401126741",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310885,
         "workflow_name": "parity-e2e",
         "matched_target_sha": true,
         "gate_key": "parity_e2e_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "parity_e2e_ci"
     },
