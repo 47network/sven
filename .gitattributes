@@ -1498,3 +1498,20 @@ deploy/multi-vm/config/blue-green-switcher.env filter=sven-private
 deploy/multi-vm/config/deployment-validator.env filter=sven-private
 deploy/multi-vm/config/gradual-rollout-manager.env filter=sven-private
 deploy/multi-vm/config/ab-test-runner.env filter=sven-private
+
+# Batch 443-447: Infrastructure Operations
+services/sven-marketplace/src/skills/config-syncer/** filter=sven-private
+services/sven-marketplace/src/skills/environment-prober/** filter=sven-private
+services/sven-marketplace/src/skills/secrets-rotator/** filter=sven-private
+services/sven-marketplace/src/skills/infra-scanner/** filter=sven-private
+services/sven-marketplace/src/skills/health-dashboard/** filter=sven-private
+packages/shared/src/agent-config-syncer.ts filter=sven-private
+packages/shared/src/agent-environment-prober.ts filter=sven-private
+packages/shared/src/agent-secrets-rotator.ts filter=sven-private
+packages/shared/src/agent-infra-scanner.ts filter=sven-private
+packages/shared/src/agent-health-dashboard.ts filter=sven-private
+deploy/multi-vm/config/config-syncer.env filter=sven-private
+deploy/multi-vm/config/environment-prober.env filter=sven-private
+deploy/multi-vm/config/secrets-rotator.env filter=sven-private
+deploy/multi-vm/config/infra-scanner.env filter=sven-private
+deploy/multi-vm/config/health-dashboard.env filter=sven-private

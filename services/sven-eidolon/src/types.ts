@@ -143,6 +143,11 @@ export type EidolonBuildingKind =
   | 'deployment_validator'
   | 'gradual_rollout_manager'
   | 'ab_test_runner'
+  | 'config_syncer'
+  | 'environment_prober'
+  | 'secrets_rotator'
+  | 'infra_scanner'
+  | 'health_dashboard'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -915,6 +920,26 @@ export type EidolonEventKind =
   | 'abtr.test_started'
   | 'abtr.event_recorded'
   | 'abtr.test_concluded'
+  | 'cfsn.key_synced'
+  | 'cfsn.drift_detected'
+  | 'cfsn.conflict_resolved'
+  | 'cfsn.bulk_completed'
+  | 'envp.probe_completed'
+  | 'envp.target_unhealthy'
+  | 'envp.uptime_reported'
+  | 'envp.alert_triggered'
+  | 'scrt.secret_rotated'
+  | 'scrt.rotation_overdue'
+  | 'scrt.bulk_rotated'
+  | 'scrt.verification_done'
+  | 'ifsn.scan_completed'
+  | 'ifsn.finding_detected'
+  | 'ifsn.remediation_generated'
+  | 'ifsn.report_exported'
+  | 'hdsh.dashboard_created'
+  | 'hdsh.widget_added'
+  | 'hdsh.alert_configured'
+  | 'hdsh.snapshot_taken'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1495,6 +1520,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'deployment_validator':
     case 'gradual_rollout_manager':
     case 'ab_test_runner':
+    case 'config_syncer':
+    case 'environment_prober':
+    case 'secrets_rotator':
+    case 'infra_scanner':
+    case 'health_dashboard':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

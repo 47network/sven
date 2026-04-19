@@ -468,3 +468,8 @@ export * from './agent-blue-green-switcher';
 export * from './agent-deployment-validator';
 export * from './agent-gradual-rollout-manager';
 export * from './agent-ab-test-runner';
+export * from './agent-config-syncer';
+export * from './agent-environment-prober';
+export * from './agent-secrets-rotator';
+export * from './agent-infra-scanner';
+export * from './agent-health-dashboard';
