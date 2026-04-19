@@ -79,6 +79,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 188–192: Security & Networking
+- **Credential Manager** (Batch 188): credential stores, key rotation, leak detection, audit trails
+- **Certificate Manager** (Batch 189): CA management, certificate issuance, renewal, chain verification
+- **VPN Gateway** (Batch 190): WireGuard/OpenVPN/IPSec networks, peer management, tunnel diagnostics
+- **Proxy Router** (Batch 191): upstream management, route configuration, rate limiting, traffic analysis
+- **Access Controller** (Batch 192): RBAC/ABAC policies, role management, access grants, violation detection
+- 5 migrations, 5 shared types, 5 SKILL.md, 5 barrel exports
+- 5 BK values, 20 EK values, 20 SUBJECT_MAP entries, 30 switch cases, 30 handlers
+- 15 .gitattributes entries, 227 Jest tests — all passing
+
+
 ### Batch 183-187: Operations & Security
 - **Patch Manager** (Batch 183): Software patch policies, CVE rollouts, compliance tracking, vulnerability scanning — agent_patch_policies, agent_patch_releases, agent_patch_compliance tables
 - **Firewall Controller** (Batch 184): Firewall rulesets, security groups, network rules, threat detection/blocking — agent_firewall_rulesets, agent_firewall_rules, agent_firewall_threats tables

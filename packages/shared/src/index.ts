@@ -209,3 +209,8 @@ export * from './agent-firewall-controller.js';
 export * from './agent-backup-orchestrator.js';
 export * from './agent-storage-optimizer.js';
 export * from './agent-health-monitor.js';
+export * from './agent-credential-manager.js';
+export * from './agent-certificate-manager.js';
+export * from './agent-vpn-gateway.js';
+export * from './agent-proxy-router.js';
+export * from './agent-access-controller.js';

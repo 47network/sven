@@ -1,36 +1,23 @@
 ---
 name: agent-certificate-manager
-description: Manages TLS/SSL certificates with auto-renewal, monitoring, and expiry alerting
-version: "1.0"
+version: 1.0.0
+description: TLS/SSL certificate lifecycle management — CA operations, issuance, renewal, revocation
 category: security
-archetype: operations
 pricing:
-  base: 0.99
-  currency: 47T
-actions:
-  - import_certificate
-  - request_renewal
-  - monitor_expiry
-  - verify_chain
-  - revoke_certificate
-  - audit_inventory
-inputs:
-  - certName
-  - domain
-  - certType
-  - keyAlgorithm
-  - autoRenew
-  - renewDaysBefore
-outputs:
-  - inventory
-  - renewals
-  - monitors
-  - chainValidation
-  - auditReport
+  base: 4.99
+  currency: USD
+  per: certificate_operation
+tags: [certificates, tls, ssl, pki, acme, renewal]
 ---
+
 # Agent Certificate Manager
 
-Manages TLS/SSL certificate lifecycle including inventory tracking, auto-renewal
-via ACME (Let's Encrypt), CA-signed certificates, monitoring for expiry and
-revocation, chain validation, and key strength auditing. Supports RSA, EC,
-and Ed25519 key algorithms.
+Manages certificate authorities, certificate issuance, auto-renewal, and revocation across infrastructure.
+
+## Actions
+- **create-ca**: Initialize certificate authority (root, intermediate, ACME)
+- **issue-certificate**: Issue server, client, wildcard, or code-signing certificates
+- **renew-certificate**: Auto or manual certificate renewal before expiry
+- **revoke-certificate**: Revoke compromised certificates with CRL update
+- **monitor-expiry**: Track certificate expiration across all services
+- **verify-chain**: Validate certificate chain integrity
