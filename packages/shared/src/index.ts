@@ -431,3 +431,8 @@ export * from './agent-pipeline-scheduler';
 export * from './agent-job-dispatcher';
 export * from './agent-queue-manager';
 export * from './agent-state-machine-engine';
+export * from './agent-etl-processor';
+export * from './agent-schema-validator';
+export * from './agent-config-registry';
+export * from './agent-feature-flag-engine';
+export * from './agent-health-monitor';

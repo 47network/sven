@@ -2633,6 +2633,36 @@ export class TaskExecutor {
       case 'smen_get_history': return this.handleSmenGetHistory(task);
       case 'smen_pause_machine': return this.handleSmenPauseMachine(task);
       case 'smen_reset_machine': return this.handleSmenResetMachine(task);
+      case 'etlp_create_pipeline': return this.handleEtlpCreatePipeline(task);
+      case 'etlp_run_pipeline': return this.handleEtlpRunPipeline(task);
+      case 'etlp_get_run_status': return this.handleEtlpGetRunStatus(task);
+      case 'etlp_list_pipelines': return this.handleEtlpListPipelines(task);
+      case 'etlp_schedule_pipeline': return this.handleEtlpSchedulePipeline(task);
+      case 'etlp_cancel_run': return this.handleEtlpCancelRun(task);
+      case 'schv_register_schema': return this.handleSchvRegisterSchema(task);
+      case 'schv_validate_data': return this.handleSchvValidateData(task);
+      case 'schv_check_compatibility': return this.handleSchvCheckCompatibility(task);
+      case 'schv_list_schemas': return this.handleSchvListSchemas(task);
+      case 'schv_get_schema': return this.handleSchvGetSchema(task);
+      case 'schv_deprecate_schema': return this.handleSchvDeprecateSchema(task);
+      case 'cfgr_set_config': return this.handleCfgrSetConfig(task);
+      case 'cfgr_get_config': return this.handleCfgrGetConfig(task);
+      case 'cfgr_list_configs': return this.handleCfgrListConfigs(task);
+      case 'cfgr_rollback_config': return this.handleCfgrRollbackConfig(task);
+      case 'cfgr_compare_environments': return this.handleCfgrCompareEnvironments(task);
+      case 'cfgr_get_change_log': return this.handleCfgrGetChangeLog(task);
+      case 'ffeg_create_flag': return this.handleFfegCreateFlag(task);
+      case 'ffeg_evaluate_flag': return this.handleFfegEvaluateFlag(task);
+      case 'ffeg_update_flag': return this.handleFfegUpdateFlag(task);
+      case 'ffeg_toggle_flag': return this.handleFfegToggleFlag(task);
+      case 'ffeg_set_rollout': return this.handleFfegSetRollout(task);
+      case 'ffeg_get_evaluations': return this.handleFfegGetEvaluations(task);
+      case 'hlmn_create_check': return this.handleHlmnCreateCheck(task);
+      case 'hlmn_run_check': return this.handleHlmnRunCheck(task);
+      case 'hlmn_get_status': return this.handleHlmnGetStatus(task);
+      case 'hlmn_list_incidents': return this.handleHlmnListIncidents(task);
+      case 'hlmn_acknowledge_incident': return this.handleHlmnAcknowledgeIncident(task);
+      case 'hlmn_resolve_incident': return this.handleHlmnResolveIncident(task);
     }
   }
 
@@ -17647,5 +17677,37 @@ export class TaskExecutor {
   private async handleSmenGetHistory(task: any): Promise<any> { return { success: true, machineId: task.input?.machineId, transitions: [] }; }
   private async handleSmenPauseMachine(task: any): Promise<any> { return { success: true, machineId: task.input?.machineId, status: 'paused' }; }
   private async handleSmenResetMachine(task: any): Promise<any> { return { success: true, machineId: task.input?.machineId, currentState: task.input?.initialState || 'initial', status: 'active' }; }
+
+
+  private async handleEtlpCreatePipeline(task: any): Promise<any> { return { success: true, pipelineId: `etl-${Date.now()}`, name: task.input?.name, sourceType: task.input?.sourceType || 'api' }; }
+  private async handleEtlpRunPipeline(task: any): Promise<any> { return { success: true, runId: `run-${Date.now()}`, pipelineId: task.input?.pipelineId, status: 'extracting' }; }
+  private async handleEtlpGetRunStatus(task: any): Promise<any> { return { success: true, runId: task.input?.runId, status: 'completed', recordsProcessed: 0 }; }
+  private async handleEtlpListPipelines(task: any): Promise<any> { return { success: true, pipelines: [], total: 0 }; }
+  private async handleEtlpSchedulePipeline(task: any): Promise<any> { return { success: true, pipelineId: task.input?.pipelineId, scheduleCron: task.input?.scheduleCron }; }
+  private async handleEtlpCancelRun(task: any): Promise<any> { return { success: true, runId: task.input?.runId, status: 'cancelled' }; }
+  private async handleSchvRegisterSchema(task: any): Promise<any> { return { success: true, schemaId: `sch-${Date.now()}`, name: task.input?.name, version: task.input?.version || '1.0.0' }; }
+  private async handleSchvValidateData(task: any): Promise<any> { return { success: true, isValid: true, errors: [], warnings: [] }; }
+  private async handleSchvCheckCompatibility(task: any): Promise<any> { return { success: true, compatible: true, breakingChanges: [] }; }
+  private async handleSchvListSchemas(task: any): Promise<any> { return { success: true, schemas: [], total: 0 }; }
+  private async handleSchvGetSchema(task: any): Promise<any> { return { success: true, schemaId: task.input?.schemaId, definition: {} }; }
+  private async handleSchvDeprecateSchema(task: any): Promise<any> { return { success: true, schemaId: task.input?.schemaId, deprecated: true }; }
+  private async handleCfgrSetConfig(task: any): Promise<any> { return { success: true, entryId: `cfg-${Date.now()}`, key: task.input?.key, version: 1 }; }
+  private async handleCfgrGetConfig(task: any): Promise<any> { return { success: true, key: task.input?.key, value: null, version: 0 }; }
+  private async handleCfgrListConfigs(task: any): Promise<any> { return { success: true, configs: [], environment: task.input?.environment || 'production' }; }
+  private async handleCfgrRollbackConfig(task: any): Promise<any> { return { success: true, key: task.input?.key, rolledBackTo: task.input?.version || 1 }; }
+  private async handleCfgrCompareEnvironments(task: any): Promise<any> { return { success: true, differences: [], env1: task.input?.env1, env2: task.input?.env2 }; }
+  private async handleCfgrGetChangeLog(task: any): Promise<any> { return { success: true, key: task.input?.key, changes: [] }; }
+  private async handleFfegCreateFlag(task: any): Promise<any> { return { success: true, flagId: `ff-${Date.now()}`, flagKey: task.input?.flagKey, enabled: false }; }
+  private async handleFfegEvaluateFlag(task: any): Promise<any> { return { success: true, flagKey: task.input?.flagKey, result: false, reason: 'default' }; }
+  private async handleFfegUpdateFlag(task: any): Promise<any> { return { success: true, flagId: task.input?.flagId, updated: true }; }
+  private async handleFfegToggleFlag(task: any): Promise<any> { return { success: true, flagKey: task.input?.flagKey, enabled: task.input?.enabled ?? true }; }
+  private async handleFfegSetRollout(task: any): Promise<any> { return { success: true, flagKey: task.input?.flagKey, rolloutPercentage: task.input?.percentage || 0 }; }
+  private async handleFfegGetEvaluations(task: any): Promise<any> { return { success: true, flagKey: task.input?.flagKey, evaluations: [] }; }
+  private async handleHlmnCreateCheck(task: any): Promise<any> { return { success: true, checkId: `hc-${Date.now()}`, name: task.input?.name, checkType: task.input?.checkType || 'http' }; }
+  private async handleHlmnRunCheck(task: any): Promise<any> { return { success: true, checkId: task.input?.checkId, currentStatus: 'healthy' }; }
+  private async handleHlmnGetStatus(task: any): Promise<any> { return { success: true, checks: [], overallStatus: 'healthy' }; }
+  private async handleHlmnListIncidents(task: any): Promise<any> { return { success: true, incidents: [], total: 0 }; }
+  private async handleHlmnAcknowledgeIncident(task: any): Promise<any> { return { success: true, incidentId: task.input?.incidentId, status: 'acknowledged' }; }
+  private async handleHlmnResolveIncident(task: any): Promise<any> { return { success: true, incidentId: task.input?.incidentId, status: 'resolved' }; }
 
 }

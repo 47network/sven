@@ -1,54 +1,45 @@
-// Batch 205: ETL Processor — extract-transform-load pipeline management
+export type SourceType = 'database' | 'api' | 'file' | 'stream' | 'webhook';
+export type SinkType = 'database' | 'api' | 'file' | 'stream' | 'warehouse';
+export type EtlRunStatus = 'pending' | 'extracting' | 'transforming' | 'loading' | 'completed' | 'failed';
 
-export type EtlPipelineStatus = 'draft' | 'active' | 'paused' | 'error' | 'completed' | 'archived';
-export type EtlRunStatus = 'pending' | 'extracting' | 'transforming' | 'loading' | 'completed' | 'failed' | 'cancelled';
+export interface EtlProcessorConfig {
+  id: string;
+  agentId: string;
+  maxConcurrentJobs: number;
+  batchSize: number;
+  errorThresholdPercent: number;
+  enabled: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export interface EtlPipeline {
   id: string;
-  agent_id: string;
+  configId: string;
   name: string;
-  description?: string;
-  schedule_cron?: string;
-  status: EtlPipelineStatus;
-  source_config: Record<string, unknown>;
-  transform_config: Record<string, unknown>;
-  sink_config: Record<string, unknown>;
-  last_run_at?: string;
-  next_run_at?: string;
-  created_at: string;
-  updated_at: string;
+  sourceType: SourceType;
+  sourceConfig: Record<string, unknown>;
+  transformSteps: Record<string, unknown>[];
+  sinkType: SinkType;
+  sinkConfig: Record<string, unknown>;
+  scheduleCron?: string;
+  lastRunAt?: Date;
+  recordsProcessed: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface EtlRun {
   id: string;
-  pipeline_id: string;
+  pipelineId: string;
   status: EtlRunStatus;
-  records_extracted: number;
-  records_transformed: number;
-  records_loaded: number;
-  records_failed: number;
-  error_log: unknown[];
-  started_at?: string;
-  completed_at?: string;
-  duration_ms?: number;
-  created_at: string;
+  recordsExtracted: number;
+  recordsTransformed: number;
+  recordsLoaded: number;
+  recordsErrored: number;
+  error?: string;
+  durationMs?: number;
+  startedAt?: Date;
+  completedAt?: Date;
+  createdAt: Date;
 }
-
-export interface EtlSchedule {
-  id: string;
-  pipeline_id: string;
-  cron_expression: string;
-  timezone: string;
-  enabled: boolean;
-  last_triggered_at?: string;
-  next_trigger_at?: string;
-  retry_on_failure: boolean;
-  max_retries: number;
-  created_at: string;
-}
-
-export type EtlProcessorEvent =
-  | 'etl.pipeline_created'
-  | 'etl.run_started'
-  | 'etl.run_completed'
-  | 'etl.run_failed';
