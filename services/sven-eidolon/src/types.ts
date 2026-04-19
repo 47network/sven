@@ -142,6 +142,11 @@ export type EidolonBuildingKind =
   | 'network_scanner'
   | 'dns_tower'
   | 'inventory_depot'
+  | 'patch_manager'
+  | 'firewall_controller'
+  | 'backup_orchestrator'
+  | 'storage_optimizer'
+  | 'health_monitor'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -677,6 +682,11 @@ export type EidolonEventKind =
   | 'netscan.scan_started' | 'netscan.host_discovered' | 'netscan.vulnerability_found' | 'netscan.scan_completed'
   | 'dns.zone_created' | 'dns.record_updated' | 'dns.health_check_failed' | 'dns.failover_triggered'
   | 'inventory.asset_discovered' | 'inventory.sync_completed' | 'inventory.conflict_detected' | 'inventory.asset_decommissioned'
+  | 'patch.policy_created' | 'patch.release_approved' | 'patch.rollout_completed' | 'patch.compliance_failed'
+  | 'firewall.ruleset_created' | 'firewall.rule_added' | 'firewall.threat_blocked' | 'firewall.audit_completed'
+  | 'backup.plan_created' | 'backup.job_completed' | 'backup.restore_verified' | 'backup.retention_cleaned'
+  | 'storage.analysis_completed' | 'storage.dedup_finished' | 'storage.tier_moved' | 'storage.savings_realized'
+  | 'health.endpoint_added' | 'health.check_failed' | 'health.incident_opened' | 'health.incident_resolved'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -822,6 +832,11 @@ export type EidolonEventKind =
   | 'netscan.scan_started' | 'netscan.host_discovered' | 'netscan.vulnerability_found' | 'netscan.scan_completed'
   | 'dns.zone_created' | 'dns.record_updated' | 'dns.health_check_failed' | 'dns.failover_triggered'
   | 'inventory.asset_discovered' | 'inventory.sync_completed' | 'inventory.conflict_detected' | 'inventory.asset_decommissioned'
+  | 'patch.policy_created' | 'patch.release_approved' | 'patch.rollout_completed' | 'patch.compliance_failed'
+  | 'firewall.ruleset_created' | 'firewall.rule_added' | 'firewall.threat_blocked' | 'firewall.audit_completed'
+  | 'backup.plan_created' | 'backup.job_completed' | 'backup.restore_verified' | 'backup.retention_cleaned'
+  | 'storage.analysis_completed' | 'storage.dedup_finished' | 'storage.tier_moved' | 'storage.savings_realized'
+  | 'health.endpoint_added' | 'health.check_failed' | 'health.incident_opened' | 'health.incident_resolved'
   | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
   | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
@@ -837,6 +852,11 @@ export type EidolonEventKind =
   | 'netscan.scan_started' | 'netscan.host_discovered' | 'netscan.vulnerability_found' | 'netscan.scan_completed'
   | 'dns.zone_created' | 'dns.record_updated' | 'dns.health_check_failed' | 'dns.failover_triggered'
   | 'inventory.asset_discovered' | 'inventory.sync_completed' | 'inventory.conflict_detected' | 'inventory.asset_decommissioned'
+  | 'patch.policy_created' | 'patch.release_approved' | 'patch.rollout_completed' | 'patch.compliance_failed'
+  | 'firewall.ruleset_created' | 'firewall.rule_added' | 'firewall.threat_blocked' | 'firewall.audit_completed'
+  | 'backup.plan_created' | 'backup.job_completed' | 'backup.restore_verified' | 'backup.retention_cleaned'
+  | 'storage.analysis_completed' | 'storage.dedup_finished' | 'storage.tier_moved' | 'storage.savings_realized'
+  | 'health.endpoint_added' | 'health.check_failed' | 'health.incident_opened' | 'health.incident_resolved'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1170,6 +1190,13 @@ export function districtFor(kind: EidolonBuildingKind): District {
       return 'infrastructure';
     case 'network_scanner':
     case 'dns_tower':
+      return 'civic';
+    case 'patch_manager':
+    case 'backup_orchestrator':
+    case 'storage_optimizer':
+      return 'infrastructure';
+    case 'firewall_controller':
+    case 'health_monitor':
       return 'civic';
   }
 }

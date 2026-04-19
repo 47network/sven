@@ -204,3 +204,8 @@ export * from './agent-runbook-automation.js';
 export * from './agent-network-scanner.js';
 export * from './agent-dns-manager.js';
 export * from './agent-inventory-sync.js';
+export * from './agent-patch-manager.js';
+export * from './agent-firewall-controller.js';
+export * from './agent-backup-orchestrator.js';
+export * from './agent-storage-optimizer.js';
+export * from './agent-health-monitor.js';
