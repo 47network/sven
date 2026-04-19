@@ -324,3 +324,8 @@ export * from './agent-credential-rotator';
 export * from './agent-compliance-auditor';
 export * from './agent-rbac-controller';
 export * from './agent-policy-enforcer';
+export * from './agent-msg-relay';
+export * from './agent-stream-ingester';
+export * from './agent-event-router';
+export * from './agent-queue-manager';
+export * from './agent-pubsub-gateway';

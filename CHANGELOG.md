@@ -78,6 +78,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+
+### Batches 303-307 — Message Queue & Streaming
+- **msg_relay**: Message relay channels, DLQ processing, batch flushing (migration, types, SKILL.md, 6 handlers)
+- **stream_ingester**: Stream partition management, checkpoint saving, lag detection (migration, types, SKILL.md, 6 handlers)
+- **event_router**: Event routing rules, fanout, dead-lettering (migration, types, SKILL.md, 6 handlers)
+- **queue_manager**: Queue lifecycle, depth monitoring, metrics recording (migration, types, SKILL.md, 6 handlers)
+- **pubsub_gateway**: Topic/subscription management, message publishing, ack timeouts (migration, types, SKILL.md, 6 handlers)
+- 5 migrations (15 tables), 5 type files, 5 barrel exports, 5 SKILL.md files
+- 20 EK values, 5 BK values, 5 districtFor cases, 20 SUBJECT_MAP entries
+- 30 task-executor switch cases + 30 handler methods
+- 15 .gitattributes privacy entries — 141 tests passing
+
+
 ### Batches 298-302 — Security & Compliance
 - **vuln_scanner**: Vulnerability scanning and remediation ($14.99, analyst)
 - **credential_rotator**: Credential rotation and vault management ($11.99, engineer)
