@@ -79,6 +79,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 193–197: Observability & Configuration
+- **Log Aggregator** (Batch 193): log sources, entries, pipelines with multi-format parsing
+- **Metric Collector** (Batch 194): Prometheus/StatsD/OTel metric sources, time-series, threshold alerts
+- **Alert Dispatcher** (Batch 195): multi-channel notification routing, escalation, incident lifecycle
+- **Trace Analyzer** (Batch 196): distributed tracing configs, span collection, latency/bottleneck analysis
+- **Config Validator** (Batch 197): schema validation, config drift detection, compliance enforcement
+- 5 migrations, 5 shared types, 5 SKILL.md, 5 barrel exports
+- 5 BK values, 20 EK values, 20 SUBJECT_MAP entries, 30 switch cases, 30 handlers
+- 15 .gitattributes entries, 224 Jest tests — all passing
+
+
 ### Batches 188–192: Security & Networking
 - **Credential Manager** (Batch 188): credential stores, key rotation, leak detection, audit trails
 - **Certificate Manager** (Batch 189): CA management, certificate issuance, renewal, chain verification

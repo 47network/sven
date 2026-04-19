@@ -152,6 +152,11 @@ export type EidolonBuildingKind =
   | 'vpn_gateway'
   | 'proxy_router'
   | 'access_controller'
+  | 'log_aggregator'
+  | 'metric_collector'
+  | 'alert_dispatcher'
+  | 'trace_analyzer'
+  | 'config_validator'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -697,6 +702,11 @@ export type EidolonEventKind =
   | 'vpn.network_created' | 'vpn.peer_connected' | 'vpn.session_established' | 'vpn.tunnel_failed'
   | 'proxy.upstream_added' | 'proxy.route_configured' | 'proxy.health_failed' | 'proxy.traffic_anomaly'
   | 'access.policy_created' | 'access.grant_issued' | 'access.grant_revoked' | 'access.violation_detected'
+  | 'log.source_registered' | 'log.entry_ingested' | 'log.pipeline_created' | 'log.anomaly_detected'
+  | 'metric.source_added' | 'metric.threshold_breached' | 'metric.alert_fired' | 'metric.trend_detected'
+  | 'alert.channel_configured' | 'alert.dispatched' | 'alert.acknowledged' | 'alert.incident_resolved'
+  | 'trace.config_created' | 'trace.span_collected' | 'trace.analysis_completed' | 'trace.bottleneck_found'
+  | 'config.schema_created' | 'config.validation_passed' | 'config.drift_detected' | 'config.compliance_failed'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -852,6 +862,11 @@ export type EidolonEventKind =
   | 'vpn.network_created' | 'vpn.peer_connected' | 'vpn.session_established' | 'vpn.tunnel_failed'
   | 'proxy.upstream_added' | 'proxy.route_configured' | 'proxy.health_failed' | 'proxy.traffic_anomaly'
   | 'access.policy_created' | 'access.grant_issued' | 'access.grant_revoked' | 'access.violation_detected'
+  | 'log.source_registered' | 'log.entry_ingested' | 'log.pipeline_created' | 'log.anomaly_detected'
+  | 'metric.source_added' | 'metric.threshold_breached' | 'metric.alert_fired' | 'metric.trend_detected'
+  | 'alert.channel_configured' | 'alert.dispatched' | 'alert.acknowledged' | 'alert.incident_resolved'
+  | 'trace.config_created' | 'trace.span_collected' | 'trace.analysis_completed' | 'trace.bottleneck_found'
+  | 'config.schema_created' | 'config.validation_passed' | 'config.drift_detected' | 'config.compliance_failed'
   | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
   | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
@@ -877,6 +892,11 @@ export type EidolonEventKind =
   | 'vpn.network_created' | 'vpn.peer_connected' | 'vpn.session_established' | 'vpn.tunnel_failed'
   | 'proxy.upstream_added' | 'proxy.route_configured' | 'proxy.health_failed' | 'proxy.traffic_anomaly'
   | 'access.policy_created' | 'access.grant_issued' | 'access.grant_revoked' | 'access.violation_detected'
+  | 'log.source_registered' | 'log.entry_ingested' | 'log.pipeline_created' | 'log.anomaly_detected'
+  | 'metric.source_added' | 'metric.threshold_breached' | 'metric.alert_fired' | 'metric.trend_detected'
+  | 'alert.channel_configured' | 'alert.dispatched' | 'alert.acknowledged' | 'alert.incident_resolved'
+  | 'trace.config_created' | 'trace.span_collected' | 'trace.analysis_completed' | 'trace.bottleneck_found'
+  | 'config.schema_created' | 'config.validation_passed' | 'config.drift_detected' | 'config.compliance_failed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1225,5 +1245,12 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'vpn_gateway':
     case 'proxy_router':
       return 'infrastructure';
+    case 'log_aggregator':
+    case 'metric_collector':
+    case 'trace_analyzer':
+      return 'infrastructure';
+    case 'alert_dispatcher':
+    case 'config_validator':
+      return 'civic';
   }
 }
