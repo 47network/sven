@@ -64,17 +64,18 @@ export function Sidebar({ active, onNavigate, pendingApprovals, status }: Sideba
             </div>
 
             {/* Nav items */}
-            <nav className="sidebar-nav">
+            <nav className="sidebar-nav" aria-label="Main Navigation">
                 {items.map(({ id, label, icon, badge }) => (
                     <button
                         key={id}
                         className={`nav-item${active === id ? ' active' : ''}`}
                         onClick={() => onNavigate(id)}
+                        aria-current={active === id ? 'page' : undefined}
                     >
-                        <span className="nav-icon">{icon}</span>
+                        <span className="nav-icon" aria-hidden="true">{icon}</span>
                         <span className="nav-label">{label}</span>
                         {badge != null && badge > 0 && (
-                            <span className="nav-badge">{badge > 99 ? '99+' : badge}</span>
+                            <span className="nav-badge" aria-label={`${badge} pending items`}>{badge > 99 ? '99+' : badge}</span>
                         )}
                     </button>
                 ))}
