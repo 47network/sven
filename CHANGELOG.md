@@ -1,3 +1,13 @@
+## Batches 958-982 — Time Series, Document Store, Vector DB, ML Training, ML Inference
+
+- 958-962 Time Series DB: tsdb_ingest_writer, tsdb_downsampler, tsdb_retention_pruner, tsdb_query_planner, tsdb_anomaly_detector
+- 963-967 Document Store: docstore_writer, docstore_indexer, docstore_query_executor, docstore_compactor, docstore_replicator
+- 968-972 Vector DB: vectordb_embed_writer, vectordb_index_builder, vectordb_similarity_searcher, vectordb_recall_evaluator, vectordb_quantization_runner
+- 973-977 ML Training: ml_training_dataset_curator, ml_training_job_scheduler, ml_training_checkpoint_writer, ml_training_metrics_aggregator, ml_training_artifact_publisher
+- 978-982 ML Inference: ml_inference_request_router, ml_inference_batch_packer, ml_inference_result_validator, ml_inference_drift_monitor, ml_inference_explainability_logger
+
+25 verticals, 5 dedicated test suites, 275 passing tests.
+
 ## Batches 933-957 — Database Operations, Data Management, Warehouse, Lake, Graph
 
 - 933-937 Database Operations: db_connection_pool_warden, db_query_optimizer, db_index_advisor, db_replication_lag_monitor, db_failover_arbiter
