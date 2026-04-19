@@ -658,6 +658,31 @@ export type EidolonBuildingKind =
   | 'graph_traversal_executor'
   | 'graph_consistency_validator'
   | 'graph_pattern_matcher'
+  | 'tsdb_ingest_writer'
+  | 'tsdb_downsampler'
+  | 'tsdb_retention_pruner'
+  | 'tsdb_query_planner'
+  | 'tsdb_anomaly_detector'
+  | 'docstore_writer'
+  | 'docstore_indexer'
+  | 'docstore_query_executor'
+  | 'docstore_compactor'
+  | 'docstore_replicator'
+  | 'vectordb_embed_writer'
+  | 'vectordb_index_builder'
+  | 'vectordb_similarity_searcher'
+  | 'vectordb_recall_evaluator'
+  | 'vectordb_quantization_runner'
+  | 'ml_training_dataset_curator'
+  | 'ml_training_job_scheduler'
+  | 'ml_training_checkpoint_writer'
+  | 'ml_training_metrics_aggregator'
+  | 'ml_training_artifact_publisher'
+  | 'ml_inference_request_router'
+  | 'ml_inference_batch_packer'
+  | 'ml_inference_result_validator'
+  | 'ml_inference_drift_monitor'
+  | 'ml_inference_explainability_logger'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -3495,6 +3520,106 @@ export type EidolonEventKind =
   | 'gpmt.pattern_compiled'
   | 'gpmt.matches_collected'
   | 'gpmt.results_returned'
+  | 'tsiw.batch_received'
+  | 'tsiw.points_validated'
+  | 'tsiw.points_persisted'
+  | 'tsiw.audit_recorded'
+  | 'tsds.plan_received'
+  | 'tsds.windows_aggregated'
+  | 'tsds.rollups_persisted'
+  | 'tsds.audit_recorded'
+  | 'tsrp.policy_received'
+  | 'tsrp.candidates_evaluated'
+  | 'tsrp.points_pruned'
+  | 'tsrp.audit_recorded'
+  | 'tsqp.request_received'
+  | 'tsqp.plan_constructed'
+  | 'tsqp.execution_dispatched'
+  | 'tsqp.results_returned'
+  | 'tsad.scan_scheduled'
+  | 'tsad.windows_evaluated'
+  | 'tsad.anomalies_flagged'
+  | 'tsad.report_emitted'
+  | 'dswr.batch_received'
+  | 'dswr.docs_validated'
+  | 'dswr.docs_persisted'
+  | 'dswr.audit_recorded'
+  | 'dsix.job_received'
+  | 'dsix.docs_analyzed'
+  | 'dsix.index_updated'
+  | 'dsix.audit_recorded'
+  | 'dsqe.request_received'
+  | 'dsqe.plan_constructed'
+  | 'dsqe.query_executed'
+  | 'dsqe.results_returned'
+  | 'dscm.job_received'
+  | 'dscm.segments_scanned'
+  | 'dscm.segments_merged'
+  | 'dscm.manifest_committed'
+  | 'dsrp.stream_received'
+  | 'dsrp.changes_applied'
+  | 'dsrp.lag_reported'
+  | 'dsrp.audit_recorded'
+  | 'vdew.batch_received'
+  | 'vdew.vectors_validated'
+  | 'vdew.vectors_persisted'
+  | 'vdew.audit_recorded'
+  | 'vdib.job_received'
+  | 'vdib.vectors_loaded'
+  | 'vdib.index_built'
+  | 'vdib.audit_recorded'
+  | 'vdss.request_received'
+  | 'vdss.query_normalized'
+  | 'vdss.search_executed'
+  | 'vdss.results_returned'
+  | 'vdre.scan_scheduled'
+  | 'vdre.queries_executed'
+  | 'vdre.recall_computed'
+  | 'vdre.report_emitted'
+  | 'vdqr.job_received'
+  | 'vdqr.vectors_quantized'
+  | 'vdqr.index_published'
+  | 'vdqr.audit_recorded'
+  | 'mtdc.spec_received'
+  | 'mtdc.records_collected'
+  | 'mtdc.dataset_published'
+  | 'mtdc.audit_recorded'
+  | 'mtjs.job_received'
+  | 'mtjs.resources_reserved'
+  | 'mtjs.job_dispatched'
+  | 'mtjs.audit_recorded'
+  | 'mtcw.checkpoint_received'
+  | 'mtcw.checkpoint_persisted'
+  | 'mtcw.checksum_recorded'
+  | 'mtcw.audit_recorded'
+  | 'mtma.batch_received'
+  | 'mtma.metrics_aggregated'
+  | 'mtma.report_emitted'
+  | 'mtma.audit_recorded'
+  | 'mtap.request_received'
+  | 'mtap.artifact_signed'
+  | 'mtap.artifact_published'
+  | 'mtap.audit_recorded'
+  | 'mirr.request_received'
+  | 'mirr.model_resolved'
+  | 'mirr.request_dispatched'
+  | 'mirr.result_returned'
+  | 'mibp.queue_received'
+  | 'mibp.batch_assembled'
+  | 'mibp.batch_dispatched'
+  | 'mibp.audit_recorded'
+  | 'mirv.result_received'
+  | 'mirv.shape_checked'
+  | 'mirv.safety_validated'
+  | 'mirv.report_emitted'
+  | 'midm.scan_scheduled'
+  | 'midm.distributions_compared'
+  | 'midm.drift_flagged'
+  | 'midm.report_emitted'
+  | 'miel.record_received'
+  | 'miel.features_attributed'
+  | 'miel.record_persisted'
+  | 'miel.audit_recorded'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -4610,6 +4735,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'graph_traversal_executor':
     case 'graph_consistency_validator':
     case 'graph_pattern_matcher':
+    case 'tsdb_ingest_writer':
+    case 'tsdb_downsampler':
+    case 'tsdb_retention_pruner':
+    case 'tsdb_query_planner':
+    case 'tsdb_anomaly_detector':
+    case 'docstore_writer':
+    case 'docstore_indexer':
+    case 'docstore_query_executor':
+    case 'docstore_compactor':
+    case 'docstore_replicator':
+    case 'vectordb_embed_writer':
+    case 'vectordb_index_builder':
+    case 'vectordb_similarity_searcher':
+    case 'vectordb_recall_evaluator':
+    case 'vectordb_quantization_runner':
+    case 'ml_training_dataset_curator':
+    case 'ml_training_job_scheduler':
+    case 'ml_training_checkpoint_writer':
+    case 'ml_training_metrics_aggregator':
+    case 'ml_training_artifact_publisher':
+    case 'ml_inference_request_router':
+    case 'ml_inference_batch_packer':
+    case 'ml_inference_result_validator':
+    case 'ml_inference_drift_monitor':
+    case 'ml_inference_explainability_logger':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
