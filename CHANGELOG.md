@@ -1,3 +1,8 @@
+## Batches 1233-1257 — Cert Manager, Access Control, Policy Evaluator, Compliance Gate, Drift Remediation
+- 25 verticals (5 groups × 5): full management + monitoring + auditing + reporting + optimization
+- 275 tests passing | migration timestamps 20260628700000–20260628940000
+- Renamed policy_engine → policy_evaluator (conflict avoidance)
+
 ## Batches 1208-1232 — Blue-Green Deploy, Rolling Update, Feature Switch, Config Drift, Secret Rotation
 - 25 verticals (5 groups × 5): full management + monitoring + auditing + reporting + optimization
 - 275 tests passing | migration timestamps 20260628450000–20260628690000

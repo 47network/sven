@@ -1,4 +1,4 @@
-export interface AccessControlRule {
+export interface PolicyEvaluatorAuditEntry {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface AccessControlRule {
   updatedAt: string;
 }
 
-export interface AccessControlConfig {
+export interface PolicyEvaluatorAuditConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface AccessControlResult {
+export interface PolicyEvaluatorAuditResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;

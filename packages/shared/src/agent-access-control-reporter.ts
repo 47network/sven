@@ -1,4 +1,4 @@
-export interface AccessControlRule {
+export interface AccessControlReport {
   id: string;
   agentId: string;
   enabled: boolean;
@@ -7,14 +7,14 @@ export interface AccessControlRule {
   updatedAt: string;
 }
 
-export interface AccessControlConfig {
+export interface AccessControlReportConfig {
   id: string;
   configId: string;
   data: Record<string, unknown>;
   timestamp: string;
 }
 
-export interface AccessControlResult {
+export interface AccessControlReportResult {
   id: string;
   configId: string;
   criteria: Record<string, unknown>;
