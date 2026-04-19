@@ -1,3 +1,7 @@
+## Batches 1633-1657 — Vitals Probe, Readiness Gate, Liveness Check, Graceful Shutdown, Warmup Controller
+- 25 verticals (5 groups × 5): health probing + readiness gating + liveness verification + graceful shutdown + warmup control
+- 275 tests passing | migration timestamps 20260632700000–20260632940000
+
 ## Batches 1608-1632 — API Throttle, LB Director, Breaker Fence, Retry Policy, Timeout Guard
 - 25 verticals (5 groups × 5): API rate control + load balancing + circuit breaking + retry strategies + timeout enforcement
 - 275 tests passing | migration timestamps 20260632450000–20260632690000

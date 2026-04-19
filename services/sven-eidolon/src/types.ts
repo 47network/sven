@@ -1333,6 +1333,31 @@ export type EidolonBuildingKind =
   | 'timeout_guard_auditor'
   | 'timeout_guard_reporter'
   | 'timeout_guard_optimizer'
+  | 'vitals_probe'
+  | 'vitals_probe_monitor'
+  | 'vitals_probe_auditor'
+  | 'vitals_probe_reporter'
+  | 'vitals_probe_optimizer'
+  | 'readiness_gate'
+  | 'readiness_gate_monitor'
+  | 'readiness_gate_auditor'
+  | 'readiness_gate_reporter'
+  | 'readiness_gate_optimizer'
+  | 'liveness_check'
+  | 'liveness_check_monitor'
+  | 'liveness_check_auditor'
+  | 'liveness_check_reporter'
+  | 'liveness_check_optimizer'
+  | 'graceful_shutdown'
+  | 'graceful_shutdown_monitor'
+  | 'graceful_shutdown_auditor'
+  | 'graceful_shutdown_reporter'
+  | 'graceful_shutdown_optimizer'
+  | 'warmup_controller'
+  | 'warmup_controller_monitor'
+  | 'warmup_controller_auditor'
+  | 'warmup_controller_reporter'
+  | 'warmup_controller_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5235,6 +5260,81 @@ export type EidolonEventKind =
   | 'tgo.plan_created'
   | 'tgo.optimization_applied'
   | 'tgo.export_emitted'
+  | 'vp.entry_created'
+  | 'vp.config_updated'
+  | 'vp.export_emitted'
+  | 'vpm.check_passed'
+  | 'vpm.alert_raised'
+  | 'vpm.export_emitted'
+  | 'vpa.entry_logged'
+  | 'vpa.violation_found'
+  | 'vpa.export_emitted'
+  | 'vpr.report_generated'
+  | 'vpr.insight_found'
+  | 'vpr.export_emitted'
+  | 'vpo.plan_created'
+  | 'vpo.optimization_applied'
+  | 'vpo.export_emitted'
+  | 'rg.entry_created'
+  | 'rg.config_updated'
+  | 'rg.export_emitted'
+  | 'rgm.check_passed'
+  | 'rgm.alert_raised'
+  | 'rgm.export_emitted'
+  | 'rga.entry_logged'
+  | 'rga.violation_found'
+  | 'rga.export_emitted'
+  | 'rgr.report_generated'
+  | 'rgr.insight_found'
+  | 'rgr.export_emitted'
+  | 'rgo.plan_created'
+  | 'rgo.optimization_applied'
+  | 'rgo.export_emitted'
+  | 'lc.entry_created'
+  | 'lc.config_updated'
+  | 'lc.export_emitted'
+  | 'lcm.check_passed'
+  | 'lcm.alert_raised'
+  | 'lcm.export_emitted'
+  | 'lca.entry_logged'
+  | 'lca.violation_found'
+  | 'lca.export_emitted'
+  | 'lcr.report_generated'
+  | 'lcr.insight_found'
+  | 'lcr.export_emitted'
+  | 'lco.plan_created'
+  | 'lco.optimization_applied'
+  | 'lco.export_emitted'
+  | 'gs.entry_created'
+  | 'gs.config_updated'
+  | 'gs.export_emitted'
+  | 'gsm.check_passed'
+  | 'gsm.alert_raised'
+  | 'gsm.export_emitted'
+  | 'gsa.entry_logged'
+  | 'gsa.violation_found'
+  | 'gsa.export_emitted'
+  | 'gsr.report_generated'
+  | 'gsr.insight_found'
+  | 'gsr.export_emitted'
+  | 'gso.plan_created'
+  | 'gso.optimization_applied'
+  | 'gso.export_emitted'
+  | 'wc.entry_created'
+  | 'wc.config_updated'
+  | 'wc.export_emitted'
+  | 'wcm.check_passed'
+  | 'wcm.alert_raised'
+  | 'wcm.export_emitted'
+  | 'wca.entry_logged'
+  | 'wca.violation_found'
+  | 'wca.export_emitted'
+  | 'wcr.report_generated'
+  | 'wcr.insight_found'
+  | 'wcr.export_emitted'
+  | 'wco.plan_created'
+  | 'wco.optimization_applied'
+  | 'wco.export_emitted'
   | 'ct.experiment_created'
   | 'ct.config_updated'
   | 'ct.export_emitted'
@@ -8210,6 +8310,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'timeout_guard_auditor':
     case 'timeout_guard_reporter':
     case 'timeout_guard_optimizer':
+    case 'vitals_probe':
+    case 'vitals_probe_monitor':
+    case 'vitals_probe_auditor':
+    case 'vitals_probe_reporter':
+    case 'vitals_probe_optimizer':
+    case 'readiness_gate':
+    case 'readiness_gate_monitor':
+    case 'readiness_gate_auditor':
+    case 'readiness_gate_reporter':
+    case 'readiness_gate_optimizer':
+    case 'liveness_check':
+    case 'liveness_check_monitor':
+    case 'liveness_check_auditor':
+    case 'liveness_check_reporter':
+    case 'liveness_check_optimizer':
+    case 'graceful_shutdown':
+    case 'graceful_shutdown_monitor':
+    case 'graceful_shutdown_auditor':
+    case 'graceful_shutdown_reporter':
+    case 'graceful_shutdown_optimizer':
+    case 'warmup_controller':
+    case 'warmup_controller_monitor':
+    case 'warmup_controller_auditor':
+    case 'warmup_controller_reporter':
+    case 'warmup_controller_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
