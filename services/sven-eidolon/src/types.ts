@@ -73,6 +73,11 @@ export type EidolonBuildingKind =
   | 'compliance_scanner'
   | 'backup_vault'
   | 'traffic_shaper'
+  | 'log_rotator'
+  | 'ip_gatekeeper'
+  | 'webhook_relay'
+  | 'storage_tower'
+  | 'peering_bridge'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -118,6 +123,11 @@ export type EidolonBuildingKind =
   | 'compliance_scanner'
   | 'backup_vault'
   | 'traffic_shaper';
+  | 'log_rotator'
+  | 'ip_gatekeeper'
+  | 'webhook_relay'
+  | 'storage_tower'
+  | 'peering_bridge'
 
 export interface EidolonBuilding {
   id: string;
@@ -592,6 +602,26 @@ export type EidolonEventKind =
   | 'traffic.bandwidth_throttled'
   | 'traffic.qos_applied'
   | 'traffic.usage_report'
+  | 'logrot.policy_created'
+  | 'logrot.logs_archived'
+  | 'logrot.retention_completed'
+  | 'logrot.storage_report'
+  | 'ipallow.list_created'
+  | 'ipallow.rule_added'
+  | 'ipallow.ip_blocked'
+  | 'ipallow.access_report'
+  | 'webhook.endpoint_registered'
+  | 'webhook.delivery_succeeded'
+  | 'webhook.delivery_failed'
+  | 'webhook.dead_letter_created'
+  | 'storage_tier.tier_created'
+  | 'storage_tier.migration_started'
+  | 'storage_tier.migration_completed'
+  | 'storage_tier.cost_report'
+  | 'peering.connection_established'
+  | 'peering.route_added'
+  | 'peering.gateway_created'
+  | 'peering.status_report'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -746,6 +776,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'compliance_scanner':
     case 'backup_vault':
     case 'traffic_shaper':
+    case 'log_rotator':
+    case 'ip_gatekeeper':
+    case 'webhook_relay':
+    case 'storage_tower':
+    case 'peering_bridge':
     case 'translation_hub':
     case 'webhook_relay':
     case 'config_vault':
@@ -771,6 +806,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'compliance_scanner':
     case 'backup_vault':
     case 'traffic_shaper':
+    case 'log_rotator':
+    case 'ip_gatekeeper':
+    case 'webhook_relay':
+    case 'storage_tower':
+    case 'peering_bridge':
     case 'pipeline_forge':
     case 'cache_tower':
     case 'api_gateway':
@@ -813,6 +853,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'compliance_scanner':
     case 'backup_vault':
     case 'traffic_shaper':
+    case 'log_rotator':
+    case 'ip_gatekeeper':
+    case 'webhook_relay':
+    case 'storage_tower':
+    case 'peering_bridge':
       return 'civic';
   }
 }

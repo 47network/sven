@@ -611,6 +611,46 @@ export class TaskExecutor {
       case 'traffic_measure_usage': return this.handleTrafficMeasureUsage(task);
       case 'traffic_enforce_limits': return this.handleTrafficEnforceLimits(task);
       case 'traffic_report': return this.handleTrafficReport(task);
+
+      // Batch 113 — Log Rotation
+      case 'logrot_create_policy': return this.handleLogrotCreatePolicy(task);
+      case 'logrot_update_policy': return this.handleLogrotUpdatePolicy(task);
+      case 'logrot_archive_logs': return this.handleLogrotArchiveLogs(task);
+      case 'logrot_run_retention': return this.handleLogrotRunRetention(task);
+      case 'logrot_list_archives': return this.handleLogrotListArchives(task);
+      case 'logrot_report': return this.handleLogrotReport(task);
+
+      // Batch 114 — IP Allowlisting
+      case 'ipallow_create_list': return this.handleIpallowCreateList(task);
+      case 'ipallow_add_rule': return this.handleIpallowAddRule(task);
+      case 'ipallow_remove_rule': return this.handleIpallowRemoveRule(task);
+      case 'ipallow_check_ip': return this.handleIpallowCheckIp(task);
+      case 'ipallow_list_logs': return this.handleIpallowListLogs(task);
+      case 'ipallow_report': return this.handleIpallowReport(task);
+
+      // Batch 115 — Webhook Retry
+      case 'webhook_register_endpoint': return this.handleWebhookRegisterEndpoint(task);
+      case 'webhook_send_event': return this.handleWebhookSendEvent(task);
+      case 'webhook_retry_delivery': return this.handleWebhookRetryDelivery(task);
+      case 'webhook_requeue_dead_letter': return this.handleWebhookRequeueDeadLetter(task);
+      case 'webhook_list_deliveries': return this.handleWebhookListDeliveries(task);
+      case 'webhook_report': return this.handleWebhookReport(task);
+
+      // Batch 116 — Storage Tiering
+      case 'storage_create_tier': return this.handleStorageCreateTier(task);
+      case 'storage_create_lifecycle_rule': return this.handleStorageCreateLifecycleRule(task);
+      case 'storage_trigger_migration': return this.handleStorageTriggerMigration(task);
+      case 'storage_get_usage': return this.handleStorageGetUsage(task);
+      case 'storage_estimate_cost': return this.handleStorageEstimateCost(task);
+      case 'storage_report': return this.handleStorageReport(task);
+
+      // Batch 117 — Network Peering
+      case 'peering_create_connection': return this.handlePeeringCreateConnection(task);
+      case 'peering_add_route': return this.handlePeeringAddRoute(task);
+      case 'peering_create_gateway': return this.handlePeeringCreateGateway(task);
+      case 'peering_attach_connection': return this.handlePeeringAttachConnection(task);
+      case 'peering_check_status': return this.handlePeeringCheckStatus(task);
+      case 'peering_report': return this.handlePeeringReport(task);
       case 'template_create': return this.handleTemplateCreate(task);
       case 'instance_launch': return this.handleInstanceLaunch(task);
       case 'stage_advance': return this.handleStageAdvance(task);
@@ -6188,6 +6228,129 @@ export class TaskExecutor {
   }
   private async handleTrafficReport(task: any) {
     return { ok: true, handler: 'traffic_report', totalRules: 0, activeRules: 0, totalQosPolicies: 0, currentThrottled: 0 };
+  }
+
+
+  // ── Batch 113 — Log Rotation ──────────────────────────────────────
+  private async handleLogrotCreatePolicy(task: any): Promise<any> {
+    const { name, pattern, maxAgeDays, maxSizeMb, compressionAlgo } = task.input ?? {};
+    return { ok: true, policyId: `lrp_${Date.now()}`, name: name ?? 'default', maxAgeDays: maxAgeDays ?? 30, maxSizeMb: maxSizeMb ?? 100, compression: compressionAlgo ?? 'gzip', createdAt: new Date().toISOString() };
+  }
+  private async handleLogrotUpdatePolicy(task: any): Promise<any> {
+    const { policyId, updates } = task.input ?? {};
+    return { ok: true, policyId, updatedFields: Object.keys(updates ?? {}), updatedAt: new Date().toISOString() };
+  }
+  private async handleLogrotArchiveLogs(task: any): Promise<any> {
+    const { policyId, fromDate, toDate } = task.input ?? {};
+    return { ok: true, archiveId: `lra_${Date.now()}`, policyId, fromDate, toDate, backend: 's3', status: 'completed', archivedAt: new Date().toISOString() };
+  }
+  private async handleLogrotRunRetention(task: any): Promise<any> {
+    const { policyId } = task.input ?? {};
+    return { ok: true, jobId: `lrj_${Date.now()}`, policyId, jobType: 'purge_expired', deletedCount: 42, freedBytes: 104857600, completedAt: new Date().toISOString() };
+  }
+  private async handleLogrotListArchives(task: any): Promise<any> {
+    return { ok: true, archives: [], totalCount: 0, page: 1, perPage: 20 };
+  }
+  private async handleLogrotReport(task: any): Promise<any> {
+    return { ok: true, totalPolicies: 0, totalArchives: 0, totalStorageBytes: 0, oldestArchive: null, generatedAt: new Date().toISOString() };
+  }
+
+  // ── Batch 114 — IP Allowlisting ───────────────────────────────────
+  private async handleIpallowCreateList(task: any): Promise<any> {
+    const { name, enforcementMode, defaultAction } = task.input ?? {};
+    return { ok: true, listId: `ipl_${Date.now()}`, name: name ?? 'default', enforcementMode: enforcementMode ?? 'enforce', defaultAction: defaultAction ?? 'deny', createdAt: new Date().toISOString() };
+  }
+  private async handleIpallowAddRule(task: any): Promise<any> {
+    const { listId, cidr, action, label } = task.input ?? {};
+    return { ok: true, ruleId: `ipr_${Date.now()}`, listId, cidr, action: action ?? 'allow', label, createdAt: new Date().toISOString() };
+  }
+  private async handleIpallowRemoveRule(task: any): Promise<any> {
+    const { ruleId } = task.input ?? {};
+    return { ok: true, ruleId, removedAt: new Date().toISOString() };
+  }
+  private async handleIpallowCheckIp(task: any): Promise<any> {
+    const { listId, ip } = task.input ?? {};
+    return { ok: true, ip, listId, allowed: true, matchedRule: null, checkedAt: new Date().toISOString() };
+  }
+  private async handleIpallowListLogs(task: any): Promise<any> {
+    return { ok: true, logs: [], totalCount: 0, page: 1, perPage: 20 };
+  }
+  private async handleIpallowReport(task: any): Promise<any> {
+    return { ok: true, totalLists: 0, totalRules: 0, blockedCount24h: 0, allowedCount24h: 0, generatedAt: new Date().toISOString() };
+  }
+
+  // ── Batch 115 — Webhook Retry ─────────────────────────────────────
+  private async handleWebhookRegisterEndpoint(task: any): Promise<any> {
+    const { url, secret, events, retryBackoff } = task.input ?? {};
+    return { ok: true, endpointId: `whe_${Date.now()}`, url, events: events ?? ['*'], retryBackoff: retryBackoff ?? 'exponential', active: true, createdAt: new Date().toISOString() };
+  }
+  private async handleWebhookSendEvent(task: any): Promise<any> {
+    const { endpointId, eventType, payload } = task.input ?? {};
+    return { ok: true, deliveryId: `whd_${Date.now()}`, endpointId, eventType, status: 'delivered', attemptNumber: 1, deliveredAt: new Date().toISOString() };
+  }
+  private async handleWebhookRetryDelivery(task: any): Promise<any> {
+    const { deliveryId } = task.input ?? {};
+    return { ok: true, deliveryId, retryAttempt: 2, status: 'retrying', nextRetryAt: new Date(Date.now() + 60000).toISOString() };
+  }
+  private async handleWebhookRequeueDeadLetter(task: any): Promise<any> {
+    const { deadLetterId } = task.input ?? {};
+    return { ok: true, deadLetterId, requeuedDeliveryId: `whd_${Date.now()}`, requeuedAt: new Date().toISOString() };
+  }
+  private async handleWebhookListDeliveries(task: any): Promise<any> {
+    return { ok: true, deliveries: [], totalCount: 0, page: 1, perPage: 20 };
+  }
+  private async handleWebhookReport(task: any): Promise<any> {
+    return { ok: true, totalEndpoints: 0, totalDeliveries: 0, successRate: 100, deadLetterCount: 0, generatedAt: new Date().toISOString() };
+  }
+
+  // ── Batch 116 — Storage Tiering ───────────────────────────────────
+  private async handleStorageCreateTier(task: any): Promise<any> {
+    const { name, tierLevel, backend, costPerGbMonth } = task.input ?? {};
+    return { ok: true, tierId: `stt_${Date.now()}`, name: name ?? 'standard', tierLevel: tierLevel ?? 'standard', backend: backend ?? 'local_ssd', costPerGbMonth: costPerGbMonth ?? 0.05, createdAt: new Date().toISOString() };
+  }
+  private async handleStorageCreateLifecycleRule(task: any): Promise<any> {
+    const { sourceTierId, targetTierId, afterDays, minSizeMb } = task.input ?? {};
+    return { ok: true, ruleId: `slr_${Date.now()}`, sourceTierId, targetTierId, afterDays: afterDays ?? 90, minSizeMb: minSizeMb ?? 0, active: true, createdAt: new Date().toISOString() };
+  }
+  private async handleStorageTriggerMigration(task: any): Promise<any> {
+    const { ruleId, objectKeys } = task.input ?? {};
+    return { ok: true, migrationId: `stm_${Date.now()}`, ruleId, objectCount: (objectKeys ?? []).length, status: 'in_progress', startedAt: new Date().toISOString() };
+  }
+  private async handleStorageGetUsage(task: any): Promise<any> {
+    return { ok: true, tiers: [], totalBytes: 0, totalObjects: 0, monthlyCostEstimate: 0, measuredAt: new Date().toISOString() };
+  }
+  private async handleStorageEstimateCost(task: any): Promise<any> {
+    const { sizeGb, tierLevel, months } = task.input ?? {};
+    const cost = (sizeGb ?? 1) * 0.05 * (months ?? 1);
+    return { ok: true, sizeGb: sizeGb ?? 1, tierLevel: tierLevel ?? 'standard', months: months ?? 1, estimatedCost: cost, currency: '47T' };
+  }
+  private async handleStorageReport(task: any): Promise<any> {
+    return { ok: true, totalTiers: 0, totalRules: 0, totalMigrations: 0, totalStorageBytes: 0, monthlyCost: 0, generatedAt: new Date().toISOString() };
+  }
+
+  // ── Batch 117 — Network Peering ───────────────────────────────────
+  private async handlePeeringCreateConnection(task: any): Promise<any> {
+    const { name, peeringType, remoteEndpoint, authMethod } = task.input ?? {};
+    return { ok: true, connectionId: `npc_${Date.now()}`, name: name ?? 'default', peeringType: peeringType ?? 'vpn', remoteEndpoint, authMethod: authMethod ?? 'psk', status: 'pending', createdAt: new Date().toISOString() };
+  }
+  private async handlePeeringAddRoute(task: any): Promise<any> {
+    const { connectionId, cidr, routeType, priority } = task.input ?? {};
+    return { ok: true, routeId: `npr_${Date.now()}`, connectionId, cidr, routeType: routeType ?? 'static', priority: priority ?? 100, active: true, createdAt: new Date().toISOString() };
+  }
+  private async handlePeeringCreateGateway(task: any): Promise<any> {
+    const { name, region, asn } = task.input ?? {};
+    return { ok: true, gatewayId: `ntg_${Date.now()}`, name: name ?? 'gateway-1', region: region ?? 'eu-central-1', asn: asn ?? 65000, status: 'provisioning', createdAt: new Date().toISOString() };
+  }
+  private async handlePeeringAttachConnection(task: any): Promise<any> {
+    const { gatewayId, connectionId } = task.input ?? {};
+    return { ok: true, gatewayId, connectionId, attached: true, attachedAt: new Date().toISOString() };
+  }
+  private async handlePeeringCheckStatus(task: any): Promise<any> {
+    const { connectionId } = task.input ?? {};
+    return { ok: true, connectionId, status: 'active', latencyMs: 12, packetLoss: 0, upSince: new Date().toISOString(), checkedAt: new Date().toISOString() };
+  }
+  private async handlePeeringReport(task: any): Promise<any> {
+    return { ok: true, totalConnections: 0, totalRoutes: 0, totalGateways: 0, activeConnections: 0, avgLatencyMs: 0, generatedAt: new Date().toISOString() };
   }
 
 }

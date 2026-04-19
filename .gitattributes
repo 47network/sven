@@ -372,3 +372,28 @@ skills/agent-backup-scheduling/SKILL.md filter=sven-private
 packages/shared/src/agent-traffic-shaping.ts filter=sven-private
 services/gateway-api/migrations/20260617490000_agent_traffic_shaping.sql filter=sven-private
 skills/agent-traffic-shaping/SKILL.md filter=sven-private
+
+# Batch 113 — Log Rotation
+services/gateway-api/migrations/20260617500000_agent_log_rotation.sql filter=sven-private
+packages/shared/src/agent-log-rotation.ts filter=sven-private
+skills/agent-log-rotation/SKILL.md filter=sven-private
+
+# Batch 114 — IP Allowlisting
+services/gateway-api/migrations/20260617510000_agent_ip_allowlisting.sql filter=sven-private
+packages/shared/src/agent-ip-allowlisting.ts filter=sven-private
+skills/agent-ip-allowlisting/SKILL.md filter=sven-private
+
+# Batch 115 — Webhook Retry
+services/gateway-api/migrations/20260617520000_agent_webhook_retry.sql filter=sven-private
+packages/shared/src/agent-webhook-retry.ts filter=sven-private
+skills/agent-webhook-retry/SKILL.md filter=sven-private
+
+# Batch 116 — Storage Tiering
+services/gateway-api/migrations/20260617530000_agent_storage_tiering.sql filter=sven-private
+packages/shared/src/agent-storage-tiering.ts filter=sven-private
+skills/agent-storage-tiering/SKILL.md filter=sven-private
+
+# Batch 117 — Network Peering
+services/gateway-api/migrations/20260617540000_agent_network_peering.sql filter=sven-private
+packages/shared/src/agent-network-peering.ts filter=sven-private
+skills/agent-network-peering/SKILL.md filter=sven-private

@@ -411,6 +411,36 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.traffic.bandwidth_throttled': 'traffic.bandwidth_throttled',
   'sven.traffic.qos_applied': 'traffic.qos_applied',
   'sven.traffic.usage_report': 'traffic.usage_report',
+
+  // Batch 113 — Log Rotation
+  'sven.logrot.policy_created': 'logrot.policy_created',
+  'sven.logrot.logs_archived': 'logrot.logs_archived',
+  'sven.logrot.retention_completed': 'logrot.retention_completed',
+  'sven.logrot.storage_report': 'logrot.storage_report',
+
+  // Batch 114 — IP Allowlisting
+  'sven.ipallow.list_created': 'ipallow.list_created',
+  'sven.ipallow.rule_added': 'ipallow.rule_added',
+  'sven.ipallow.ip_blocked': 'ipallow.ip_blocked',
+  'sven.ipallow.access_report': 'ipallow.access_report',
+
+  // Batch 115 — Webhook Retry
+  'sven.webhook.endpoint_registered': 'webhook.endpoint_registered',
+  'sven.webhook.delivery_succeeded': 'webhook.delivery_succeeded',
+  'sven.webhook.delivery_failed': 'webhook.delivery_failed',
+  'sven.webhook.dead_letter_created': 'webhook.dead_letter_created',
+
+  // Batch 116 — Storage Tiering
+  'sven.storage_tier.tier_created': 'storage_tier.tier_created',
+  'sven.storage_tier.migration_started': 'storage_tier.migration_started',
+  'sven.storage_tier.migration_completed': 'storage_tier.migration_completed',
+  'sven.storage_tier.cost_report': 'storage_tier.cost_report',
+
+  // Batch 117 — Network Peering
+  'sven.peering.connection_established': 'peering.connection_established',
+  'sven.peering.route_added': 'peering.route_added',
+  'sven.peering.gateway_created': 'peering.gateway_created',
+  'sven.peering.status_report': 'peering.status_report',
 };
 
 export class EidolonEventBus {
