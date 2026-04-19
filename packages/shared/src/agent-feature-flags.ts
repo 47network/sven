@@ -1,45 +1,47 @@
-/* Batch 128 — Agent Feature Flags */
+export type AgentFeatureFlagKind = 'boolean' | 'percentage' | 'variant' | 'schedule';
+export type FlagConditionType = 'agent_id' | 'archetype' | 'tag' | 'percentage' | 'schedule' | 'always';
 
-export type FeatureFlagType = 'boolean' | 'percentage' | 'variant' | 'schedule';
-
-export type FlagChangeType = 'created' | 'toggled' | 'rollout_changed' | 'variant_added' | 'archived';
-
-export interface ManagedFeatureFlag {
+export interface AgentFeatureFlag {
   id: string;
-  agentId: string;
+  agentId: string | null;
   flagKey: string;
-  flagType: FeatureFlagType;
+  flagKind: AgentFeatureFlagKind;
   enabled: boolean;
-  rolloutPct: number;
-  variants: unknown[];
-  targetingRules: Record<string, unknown>;
-  description?: string;
+  description: string | null;
+  defaultValue: unknown;
+  metadata: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ManagedFlagEvaluation {
+export interface AgentFeatureFlagRule {
   id: string;
   flagId: string;
-  contextKey: string;
-  result: unknown;
-  variantServed?: string;
-  evaluatedAt: string;
+  priority: number;
+  conditionType: FlagConditionType;
+  conditionValue: Record<string, unknown>;
+  serveValue: unknown;
+  active: boolean;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface FlagAuditEntry {
+export interface AgentFeatureFlagEval {
   id: string;
   flagId: string;
-  changeType: FlagChangeType;
-  oldValue?: unknown;
-  newValue?: unknown;
-  changedBy?: string;
-  changedAt: string;
+  agentId: string;
+  ruleId: string | null;
+  evaluatedValue: unknown;
+  context: Record<string, unknown>;
+  createdAt: string;
 }
 
-export interface FeatureFlagStats {
+export interface AgentFeatureFlagStats {
   totalFlags: number;
   enabledFlags: number;
-  evaluationsToday: number;
-  avgRolloutPct: number;
+  totalRules: number;
+  totalEvaluations: number;
+  trueRate: number;
+  falseRate: number;
 }

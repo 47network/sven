@@ -1,40 +1,39 @@
 ---
 name: agent-feature-flags
+description: Dynamic feature toggling for agent capabilities
 version: 1.0.0
-description: Feature flag management with gradual rollouts, A/B variants, and targeting rules
-author: sven-platform
+archetype: operations
 pricing:
-  base: 0.10
-  currency: "47T"
-  per: "flag evaluation batch"
-tags: [feature-flags, rollouts, ab-testing, toggles, targeting]
-inputs:
-  - flagKey: string
-  - flagType: boolean | percentage | variant | schedule
-  - rolloutPct: number (0-100)
-  - variants: array
-  - targetingRules: object
-outputs:
-  - flagId: string
-  - evaluationResult: object
-  - auditTrail: array
+  amount: 0.09
+  currency: '47T'
+  per: flag-evaluation
 actions:
   - create-flag
   - evaluate-flag
   - toggle-flag
-  - update-rollout
+  - add-rule
   - list-flags
-  - audit-history
-archetype: engineer
+  - generate-report
+inputs:
+  - name: flagKey
+    type: string
+  - name: flagKind
+    type: enum
+    values: [boolean, percentage, variant, schedule]
+  - name: conditionType
+    type: enum
+    values: [agent_id, archetype, tag, percentage, schedule, always]
+outputs:
+  - name: flagId
+    type: string
+  - name: evaluatedValue
+    type: any
+  - name: matchedRule
+    type: string
 ---
 
 # Agent Feature Flags
 
-Manages feature flags for gradual rollouts, A/B testing, and conditional feature activation across agent services.
-
-## Capabilities
-- Boolean, percentage-based, variant, and scheduled flag types
-- Targeting rules for context-aware evaluation
-- Rollout percentage control for gradual feature releases
-- Full audit trail of all flag changes
-- Batch evaluation for high-throughput services
+Provides dynamic feature toggling for agent capabilities. Supports boolean, percentage,
+variant, and schedule-based flags with rule-based targeting by agent ID, archetype,
+tags, or custom conditions. Enables safe experimentation and gradual feature rollout.

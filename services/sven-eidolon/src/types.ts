@@ -112,6 +112,11 @@ export type EidolonBuildingKind =
   | 'inventory_vault'
   | 'discovery_beacon'
   | 'federation_hub'
+  | 'circuit_panel'
+  | 'rate_gate'
+  | 'canary_tower'
+  | 'flag_control'
+  | 'chaos_arena'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -707,6 +712,11 @@ export type EidolonEventKind =
   | 'inventory.item_acquired' | 'inventory.item_consumed' | 'inventory.item_transferred' | 'inventory.reservation_created'
   | 'discovery.service_registered' | 'discovery.probe_completed' | 'discovery.service_unhealthy' | 'discovery.dependency_mapped'
   | 'federation.peer_registered' | 'federation.link_created' | 'federation.message_sent' | 'federation.state_synced'
+  | 'circuit.breaker_created' | 'circuit.state_changed' | 'circuit.trip_recorded' | 'circuit.metrics_collected'
+  | 'ratelimit.limiter_created' | 'ratelimit.tokens_consumed' | 'ratelimit.violation_recorded' | 'ratelimit.bucket_refilled'
+  | 'canary.deploy_created' | 'canary.traffic_adjusted' | 'canary.metrics_collected' | 'canary.decision_made'
+  | 'featureflag.flag_created' | 'featureflag.flag_toggled' | 'featureflag.rule_added' | 'featureflag.flag_evaluated'
+  | 'chaos.experiment_created' | 'chaos.fault_injected' | 'chaos.fault_removed' | 'chaos.experiment_completed'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -988,6 +998,16 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'discovery_beacon':
       return 'civic';
     case 'federation_hub':
+      return 'civic';
+    case 'circuit_panel':
+      return 'civic';
+    case 'rate_gate':
+      return 'civic';
+    case 'canary_tower':
+      return 'civic';
+    case 'flag_control':
+      return 'civic';
+    case 'chaos_arena':
       return 'civic';
   }
 }

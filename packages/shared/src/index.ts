@@ -174,3 +174,8 @@ export * from './agent-hot-patching.js';
 export * from './agent-inventory-tracking.js';
 export * from './agent-service-discovery.js';
 export * from './agent-federation-protocol.js';
+export * from './agent-circuit-breaker.js';
+export * from './agent-rate-limiter.js';
+export * from './agent-canary-deploy.js';
+export * from './agent-feature-flags.js';
+export * from './agent-chaos-testing.js';

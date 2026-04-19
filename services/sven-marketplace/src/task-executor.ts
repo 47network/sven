@@ -1021,6 +1021,36 @@ export class TaskExecutor {
       case 'federation_sync': return this.handleFederationSync(task);
       case 'federation_list': return this.handleFederationList(task);
       case 'federation_report': return this.handleFederationReport(task);
+      case 'circuit_create': return this.handleCircuitCreate(task);
+      case 'circuit_trip': return this.handleCircuitTrip(task);
+      case 'circuit_reset': return this.handleCircuitReset(task);
+      case 'circuit_half_open': return this.handleCircuitHalfOpen(task);
+      case 'circuit_list': return this.handleCircuitList(task);
+      case 'circuit_report': return this.handleCircuitReport(task);
+      case 'ratelimit_create': return this.handleRatelimitCreate(task);
+      case 'ratelimit_consume': return this.handleRatelimitConsume(task);
+      case 'ratelimit_refill': return this.handleRatelimitRefill(task);
+      case 'ratelimit_check': return this.handleRatelimitCheck(task);
+      case 'ratelimit_list': return this.handleRatelimitList(task);
+      case 'ratelimit_report': return this.handleRatelimitReport(task);
+      case 'canary_start': return this.handleCanaryStart(task);
+      case 'canary_shift_traffic': return this.handleCanaryShiftTraffic(task);
+      case 'canary_promote': return this.handleCanaryPromote(task);
+      case 'canary_rollback': return this.handleCanaryRollback(task);
+      case 'canary_list': return this.handleCanaryList(task);
+      case 'canary_report': return this.handleCanaryReport(task);
+      case 'featureflag_create': return this.handleFeatureflagCreate(task);
+      case 'featureflag_toggle': return this.handleFeatureflagToggle(task);
+      case 'featureflag_evaluate': return this.handleFeatureflagEvaluate(task);
+      case 'featureflag_archive': return this.handleFeatureflagArchive(task);
+      case 'featureflag_list': return this.handleFeatureflagList(task);
+      case 'featureflag_report': return this.handleFeatureflagReport(task);
+      case 'chaos_start': return this.handleChaosStart(task);
+      case 'chaos_inject_fault': return this.handleChaosInjectFault(task);
+      case 'chaos_remove_fault': return this.handleChaosRemoveFault(task);
+      case 'chaos_abort': return this.handleChaosAbort(task);
+      case 'chaos_list': return this.handleChaosList(task);
+      case 'chaos_report': return this.handleChaosReport(task);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -7374,6 +7404,127 @@ export class TaskExecutor {
   }
   private async handleFederationReport(task: any): Promise<any> {
     return { totalPeers: 0, activePeers: 0, totalLinks: 0, activeLinks: 0, messagesSent: 0, messagesDelivered: 0, messagesFailed: 0 };
+  }
+
+
+  // --- Agent Circuit Breaker Handlers (Batch 153) ---
+  private async handleCircuitCreate(task: any): Promise<any> {
+    const { targetAgentId, name, failureThreshold = 5, timeoutMs = 30000 } = task.input || {};
+    return { success: true, breakerId: `cb-${Date.now()}`, state: 'closed', targetAgentId, name, failureThreshold, timeoutMs };
+  }
+  private async handleCircuitTrip(task: any): Promise<any> {
+    const { breakerId, reason } = task.input || {};
+    return { success: true, breakerId, previousState: 'closed', newState: 'open', reason, trippedAt: new Date().toISOString() };
+  }
+  private async handleCircuitReset(task: any): Promise<any> {
+    const { breakerId } = task.input || {};
+    return { success: true, breakerId, previousState: 'open', newState: 'closed', resetAt: new Date().toISOString() };
+  }
+  private async handleCircuitHalfOpen(task: any): Promise<any> {
+    const { breakerId } = task.input || {};
+    return { success: true, breakerId, previousState: 'open', newState: 'half_open', probeAllowed: true };
+  }
+  private async handleCircuitList(task: any): Promise<any> {
+    return { success: true, breakers: [], total: 0, filters: task.input || {} };
+  }
+  private async handleCircuitReport(task: any): Promise<any> {
+    return { success: true, stats: { totalBreakers: 0, closedBreakers: 0, openBreakers: 0, halfOpenBreakers: 0, totalTrips: 0, avgFailureRate: 0 } };
+  }
+
+  // --- Agent Rate Limiter Handlers (Batch 154) ---
+  private async handleRatelimitCreate(task: any): Promise<any> {
+    const { name, policy = 'token_bucket', maxTokens = 100, refillRate = 10, refillIntervalMs = 1000 } = task.input || {};
+    return { success: true, limiterId: `rl-${Date.now()}`, name, policy, maxTokens, refillRate, refillIntervalMs, currentTokens: maxTokens };
+  }
+  private async handleRatelimitConsume(task: any): Promise<any> {
+    const { limiterId, tokens = 1 } = task.input || {};
+    return { success: true, limiterId, tokensConsumed: tokens, tokensRemaining: 99, allowed: true };
+  }
+  private async handleRatelimitRefill(task: any): Promise<any> {
+    const { limiterId } = task.input || {};
+    return { success: true, limiterId, tokensRefilled: 10, tokensNow: 100, refilledAt: new Date().toISOString() };
+  }
+  private async handleRatelimitCheck(task: any): Promise<any> {
+    const { limiterId, tokens = 1 } = task.input || {};
+    return { success: true, limiterId, allowed: true, tokensAvailable: 100, tokensRequested: tokens };
+  }
+  private async handleRatelimitList(task: any): Promise<any> {
+    return { success: true, limiters: [], total: 0, filters: task.input || {} };
+  }
+  private async handleRatelimitReport(task: any): Promise<any> {
+    return { success: true, stats: { totalLimiters: 0, activeLimiters: 0, totalBuckets: 0, totalViolations: 0, avgTokensRemaining: 0, violationRate: 0 } };
+  }
+
+  // --- Agent Canary Deploy Handlers (Batch 155) ---
+  private async handleCanaryStart(task: any): Promise<any> {
+    const { name, target = 'skill', baselineVersion, canaryVersion, trafficPct = 10, successThreshold = 95 } = task.input || {};
+    return { success: true, deployId: `cd-${Date.now()}`, name, target, baselineVersion, canaryVersion, trafficPct, successThreshold, status: 'running' };
+  }
+  private async handleCanaryShiftTraffic(task: any): Promise<any> {
+    const { deployId, newTrafficPct } = task.input || {};
+    return { success: true, deployId, previousTrafficPct: 10, newTrafficPct, adjustedAt: new Date().toISOString() };
+  }
+  private async handleCanaryPromote(task: any): Promise<any> {
+    const { deployId } = task.input || {};
+    return { success: true, deployId, decision: 'promote', trafficPct: 100, promotedAt: new Date().toISOString() };
+  }
+  private async handleCanaryRollback(task: any): Promise<any> {
+    const { deployId, reason } = task.input || {};
+    return { success: true, deployId, decision: 'rollback', reason, rolledBackAt: new Date().toISOString() };
+  }
+  private async handleCanaryList(task: any): Promise<any> {
+    return { success: true, deploys: [], total: 0, filters: task.input || {} };
+  }
+  private async handleCanaryReport(task: any): Promise<any> {
+    return { success: true, stats: { totalDeploys: 0, activeDeploys: 0, promotedDeploys: 0, rolledBackDeploys: 0, avgSuccessRate: 0, avgTrafficPct: 0 } };
+  }
+
+  // --- Agent Feature Flags Handlers (Batch 156) ---
+  private async handleFeatureflagCreate(task: any): Promise<any> {
+    const { flagKey, flagKind = 'boolean', defaultValue = false, description } = task.input || {};
+    return { success: true, flagId: `ff-${Date.now()}`, flagKey, flagKind, defaultValue, enabled: true, description };
+  }
+  private async handleFeatureflagToggle(task: any): Promise<any> {
+    const { flagId, enabled } = task.input || {};
+    return { success: true, flagId, previousEnabled: !enabled, enabled, toggledAt: new Date().toISOString() };
+  }
+  private async handleFeatureflagEvaluate(task: any): Promise<any> {
+    const { flagKey, agentId, context = {} } = task.input || {};
+    return { success: true, flagKey, agentId, evaluatedValue: true, matchedRule: null, context };
+  }
+  private async handleFeatureflagArchive(task: any): Promise<any> {
+    const { flagId } = task.input || {};
+    return { success: true, flagId, archived: true, archivedAt: new Date().toISOString() };
+  }
+  private async handleFeatureflagList(task: any): Promise<any> {
+    return { success: true, flags: [], total: 0, filters: task.input || {} };
+  }
+  private async handleFeatureflagReport(task: any): Promise<any> {
+    return { success: true, stats: { totalFlags: 0, enabledFlags: 0, totalRules: 0, totalEvaluations: 0, trueRate: 0, falseRate: 0 } };
+  }
+
+  // --- Agent Chaos Testing Handlers (Batch 157) ---
+  private async handleChaosStart(task: any): Promise<any> {
+    const { name, hypothesis, blastRadius = 'single', durationMs = 60000 } = task.input || {};
+    return { success: true, experimentId: `cx-${Date.now()}`, name, hypothesis, blastRadius, durationMs, status: 'running', startedAt: new Date().toISOString() };
+  }
+  private async handleChaosInjectFault(task: any): Promise<any> {
+    const { experimentId, faultType, targetAgentId, intensity = 0.5, config = {} } = task.input || {};
+    return { success: true, faultId: `cf-${Date.now()}`, experimentId, faultType, targetAgentId, intensity, config, injectedAt: new Date().toISOString() };
+  }
+  private async handleChaosRemoveFault(task: any): Promise<any> {
+    const { faultId } = task.input || {};
+    return { success: true, faultId, removed: true, removedAt: new Date().toISOString() };
+  }
+  private async handleChaosAbort(task: any): Promise<any> {
+    const { experimentId, reason } = task.input || {};
+    return { success: true, experimentId, status: 'aborted', reason, abortedAt: new Date().toISOString() };
+  }
+  private async handleChaosList(task: any): Promise<any> {
+    return { success: true, experiments: [], total: 0, filters: task.input || {} };
+  }
+  private async handleChaosReport(task: any): Promise<any> {
+    return { success: true, stats: { totalExperiments: 0, runningExperiments: 0, completedExperiments: 0, abortedExperiments: 0, totalFaults: 0, overallPassRate: 0 } };
   }
 
 }

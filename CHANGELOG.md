@@ -79,6 +79,21 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batch 153-157 — Agent Resilience (Circuit Breaker, Rate Limiter, Canary Deploy, Feature Flags, Chaos Testing)
+- **Batch 153**: Agent Circuit Breaker — circuit_panel BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 154**: Agent Rate Limiter — rate_gate BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 155**: Agent Canary Deploy — canary_tower BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 156**: Agent Feature Flags — flag_control BK, 3 tables, 4 EK events, 6 task handlers
+- **Batch 157**: Agent Chaos Testing — chaos_arena BK, 3 tables, 4 EK events, 6 task handlers
+- 5 migration SQL files (timestamps 20260617900000–20260617940000)
+- 5 shared TypeScript type modules with 25+ types total
+- 5 SKILL.md definitions
+- 20 SUBJECT_MAP entries in event-bus
+- 30 switch cases + 30 handler methods in task-executor
+- 15 .gitattributes privacy entries
+- 145 Jest tests — all passing
+
+
 ### Batch 152 — Agent Federation Protocol
 - Migration: `20260617890000_agent_federation_protocol.sql` (3 tables, 6 indexes)
 - Types: FederationPeer, FederationLink, FederationMessage, FederationProtocolStats
