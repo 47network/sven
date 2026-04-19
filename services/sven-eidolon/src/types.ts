@@ -1108,6 +1108,31 @@ export type EidolonBuildingKind =
   | 'rollback_planner_auditor'
   | 'rollback_planner_reporter'
   | 'rollback_planner_optimizer'
+  | 'dep_audit'
+  | 'dep_audit_monitor'
+  | 'dep_audit_auditor'
+  | 'dep_audit_reporter'
+  | 'dep_audit_optimizer'
+  | 'license_checker'
+  | 'license_checker_monitor'
+  | 'license_checker_auditor'
+  | 'license_checker_reporter'
+  | 'license_checker_optimizer'
+  | 'vulnerability_patch'
+  | 'vulnerability_patch_monitor'
+  | 'vulnerability_patch_auditor'
+  | 'vulnerability_patch_reporter'
+  | 'vulnerability_patch_optimizer'
+  | 'image_hardener'
+  | 'image_hardener_monitor'
+  | 'image_hardener_auditor'
+  | 'image_hardener_reporter'
+  | 'image_hardener_optimizer'
+  | 'network_segmenter'
+  | 'network_segmenter_monitor'
+  | 'network_segmenter_auditor'
+  | 'network_segmenter_reporter'
+  | 'network_segmenter_optimizer'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -5145,6 +5170,81 @@ export type EidolonEventKind =
   | 'rbpo.plan_created'
   | 'rbpo.optimization_applied'
   | 'rbpo.export_emitted'
+  | 'da.entry_created'
+  | 'da.config_updated'
+  | 'da.export_emitted'
+  | 'dam.check_passed'
+  | 'dam.alert_raised'
+  | 'dam.export_emitted'
+  | 'daa.entry_logged'
+  | 'daa.violation_found'
+  | 'daa.export_emitted'
+  | 'dar.report_generated'
+  | 'dar.insight_found'
+  | 'dar.export_emitted'
+  | 'dao.plan_created'
+  | 'dao.optimization_applied'
+  | 'dao.export_emitted'
+  | 'lc.entry_created'
+  | 'lc.config_updated'
+  | 'lc.export_emitted'
+  | 'lcm.check_passed'
+  | 'lcm.alert_raised'
+  | 'lcm.export_emitted'
+  | 'lca.entry_logged'
+  | 'lca.violation_found'
+  | 'lca.export_emitted'
+  | 'lcr.report_generated'
+  | 'lcr.insight_found'
+  | 'lcr.export_emitted'
+  | 'lco.plan_created'
+  | 'lco.optimization_applied'
+  | 'lco.export_emitted'
+  | 'vp.entry_created'
+  | 'vp.config_updated'
+  | 'vp.export_emitted'
+  | 'vpm.check_passed'
+  | 'vpm.alert_raised'
+  | 'vpm.export_emitted'
+  | 'vpa.entry_logged'
+  | 'vpa.violation_found'
+  | 'vpa.export_emitted'
+  | 'vpr.report_generated'
+  | 'vpr.insight_found'
+  | 'vpr.export_emitted'
+  | 'vpo.plan_created'
+  | 'vpo.optimization_applied'
+  | 'vpo.export_emitted'
+  | 'ih.entry_created'
+  | 'ih.config_updated'
+  | 'ih.export_emitted'
+  | 'ihm.check_passed'
+  | 'ihm.alert_raised'
+  | 'ihm.export_emitted'
+  | 'iha.entry_logged'
+  | 'iha.violation_found'
+  | 'iha.export_emitted'
+  | 'ihr.report_generated'
+  | 'ihr.insight_found'
+  | 'ihr.export_emitted'
+  | 'iho.plan_created'
+  | 'iho.optimization_applied'
+  | 'iho.export_emitted'
+  | 'ns.entry_created'
+  | 'ns.config_updated'
+  | 'ns.export_emitted'
+  | 'nsm.check_passed'
+  | 'nsm.alert_raised'
+  | 'nsm.export_emitted'
+  | 'nsa.entry_logged'
+  | 'nsa.violation_found'
+  | 'nsa.export_emitted'
+  | 'nsr.report_generated'
+  | 'nsr.insight_found'
+  | 'nsr.export_emitted'
+  | 'nso.plan_created'
+  | 'nso.optimization_applied'
+  | 'nso.export_emitted'
   | 'eg.rule_created'
   | 'eg.config_updated'
   | 'eg.export_emitted'
@@ -7085,6 +7185,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'rollback_planner_auditor':
     case 'rollback_planner_reporter':
     case 'rollback_planner_optimizer':
+    case 'dep_audit':
+    case 'dep_audit_monitor':
+    case 'dep_audit_auditor':
+    case 'dep_audit_reporter':
+    case 'dep_audit_optimizer':
+    case 'license_checker':
+    case 'license_checker_monitor':
+    case 'license_checker_auditor':
+    case 'license_checker_reporter':
+    case 'license_checker_optimizer':
+    case 'vulnerability_patch':
+    case 'vulnerability_patch_monitor':
+    case 'vulnerability_patch_auditor':
+    case 'vulnerability_patch_reporter':
+    case 'vulnerability_patch_optimizer':
+    case 'image_hardener':
+    case 'image_hardener_monitor':
+    case 'image_hardener_auditor':
+    case 'image_hardener_reporter':
+    case 'image_hardener_optimizer':
+    case 'network_segmenter':
+    case 'network_segmenter_monitor':
+    case 'network_segmenter_auditor':
+    case 'network_segmenter_reporter':
+    case 'network_segmenter_optimizer':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':
