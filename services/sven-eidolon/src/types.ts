@@ -127,7 +127,7 @@ export type EidolonBuildingKind =
   | 'intrusion_guard'
   | 'rbac_enforcer'
   | 'siem_connector'
-  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor' | 'feature_flag' | 'rollback_manager' | 'blue_green_router' | 'chaos_tester' | 'deployment_gate' | 'api_documenter' | 'sdk_generator' | 'contract_tester' | 'mock_server' | 'test_harness' | 'log_router' | 'config_sync' | 'health_prober' | 'quota_enforcer' | 'topology_mapper' | 'event_replayer' | 'cache_warmer' | 'job_scheduler' | 'feature_toggle' | 'data_migrator' | 'session_recorder' | 'artifact_builder' | 'tenant_provisioner' | 'index_optimizer' | 'dependency_scanner' | 'encryption_manager' | 'certificate_rotator' | 'vulnerability_assessor' | 'compliance_reporter' | 'identity_resolver' | 'metric_aggregator' | 'alert_correlator' | 'sla_tracker' | 'log_analyzer' | 'performance_profiler' | 'data_transformer' | 'pipeline_orchestrator' | 'data_enricher' | 'etl_scheduler' | 'format_converter' | 'knowledge_indexer' | 'semantic_searcher' | 'taxonomy_builder' | 'content_curator' | 'insight_extractor' | 'workflow_automator' | 'rule_engine' | 'event_reactor' | 'schedule_coordinator' | 'process_monitor' | 'integration_connector' | 'service_mesh_manager' | 'data_sync_engine' | 'webhook_orchestrator' | 'protocol_adapter' | 'access_control_manager' | 'threat_detection_engine' | 'secret_manager' | 'encryption_engine' | 'audit_trail_manager'
+  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor' | 'feature_flag' | 'rollback_manager' | 'blue_green_router' | 'chaos_tester' | 'deployment_gate' | 'api_documenter' | 'sdk_generator' | 'contract_tester' | 'mock_server' | 'test_harness' | 'log_router' | 'config_sync' | 'health_prober' | 'quota_enforcer' | 'topology_mapper' | 'event_replayer' | 'cache_warmer' | 'job_scheduler' | 'feature_toggle' | 'data_migrator' | 'session_recorder' | 'artifact_builder' | 'tenant_provisioner' | 'index_optimizer' | 'dependency_scanner' | 'encryption_manager' | 'certificate_rotator' | 'vulnerability_assessor' | 'compliance_reporter' | 'identity_resolver' | 'metric_aggregator' | 'alert_correlator' | 'sla_tracker' | 'log_analyzer' | 'performance_profiler' | 'data_transformer' | 'pipeline_orchestrator' | 'data_enricher' | 'etl_scheduler' | 'format_converter' | 'knowledge_indexer' | 'semantic_searcher' | 'taxonomy_builder' | 'content_curator' | 'insight_extractor' | 'workflow_automator' | 'rule_engine' | 'event_reactor' | 'schedule_coordinator' | 'process_monitor' | 'integration_connector' | 'service_mesh_manager' | 'data_sync_engine' | 'webhook_orchestrator' | 'protocol_adapter' | 'access_control_manager' | 'threat_detection_engine' | 'secret_manager' | 'encryption_engine' | 'audit_trail_manager' | 'token_issuer' | 'permission_engine' | 'role_manager' | 'credential_vault' | 'oauth_manager'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -835,6 +835,11 @@ export type EidolonEventKind =
   | 'denr.enrichment_started' | 'denr.enrichment_completed' | 'denr.source_configured' | 'denr.source_failed'
   | 'etls.schedule_created' | 'etls.run_started' | 'etls.run_completed' | 'etls.run_failed'
   | 'fmcv.conversion_started' | 'fmcv.conversion_completed' | 'fmcv.mapping_created' | 'fmcv.format_detected' | 'knix.document_indexed' | 'knix.index_completed' | 'knix.freshness_checked' | 'knix.document_deleted' | 'smsr.search_executed' | 'smsr.results_reranked' | 'smsr.similar_found' | 'smsr.filters_applied' | 'txbr.taxonomy_built' | 'txbr.entity_classified' | 'txbr.nodes_merged' | 'txbr.coverage_validated' | 'ccur.collection_created' | 'ccur.content_discovered' | 'ccur.collection_published' | 'ccur.gaps_analyzed' | 'inex.insights_extracted' | 'inex.insights_connected' | 'inex.trends_tracked' | 'inex.report_exported' | 'wfau.workflow_created' | 'wfau.workflow_started' | 'wfau.workflow_completed' | 'wfau.step_completed' | 'rlng.rule_set_created' | 'rlng.rule_evaluated' | 'rlng.rule_matched' | 'rlng.rule_set_exported' | 'evrc.subscription_created' | 'evrc.event_processed' | 'evrc.reaction_completed' | 'evrc.dead_letter_added' | 'scco.job_created' | 'scco.job_executed' | 'scco.job_paused' | 'scco.execution_completed' | 'prmo.process_registered' | 'prmo.health_checked' | 'prmo.alert_triggered' | 'prmo.process_restarted' | 'itcn.integration_created' | 'itcn.connection_tested' | 'itcn.credentials_rotated' | 'itcn.health_checked' | 'smsh.service_registered' | 'smsh.route_created' | 'smsh.circuit_opened' | 'smsh.traffic_shifted' | 'dsyn.connection_created' | 'dsyn.sync_started' | 'dsyn.sync_completed' | 'dsyn.sync_failed' | 'whkr.endpoint_created' | 'whkr.webhook_sent' | 'whkr.delivery_failed' | 'whkr.retry_scheduled' | 'prad.mapping_created' | 'prad.request_converted' | 'prad.conversion_failed' | 'prad.rules_updated' | 'acmg.policy_created' | 'acmg.access_evaluated' | 'acmg.policy_updated' | 'acmg.mfa_configured' | 'thde.rule_created' | 'thde.threat_detected' | 'thde.event_resolved' | 'thde.scan_completed' | 'scmg.secret_stored' | 'scmg.secret_retrieved' | 'scmg.secret_rotated' | 'scmg.secret_deleted' | 'ence.data_encrypted' | 'ence.data_decrypted' | 'ence.key_generated' | 'ence.signature_verified' | 'audm.event_logged' | 'audm.trail_exported' | 'audm.integrity_verified' | 'audm.retention_updated'
+  | 'tkis.token_issued' | 'tkis.token_revoked' | 'tkis.key_rotated' | 'tkis.token_refreshed'
+  | 'pmen.permission_created' | 'pmen.check_evaluated' | 'pmen.strategy_changed' | 'pmen.batch_evaluated'
+  | 'rlmg.role_created' | 'rlmg.role_assigned' | 'rlmg.assignment_removed' | 'rlmg.permissions_resolved'
+  | 'crvt.credential_stored' | 'crvt.credential_retrieved' | 'crvt.credential_rotated' | 'crvt.expiry_alert'
+  | 'oamg.client_registered' | 'oamg.code_exchanged' | 'oamg.token_introspected' | 'oamg.grant_revoked'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1612,6 +1617,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'secret_manager':
     case 'encryption_engine':
     case 'audit_trail_manager':
+    case 'token_issuer':
+    case 'permission_engine':
+    case 'role_manager':
+    case 'credential_vault':
+    case 'oauth_manager':
       case 'network_firewall':
       case 'threat_detector':
       return 'industrial';

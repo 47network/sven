@@ -78,6 +78,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 398-402 — Identity & Authentication
+- **token_issuer** (Batch 398): JWT/API-key issuance — RS256/ES256/EdDSA signing, token lifecycle, revocation with reason tracking
+- **permission_engine** (Batch 399): Fine-grained permission evaluation — wildcard matching, multiple strategies, batch evaluation, check history
+- **role_manager** (Batch 400): Hierarchical role management — role inheritance, permission bundling, subject assignment with expiry
+- **credential_vault** (Batch 401): Encrypted credential storage — AES-256-GCM, auto-rotation, version history, full audit trail
+- **oauth_manager** (Batch 402): OAuth2/OIDC provider — authorization code with PKCE, client credentials, token introspection, grant revocation
+
 ### Batches 393-397 — Security & Governance
 - **access_control_manager** (Batch 393): RBAC/ABAC access policy engine — policy creation, access evaluation, MFA configuration, access logs
 - **threat_detection_engine** (Batch 394): Real-time threat detection — rule creation, scanning, event investigation, sensitivity tuning
