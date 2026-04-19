@@ -1,3 +1,23 @@
+## Batches 1108-1132 — Network Firewall / Network ACL / DNS / Load Balancer / VPN Tunnel
+
+- **Batch 1108-1112 · Network Firewall Management** — policy manager, rule auditor, threat detector, traffic analyzer, compliance checker
+- **Batch 1113-1117 · Network ACL Management** — policy builder, rule validator, access auditor, change tracker, compliance monitor
+- **Batch 1118-1122 · DNS Management** — zone provisioner, record verifier, propagation prober, health monitor, failover manager
+- **Batch 1123-1127 · Load Balancer Management** — pool manager, health checker, traffic router, SSL terminator, rate limiter
+- **Batch 1128-1132 · VPN Tunnel Management** — tunnel provisioner, tunnel monitor, key rotator, traffic analyzer, compliance auditor
+
+Each vertical includes: SKILL.md, shared types, Eidolon BK/EK/district wiring, NATS event-bus subjects, marketplace task-executor cases, gateway-api migration, dedicated test suite, .gitattributes privacy filter.
+
+## Batches 1108-1132 — Network Firewall · Network ACL · DNS · Load Balancer · VPN Tunnel
+
+- 25 new verticals across 5 security/infrastructure groups
+- Network Firewall Management (1108-1112): policy manager, rule auditor, threat detector, traffic analyzer, compliance checker
+- Network ACL Management (1113-1117): policy builder, rule validator, access auditor, change tracker, compliance monitor
+- DNS Management (1118-1122): zone provisioner, record verifier, propagation prober, health monitor, failover manager
+- Load Balancer Management (1123-1127): pool manager, health checker, traffic router, ssl terminator, rate limiter
+- VPN Tunnel Management (1128-1132): provisioner, monitor, key rotator, traffic analyzer, compliance auditor
+- 275/275 tests passing
+
 ## Batches 1083-1107 — Vulnerability/Patch Mgmt + Asset Inventory + Config Mgmt + Endpoint Mgmt (25 verticals)
 
 Adds 25 verticals across vulnerability management, patch management, asset inventory, configuration management, and endpoint management. 11-step pattern × 25 = 275 tests passing.
