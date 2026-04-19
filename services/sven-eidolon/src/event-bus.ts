@@ -580,6 +580,36 @@ const SUBJECT_MAP: Record<string, EidolonEventKind> = {
   'sven.retry.attempt_failed': 'retry.attempt_failed',
   'sven.retry.exhausted': 'retry.exhausted',
   'sven.retry.dlq_entry_added': 'retry.dlq_entry_added',
+
+  // ── stream_processor ──
+  'sven.stream.source_created': 'stream.source_created',
+  'sven.stream.source_active': 'stream.source_active',
+  'sven.stream.source_error': 'stream.source_error',
+  'sven.stream.sink_delivered': 'stream.sink_delivered',
+
+  // ── schema_validator ──
+  'sven.schema.definition_created': 'schema.definition_created',
+  'sven.schema.validation_failed': 'schema.validation_failed',
+  'sven.schema.evolution_checked': 'schema.evolution_checked',
+  'sven.schema.compatibility_broken': 'schema.compatibility_broken',
+
+  // ── etl_processor ──
+  'sven.etl.pipeline_created': 'etl.pipeline_created',
+  'sven.etl.run_started': 'etl.run_started',
+  'sven.etl.run_completed': 'etl.run_completed',
+  'sven.etl.run_failed': 'etl.run_failed',
+
+  // ── data_catalog ──
+  'sven.catalog.asset_registered': 'catalog.asset_registered',
+  'sven.catalog.lineage_traced': 'catalog.lineage_traced',
+  'sven.catalog.profile_completed': 'catalog.profile_completed',
+  'sven.catalog.quality_scored': 'catalog.quality_scored',
+
+  // ── query_optimizer ──
+  'sven.query.analyzed': 'query.analyzed',
+  'sven.query.suggestion_generated': 'query.suggestion_generated',
+  'sven.query.plan_cached': 'query.plan_cached',
+  'sven.query.optimization_applied': 'query.optimization_applied',
   'sven.vault.secret_stored': 'vault.secret_stored',
   'sven.vault.secret_rotated': 'vault.secret_rotated',
   'sven.vault.access_logged': 'vault.access_logged',

@@ -162,6 +162,11 @@ export type EidolonBuildingKind =
   | 'fault_injector'
   | 'connection_pool'
   | 'retry_handler'
+  | 'stream_processor'
+  | 'schema_validator'
+  | 'etl_processor'
+  | 'data_catalog'
+  | 'query_optimizer'
   | 'translation_hub'
   | 'webhook_relay'
   | 'config_vault'
@@ -717,6 +722,11 @@ export type EidolonEventKind =
   | 'fault.experiment_started' | 'fault.experiment_completed' | 'fault.observation_recorded' | 'fault.report_generated'
   | 'pool.created' | 'pool.exhausted' | 'pool.health_degraded' | 'pool.connection_error'
   | 'retry.policy_created' | 'retry.attempt_failed' | 'retry.exhausted' | 'retry.dlq_entry_added'
+  | 'stream.source_created' | 'stream.source_active' | 'stream.source_error' | 'stream.sink_delivered'
+  | 'schema.definition_created' | 'schema.validation_failed' | 'schema.evolution_checked' | 'schema.compatibility_broken'
+  | 'etl.pipeline_created' | 'etl.run_started' | 'etl.run_completed' | 'etl.run_failed'
+  | 'catalog.asset_registered' | 'catalog.lineage_traced' | 'catalog.profile_completed' | 'catalog.quality_scored'
+  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -882,6 +892,11 @@ export type EidolonEventKind =
   | 'fault.experiment_started' | 'fault.experiment_completed' | 'fault.observation_recorded' | 'fault.report_generated'
   | 'pool.created' | 'pool.exhausted' | 'pool.health_degraded' | 'pool.connection_error'
   | 'retry.policy_created' | 'retry.attempt_failed' | 'retry.exhausted' | 'retry.dlq_entry_added'
+  | 'stream.source_created' | 'stream.source_active' | 'stream.source_error' | 'stream.sink_delivered'
+  | 'schema.definition_created' | 'schema.validation_failed' | 'schema.evolution_checked' | 'schema.compatibility_broken'
+  | 'etl.pipeline_created' | 'etl.run_started' | 'etl.run_completed' | 'etl.run_failed'
+  | 'catalog.asset_registered' | 'catalog.lineage_traced' | 'catalog.profile_completed' | 'catalog.quality_scored'
+  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied'
   | 'topology.scan_started' | 'topology.scan_completed' | 'topology.drift_detected' | 'topology.snapshot_created'
   | 'forensic.case_opened' | 'forensic.evidence_collected' | 'forensic.analysis_completed' | 'forensic.case_concluded'
   | 'patch.advisory_found' | 'patch.test_passed' | 'patch.deployed' | 'patch.rolled_back'
@@ -917,6 +932,11 @@ export type EidolonEventKind =
   | 'fault.experiment_started' | 'fault.experiment_completed' | 'fault.observation_recorded' | 'fault.report_generated'
   | 'pool.created' | 'pool.exhausted' | 'pool.health_degraded' | 'pool.connection_error'
   | 'retry.policy_created' | 'retry.attempt_failed' | 'retry.exhausted' | 'retry.dlq_entry_added'
+  | 'stream.source_created' | 'stream.source_active' | 'stream.source_error' | 'stream.sink_delivered'
+  | 'schema.definition_created' | 'schema.validation_failed' | 'schema.evolution_checked' | 'schema.compatibility_broken'
+  | 'etl.pipeline_created' | 'etl.run_started' | 'etl.run_completed' | 'etl.run_failed'
+  | 'catalog.asset_registered' | 'catalog.lineage_traced' | 'catalog.profile_completed' | 'catalog.quality_scored'
+  | 'query.analyzed' | 'query.suggestion_generated' | 'query.plan_cached' | 'query.optimization_applied'
   | 'heartbeat';
 
 export interface EidolonEvent {
@@ -1276,6 +1296,16 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'fault_injector':
     case 'connection_pool':
     case 'retry_handler':
+      return 'civic';
+    case 'stream_processor':
+      return 'industrial';
+    case 'schema_validator':
+      return 'civic';
+    case 'etl_processor':
+      return 'industrial';
+    case 'data_catalog':
+      return 'civic';
+    case 'query_optimizer':
       return 'civic';
   }
 }

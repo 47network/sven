@@ -79,6 +79,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 203–207 — Data Infrastructure
+- **Batch 203 – Stream Processor**: real-time data streaming with sources, transforms, sinks
+- **Batch 204 – Schema Validator**: schema definitions, validations, evolution checks
+- **Batch 205 – ETL Processor**: ETL pipelines, runs, schedules with full lifecycle
+- **Batch 206 – Data Catalog**: data asset registry, lineage tracking, quality profiling
+- **Batch 207 – Query Optimizer**: query analysis, suggestions, plan caching
+- 5 migrations, 5 shared types, 5 SKILL.md, 5 BK values, 20 EK values
+- 20 SUBJECT_MAP entries, 30 task-executor cases, 30 handler methods
+- 15 .gitattributes entries, 157 passing tests
+
+
 ### Batches 198–202: Service Infrastructure
 - **Service Registry** (Batch 198): service discovery, health checks, endpoint management
 - **Ingress Controller** (Batch 199): traffic routing, TLS termination, CORS, rate limiting

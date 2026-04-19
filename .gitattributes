@@ -722,3 +722,28 @@ skills/agent-connection-pool/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260618390000_agent_retry_handler.sql filter=sven-private
 packages/shared/src/agent-retry-handler.ts filter=sven-private
 skills/agent-retry-handler/SKILL.md filter=sven-private
+
+# ── stream_processor ──
+services/gateway-api/migrations/*_agent_stream_processor.sql filter=sven-private
+packages/shared/src/agent-stream-processor.ts filter=sven-private
+skills/agent-stream-processor/SKILL.md filter=sven-private
+
+# ── schema_validator ──
+services/gateway-api/migrations/*_agent_schema_validator.sql filter=sven-private
+packages/shared/src/agent-schema-validator.ts filter=sven-private
+skills/agent-schema-validator/SKILL.md filter=sven-private
+
+# ── etl_processor ──
+services/gateway-api/migrations/*_agent_etl_processor.sql filter=sven-private
+packages/shared/src/agent-etl-processor.ts filter=sven-private
+skills/agent-etl-processor/SKILL.md filter=sven-private
+
+# ── data_catalog ──
+services/gateway-api/migrations/*_agent_data_catalog.sql filter=sven-private
+packages/shared/src/agent-data-catalog.ts filter=sven-private
+skills/agent-data-catalog/SKILL.md filter=sven-private
+
+# ── query_optimizer ──
+services/gateway-api/migrations/*_agent_query_optimizer.sql filter=sven-private
+packages/shared/src/agent-query-optimizer.ts filter=sven-private
+skills/agent-query-optimizer/SKILL.md filter=sven-private
