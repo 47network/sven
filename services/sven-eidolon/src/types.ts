@@ -127,7 +127,7 @@ export type EidolonBuildingKind =
   | 'intrusion_guard'
   | 'rbac_enforcer'
   | 'siem_connector'
-  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor' | 'feature_flag' | 'rollback_manager' | 'blue_green_router' | 'chaos_tester' | 'deployment_gate' | 'api_documenter' | 'sdk_generator' | 'contract_tester' | 'mock_server' | 'test_harness' | 'log_router' | 'config_sync' | 'health_prober' | 'quota_enforcer' | 'topology_mapper' | 'event_replayer' | 'cache_warmer' | 'job_scheduler' | 'feature_toggle' | 'data_migrator' | 'session_recorder' | 'artifact_builder' | 'tenant_provisioner' | 'index_optimizer' | 'dependency_scanner' | 'encryption_manager' | 'certificate_rotator' | 'vulnerability_assessor' | 'compliance_reporter' | 'identity_resolver' | 'metric_aggregator' | 'alert_correlator' | 'sla_tracker' | 'log_analyzer' | 'performance_profiler' | 'data_transformer' | 'pipeline_orchestrator' | 'data_enricher' | 'etl_scheduler' | 'format_converter' | 'knowledge_indexer' | 'semantic_searcher' | 'taxonomy_builder' | 'content_curator' | 'insight_extractor'
+  | 'forensic_analyzer' | 'workflow_engine' | 'task_scheduler' | 'cron_manager' | 'job_orchestrator' | 'batch_processor' | 'feature_flag' | 'rollback_manager' | 'blue_green_router' | 'chaos_tester' | 'deployment_gate' | 'api_documenter' | 'sdk_generator' | 'contract_tester' | 'mock_server' | 'test_harness' | 'log_router' | 'config_sync' | 'health_prober' | 'quota_enforcer' | 'topology_mapper' | 'event_replayer' | 'cache_warmer' | 'job_scheduler' | 'feature_toggle' | 'data_migrator' | 'session_recorder' | 'artifact_builder' | 'tenant_provisioner' | 'index_optimizer' | 'dependency_scanner' | 'encryption_manager' | 'certificate_rotator' | 'vulnerability_assessor' | 'compliance_reporter' | 'identity_resolver' | 'metric_aggregator' | 'alert_correlator' | 'sla_tracker' | 'log_analyzer' | 'performance_profiler' | 'data_transformer' | 'pipeline_orchestrator' | 'data_enricher' | 'etl_scheduler' | 'format_converter' | 'knowledge_indexer' | 'semantic_searcher' | 'taxonomy_builder' | 'content_curator' | 'insight_extractor' | 'workflow_automator' | 'rule_engine' | 'event_reactor' | 'schedule_coordinator' | 'process_monitor'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
@@ -834,7 +834,7 @@ export type EidolonEventKind =
   | 'ppor.pipeline_created' | 'ppor.pipeline_started' | 'ppor.pipeline_completed' | 'ppor.stage_advanced'
   | 'denr.enrichment_started' | 'denr.enrichment_completed' | 'denr.source_configured' | 'denr.source_failed'
   | 'etls.schedule_created' | 'etls.run_started' | 'etls.run_completed' | 'etls.run_failed'
-  | 'fmcv.conversion_started' | 'fmcv.conversion_completed' | 'fmcv.mapping_created' | 'fmcv.format_detected' | 'knix.document_indexed' | 'knix.index_completed' | 'knix.freshness_checked' | 'knix.document_deleted' | 'smsr.search_executed' | 'smsr.results_reranked' | 'smsr.similar_found' | 'smsr.filters_applied' | 'txbr.taxonomy_built' | 'txbr.entity_classified' | 'txbr.nodes_merged' | 'txbr.coverage_validated' | 'ccur.collection_created' | 'ccur.content_discovered' | 'ccur.collection_published' | 'ccur.gaps_analyzed' | 'inex.insights_extracted' | 'inex.insights_connected' | 'inex.trends_tracked' | 'inex.report_exported'
+  | 'fmcv.conversion_started' | 'fmcv.conversion_completed' | 'fmcv.mapping_created' | 'fmcv.format_detected' | 'knix.document_indexed' | 'knix.index_completed' | 'knix.freshness_checked' | 'knix.document_deleted' | 'smsr.search_executed' | 'smsr.results_reranked' | 'smsr.similar_found' | 'smsr.filters_applied' | 'txbr.taxonomy_built' | 'txbr.entity_classified' | 'txbr.nodes_merged' | 'txbr.coverage_validated' | 'ccur.collection_created' | 'ccur.content_discovered' | 'ccur.collection_published' | 'ccur.gaps_analyzed' | 'inex.insights_extracted' | 'inex.insights_connected' | 'inex.trends_tracked' | 'inex.report_exported' | 'wfau.workflow_created' | 'wfau.workflow_started' | 'wfau.workflow_completed' | 'wfau.step_completed' | 'rlng.rule_set_created' | 'rlng.rule_evaluated' | 'rlng.rule_matched' | 'rlng.rule_set_exported' | 'evrc.subscription_created' | 'evrc.event_processed' | 'evrc.reaction_completed' | 'evrc.dead_letter_added' | 'scco.job_created' | 'scco.job_executed' | 'scco.job_paused' | 'scco.execution_completed' | 'prmo.process_registered' | 'prmo.health_checked' | 'prmo.alert_triggered' | 'prmo.process_restarted'
   | 'abtest.experiment_created'
   | 'abtest.variant_assigned'
   | 'abtest.conversion_recorded'
@@ -1597,6 +1597,11 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'taxonomy_builder':
     case 'content_curator':
     case 'insight_extractor':
+    case 'workflow_automator':
+    case 'rule_engine':
+    case 'event_reactor':
+    case 'schedule_coordinator':
+    case 'process_monitor':
       case 'network_firewall':
       case 'threat_detector':
       return 'industrial';

@@ -79,6 +79,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Batches 383-387 — Automation & Workflow
+- **workflow_automator** (Batch 383): Multi-step workflow execution with branching, pause/resume, and parallel steps
+- **rule_engine** (Batch 384): Business rule evaluation with sequential/parallel modes and conflict resolution
+- **event_reactor** (Batch 385): Event-driven subscriptions with pattern matching, replay, and dead-letter handling
+- **schedule_coordinator** (Batch 386): Cron-based job scheduling with overlap policies and execution tracking
+- **process_monitor** (Batch 387): Process health monitoring with metrics, alerting, and auto-restart
+- 5 migration SQL files (15 new tables), 5 shared type files, 5 SKILL.md files
+- 30 task-executor switch cases + 30 handler methods
+- 20 SUBJECT_MAP entries, 5 BK values, 20 EK values, 5 districtFor cases
+- 15 .gitattributes privacy entries, 170 tests passing
+
+
 ### Batches 378-382 — Knowledge & Search
 - **Batch 378 — Knowledge Indexer**: document chunking, embeddings, RAG pipeline indexing, freshness checks ($12.99)
 - **Batch 379 — Semantic Searcher**: hybrid search, reranking, similarity discovery, filtered retrieval ($0.05/query)

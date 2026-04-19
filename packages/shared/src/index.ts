@@ -406,3 +406,8 @@ export * from './agent-semantic-searcher';
 export * from './agent-taxonomy-builder';
 export * from './agent-content-curator';
 export * from './agent-insight-extractor';
+export * from './agent-workflow-automator';
+export * from './agent-rule-engine';
+export * from './agent-event-reactor';
+export * from './agent-schedule-coordinator';
+export * from './agent-process-monitor';

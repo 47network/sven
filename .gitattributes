@@ -1310,3 +1310,24 @@ skills/autonomous-economy/content-curator/SKILL.md filter=sven-private
 services/gateway-api/migrations/20260620190000_agent_insight_extractor.sql filter=sven-private
 packages/shared/src/agent-insight-extractor.ts filter=sven-private
 skills/autonomous-economy/insight-extractor/SKILL.md filter=sven-private
+
+# Batch 383 — Workflow Automator
+services/gateway-api/migrations/20260620200000_agent_workflow_automator.sql filter=sven-private
+packages/shared/src/agent-workflow-automator.ts filter=sven-private
+skills/autonomous-economy/workflow-automator/SKILL.md filter=sven-private
+# Batch 384 — Rule Engine
+services/gateway-api/migrations/20260620210000_agent_rule_engine.sql filter=sven-private
+packages/shared/src/agent-rule-engine.ts filter=sven-private
+skills/autonomous-economy/rule-engine/SKILL.md filter=sven-private
+# Batch 385 — Event Reactor
+services/gateway-api/migrations/20260620220000_agent_event_reactor.sql filter=sven-private
+packages/shared/src/agent-event-reactor.ts filter=sven-private
+skills/autonomous-economy/event-reactor/SKILL.md filter=sven-private
+# Batch 386 — Schedule Coordinator
+services/gateway-api/migrations/20260620230000_agent_schedule_coordinator.sql filter=sven-private
+packages/shared/src/agent-schedule-coordinator.ts filter=sven-private
+skills/autonomous-economy/schedule-coordinator/SKILL.md filter=sven-private
+# Batch 387 — Process Monitor
+services/gateway-api/migrations/20260620240000_agent_process_monitor.sql filter=sven-private
+packages/shared/src/agent-process-monitor.ts filter=sven-private
+skills/autonomous-economy/process-monitor/SKILL.md filter=sven-private
