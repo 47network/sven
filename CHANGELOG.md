@@ -78,6 +78,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Eidolon: BK anomaly_watchtower, 4 EK events, districtFor → civic
 
 ## [Unreleased]
+### Batches 323-327 — Observability & Monitoring
+- **log_streamer**: Log streaming, aggregation, pattern alerts, and retention management ($11.99/task)
+- **metrics_hub**: Metrics collection, Prometheus export, alerting rules, and window aggregation ($14.99/task)
+- **event_correlator**: Event correlation, pattern detection, root cause analysis, and incident management ($19.99/task)
+- **trace_collector**: Distributed tracing, bottleneck detection, service maps, and trace comparison ($16.99/task)
+- **dashboard_builder**: Dashboard creation, panel layout, snapshots, sharing, and template import ($22.99/task)
+- 5 migration SQL files, 5 shared type files, 5 SKILL.md files
+- 30 task executor cases + 30 handler methods
+- 20 NATS event subjects, 5 BK + 20 EK + 5 districtFor entries
+- 150 tests passing
+
 ### Batches 318-322 — Networking & Traffic
 - **network_router**: Agent network routing with route management, policy enforcement, traffic analysis, and failover ($16.99/task)
 - **dns_gateway**: DNS resolution, record management, cache warming, and query analytics ($12.99/task)

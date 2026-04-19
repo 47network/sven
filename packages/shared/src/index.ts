@@ -344,3 +344,8 @@ export * from './agent-dns-gateway';
 export * from './agent-lb-orchestrator';
 export * from './agent-cdn-proxy';
 export * from './agent-rate-controller';
+export * from './agent-log-streamer';
+export * from './agent-metrics-hub';
+export * from './agent-event-correlator';
+export * from './agent-trace-collector';
+export * from './agent-dashboard-builder';

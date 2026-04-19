@@ -2097,6 +2097,46 @@ export class TaskExecutor {
       case 'rtcl_analytics_report': return this.handleRtclAnalyticsReport(task);
       case 'rtcl_configure_algo': return this.handleRtclConfigureAlgo(task);
 
+
+      // Batch 323: Log Streamer
+      case 'lgst_create_stream': return this.handleLgstCreateStream(task);
+      case 'lgst_configure_alerts': return this.handleLgstConfigureAlerts(task);
+      case 'lgst_search_logs': return this.handleLgstSearchLogs(task);
+      case 'lgst_export_logs': return this.handleLgstExportLogs(task);
+      case 'lgst_stream_stats': return this.handleLgstStreamStats(task);
+      case 'lgst_rotate_retention': return this.handleLgstRotateRetention(task);
+
+      // Batch 324: Metrics Hub
+      case 'mhub_register_metric': return this.handleMhubRegisterMetric(task);
+      case 'mhub_record_value': return this.handleMhubRecordValue(task);
+      case 'mhub_create_alert_rule': return this.handleMhubCreateAlertRule(task);
+      case 'mhub_query_metrics': return this.handleMhubQueryMetrics(task);
+      case 'mhub_export_metrics': return this.handleMhubExportMetrics(task);
+      case 'mhub_aggregate_window': return this.handleMhubAggregateWindow(task);
+
+      // Batch 325: Event Correlator
+      case 'evcr_create_pattern': return this.handleEvcrCreatePattern(task);
+      case 'evcr_detect_correlations': return this.handleEvcrDetectCorrelations(task);
+      case 'evcr_investigate_incident': return this.handleEvcrInvestigateIncident(task);
+      case 'evcr_learn_patterns': return this.handleEvcrLearnPatterns(task);
+      case 'evcr_resolve_incident': return this.handleEvcrResolveIncident(task);
+      case 'evcr_export_patterns': return this.handleEvcrExportPatterns(task);
+
+      // Batch 326: Trace Collector
+      case 'trcl_collect_traces': return this.handleTrclCollectTraces(task);
+      case 'trcl_analyze_trace': return this.handleTrclAnalyzeTrace(task);
+      case 'trcl_find_bottlenecks': return this.handleTrclFindBottlenecks(task);
+      case 'trcl_service_map': return this.handleTrclServiceMap(task);
+      case 'trcl_compare_traces': return this.handleTrclCompareTraces(task);
+      case 'trcl_export_traces': return this.handleTrclExportTraces(task);
+
+      // Batch 327: Dashboard Builder
+      case 'dshb_create_panel': return this.handleDshbCreatePanel(task);
+      case 'dshb_configure_layout': return this.handleDshbConfigureLayout(task);
+      case 'dshb_create_snapshot': return this.handleDshbCreateSnapshot(task);
+      case 'dshb_set_refresh': return this.handleDshbSetRefresh(task);
+      case 'dshb_share_dashboard': return this.handleDshbShareDashboard(task);
+      case 'dshb_import_template': return this.handleDshbImportTemplate(task);
       default:              return { status: 'completed', note: `Custom task type '${taskType}' — output pending.` };
     }
   }
@@ -15126,6 +15166,137 @@ export class TaskExecutor {
       this.logger.error('RtclConfigureAlgo failed', { taskId: task.id, error });
       throw error;
     }
+  }
+
+
+  // === Batch 323: Log Streamer Handlers ===
+
+  private async handleLgstCreateStream(task: any): Promise<any> {
+    return { skill: 'log_streamer', action: 'create-stream', streamName: task.metadata?.streamName, sourceType: task.metadata?.sourceType || 'application', logFormat: task.metadata?.logFormat || 'json', destination: task.metadata?.destination || 'opensearch' };
+  }
+
+  private async handleLgstConfigureAlerts(task: any): Promise<any> {
+    return { skill: 'log_streamer', action: 'configure-alerts', alertName: task.metadata?.alertName, pattern: task.metadata?.pattern, severity: task.metadata?.severity || 'warning', cooldownMinutes: task.metadata?.cooldownMinutes || 15 };
+  }
+
+  private async handleLgstSearchLogs(task: any): Promise<any> {
+    return { skill: 'log_streamer', action: 'search-logs', query: task.metadata?.query, timeRange: task.metadata?.timeRange || '1h', limit: task.metadata?.limit || 100 };
+  }
+
+  private async handleLgstExportLogs(task: any): Promise<any> {
+    return { skill: 'log_streamer', action: 'export-logs', configId: task.metadata?.configId, format: task.metadata?.format || 'json', timeRange: task.metadata?.timeRange || '24h' };
+  }
+
+  private async handleLgstStreamStats(task: any): Promise<any> {
+    return { skill: 'log_streamer', action: 'stream-stats', configId: task.metadata?.configId, includeErrors: task.metadata?.includeErrors || true };
+  }
+
+  private async handleLgstRotateRetention(task: any): Promise<any> {
+    return { skill: 'log_streamer', action: 'rotate-retention', configId: task.metadata?.configId, retentionDays: task.metadata?.retentionDays || 30 };
+  }
+
+  // === Batch 324: Metrics Hub Handlers ===
+
+  private async handleMhubRegisterMetric(task: any): Promise<any> {
+    return { skill: 'metrics_hub', action: 'register-metric', metricName: task.metadata?.metricName, metricType: task.metadata?.metricType || 'gauge', unit: task.metadata?.unit, description: task.metadata?.description };
+  }
+
+  private async handleMhubRecordValue(task: any): Promise<any> {
+    return { skill: 'metrics_hub', action: 'record-value', metricName: task.metadata?.metricName, value: task.metadata?.value, labels: task.metadata?.labels || {} };
+  }
+
+  private async handleMhubCreateAlertRule(task: any): Promise<any> {
+    return { skill: 'metrics_hub', action: 'create-alert-rule', ruleName: task.metadata?.ruleName, expression: task.metadata?.expression, threshold: task.metadata?.threshold, comparison: task.metadata?.comparison || 'gt' };
+  }
+
+  private async handleMhubQueryMetrics(task: any): Promise<any> {
+    return { skill: 'metrics_hub', action: 'query-metrics', metricName: task.metadata?.metricName, labels: task.metadata?.labels || {}, timeRange: task.metadata?.timeRange || '1h' };
+  }
+
+  private async handleMhubExportMetrics(task: any): Promise<any> {
+    return { skill: 'metrics_hub', action: 'export-metrics', configId: task.metadata?.configId, format: task.metadata?.format || 'prometheus' };
+  }
+
+  private async handleMhubAggregateWindow(task: any): Promise<any> {
+    return { skill: 'metrics_hub', action: 'aggregate-window', metricName: task.metadata?.metricName, window: task.metadata?.window || '5m', aggregation: task.metadata?.aggregation || 'avg' };
+  }
+
+  // === Batch 325: Event Correlator Handlers ===
+
+  private async handleEvcrCreatePattern(task: any): Promise<any> {
+    return { skill: 'event_correlator', action: 'create-pattern', patternName: task.metadata?.patternName, eventSequence: task.metadata?.eventSequence || [], minConfidence: task.metadata?.minConfidence || 0.7 };
+  }
+
+  private async handleEvcrDetectCorrelations(task: any): Promise<any> {
+    return { skill: 'event_correlator', action: 'detect-correlations', configId: task.metadata?.configId, windowSeconds: task.metadata?.windowSeconds || 300 };
+  }
+
+  private async handleEvcrInvestigateIncident(task: any): Promise<any> {
+    return { skill: 'event_correlator', action: 'investigate-incident', incidentId: task.metadata?.incidentId, depth: task.metadata?.depth || 'full' };
+  }
+
+  private async handleEvcrLearnPatterns(task: any): Promise<any> {
+    return { skill: 'event_correlator', action: 'learn-patterns', configId: task.metadata?.configId, lookbackHours: task.metadata?.lookbackHours || 24, minOccurrences: task.metadata?.minOccurrences || 3 };
+  }
+
+  private async handleEvcrResolveIncident(task: any): Promise<any> {
+    return { skill: 'event_correlator', action: 'resolve-incident', incidentId: task.metadata?.incidentId, resolutionNotes: task.metadata?.resolutionNotes || '' };
+  }
+
+  private async handleEvcrExportPatterns(task: any): Promise<any> {
+    return { skill: 'event_correlator', action: 'export-patterns', configId: task.metadata?.configId, format: task.metadata?.format || 'json', includeDisabled: task.metadata?.includeDisabled || false };
+  }
+
+  // === Batch 326: Trace Collector Handlers ===
+
+  private async handleTrclCollectTraces(task: any): Promise<any> {
+    return { skill: 'trace_collector', action: 'collect-traces', configId: task.metadata?.configId, samplingRate: task.metadata?.samplingRate || 0.1, format: task.metadata?.format || 'opentelemetry' };
+  }
+
+  private async handleTrclAnalyzeTrace(task: any): Promise<any> {
+    return { skill: 'trace_collector', action: 'analyze-trace', traceId: task.metadata?.traceId, includeSpans: task.metadata?.includeSpans || true };
+  }
+
+  private async handleTrclFindBottlenecks(task: any): Promise<any> {
+    return { skill: 'trace_collector', action: 'find-bottlenecks', configId: task.metadata?.configId, threshold_ms: task.metadata?.threshold_ms || 100, timeRange: task.metadata?.timeRange || '1h' };
+  }
+
+  private async handleTrclServiceMap(task: any): Promise<any> {
+    return { skill: 'trace_collector', action: 'service-map', configId: task.metadata?.configId, timeRange: task.metadata?.timeRange || '24h', includeMetrics: task.metadata?.includeMetrics || true };
+  }
+
+  private async handleTrclCompareTraces(task: any): Promise<any> {
+    return { skill: 'trace_collector', action: 'compare-traces', traceIdA: task.metadata?.traceIdA, traceIdB: task.metadata?.traceIdB };
+  }
+
+  private async handleTrclExportTraces(task: any): Promise<any> {
+    return { skill: 'trace_collector', action: 'export-traces', configId: task.metadata?.configId, format: task.metadata?.format || 'opentelemetry', timeRange: task.metadata?.timeRange || '1h' };
+  }
+
+  // === Batch 327: Dashboard Builder Handlers ===
+
+  private async handleDshbCreatePanel(task: any): Promise<any> {
+    return { skill: 'dashboard_builder', action: 'create-panel', title: task.metadata?.title, panelType: task.metadata?.panelType || 'line_chart', dataSource: task.metadata?.dataSource, query: task.metadata?.query };
+  }
+
+  private async handleDshbConfigureLayout(task: any): Promise<any> {
+    return { skill: 'dashboard_builder', action: 'configure-layout', configId: task.metadata?.configId, layoutType: task.metadata?.layoutType || 'grid', theme: task.metadata?.theme || 'dark' };
+  }
+
+  private async handleDshbCreateSnapshot(task: any): Promise<any> {
+    return { skill: 'dashboard_builder', action: 'create-snapshot', configId: task.metadata?.configId, snapshotName: task.metadata?.snapshotName, timeRange: task.metadata?.timeRange || '1h' };
+  }
+
+  private async handleDshbSetRefresh(task: any): Promise<any> {
+    return { skill: 'dashboard_builder', action: 'set-refresh', configId: task.metadata?.configId, intervalSeconds: task.metadata?.intervalSeconds || 30, defaultTimeRange: task.metadata?.defaultTimeRange || '1h' };
+  }
+
+  private async handleDshbShareDashboard(task: any): Promise<any> {
+    return { skill: 'dashboard_builder', action: 'share-dashboard', configId: task.metadata?.configId, expiresInHours: task.metadata?.expiresInHours || 24 };
+  }
+
+  private async handleDshbImportTemplate(task: any): Promise<any> {
+    return { skill: 'dashboard_builder', action: 'import-template', templateName: task.metadata?.templateName, configId: task.metadata?.configId, overwrite: task.metadata?.overwrite || false };
   }
 
 }
