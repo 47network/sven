@@ -36,6 +36,18 @@
 
 # Changelog
 
+## Batches 563-567 — Resource Management & Capacity
+- resource_allocator: Dynamic resource allocation and contention management
+- demand_forecaster: Demand forecasting with spike prediction and model retraining
+- burst_handler: Traffic burst detection with adaptive throttling
+- reservation_clerk: Resource reservation and availability slot management
+- utilization_tracker: Resource utilization tracking and usage trend analysis
+- 5 migrations, shared types, barrel exports, SKILL.md files
+- Eidolon BK/EK/districtFor wiring, event-bus SUBJECT_MAP entries
+- Task-executor switch cases, .gitattributes privacy filters
+- 55/55 tests passing
+
+
 ## Batches 558-562 — Search & Discovery
 - semantic_indexer: Semantic document indexing with vector embeddings
 - faceted_search: Multi-faceted search with dynamic filtering and ranking
