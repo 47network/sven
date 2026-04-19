@@ -708,6 +708,31 @@ export type EidolonBuildingKind =
   | 'recommendation_diversifier'
   | 'recommendation_explanation_logger'
   | 'recommendation_feedback_collector'
+  | 'personalization_profile_builder'
+  | 'personalization_segment_resolver'
+  | 'personalization_content_selector'
+  | 'personalization_consent_gate'
+  | 'personalization_audit_logger'
+  | 'moderation_text_classifier'
+  | 'moderation_image_screener'
+  | 'moderation_appeal_router'
+  | 'moderation_decision_logger'
+  | 'moderation_policy_updater'
+  | 'trust_safety_signal_collector'
+  | 'trust_safety_score_aggregator'
+  | 'trust_safety_action_dispatcher'
+  | 'trust_safety_review_queue_writer'
+  | 'trust_safety_audit_logger'
+  | 'fraud_signal_collector'
+  | 'fraud_score_evaluator'
+  | 'fraud_decision_dispatcher'
+  | 'fraud_case_writer'
+  | 'fraud_audit_logger'
+  | 'risk_composite_scorer'
+  | 'risk_threshold_evaluator'
+  | 'risk_decision_dispatcher'
+  | 'risk_appeal_handler'
+  | 'risk_audit_logger'
   | 'pipeline_executor'
   | 'task_dispatcher'
   | 'step_coordinator'
@@ -3745,6 +3770,106 @@ export type EidolonEventKind =
   | 'rcfc.fields_validated'
   | 'rcfc.feedback_persisted'
   | 'rcfc.audit_recorded'
+  | 'ppbd.batch_received'
+  | 'ppbd.signals_aggregated'
+  | 'ppbd.profile_persisted'
+  | 'ppbd.audit_recorded'
+  | 'psrr.request_received'
+  | 'psrr.profile_loaded'
+  | 'psrr.segments_returned'
+  | 'psrr.audit_recorded'
+  | 'pcsl.request_received'
+  | 'pcsl.candidates_filtered'
+  | 'pcsl.content_selected'
+  | 'pcsl.audit_recorded'
+  | 'pcgt.check_received'
+  | 'pcgt.consent_evaluated'
+  | 'pcgt.decision_returned'
+  | 'pcgt.audit_recorded'
+  | 'palg.record_received'
+  | 'palg.fields_validated'
+  | 'palg.record_persisted'
+  | 'palg.export_emitted'
+  | 'mtcf.item_received'
+  | 'mtcf.classified'
+  | 'mtcf.decision_emitted'
+  | 'mtcf.audit_recorded'
+  | 'misc.item_received'
+  | 'misc.screened'
+  | 'misc.decision_emitted'
+  | 'misc.audit_recorded'
+  | 'marr.request_received'
+  | 'marr.queue_resolved'
+  | 'marr.appeal_routed'
+  | 'marr.audit_recorded'
+  | 'mdlg.record_received'
+  | 'mdlg.fields_validated'
+  | 'mdlg.decision_persisted'
+  | 'mdlg.export_emitted'
+  | 'mpud.update_received'
+  | 'mpud.policy_validated'
+  | 'mpud.policy_published'
+  | 'mpud.audit_recorded'
+  | 'tssc.event_received'
+  | 'tssc.fields_validated'
+  | 'tssc.signal_persisted'
+  | 'tssc.audit_recorded'
+  | 'tssa.batch_received'
+  | 'tssa.scores_aggregated'
+  | 'tssa.summary_persisted'
+  | 'tssa.audit_recorded'
+  | 'tsad.request_received'
+  | 'tsad.policy_evaluated'
+  | 'tsad.action_dispatched'
+  | 'tsad.audit_recorded'
+  | 'tsrq.item_received'
+  | 'tsrq.fields_validated'
+  | 'tsrq.item_persisted'
+  | 'tsrq.audit_recorded'
+  | 'tsau.record_received'
+  | 'tsau.fields_validated'
+  | 'tsau.record_persisted'
+  | 'tsau.export_emitted'
+  | 'frsc.event_received'
+  | 'frsc.fields_validated'
+  | 'frsc.signal_persisted'
+  | 'frsc.audit_recorded'
+  | 'frse.request_received'
+  | 'frse.signals_loaded'
+  | 'frse.score_computed'
+  | 'frse.audit_recorded'
+  | 'frdd.request_received'
+  | 'frdd.policy_evaluated'
+  | 'frdd.action_dispatched'
+  | 'frdd.audit_recorded'
+  | 'frcw.record_received'
+  | 'frcw.fields_validated'
+  | 'frcw.case_persisted'
+  | 'frcw.audit_recorded'
+  | 'frau.record_received'
+  | 'frau.fields_validated'
+  | 'frau.record_persisted'
+  | 'frau.export_emitted'
+  | 'rcsc.request_received'
+  | 'rcsc.factors_loaded'
+  | 'rcsc.score_computed'
+  | 'rcsc.audit_recorded'
+  | 'rtev.check_received'
+  | 'rtev.thresholds_evaluated'
+  | 'rtev.decision_emitted'
+  | 'rtev.audit_recorded'
+  | 'rdds.request_received'
+  | 'rdds.policy_evaluated'
+  | 'rdds.action_dispatched'
+  | 'rdds.audit_recorded'
+  | 'rkah.request_received'
+  | 'rkah.case_loaded'
+  | 'rkah.appeal_processed'
+  | 'rkah.audit_recorded'
+  | 'rkau.record_received'
+  | 'rkau.fields_validated'
+  | 'rkau.record_persisted'
+  | 'rkau.export_emitted'
   | 'plex.run_started'
   | 'plex.step_completed'
   | 'plex.run_finished'
@@ -4910,6 +5035,31 @@ export function districtFor(kind: EidolonBuildingKind): District {
     case 'recommendation_diversifier':
     case 'recommendation_explanation_logger':
     case 'recommendation_feedback_collector':
+    case 'personalization_profile_builder':
+    case 'personalization_segment_resolver':
+    case 'personalization_content_selector':
+    case 'personalization_consent_gate':
+    case 'personalization_audit_logger':
+    case 'moderation_text_classifier':
+    case 'moderation_image_screener':
+    case 'moderation_appeal_router':
+    case 'moderation_decision_logger':
+    case 'moderation_policy_updater':
+    case 'trust_safety_signal_collector':
+    case 'trust_safety_score_aggregator':
+    case 'trust_safety_action_dispatcher':
+    case 'trust_safety_review_queue_writer':
+    case 'trust_safety_audit_logger':
+    case 'fraud_signal_collector':
+    case 'fraud_score_evaluator':
+    case 'fraud_decision_dispatcher':
+    case 'fraud_case_writer':
+    case 'fraud_audit_logger':
+    case 'risk_composite_scorer':
+    case 'risk_threshold_evaluator':
+    case 'risk_decision_dispatcher':
+    case 'risk_appeal_handler':
+    case 'risk_audit_logger':
       return 'civic';
     case 'credential_manager':
     case 'certificate_manager':

@@ -1,0 +1,30 @@
+---
+name: fraud-case-writer
+description: Fraud case writing with field validation immutable case persistence and audit recording for investigation chain of custody
+version: 1.0.0
+pricing: 0.99
+archetype: analyst
+---
+
+# FraudCaseWriter
+
+Fraud case writing with field validation immutable case persistence and audit recording for investigation chain of custody.
+
+## Actions
+
+- **monitor**: Continuous monitoring and data collection
+- **analyze**: Deep analysis of collected data
+- **report**: Generate detailed reports
+- **configure**: Update configuration and thresholds
+
+## Inputs
+
+- `targetId` — ID of the target to process
+- `config` — Configuration parameters
+- `timeRange` — Time range for analysis
+
+## Outputs
+
+- `status` — Current processing status
+- `metrics` — Collected metrics data
+- `alerts` — Active alerts and notifications
