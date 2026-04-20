@@ -149,12 +149,40 @@ export async function runMigrations() {
       )
     `);
 
-    // Discover migration files
+    // Discover migration files.
+    //
+    // Canonical location: services/gateway-api/src/db/migrations/
+    // Built  location:    services/gateway-api/dist/db/migrations/
+    //
+    // Anything placed at services/gateway-api/migrations/ (sibling of src/) is
+    // NOT in the candidate list and will be silently skipped. That path was
+    // historically used for dormant batch-generated SQL spam — see
+    // services/gateway-api/migrations.archive-dormant/README.md. Do not add it
+    // to candidates without auditing every file there first.
     const candidates = [
       join(__dirname, 'migrations'),
       resolve(__dirname, '../../src/db/migrations'),
       resolve(__dirname, '../../../src/db/migrations'),
     ];
+
+    // Guard: if a sibling `migrations/` dir reappears at the gateway-api root,
+    // log a warning so it cannot silently grow into another 1,917-file ghost.
+    const dormantPath = resolve(__dirname, '../../../migrations');
+    if (existsSync(dormantPath)) {
+      try {
+        const dormantCount = readdirSync(dormantPath).filter((f) => f.endsWith('.sql')).length;
+        if (dormantCount > 0) {
+          logger.warn('Dormant migrations directory detected (not in loader path)', {
+            path: dormantPath,
+            sql_files: dormantCount,
+            action_required:
+              'Audit and either move into src/db/migrations/ or quarantine into migrations.archive-dormant/.',
+          });
+        }
+      } catch {
+        // best-effort, never block startup on this guard
+      }
+    }
 
     const withFiles = candidates
       .filter((dir) => existsSync(dir))
