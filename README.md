@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/brand/sven_logo.png" alt="Sven" width="200" />
+
 ```
  ███████╗██╗   ██╗███████╗███╗   ██╗
  ██╔════╝██║   ██║██╔════╝████╗  ██║
@@ -18,8 +20,14 @@ One platform that runs your entire AI stack — agents, voice, RAG, document int
 ---
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.2.1-blue)](CHANGELOG.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
+[![Self-Hosted](https://img.shields.io/badge/Self--Hosted-100%25-success)](docs/ARCHITECTURE.md)
+[![Adapters](https://img.shields.io/badge/Adapters-20-blueviolet)](docs/)
+[![Services](https://img.shields.io/badge/Services-47+-orange)](docs/ARCHITECTURE.md)
 
 <br/>
 
