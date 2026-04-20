@@ -263,6 +263,26 @@ describe('secret-scanner', () => {
       expect(shouldScanFile('config.json')).toBe(true);
       expect(shouldScanFile('src/app.tsx')).toBe(true);
     });
+
+    it('returns true for files without extensions', () => {
+      expect(shouldScanFile('Makefile')).toBe(true);
+      expect(shouldScanFile('Dockerfile')).toBe(true);
+      expect(shouldScanFile('bin/script')).toBe(true);
+      expect(shouldScanFile('scripts/deploy')).toBe(true);
+    });
+
+    it('returns true for hidden files', () => {
+      expect(shouldScanFile('.env')).toBe(true);
+      expect(shouldScanFile('.gitignore')).toBe(true);
+      expect(shouldScanFile('.npmrc')).toBe(true);
+      expect(shouldScanFile('src/.hidden')).toBe(true);
+    });
+
+    it('correctly handles files with multiple dots', () => {
+      expect(shouldScanFile('config.prod.json')).toBe(true);
+      expect(shouldScanFile('archive.tar.gz')).toBe(false); // .gz is excluded
+      expect(shouldScanFile('image.min.svg')).toBe(false); // .svg is excluded
+    });
   });
 
   describe('scanFileForSecrets', () => {
