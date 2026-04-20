@@ -65,6 +65,7 @@ services:
     environment:
       NODE_ENV: production
       SVEN_DEPLOYMENT_MODE: production
+      SVEN_LIFECYCLE_ENABLED: "${SVEN_LIFECYCLE_ENABLED:-1}"
     read_only: true
     tmpfs:
       - /tmp

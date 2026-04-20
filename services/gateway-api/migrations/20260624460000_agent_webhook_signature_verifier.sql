@@ -1,0 +1,11 @@
+-- Migration: agent_webhook_signature_verifier
+CREATE TABLE IF NOT EXISTS agent_webhook_signature_verifier_configs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    agent_id UUID NOT NULL,
+    enabled BOOLEAN DEFAULT true,
+    config JSONB DEFAULT '{}',
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX idx_agent_webhook_signature_verifier_agent ON agent_webhook_signature_verifier_configs(agent_id);
+CREATE INDEX idx_agent_webhook_signature_verifier_enabled ON agent_webhook_signature_verifier_configs(enabled);

@@ -31,6 +31,20 @@ import { normalizeToolRunId } from './tool-run-id.js';
 import { normalizeToolCalls } from './tool-calls.js';
 import { mapApprovalVoteErrorToUserMessage } from './approval-errors.js';
 import { isMissingChatQueueDispatchError } from './queue-dispatch.js';
+import { AutomatonLifecycle, startLifecycleScheduler } from './automaton-lifecycle.js';
+import {
+  makeTreasuryHttp,
+  makeRevenuePg,
+  makeInfraHttp,
+  makeAutomatonStorePg,
+  makeClonePg,
+} from './automaton-adapters.js';
+import { RevenuePipelineRepository } from './revenue-pipeline-repo.js';
+import { SeedPipelineProvisioner } from './seed-pipeline-provisioner.js';
+import { buildEconomyContextPrompt } from './economy-context-prompt.js';
+import { startDigestScheduler, stopDigestScheduler } from './economy-digest.js';
+import { adjustDecisionWithEvolution } from './evolution-automaton-bridge.js';
+import { Ledger } from '@sven/treasury';
 import { basename } from 'path';
 
 const logger = createLogger('agent-runtime');
@@ -334,6 +348,88 @@ async function main() {
     }
   })();
 
+  // ─── Automaton lifecycle scheduler (opt-in) ─────────────────────
+  // When SVEN_LIFECYCLE_ENABLED=1 the agent-runtime will own the
+  // scheduler loop that drives birth/clone/retire/die for the
+  // autonomous-economy subsystem. See automaton-lifecycle.ts.
+  if (String(process.env.SVEN_LIFECYCLE_ENABLED || '').trim() === '1') {
+    try {
+      const lifecycleOrgId = String(process.env.SVEN_LIFECYCLE_ORG_ID || 'default').trim() || 'default';
+      const lifecycleIntervalMs = Number(process.env.SVEN_LIFECYCLE_INTERVAL_MS || 600_000);
+      const automatonStore = makeAutomatonStorePg(pool);
+      const ledger = new Ledger(pool);
+      const pipelineRepo = new RevenuePipelineRepository({ pool, ledger });
+      const seedProvisioner = new SeedPipelineProvisioner({ repo: pipelineRepo });
+      const lifecycle = new AutomatonLifecycle({
+        treasury: makeTreasuryHttp(),
+        revenue: makeRevenuePg({ repo: pipelineRepo, pool }),
+        infra: makeInfraHttp(),
+        store: automatonStore,
+        clone: makeClonePg({ repo: pipelineRepo }),
+        onBirth: async ({ automatonId, orgId, treasuryAccountId }) => {
+          try {
+            const seeded = await seedProvisioner.provisionForAutomaton({
+              orgId,
+              automatonId,
+              treasuryAccountId,
+            });
+            return { pipelineIds: [seeded.pipelineId] };
+          } catch (err) {
+            logger.warn('seed pipeline provisioning failed', {
+              automatonId,
+              err: err instanceof Error ? err.message : String(err),
+            });
+            return null;
+          }
+        },
+        onDecision: (automaton, decision) => adjustDecisionWithEvolution(automaton, decision),
+      });
+      const stopLifecycle = startLifecycleScheduler({
+        lifecycle,
+        orgId: lifecycleOrgId,
+        intervalMs: lifecycleIntervalMs,
+        onError: (err) => logger.error('Lifecycle tick failed', { err: String(err) }),
+      });
+      const shutdownLifecycle = () => {
+        try { stopLifecycle(); } catch { /* ignore */ }
+      };
+      process.once('SIGTERM', shutdownLifecycle);
+      process.once('SIGINT', shutdownLifecycle);
+      logger.info('Automaton lifecycle scheduler started', {
+        orgId: lifecycleOrgId,
+        intervalMs: lifecycleIntervalMs,
+      });
+
+      // Start the daily economy digest publisher alongside the lifecycle scheduler
+      startDigestScheduler(pool, nc, { orgId: lifecycleOrgId });
+      const shutdownDigest = () => { try { stopDigestScheduler(); } catch { /* ignore */ } };
+      process.once('SIGTERM', shutdownDigest);
+      process.once('SIGINT', shutdownDigest);
+    } catch (err) {
+      logger.error('Failed to start automaton lifecycle scheduler', { err: String(err) });
+    }
+  }
+
+  // Economy skill loader: register economy skills in tools table
+  try {
+    const { registerEconomySkills } = await import('./economy-skill-loader.js');
+    const count = await registerEconomySkills(pool);
+    logger.info(`Economy skill loader registered ${count} tools`);
+  } catch (err) {
+    logger.error('Failed to register economy skills', { err: String(err) });
+  }
+
+  // Auto-publisher: scan skills and create marketplace listings
+  try {
+    const { startAutoPublisher, stopAutoPublisher } = await import('./auto-publisher.js');
+    startAutoPublisher();
+    const shutdownAutoPublisher = () => { try { stopAutoPublisher(); } catch { /* ignore */ } };
+    process.once('SIGTERM', shutdownAutoPublisher);
+    process.once('SIGINT', shutdownAutoPublisher);
+  } catch (err) {
+    logger.error('Failed to start auto-publisher', { err: String(err) });
+  }
+
   logger.info('Subscribed to inbound messages, processing...');
 
   for await (const msg of sub) {
@@ -615,6 +711,10 @@ async function main() {
       const voiceLanguageHint = await buildVoiceLanguageHint(pool, event);
       if (voiceLanguageHint) {
         systemPrompt = `${systemPrompt}\n\n${voiceLanguageHint}`;
+      }
+      const economyContext = await buildEconomyContextPrompt(pool);
+      if (economyContext) {
+        systemPrompt = `${systemPrompt}\n\n${economyContext}`;
       }
       // Cap system prompt length to prevent unbounded memory growth from concatenated context
       const MAX_SYSTEM_PROMPT_LENGTH = 500_000;

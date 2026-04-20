@@ -1,0 +1,23 @@
+export interface SandboxManagerOptPlan {
+  id: string;
+  agentId: string;
+  enabled: boolean;
+  config: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SandboxManagerOptConfig {
+  id: string;
+  configId: string;
+  data: Record<string, unknown>;
+  timestamp: string;
+}
+
+export interface SandboxManagerOptResult {
+  id: string;
+  configId: string;
+  criteria: Record<string, unknown>;
+  active: boolean;
+  createdAt: string;
+}

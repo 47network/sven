@@ -2370,6 +2370,73 @@ export const trading = {
   brokerHealth: () => request<Record<string, boolean>>('GET', '/v1/trading/broker/health'),
 };
 
+// ── Revenue Pipelines (Batch 6: Seed Pipeline) ──
+export const revenuePipelines = {
+  list: (params?: { type?: string; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.type) q.set('type', params.type);
+    if (params?.status) q.set('status', params.status);
+    const qs = q.toString();
+    return request<{
+      success: boolean;
+      data: { pipelines: Array<Record<string, unknown>> };
+    }>('GET', `/admin/revenue/pipelines${qs ? '?' + qs : ''}`);
+  },
+  get: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('GET', `/admin/revenue/pipelines/${id}`),
+  seedSummary: () =>
+    request<{
+      success: boolean;
+      data: {
+        seedPipelines: number;
+        totalActive: number;
+        last24hNet: number;
+        last24hEvents: number;
+      };
+    }>('GET', '/admin/revenue/pipelines/seed-summary'),
+  stats: () =>
+    request<{ success: boolean; data: Record<string, unknown> }>('GET', '/admin/revenue/stats'),
+  events: (params?: { pipeline_id?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.pipeline_id) q.set('pipeline_id', params.pipeline_id);
+    if (params?.limit) q.set('limit', String(params.limit));
+    const qs = q.toString();
+    return request<{
+      success: boolean;
+      data: { events: Array<Record<string, unknown>>; limit: number; offset: number };
+    }>('GET', `/admin/revenue/events${qs ? '?' + qs : ''}`);
+  },
+  activate: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('PATCH', `/admin/revenue/pipelines/${id}/activate`),
+  pause: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('PATCH', `/admin/revenue/pipelines/${id}/pause`),
+};
+
+// ── Automatons (Batch 5: Autonomous Economy) ──
+export const automatons = {
+  list: (params?: { status?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.limit) q.set('limit', String(params.limit));
+    const qs = q.toString();
+    return request<{
+      success: boolean;
+      data: { automatons: Array<Record<string, unknown>> };
+    }>('GET', `/admin/automatons${qs ? '?' + qs : ''}`);
+  },
+  summary: () =>
+    request<{
+      success: boolean;
+      data: {
+        counts: Record<string, number>;
+        totalRevenueUsd: number;
+        totalCostUsd: number;
+      };
+    }>('GET', '/admin/automatons/summary'),
+  get: (id: string) =>
+    request<{ success: boolean; data: Record<string, unknown> }>('GET', `/admin/automatons/${id}`),
+};
+
 export const api = {
   auth,
   users,
@@ -2428,4 +2495,50 @@ export const api = {
   federation,
   analyticsOverview,
   trading,
+  automatons,
+  revenuePipelines,
+  economy: {
+    summary: () =>
+      Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_TREASURY_URL || 'http://localhost:9477'}/economy/summary`)
+          .then(r => r.json()).catch(() => ({ totalBalance: 0, totalRevenue: 0, totalCost: 0, netProfit: 0 })),
+        fetch(`${process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:9478'}/economy/stats`)
+          .then(r => r.json()).catch(() => ({ publishedListings: 0, completedOrders: 0, totalMarketRevenue: 0 })),
+      ]).then(([treasury, market]) => ({ data: { ...treasury, ...market } })),
+    transactions: (opts?: { limit?: number; offset?: number }) => {
+      const qs = new URLSearchParams();
+      if (opts?.limit) qs.set('limit', String(opts.limit));
+      if (opts?.offset) qs.set('offset', String(opts.offset));
+      return fetch(`${process.env.NEXT_PUBLIC_TREASURY_URL || 'http://localhost:9477'}/economy/transactions?${qs}`)
+        .then(r => r.json()).catch(() => ({ transactions: [], total: 0 }));
+    },
+    topListings: () =>
+      fetch(`${process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:9478'}/economy/top-listings`)
+        .then(r => r.json()).catch(() => []),
+    adminOrders: (opts?: { limit?: number; offset?: number }) => {
+      const qs = new URLSearchParams();
+      if (opts?.limit) qs.set('limit', String(opts.limit));
+      if (opts?.offset) qs.set('offset', String(opts.offset));
+      const headers: Record<string, string> = {};
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('economy_admin_token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+      }
+      return fetch(
+        `${process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:9478'}/v1/market/admin/orders?${qs}`,
+        { headers },
+      ).then(r => r.json()).catch(() => ({ data: { orders: [] } }));
+    },
+    adminRefundOrder: (orderId: string, reason?: string) => {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('economy_admin_token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+      }
+      return fetch(
+        `${process.env.NEXT_PUBLIC_MARKETPLACE_URL || 'http://localhost:9478'}/v1/market/admin/orders/${orderId}/refund`,
+        { method: 'POST', headers, body: JSON.stringify({ reason: reason || 'Admin refund' }) },
+      ).then(r => r.json()).catch(() => ({ error: 'Refund request failed' }));
+    },
+  },
 };
