@@ -1,61 +1,7 @@
-export const NATS_SUBJECTS = {
-  APPROVAL_CREATED: 'approval.created',
-  APPROVAL_UPDATED: 'approval.updated',
-  NOTIFY_PUSH: 'notify.push',
-  AUDIO_INGEST: 'audio.ingest',
-  OUTBOX_ENQUEUE: 'outbox.enqueue',
-  TTS_OUTBOX_ENQUEUE: 'tts.outbox.enqueue',
-  RAG_INDEX_REQUEST: 'rag.index.request',
-  RAG_INDEX_RESULT: 'rag.index.result',
-  WAKE_WORD_DETECTED: 'wake_word.detected',
-  RUNTIME_DISPATCH: 'runtime.dispatch',
-  TOOL_RUN_RESULT: 'tool.run.result',
-  TOOL_RUN_REQUEST: 'tool.run.request',
-  INBOUND_MESSAGE: 'inbound.message.*',
-  DOCUMENT_OCR_COMPLETE: 'document.ocr.complete',
-  DOCUMENT_PIPELINE_COMPLETE: 'document.pipeline.complete',
-  DOCUMENT_PIPELINE_FAILED: 'document.pipeline.failed',
-  DOCUMENT_BATCH_COMPLETE: 'document.batch.complete',
-  DOCUMENT_ENTITIES_EXTRACTED: 'document.entities.extracted',
-  DOCUMENT_SUMMARY_GENERATED: 'document.summary.generated',
-  DOCUMENT_PII_DETECTED: 'document.pii.detected',
-  NOTIFY_PROACTIVE: 'notify.proactive',
-  NOTIFY_PROACTIVE_FEEDBACK: 'notify.proactive.feedback',
-  QUANTUM_JOB_SUBMIT: 'quantum.job.submit',
-  QUANTUM_JOB_CANCEL: 'quantum.job.cancel',
-  QUANTUM_JOB_COMPLETED: 'quantum.job.completed',
-  QUANTUM_JOB_FAILED: 'quantum.job.failed',
-  MESH_DEVICE_REGISTER: 'mesh.device.register',
-  MESH_DEVICE_HEARTBEAT: 'mesh.device.heartbeat',
-  MESH_DEVICE_DEREGISTER: 'mesh.device.deregister',
-  MODEL_REGISTERED: 'model.registered',
-  MODEL_UNREGISTERED: 'model.unregistered',
-  MODEL_STATUS_CHANGED: 'model.status_changed',
-  MODEL_ROUTE_DECISION: 'model.route_decision',
-  MODEL_HOTSWAP_RESULT: 'model.hotswap_result',
-  MODEL_BENCHMARK_COMPLETE: 'model.benchmark_complete',
-  MODEL_DEPLOY_STATUS: 'model.deploy_status',
-  MODEL_VRAM_ALERT: 'model.vram_alert',
-  MODEL_FLEET_HEALTH: 'model.fleet_health',
-  SECURITY_SAST_COMPLETE: 'security.sast.complete',
-  SECURITY_SECRET_SCAN_COMPLETE: 'security.secret_scan.complete',
-  SECURITY_SECRET_FOUND: 'security.secret.found',
-  SECURITY_DEP_AUDIT_COMPLETE: 'security.dep_audit.complete',
-  SECURITY_INFRA_AUDIT_COMPLETE: 'security.infra_audit.complete',
-  SECURITY_PENTEST_COMPLETE: 'security.pentest.complete',
-  SECURITY_POSTURE_GENERATED: 'security.posture.generated',
-  SECURITY_CRITICAL_FINDING: 'security.critical_finding',
-  inboundMessage: (channel: string) => `inbound.message.${channel}`,
-  meshJobStatus: (jobId: string) => `mesh.job.status.${jobId}`,
-  modelNodeProbe: (nodeId: string) => `model.node.probe.${nodeId}`,
-  quantumJobStatus: (jobId: string) => `quantum.job.status.${jobId}`,
-} as const;
-
-export interface StreamConfig {
-  name: string;
-  subjects: string[];
-  retention: any;
-  max_age?: number;
+export enum NatsSubject {
+  MARKETING_INTEL_RELOAD = 'marketing_intel_reload',
+  MARKETING_INTEL_UPDATE = 'marketing_intel_update',
+  ADMIN_RELOAD = 'admin_reload',
+  QUANTUM_STATE_SYNC = 'quantum_state_sync',
+  MODEL_ROUTER_RELOAD = 'model_router_reload'
 }
-
-export const STREAM_CONFIGS: Record<string, StreamConfig> = {};

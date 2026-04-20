@@ -1,6 +1,4 @@
-import { FastifyInstance } from 'fastify';
-import pg from 'pg';
-
-export async function registerQuantumRoutes(app: FastifyInstance, pool: pg.Pool) {
-  // stub
-}
+import { Router } from 'express';
+const router = Router();
+router.get('/', (req, res) => res.json({ status: 'ok' }));
+export default router;

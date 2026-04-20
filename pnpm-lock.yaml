@@ -345,7 +345,11 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  packages/marketing-intel: {}
+  packages/marketing-intel:
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   packages/model-router:
     devDependencies:
@@ -903,7 +907,39 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
 
-  services/marketing-intel: {}
+  services/marketing-intel:
+    dependencies:
+      '@sven/marketing-intel':
+        specifier: workspace:*
+        version: link:../../packages/marketing-intel
+      '@sven/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      fastify:
+        specifier: ^5.8.5
+        version: 5.8.5
+      nats:
+        specifier: ^2.29.3
+        version: 2.29.3
+      pg:
+        specifier: ^8.20.0
+        version: 8.20.0
+      uuid:
+        specifier: ^10.0.0
+        version: 10.0.0
+    devDependencies:
+      '@types/pg':
+        specifier: ^8.20.0
+        version: 8.20.0
+      '@types/uuid':
+        specifier: ^10.0.0
+        version: 10.0.0
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   services/model-router:
     dependencies:
