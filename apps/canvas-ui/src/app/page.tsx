@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import AppShell from '@/components/AppShell';
 import { useInfiniteChats, useCreateChat, useRenameChat, useDeleteChat } from '@/lib/hooks';
 import type { ChatSummary } from '@/lib/api';
-import { PageSpinner } from '@/components/Spinner';
+import { PageSpinner, Spinner } from '@/components/Spinner';
 import { MessageSquare, Users, Hash, Lock, Plus, Pencil, Trash2, Trophy, ShieldCheck, Workflow } from 'lucide-react';
 import { relativeTime } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -148,8 +148,9 @@ export default function ChatsPage() {
                 onClick={() => void handleCreateChat()}
                 disabled={createChat.isPending}
                 className="btn btn-primary inline-flex items-center gap-1.5 px-3 py-2 text-xs disabled:opacity-60"
+                aria-label="New chat"
               >
-                <Plus className="h-3.5 w-3.5" />
+                {createChat.isPending ? <Spinner className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                 New chat
               </button>
               <span className="badge badge-info">{chatRows.length} loaded chats</span>
@@ -200,8 +201,9 @@ export default function ChatsPage() {
                 onClick={() => void handleCreateChat()}
                 disabled={createChat.isPending}
                 className="btn btn-primary mt-3 inline-flex items-center gap-1.5 px-3 py-2 text-xs disabled:opacity-60"
+                aria-label="Start first chat"
               >
-                <Plus className="h-3.5 w-3.5" />
+                {createChat.isPending ? <Spinner className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
                 Start first chat
               </button>
             </div>
@@ -242,6 +244,7 @@ export default function ChatsPage() {
                         <button
                           type="button"
                           title="Rename"
+                          aria-label="Rename chat"
                           className="rounded-md p-1.5 text-[var(--fg-muted)] hover:bg-slate-200/70 dark:hover:bg-slate-700/60"
                           onClick={(e) => {
                             e.preventDefault();
@@ -254,6 +257,7 @@ export default function ChatsPage() {
                         <button
                           type="button"
                           title="Delete"
+                          aria-label="Delete chat"
                           className="rounded-md p-1.5 text-rose-600 hover:bg-rose-100/70 dark:text-rose-400 dark:hover:bg-rose-900/40"
                           onClick={(e) => {
                             e.preventDefault();
@@ -305,6 +309,7 @@ export default function ChatsPage() {
                 }
               }}
               placeholder="Chat title"
+              aria-label="Chat title"
             />
             <div className="mt-4 flex justify-end gap-2">
               <button
