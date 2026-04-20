@@ -63,7 +63,7 @@ const MAX_FAILED_ATTEMPTS = Number(process.env.AUTH_MAX_FAILED || 5);
 const LOCKOUT_DURATION_MS = Number(process.env.AUTH_LOCKOUT_MS || 15 * 60 * 1000); // 15 min
 const LOCKOUT_DURATION_SEC = Math.max(1, Math.ceil(LOCKOUT_DURATION_MS / 1000));
 const MAX_TOTP_ATTEMPTS = 5;
-const DUMMY_BCRYPT_HASH = '$2b$10$K4GEbrHmBaK8Z0dIbJZx5.X1YHRkfP/TnU0s9LS2GxJhK0Nvn5JyC';
+const DUMMY_BCRYPT_HASH = '$2b$12$K4GEbrHmBaK8Z0dIbJZx5.X1YHRkfP/TnU0s9LS2GxJhK0Nvn5JyC';
 
 const USER_RATE_LIMIT_ENABLED = process.env.API_USER_RATE_LIMIT_ENABLED !== 'false';
 const USER_RATE_LIMIT_MAX = Math.max(1, Number(process.env.API_USER_RATE_LIMIT_MAX || 300));
