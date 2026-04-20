@@ -149,6 +149,7 @@ export function generateSecurityPosture(opts: {
 
   // Recommendations
   const recommendations: string[] = [];
+  if (!opts.secrets) recommendations.push('Run secret scanning to validate that no credentials or keys are committed.');
   if (opts.secrets && !opts.secrets.clean) recommendations.push('Rotate all detected secrets immediately. Remove them from source and use a secrets manager.');
   if (critical > 0) recommendations.push('Address all critical findings before next deployment.');
   if (opts.dependencies && opts.dependencies.byRisk.critical > 0) recommendations.push('Upgrade dependencies with critical CVEs.');
@@ -203,7 +204,7 @@ export function generateSecurityPosture(opts: {
     mediumFindings: medium,
     lowFindings: low,
     totalFindings,
-    secretsClean: opts.secrets?.clean ?? true,
+    secretsClean: opts.secrets?.clean ?? false,
     topRisks,
     recommendations,
     complianceNotes,

@@ -21,6 +21,7 @@ describe('Security Report Generator', () => {
       expect(posture.totalFindings).toBe(0);
       expect(posture.topRisks.length).toBe(0);
       expect(posture.complianceNotes.length).toBe(4);
+      expect(posture.secretsClean).toBe(false);
     });
 
     it('should calculate weighted average accurately', () => {
@@ -160,6 +161,13 @@ describe('Security Report Generator', () => {
 
       const authNote = posture.complianceNotes.find(c => c.control.includes('Auth'));
       expect(authNote?.status).toBe('pass');
+    });
+
+    it('should recommend running secret scans when no secret report is provided', () => {
+      const posture = generateSecurityPosture({});
+      expect(posture.recommendations).toContain(
+        'Run secret scanning to validate that no credentials or keys are committed.',
+      );
     });
   });
 
