@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-04-20T02:56:39.802Z",
-  "source_branch": "main",
-  "source_head_sha": "d3791f78e1f8364040f585f3218cea6fbca21526",
+  "generated_at": "2026-04-20T18:51:43.557Z",
+  "source_branch": "bolt-optimize-chat-renders-11620056633847467658",
+  "source_head_sha": "6bf8ec5dbab38db335d14a70ba53683f8b29b246",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-20T02:56:18.184Z",
-    "branch": "main",
-    "total_runs": 1000
+    "captured_at": "2026-04-20T18:51:43.087Z",
+    "branch": "bolt-optimize-chat-renders-11620056633847467658",
+    "total_runs": 7
   },
   "final_dod_ci": false,
   "parity_e2e_ci": false,
   "parity_checklist_verify_ci": false,
-  "agent_zero_parity_verify_ci": true,
+  "agent_zero_parity_verify_ci": false,
   "websocket_contract_ci": false,
   "mcp_server_compat_ci": false,
   "a2a_compat_ci": false,
@@ -26,12 +26,12 @@
   "ui_e2e_ci": false,
   "mobile_coverage_gate_ci": false,
   "csrf_auth_e2e_ci": false,
-  "client_env_governance_ci": false,
+  "client_env_governance_ci": true,
   "backend_capability_e2e_ci": false,
   "security_privacy_governance_ci": false,
   "privacy_admin_e2e_ci": false,
-  "ops_shell_ci_required": true,
-  "ops_shell_ci": false,
+  "ops_shell_ci_required": false,
+  "ops_shell_ci": true,
   "skill_quarantine_scan_ci": false,
   "security_audit_unified_ci": false,
   "security_baseline_ci": false,
@@ -39,7 +39,7 @@
     "final_dod_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -47,13 +47,13 @@
       "workflow_name": "final-dod-e2e",
       "matched_target_sha": false,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "parity_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -61,13 +61,13 @@
       "workflow_name": "parity-e2e",
       "matched_target_sha": false,
       "gate_key": "parity_e2e_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -81,22 +81,22 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
-      "status": "pass",
-      "conclusion": "success",
+      "status": "fail",
+      "conclusion": "failure",
       "workflow_id": null,
       "workflow_name": "agent-zero-parity-verify",
       "matched_target_sha": false,
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-20T02:56:15.447Z"
+      "generated_at": "2026-04-20T18:51:40.029Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -111,7 +111,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": "pass_with_skips",
       "conclusion": null,
@@ -121,12 +121,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-20T02:56:16.684Z"
+      "generated_at": "2026-04-20T18:51:41.437Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": "pass_with_skips",
       "conclusion": null,
@@ -136,12 +136,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-20T02:56:17.909Z"
+      "generated_at": "2026-04-20T18:51:42.686Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -156,7 +156,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -169,7 +169,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -177,13 +177,13 @@
       "workflow_name": "release-ops-drill",
       "matched_target_sha": false,
       "gate_key": "release_ops_drill_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "mobile_auth_session_smoke_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -191,13 +191,13 @@
       "workflow_name": "mobile-auth-session-smoke",
       "matched_target_sha": false,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -211,7 +211,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -225,7 +225,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -238,7 +238,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -246,27 +246,27 @@
       "workflow_name": "desktop-tauri-release",
       "matched_target_sha": false,
       "gate_key": "desktop_tauri_release_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+      "decision": "no_runs_for_branch",
+      "previous_gate_value": false
     },
     "ui_e2e_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "main",
-      "event": null,
-      "status": null,
+      "run_id": 24684409728,
+      "head_sha": "6bf8ec5dbab38db335d14a70ba53683f8b29b246",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
+      "event": "pull_request",
+      "status": "in_progress",
       "conclusion": null,
       "workflow_id": 261310896,
       "workflow_name": "ui-e2e-accessibility",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "ui_e2e_accessibility_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+      "decision": "pending_non_final_target_sha",
+      "previous_gate_value": false
     },
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -280,7 +280,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -292,23 +292,22 @@
       "previous_gate_value": false
     },
     "client_env_governance_ci": {
-      "run_id": null,
-      "head_sha": null,
-      "head_branch": "main",
-      "event": null,
-      "status": null,
-      "conclusion": null,
+      "run_id": 24684407805,
+      "head_sha": "6bf8ec5dbab38db335d14a70ba53683f8b29b246",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
       "workflow_id": 261310854,
       "workflow_name": "client-env-governance",
-      "matched_target_sha": false,
+      "matched_target_sha": true,
       "gate_key": "client_env_governance_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+      "decision": "target_sha_completed_run"
     },
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -322,7 +321,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -336,7 +335,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -350,7 +349,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -358,9 +357,9 @@
       "workflow_name": "ops-shell-ci",
       "matched_target_sha": false,
       "gate_key": "ops_shell_ci",
-      "decision": "missing_completed_target_sha_run",
-      "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526",
-      "scope_source": "git show d3791f78e1f8364040f585f3218cea6fbca21526",
+      "decision": "not_required_scope_clean",
+      "previous_gate_value": false,
+      "scope_source": "no_changed_files_detected",
       "scope_globs": [
         "scripts/ops/**/*.sh",
         "scripts/ops/**/*.ps1",
@@ -369,171 +368,14 @@
         "scripts/ops/**/*.md",
         ".github/workflows/ops-shell-ci.yml"
       ],
-      "scope_matched_files": [
-        ".github/workflows/ops-shell-ci.yml",
-        "scripts/ops/admin/check-rbac.ps1",
-        "scripts/ops/admin/ensure-local-ollama.ps1",
-        "scripts/ops/admin/install-pm2-logon-task.ps1",
-        "scripts/ops/admin/install-pm2-startup-launcher.ps1",
-        "scripts/ops/admin/renew-sven-systems-certs.ps1",
-        "scripts/ops/admin/run-dashboard-slo-auth-interactive.ps1",
-        "scripts/ops/admin/run-dashboard-slo-auth.ps1",
-        "scripts/ops/admin/run-observability-operability-check.ps1",
-        "scripts/ops/admin/run-performance-capacity-check.ps1",
-        "scripts/ops/admin/run-privacy-compliance-check.ps1",
-        "scripts/ops/admin/start-nginx-edge-from-repo.ps1",
-        "scripts/ops/admin/start-sven-web-ui-pm2.ps1",
-        "scripts/ops/admin/upsert-admin-user.cjs",
-        "scripts/ops/device/approve-device-code-db.ps1",
-        "scripts/ops/device/auto-approve-from-ui.ps1",
-        "scripts/ops/device/confirm-device-code.ps1",
-        "scripts/ops/device/query-session.ps1",
-        "scripts/ops/lib/common.ps1",
-        "scripts/ops/mobile/capture-47matrix-ingress-diagnose.ps1",
-        "scripts/ops/mobile/capture-android-network-dns-diagnostic.ps1",
-        "scripts/ops/mobile/capture-legal-phone-network-path-probe.ps1",
-        "scripts/ops/mobile/check-legal-urls-from-adb.ps1",
-        "scripts/ops/mobile/collect-adb-background-network.ps1",
-        "scripts/ops/mobile/collect-adb-cold-start-samples.ps1",
-        "scripts/ops/mobile/collect-adb-perf-snapshot.ps1",
-        "scripts/ops/mobile/collect-adb-rc-smoke.ps1",
-        "scripts/ops/mobile/collect-adb-startup-telemetry.ps1",
-        "scripts/ops/mobile/finalize-ios-c8-evidence.ps1",
-        "scripts/ops/mobile/generate-ios-c8-input-template.ps1",
-        "scripts/ops/mobile/install-nvm.ps1",
-        "scripts/ops/mobile/maestro-cloud-run.sh",
-        "scripts/ops/mobile/mobile-c8-closeout.ps1",
-        "scripts/ops/mobile/mobile-c8-legal-bundle.ps1",
-        "scripts/ops/mobile/mobile-c8-legal-host-matrix.ps1",
-        "scripts/ops/mobile/mobile-c8-next-actions.ps1",
-        "scripts/ops/mobile/mobile-c8-pack.ps1",
-        "scripts/ops/mobile/mobile-c8-pending-inputs.ps1",
-        "scripts/ops/mobile/mobile-c8-snapshot.ps1",
-        "scripts/ops/mobile/mobile-c8-status-index.ps1",
-        "scripts/ops/mobile/mobile-preflight.ps1",
-        "scripts/ops/mobile/mobile-release-closeout.ps1",
-        "scripts/ops/mobile/monitor-expo-run.ps1",
-        "scripts/ops/mobile/set-ios-c8-metrics.ps1",
-        "scripts/ops/mobile/set-mobile-crash-anr-evidence.ps1",
-        "scripts/ops/mobile/set-mobile-release-signing-evidence.ps1",
-        "scripts/ops/mobile/set-voiceover-audit-verdict.ps1",
-        "scripts/ops/mobile/start-expo.ps1",
-        "scripts/ops/mobile/sync-device-farm-results.ps1",
-        "scripts/ops/release/append-mirror-agent-packaging-result.ps1",
-        "scripts/ops/release/append-multi-device-check-result.ps1",
-        "scripts/ops/release/bridge-ci-lanes-check.cjs",
-        "scripts/ops/release/bridge-ci-lanes-remote-check.cjs",
-        "scripts/ops/release/bridge-vm-ci-lanes-pr-comment.cjs",
-        "scripts/ops/release/bridge-vm-ci-lanes-run-and-comment.cjs",
-        "scripts/ops/release/bridge-vm-ci-lanes.cjs",
-        "scripts/ops/release/check-mirror-agent-packaging.ps1",
-        "scripts/ops/release/finalize-after-soak.ps1",
-        "scripts/ops/release/finalize-mirror-agent-packaging-evidence.cjs",
-        "scripts/ops/release/finalize-mirror-agent-packaging-evidence.ps1",
-        "scripts/ops/release/finalize-multi-device-validation.cjs",
-        "scripts/ops/release/finalize-multi-device-validation.ps1",
-        "scripts/ops/release/init-mirror-agent-packaging-evidence.ps1",
-        "scripts/ops/release/init-multi-device-evidence.ps1",
-        "scripts/ops/release/set-final-signoff.ps1",
-        "scripts/ops/release/set-release-rollout-evidence.cjs",
-        "scripts/ops/release/set-release-rollout-evidence.ps1",
-        "scripts/ops/release/vm-restart-drill.cjs",
-        "scripts/ops/release/watch-soak-and-finalize.ps1",
-        "scripts/ops/release/watch-soak-refresh-status.ps1",
-        "scripts/ops/sh/check-no-todo.sh",
-        "scripts/ops/sh/ci-check.sh",
-        "scripts/ops/sh/common.sh",
-        "scripts/ops/sh/db-migrate.sh",
-        "scripts/ops/sh/dev-admin.sh",
-        "scripts/ops/sh/dev-canvas.sh",
-        "scripts/ops/sh/dev-discord.sh",
-        "scripts/ops/sh/dev-gateway.sh",
-        "scripts/ops/sh/dev-google-chat.sh",
-        "scripts/ops/sh/dev-imessage.sh",
-        "scripts/ops/sh/dev-line.sh",
-        "scripts/ops/sh/dev-matrix.sh",
-        "scripts/ops/sh/dev-runtime.sh",
-        "scripts/ops/sh/dev-signal.sh",
-        "scripts/ops/sh/dev-slack.sh",
-        "scripts/ops/sh/dev-teams.sh",
-        "scripts/ops/sh/dev-telegram.sh",
-        "scripts/ops/sh/dev-voice-call.sh",
-        "scripts/ops/sh/dev-wake-word.sh",
-        "scripts/ops/sh/dev-webchat.sh",
-        "scripts/ops/sh/dev-whatsapp.sh",
-        "scripts/ops/sh/dev-zalo.sh",
-        "scripts/ops/sh/device-approve-db.sh",
-        "scripts/ops/sh/device-auto-approve-ui.sh",
-        "scripts/ops/sh/device-confirm.sh",
-        "scripts/ops/sh/device-query-session.sh",
-        "scripts/ops/sh/diagnose-47matrix-ingress.sh",
-        "scripts/ops/sh/docker-build.sh",
-        "scripts/ops/sh/docker-down.sh",
-        "scripts/ops/sh/docker-up-adapters.sh",
-        "scripts/ops/sh/docker-up.sh",
-        "scripts/ops/sh/format-check.sh",
-        "scripts/ops/sh/format.sh",
-        "scripts/ops/sh/generate-staging-env.sh",
-        "scripts/ops/sh/install-systemd-compose-core.sh",
-        "scripts/ops/sh/lint.sh",
-        "scripts/ops/sh/list.sh",
-        "scripts/ops/sh/mobile-newarch-check.sh",
-        "scripts/ops/sh/mobile-preflight.sh",
-        "scripts/ops/sh/mobile-release-device-validate.sh",
-        "scripts/ops/sh/mobile-securestore-check.sh",
-        "scripts/ops/sh/mobile-start-expo.sh",
-        "scripts/ops/sh/ops-device-approve-db.sh",
-        "scripts/ops/sh/ops-device-auto-approve.sh",
-        "scripts/ops/sh/ops-device-confirm.sh",
-        "scripts/ops/sh/ops-expo-monitor-run.sh",
-        "scripts/ops/sh/ops-expo-start-nvm.sh",
-        "scripts/ops/sh/ops-expo-start-portable.sh",
-        "scripts/ops/sh/ops-expo-start.sh",
-        "scripts/ops/sh/ops.sh",
-        "scripts/ops/sh/production-scale-k8s-verify.sh",
-        "scripts/ops/sh/publish-quickstart.sh",
-        "scripts/ops/sh/quickstart-publish-and-smoke.sh",
-        "scripts/ops/sh/release-artifacts-check.sh",
-        "scripts/ops/sh/release-checklist-update.sh",
-        "scripts/ops/sh/release-client-env-check.sh",
-        "scripts/ops/sh/release-edge-network-check.sh",
-        "scripts/ops/sh/release-edge-network-continuous-check.sh",
-        "scripts/ops/sh/release-env-secrets-check.sh",
-        "scripts/ops/sh/release-final-dod-local.sh",
-        "scripts/ops/sh/release-gate-set.sh",
-        "scripts/ops/sh/release-gate.sh",
-        "scripts/ops/sh/release-key-rotation-check.sh",
-        "scripts/ops/sh/release-legacy-cleanup-check.sh",
-        "scripts/ops/sh/release-onboarding-check.sh",
-        "scripts/ops/sh/release-onboarding-day1-check.sh",
-        "scripts/ops/sh/release-parity-e2e-local.sh",
-        "scripts/ops/sh/release-post-verify.sh",
-        "scripts/ops/sh/release-reproducibility-check.sh",
-        "scripts/ops/sh/release-rollback-previous.sh",
-        "scripts/ops/sh/release-rollout-check.sh",
-        "scripts/ops/sh/release-soak-start.sh",
-        "scripts/ops/sh/release-soak-status.sh",
-        "scripts/ops/sh/release-soak-stop.sh",
-        "scripts/ops/sh/release-status.sh",
-        "scripts/ops/sh/release-supply-chain-check.sh",
-        "scripts/ops/sh/release-verify-post-local.sh",
-        "scripts/ops/sh/release-versioning-check.sh",
-        "scripts/ops/sh/smoke-47matrix-domains.sh",
-        "scripts/ops/sh/staging-host-preflight.sh",
-        "scripts/ops/sh/test-gateway-agents.sh",
-        "scripts/ops/sh/test-gateway.sh",
-        "scripts/ops/sh/test-ops-dispatch.sh",
-        "scripts/ops/sh/test-quickstart-installers.sh",
-        "scripts/ops/sh/test.sh",
-        "scripts/ops/sh/typecheck.sh"
-      ],
-      "scope_changed_files_count": 3531,
-      "ops_shell_ci_required": true
+      "scope_matched_files": [],
+      "scope_changed_files_count": 0,
+      "ops_shell_ci_required": false
     },
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -547,7 +389,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "main",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -559,17 +401,18 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 24646219569,
-      "head_sha": "d3791f78e1f8364040f585f3218cea6fbca21526",
-      "head_branch": "main",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "failure",
+      "run_id": 24684409706,
+      "head_sha": "6bf8ec5dbab38db335d14a70ba53683f8b29b246",
+      "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
+      "event": "pull_request",
+      "status": "in_progress",
+      "conclusion": null,
       "workflow_id": 261310894,
       "workflow_name": "security-baseline",
       "matched_target_sha": true,
       "gate_key": "security_baseline_ci",
-      "decision": "target_sha_completed_run"
+      "decision": "pending_non_final_target_sha",
+      "previous_gate_value": false
     }
   },
   "required_workflow_manifest": {
@@ -602,7 +445,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -610,8 +453,8 @@
         "workflow_name": "final-dod-e2e",
         "matched_target_sha": false,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "final_dod_e2e_ci"
     },
@@ -620,7 +463,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -628,8 +471,8 @@
         "workflow_name": "parity-e2e",
         "matched_target_sha": false,
         "gate_key": "parity_e2e_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "parity_e2e_ci"
     },
@@ -638,7 +481,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -646,8 +489,8 @@
         "workflow_name": "d9-keycloak-interop-gate",
         "matched_target_sha": false,
         "gate_key": "d9_keycloak_interop_gate_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "d9_keycloak_interop_gate_ci"
     },
@@ -656,7 +499,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -664,8 +507,8 @@
         "workflow_name": "release-ops-drill",
         "matched_target_sha": false,
         "gate_key": "release_ops_drill_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "release_ops_drill_ci"
     },
@@ -674,7 +517,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -682,17 +525,17 @@
         "workflow_name": "mobile-auth-session-smoke",
         "matched_target_sha": false,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
     "flutter-user-app-device-farm": {
-      "pass": false,
+      "pass": true,
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -700,8 +543,8 @@
         "workflow_name": "flutter-user-app-device-farm",
         "matched_target_sha": false,
         "gate_key": "flutter_user_app_device_farm_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": true
       },
       "gate_key": "flutter_user_app_device_farm_ci"
     },
@@ -710,7 +553,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -718,26 +561,26 @@
         "workflow_name": "desktop-tauri-release",
         "matched_target_sha": false,
         "gate_key": "desktop_tauri_release_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "desktop_tauri_release_ci"
     },
     "ui-e2e-accessibility": {
       "pass": false,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "main",
-        "event": null,
-        "status": null,
+        "run_id": 24684409728,
+        "head_sha": "6bf8ec5dbab38db335d14a70ba53683f8b29b246",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
+        "event": "pull_request",
+        "status": "in_progress",
         "conclusion": null,
         "workflow_id": 261310896,
         "workflow_name": "ui-e2e-accessibility",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "ui_e2e_accessibility_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "pending_non_final_target_sha",
+        "previous_gate_value": false
       },
       "gate_key": "ui_e2e_accessibility_ci"
     },
@@ -746,7 +589,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -754,44 +597,42 @@
         "workflow_name": "gateway-coverage-gate",
         "matched_target_sha": false,
         "gate_key": "gateway_coverage_gate_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "gateway_coverage_gate_ci"
     },
     "client-env-governance": {
-      "pass": false,
+      "pass": true,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "main",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24684407805,
+        "head_sha": "6bf8ec5dbab38db335d14a70ba53683f8b29b246",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
         "workflow_id": 261310854,
         "workflow_name": "client-env-governance",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "client_env_governance_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "client_env_governance_ci"
     },
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": null,
-        "head_sha": null,
-        "head_branch": "main",
-        "event": null,
-        "status": null,
-        "conclusion": null,
+        "run_id": 24684407780,
+        "head_sha": "6bf8ec5dbab38db335d14a70ba53683f8b29b246",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310856,
         "workflow_name": "deployment-pipeline",
-        "matched_target_sha": false,
+        "matched_target_sha": true,
         "gate_key": "deployment_pipeline_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "deployment_pipeline_ci"
     },
@@ -800,7 +641,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -808,25 +649,26 @@
         "workflow_name": "env-secrets-governance",
         "matched_target_sha": false,
         "gate_key": "env_secrets_governance_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "env_secrets_governance_ci"
     },
     "security-baseline": {
       "pass": false,
       "provenance": {
-        "run_id": 24646219569,
-        "head_sha": "d3791f78e1f8364040f585f3218cea6fbca21526",
-        "head_branch": "main",
-        "event": "push",
-        "status": "completed",
-        "conclusion": "failure",
+        "run_id": 24684409706,
+        "head_sha": "6bf8ec5dbab38db335d14a70ba53683f8b29b246",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
+        "event": "pull_request",
+        "status": "in_progress",
+        "conclusion": null,
         "workflow_id": 261310894,
         "workflow_name": "security-baseline",
         "matched_target_sha": true,
         "gate_key": "security_baseline_ci",
-        "decision": "target_sha_completed_run"
+        "decision": "pending_non_final_target_sha",
+        "previous_gate_value": false
       },
       "gate_key": "security_baseline_ci"
     },
@@ -835,7 +677,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -843,8 +685,8 @@
         "workflow_name": "onboarding-readiness",
         "matched_target_sha": false,
         "gate_key": "onboarding_readiness_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "onboarding_readiness_ci"
     },
@@ -853,7 +695,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -861,8 +703,8 @@
         "workflow_name": "release-status",
         "matched_target_sha": false,
         "gate_key": "release_status_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "release_status_ci"
     },
@@ -871,7 +713,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -879,8 +721,8 @@
         "workflow_name": "release-supply-chain",
         "matched_target_sha": false,
         "gate_key": "release_supply_chain_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "release_supply_chain_ci"
     },
@@ -889,7 +731,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -897,8 +739,8 @@
         "workflow_name": "ops-shell-ci",
         "matched_target_sha": false,
         "gate_key": "ops_shell_ci_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "ops_shell_ci_ci"
     },
@@ -907,7 +749,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -915,8 +757,8 @@
         "workflow_name": "bridge-runtime-tests",
         "matched_target_sha": false,
         "gate_key": "bridge_runtime_tests_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "bridge_runtime_tests_ci"
     },
@@ -925,7 +767,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "main",
+        "head_branch": "bolt-optimize-chat-renders-11620056633847467658",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -933,8 +775,8 @@
         "workflow_name": "gateway-bridge-contract-tests",
         "matched_target_sha": false,
         "gate_key": "gateway_bridge_contract_tests_ci",
-        "decision": "missing_completed_target_sha_run",
-        "target_sha": "d3791f78e1f8364040f585f3218cea6fbca21526"
+        "decision": "no_runs_for_branch",
+        "previous_gate_value": false
       },
       "gate_key": "gateway_bridge_contract_tests_ci"
     }
