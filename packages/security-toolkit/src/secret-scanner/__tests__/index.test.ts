@@ -42,21 +42,28 @@ describe('secret-scanner', () => {
 
   describe('redactSecret', () => {
     it('redacts strings of 8 characters or less entirely', () => {
-      expect(redactSecret('12345678')).toBe('***');
-      expect(redactSecret('abc')).toBe('***');
-      expect(redactSecret('')).toBe('***');
+      expect(redactSecret('12345678')).toBe('***'); // length 8
+      expect(redactSecret('abc')).toBe('***'); // length 3
+      expect(redactSecret('')).toBe('***'); // length 0
     });
 
     it('redacts exactly 9 characters by showing 1 character on each end', () => {
-      expect(redactSecret('1234567890')).toBe('1***0');
+      expect(redactSecret('123456789')).toBe('1***9'); // length 9
     });
 
-    it('partially redacts strings longer than 8 characters', () => {
+    it('partially redacts strings longer than 8 characters scaling with 15%', () => {
+      // 15% of 10 is 1.5, floor is 1
+      expect(redactSecret('1234567890')).toBe('1***0');
+      // 15% of 20 is 3
       expect(redactSecret('12345678901234567890')).toBe('123***890');
-      expect(redactSecret('abcdefghijklmno')).toBe('ab***no');
+      // 15% of 26 is 3.9, floor is 3
+      expect(redactSecret('abcdefghijklmnopqrstuvwxyz')).toBe('abc***xyz');
     });
 
     it('caps shown characters to a maximum of 4 on each end for very long secrets', () => {
+      // 15% of 27 is 4.05, floor is 4
+      expect(redactSecret('123456789012345678901234567')).toBe('1234***4567');
+      // 15% of 30 is 4.5, cap is 4
       expect(redactSecret('123456789012345678901234567890')).toBe('1234***7890');
     });
   });
