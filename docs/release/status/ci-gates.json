@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-04-20T19:52:05.163Z",
+  "generated_at": "2026-04-20T19:52:55.569Z",
   "source_branch": "palette-chat-list-ux-1123061284472941974",
   "source_head_sha": "a59a506f20ff0d40fc7ce511de83b7f4e39db3d8",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-04-20T19:52:04.286Z",
+    "captured_at": "2026-04-20T19:52:54.735Z",
     "branch": "palette-chat-list-ux-1123061284472941974",
     "total_runs": 24
   },
@@ -41,14 +41,13 @@
       "head_sha": "a59a506f20ff0d40fc7ce511de83b7f4e39db3d8",
       "head_branch": "palette-chat-list-ux-1123061284472941974",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310863,
       "workflow_name": "final-dod-e2e",
       "matched_target_sha": true,
       "gate_key": "final_dod_e2e_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
       "run_id": 24686989933,
@@ -90,7 +89,7 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-04-20T19:52:01.341Z"
+      "generated_at": "2026-04-20T19:52:51.730Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
@@ -120,7 +119,7 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-04-20T19:52:02.702Z"
+      "generated_at": "2026-04-20T19:52:53.164Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
@@ -135,7 +134,7 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-04-20T19:52:03.914Z"
+      "generated_at": "2026-04-20T19:52:54.413Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
@@ -184,14 +183,13 @@
       "head_sha": "a59a506f20ff0d40fc7ce511de83b7f4e39db3d8",
       "head_branch": "palette-chat-list-ux-1123061284472941974",
       "event": "pull_request",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "workflow_id": 261310875,
       "workflow_name": "mobile-auth-session-smoke",
       "matched_target_sha": true,
       "gate_key": "mobile_auth_session_smoke_ci",
-      "decision": "pending_non_final_target_sha",
-      "previous_gate_value": false
+      "decision": "target_sha_completed_run"
     },
     "mobile_release_readiness_ci": {
       "run_id": null,
@@ -445,14 +443,13 @@
         "head_sha": "a59a506f20ff0d40fc7ce511de83b7f4e39db3d8",
         "head_branch": "palette-chat-list-ux-1123061284472941974",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310863,
         "workflow_name": "final-dod-e2e",
         "matched_target_sha": true,
         "gate_key": "final_dod_e2e_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "final_dod_e2e_ci"
     },
@@ -516,14 +513,13 @@
         "head_sha": "a59a506f20ff0d40fc7ce511de83b7f4e39db3d8",
         "head_branch": "palette-chat-list-ux-1123061284472941974",
         "event": "pull_request",
-        "status": "in_progress",
-        "conclusion": null,
+        "status": "completed",
+        "conclusion": "failure",
         "workflow_id": 261310875,
         "workflow_name": "mobile-auth-session-smoke",
         "matched_target_sha": true,
         "gate_key": "mobile_auth_session_smoke_ci",
-        "decision": "pending_non_final_target_sha",
-        "previous_gate_value": false
+        "decision": "target_sha_completed_run"
       },
       "gate_key": "mobile_auth_session_smoke_ci"
     },
