@@ -55,24 +55,59 @@ interface Props {
   building: EidolonBuilding | null;
   citizen?: EidolonCitizen | null;
   citizenRuntime?: EidolonAgentRuntimeSlim | null;
+  buildingOccupants?: EidolonCitizen[];
+  onSelectBuildingById?: (buildingId: string) => void;
+  onSelectCitizen?: (citizenId: string) => void;
   onClose?: () => void;
 }
 
 // Citizen selection takes precedence over building selection so a freshly
 // clicked citizen always wins the inspector slot. The page also clears the
 // other selection when one is set, but precedence here is the safety net.
-export function InspectorPanel({ building, citizen, citizenRuntime, onClose }: Props) {
+export function InspectorPanel({
+  building,
+  citizen,
+  citizenRuntime,
+  buildingOccupants,
+  onSelectBuildingById,
+  onSelectCitizen,
+  onClose,
+}: Props) {
   if (citizen) {
-    return <CitizenInspector citizen={citizen} runtime={citizenRuntime ?? null} onClose={onClose} />;
+    return (
+      <CitizenInspector
+        citizen={citizen}
+        runtime={citizenRuntime ?? null}
+        onSelectBuildingById={onSelectBuildingById}
+        onClose={onClose}
+      />
+    );
   }
-  return <BuildingInspector building={building} />;
+  return (
+    <BuildingInspector
+      building={building}
+      occupants={buildingOccupants ?? []}
+      onSelectCitizen={onSelectCitizen}
+      onClose={onClose}
+    />
+  );
 }
 
-function BuildingInspector({ building }: { building: EidolonBuilding | null }) {
+function BuildingInspector({
+  building,
+  occupants,
+  onSelectCitizen,
+  onClose,
+}: {
+  building: EidolonBuilding | null;
+  occupants: EidolonCitizen[];
+  onSelectCitizen?: (citizenId: string) => void;
+  onClose?: () => void;
+}) {
   if (!building) {
     return (
       <div className="glass-card p-4 text-xs text-gray-400">
-        Click any building or citizen to inspect it.
+        Click any building or citizen to inspect it. Press <kbd className="px-1 py-0.5 rounded bg-white/10 text-[10px]">Esc</kbd> to clear.
       </div>
     );
   }
@@ -85,7 +120,19 @@ function BuildingInspector({ building }: { building: EidolonBuilding | null }) {
           </div>
           <div className="text-sm font-semibold text-gray-100">{building.label}</div>
         </div>
-        <span className={STATUS_CLASS[building.status]}>{building.status}</span>
+        <div className="flex items-start gap-2">
+          <span className={STATUS_CLASS[building.status]}>{building.status}</span>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="close inspector"
+              className="text-gray-500 hover:text-gray-200 text-xs leading-none px-1"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
       <dl className="grid grid-cols-2 gap-2 text-xs">
         {building.metrics.revenueUsd != null && (
@@ -103,6 +150,39 @@ function BuildingInspector({ building }: { building: EidolonBuilding | null }) {
         <Stat label="Glow" value={building.glow.toFixed(2)} />
         <Stat label="Height" value={building.height.toFixed(1)} />
       </dl>
+      {occupants.length > 0 && (
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
+            occupants · {occupants.length}
+          </div>
+          <ul className="flex flex-wrap gap-1">
+            {occupants.map((c) => {
+              const Tag = onSelectCitizen ? 'button' : 'span';
+              return (
+                <li key={c.id}>
+                  <Tag
+                    {...(onSelectCitizen
+                      ? {
+                          type: 'button' as const,
+                          onClick: () => onSelectCitizen(c.id),
+                          'aria-label': `inspect ${c.label}`,
+                        }
+                      : {})}
+                    className={`text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-gray-200 max-w-[10rem] truncate ${
+                      onSelectCitizen
+                        ? 'cursor-pointer hover:bg-brand-500/20 hover:text-gray-50 focus:outline-none focus-visible:ring-1 focus-visible:ring-brand-400'
+                        : ''
+                    }`}
+                    title={c.label}
+                  >
+                    {c.label}
+                  </Tag>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
       <div className="text-[10px] font-mono text-gray-500 break-all">{building.id}</div>
     </div>
   );
@@ -111,10 +191,12 @@ function BuildingInspector({ building }: { building: EidolonBuilding | null }) {
 function CitizenInspector({
   citizen,
   runtime,
+  onSelectBuildingById,
   onClose,
 }: {
   citizen: EidolonCitizen;
   runtime: EidolonAgentRuntimeSlim | null;
+  onSelectBuildingById?: (buildingId: string) => void;
   onClose?: () => void;
 }) {
   const energyPct = runtime ? Math.max(0, Math.min(100, Math.round(runtime.energy))) : null;
@@ -179,7 +261,12 @@ function CitizenInspector({
         )}
         {runtime && <Stat label="Mood" value={runtime.mood} />}
         <Stat label="Earnings" value={`$${citizen.earningsUsd.toFixed(2)}`} />
-        {citizen.homeBuildingId && <Stat label="Home" value={citizen.homeBuildingId} />}
+        {citizen.homeBuildingId && (
+          <HomeStat
+            buildingId={citizen.homeBuildingId}
+            onSelect={onSelectBuildingById}
+          />
+        )}
       </dl>
 
       {citizen.specializations && citizen.specializations.length > 0 && (
@@ -216,5 +303,32 @@ function Stat({ label, value }: { label: string; value: string }) {
         {value}
       </div>
     </div>
+  );
+}
+
+// Clickable variant of Stat for the citizen "Home" cross-link. Falls back to a
+// plain Stat when no callback is wired so the panel is still usable in a
+// read-only context.
+function HomeStat({
+  buildingId,
+  onSelect,
+}: {
+  buildingId: string;
+  onSelect?: (buildingId: string) => void;
+}) {
+  if (!onSelect) return <Stat label="Home" value={buildingId} />;
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(buildingId)}
+      className="text-left rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 min-w-0 hover:bg-brand-500/15 hover:border-brand-400/40 focus:outline-none focus-visible:ring-1 focus-visible:ring-brand-400 transition-colors group"
+      aria-label={`select home building ${buildingId}`}
+      title={`jump to ${buildingId}`}
+    >
+      <div className="text-[10px] uppercase tracking-wider text-gray-500 group-hover:text-brand-300">
+        Home →
+      </div>
+      <div className="text-sm text-gray-100 truncate">{buildingId}</div>
+    </button>
   );
 }

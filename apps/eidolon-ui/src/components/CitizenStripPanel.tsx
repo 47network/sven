@@ -14,7 +14,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type {
   EidolonAgentMood,
   EidolonAgentRuntimeSlim,
@@ -59,7 +59,8 @@ function energyColor(pct: number): string {
 }
 
 export function CitizenStripPanel({ citizens, agentStates, selectedId, onSelect }: Props) {
-  const rows = useMemo(() => {
+  const [query, setQuery] = useState('');
+  const allRows = useMemo(() => {
     if (!agentStates) return [];
     return citizens
       .map((c) => {
@@ -73,17 +74,50 @@ export function CitizenStripPanel({ citizens, agentStates, selectedId, onSelect 
       .filter(
         (r): r is { id: string; citizenId: string; label: string; runtime: EidolonAgentRuntimeSlim } =>
           r !== null,
-      )
-      .slice(0, 8);
+      );
   }, [citizens, agentStates]);
 
-  if (rows.length === 0) return null;
+  // Apply the user filter, then cap at 8 rows. Filter matches against label
+  // and state (case-insensitive) so operators can quickly find e.g. "working"
+  // citizens or anyone whose name starts with "max".
+  const filteredRows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? allRows.filter(
+          (r) =>
+            r.label.toLowerCase().includes(q) ||
+            r.runtime.state.toLowerCase().includes(q) ||
+            r.runtime.mood.toLowerCase().includes(q),
+        )
+      : allRows;
+    return filtered.slice(0, 8);
+  }, [allRows, query]);
+
+  if (allRows.length === 0) return null;
+  const showSearch = allRows.length > 5;
 
   return (
     <div className="glass-card px-3 py-2 w-72">
-      <div className="text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-1.5">citizens</div>
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="text-[10px] uppercase tracking-[0.3em] text-gray-500">
+          citizens · {filteredRows.length}/{allRows.length}
+        </div>
+      </div>
+      {showSearch && (
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="filter name / state / mood…"
+          aria-label="filter citizens"
+          className="w-full mb-1.5 px-2 py-1 text-[11px] rounded bg-white/5 border border-white/10 text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-brand-400/50"
+        />
+      )}
+      {filteredRows.length === 0 && (
+        <div className="text-[10px] text-gray-500 px-1 py-1">no matches</div>
+      )}
       <ul className="space-y-1">
-        {rows.map(({ id, citizenId, label, runtime }) => {
+        {filteredRows.map(({ id, citizenId, label, runtime }) => {
           const energyPct = Math.max(0, Math.min(100, Math.round(runtime.energy)));
           const segments = [33, 66, 100];
           const isSelected = selectedId === citizenId;
