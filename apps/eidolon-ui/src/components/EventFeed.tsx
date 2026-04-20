@@ -1,6 +1,7 @@
 'use client';
 
 import type { EidolonEvent } from '@/lib/api';
+import { formatBucharestTime } from '@/lib/time';
 
 const KIND_ACCENT: Record<EidolonEvent['kind'], string> = {
   'market.listing_published': 'text-brand-400',
@@ -30,8 +31,8 @@ export function EventFeed({ events }: Props) {
         ) : (
           visible.map((ev) => (
             <div key={ev.id} className="text-xs">
-              <span className="text-[10px] text-gray-500 font-mono">
-                {new Date(ev.at).toLocaleTimeString()}
+              <span className="text-[10px] text-gray-500 font-mono" title={`Romanian time (Europe/Bucharest)`}>
+                {formatBucharestTime(ev.at)}
               </span>
               <span className={`ml-2 font-medium ${KIND_ACCENT[ev.kind] ?? 'text-gray-300'}`}>
                 {ev.kind}

@@ -9,7 +9,11 @@ export interface WorldTimeState {
   dayNumber: number;
 }
 
-const WORLD_EPOCH = new Date('2026-01-01T00:00:00Z').getTime();
+// Anchor world day/night cycle to Bucharest civil midnight on 2026-01-01
+// (EET = UTC+02:00 in January). Sven's operators are in Romania, so the
+// in-world dawn/day/dusk/night phases align with Romanian wall-clock
+// perception rather than UTC.
+const WORLD_EPOCH = new Date('2026-01-01T00:00:00+02:00').getTime();
 const WORLD_SPEED = 60;
 const WORLD_DAY_MS = 86_400_000;
 
