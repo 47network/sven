@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { InspectorPanel } from '@/components/InspectorPanel';
 
@@ -12,6 +12,7 @@ const CityScene = dynamic(
 import { EventFeed } from '@/components/EventFeed';
 import { WorldPulsePanel } from '@/components/WorldPulsePanel';
 import { CitizenStripPanel } from '@/components/CitizenStripPanel';
+import { MiniMap } from '@/components/MiniMap';
 const WorldTimeBadge = dynamic(
   () => import('@/components/WorldTimeBadge').then((m) => m.WorldTimeBadge),
   { ssr: false },
@@ -22,12 +23,33 @@ import { fetchSnapshot, type EidolonBuilding, type EidolonParcel, type EidolonSn
 const REFRESH_MS = 15_000;
 const DEFAULT_ORG = process.env.NEXT_PUBLIC_DEFAULT_ORG || 'default';
 
+/** Shows data age; goes amber >30s, red >60s, to alert operators of stale data. */
+function StaleBadge({ lastFetchRef }: { lastFetchRef: React.RefObject<number> }) {
+  const [age, setAge] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => {
+      const last = lastFetchRef.current;
+      setAge(last > 0 ? Math.floor((Date.now() - last) / 1000) : 0);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [lastFetchRef]);
+  if (age <= 0) return null;
+  const cls =
+    age > 60 ? 'text-rose-400' : age > 30 ? 'text-amber-300' : 'text-gray-500';
+  return (
+    <span className={`text-[10px] font-mono ${cls}`} title="Seconds since last successful data fetch">
+      {age}s
+    </span>
+  );
+}
+
 export default function EidolonPage() {
   const [snapshot, setSnapshot] = useState<EidolonSnapshot | null>(null);
   const [selected, setSelected] = useState<EidolonBuilding | null>(null);
   const [selectedCitizenId, setSelectedCitizenId] = useState<string | null>(null);
   const [selectedParcel, setSelectedParcel] = useState<EidolonParcel | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const lastFetchRef = useRef<number>(0);
   const events = useEidolonEvents();
 
   // Selecting a building clears any citizen selection (and vice versa) so the
@@ -71,6 +93,7 @@ export default function EidolonPage() {
       const snap = await fetchSnapshot(DEFAULT_ORG, signal);
       setSnapshot(snap);
       setError(null);
+      lastFetchRef.current = Date.now();
     } catch (e) {
       if ((e as Error).name === 'AbortError') return;
       setError((e as Error).message);
@@ -130,7 +153,7 @@ export default function EidolonPage() {
     if (!selectedParcel || !snapshot) return null;
     const cid = `agent:${selectedParcel.agentId}`;
     const c = snapshot.citizens.find((cc) => cc.id === cid);
-    return c?.name ?? selectedParcel.agentId;
+    return c?.label ?? selectedParcel.agentId;
   }, [selectedParcel, snapshot]);
 
   // The parcel belonging to the currently selected citizen (for cross-link).
@@ -181,6 +204,14 @@ export default function EidolonPage() {
         />
       </div>
 
+      <MiniMap
+        buildings={snapshot?.buildings ?? []}
+        citizens={snapshot?.citizens ?? []}
+        parcels={snapshot?.parcels ?? []}
+        selectedBuildingId={selected?.id}
+        selectedParcelId={selectedParcel?.id}
+      />
+
       <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-4 pointer-events-none">
         <div className="flex items-center gap-3">
           <div className="glass-card px-4 py-2 pointer-events-auto">
@@ -188,6 +219,7 @@ export default function EidolonPage() {
             <div className="text-sm font-semibold text-brand-400">Sven · Autonomous Economy</div>
           </div>
           <WorldTimeBadge />
+          <StaleBadge lastFetchRef={lastFetchRef} />
         </div>
         <div className="glass-card flex divide-x divide-white/5 pointer-events-auto">
           {headlineMetrics.map((m) => (
