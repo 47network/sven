@@ -22,6 +22,7 @@ function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
   const buildings = snapshot?.buildings ?? [];
   const citizens = snapshot?.citizens ?? [];
   const parcels = snapshot?.parcels ?? [];
+  const agentStates = snapshot?.world?.agentStates ?? null;
   const { getGlowBoost } = useEventGlow(events);
   const worldTime = useWorldTime();
 
@@ -62,9 +63,12 @@ function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
         );
       })}
 
-      {citizens.map((c) => (
-        <Citizen key={c.id} citizen={c} />
-      ))}
+      {citizens.map((c) => {
+        // citizen.id is `agent:<agentId>`; agentStates is keyed by raw agentId.
+        const rawAgentId = c.id.startsWith('agent:') ? c.id.slice('agent:'.length) : c.id;
+        const runtime = agentStates?.[rawAgentId] ?? null;
+        return <Citizen key={c.id} citizen={c} runtime={runtime} />;
+      })}
 
       {/* Suburban parcels */}
       <ParcelGrid parcels={parcels} />

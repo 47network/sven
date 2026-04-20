@@ -106,6 +106,20 @@ export interface EidolonInteraction {
   createdAt: string;
 }
 
+export type EidolonAgentRuntimeState =
+  | 'idle' | 'exploring' | 'travelling' | 'talking' | 'working'
+  | 'building' | 'returning_home' | 'resting';
+
+export type EidolonAgentMood =
+  | 'happy' | 'neutral' | 'tired' | 'frustrated' | 'excited' | 'curious';
+
+export interface EidolonAgentRuntimeSlim {
+  state: EidolonAgentRuntimeState;
+  energy: number;
+  mood: EidolonAgentMood;
+  targetLocation: string | null;
+}
+
 export interface EidolonWorldOverview {
   latestTick: EidolonWorldTick | null;
   recentTicks: EidolonWorldTick[];
@@ -115,6 +129,7 @@ export interface EidolonWorldOverview {
     withState: number;
     stateCounts: Record<string, number>;
   };
+  agentStates: Record<string, EidolonAgentRuntimeSlim>;
   businesses: {
     total: number;
     statusCounts: Record<string, number>;

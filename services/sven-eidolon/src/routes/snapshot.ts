@@ -51,8 +51,18 @@ async function buildWorldOverview(orgId: string, writeRepo: EidolonWriteReposito
 
   const states = agentIds.length > 0 ? await writeRepo.fetchStates(agentIds) : new Map();
   const stateCounts: Record<string, number> = {};
+  // Per-agent runtime snapshot — kept intentionally narrow: only the fields the
+  // UI uses to colour/animate citizens. Bounded by org agent count (typically
+  // <100) so the payload stays small.
+  const agentStates: Record<string, { state: string; energy: number; mood: string; targetLocation: string | null }> = {};
   for (const s of states.values()) {
     stateCounts[s.state] = (stateCounts[s.state] ?? 0) + 1;
+    agentStates[s.agentId] = {
+      state: s.state,
+      energy: s.energy,
+      mood: s.mood,
+      targetLocation: s.targetLocation,
+    };
   }
 
   const businessStatusCounts: Record<string, number> = {};
@@ -69,6 +79,7 @@ async function buildWorldOverview(orgId: string, writeRepo: EidolonWriteReposito
       withState: states.size,
       stateCounts,
     },
+    agentStates,
     businesses: {
       total: businesses.length,
       statusCounts: businessStatusCounts,
