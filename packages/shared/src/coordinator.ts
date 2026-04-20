@@ -330,7 +330,7 @@ export class CoordinatorSession {
     this.aborted = true;
 
     for (const [taskId, task] of this.tasks) {
-      if (task.status === 'pending' || task.status === 'dispatched') {
+      if (task.status === 'pending' || task.status === 'dispatched' || task.status === 'running') {
         if (task.status === 'dispatched' || task.status === 'running') {
           this.runningCount--;
         }
