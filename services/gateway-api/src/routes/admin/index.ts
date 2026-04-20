@@ -58,7 +58,22 @@ import { registerObsidianSyncRoutes } from './obsidian-sync.js';
 import { registerA2AAdminRoutes } from './a2a.js';
 import { registerGlobalSearchRoutes } from './global-search.js';
 import { registerBrainRoutes } from './brain.js';
+import { registerRevenueRoutes } from './revenue.js';
+import { registerInfraRoutes } from './infra.js';
+import { registerAutomatonRoutes } from './automatons.js';
+import { registerAgentSpawnerRoutes } from './agent-spawner.js';
+import { registerRevenueGoalRoutes } from './revenue-goals.js';
+import { registerAgentProfileRoutes } from './agent-profiles.js';
+import { registerBusinessSpaceRoutes } from './business-spaces.js';
+import { registerCrewManagementRoutes } from './crew-management.js';
+import { registerAccountantRoutes } from './accountant.js';
+import { registerOversightDashboardRoutes } from './oversight-dashboard.js';
+import { registerAgentMessagingRoutes } from './agent-messaging.js';
+import { registerPublishingRoutes } from './publishing.js';
+import { registerEidolonWorldRoutes } from './eidolon-world.js';
 import { registerMisiuniRoutes } from './misiuni.js';
+import { registerPublishingV2Routes } from './publishing-v2.js';
+import { registerSocialMediaRoutes } from './social-media.js';
 import { registerCommunityAgentRoutes } from './community-agents.js';
 import { registerAgentTypeRoutes } from './agent-types.js';
 import { registerFederationRoutes } from './federation.js';
@@ -67,6 +82,8 @@ import { registerPipelineRoutes } from './pipeline.js';
 import { registerAnalyticsOverviewRoutes } from './analytics-overview.js';
 import { registerProactiveNotificationRoutes } from './proactive-notifications.js';
 import { registerTradingDashboardRoutes } from './trading.js';
+import { registerXlviiRoutes } from './xlvii-merch.js';
+import { registerCouncilRoutes } from './council.js';
 
 export async function registerAdminRoutes(
   app: FastifyInstance,
@@ -302,7 +319,7 @@ export async function registerAdminRoutes(
       });
 
       async function mountAdminRoutes(
-        registrar: (scopedApp: FastifyInstance) => Promise<void>,
+        registrar: (scopedApp: FastifyInstance) => void | Promise<void>,
       ): Promise<void> {
         await adminApp.register(async (scopedApp) => {
           await registrar(scopedApp);
@@ -372,7 +389,24 @@ export async function registerAdminRoutes(
       await mountAdminRoutes((scopedApp) => registerAnalyticsOverviewRoutes(scopedApp, pool));
       await mountAdminRoutes((scopedApp) => registerProactiveNotificationRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerTradingDashboardRoutes(scopedApp, pool));
+      await mountAdminRoutes((scopedApp) => registerRevenueRoutes(scopedApp, pool));
+      await mountAdminRoutes((scopedApp) => registerInfraRoutes(scopedApp, pool));
+      await mountAdminRoutes((scopedApp) => registerAutomatonRoutes(scopedApp, pool));
+      await mountAdminRoutes((scopedApp) => registerAgentProfileRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerAgentSpawnerRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerRevenueGoalRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerBusinessSpaceRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerCrewManagementRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerAccountantRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerOversightDashboardRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerAgentMessagingRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerPublishingRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerEidolonWorldRoutes(scopedApp, pool, nc));
       await mountAdminRoutes((scopedApp) => registerMisiuniRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerPublishingV2Routes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerSocialMediaRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerXlviiRoutes(scopedApp, pool, nc));
+      await mountAdminRoutes((scopedApp) => registerCouncilRoutes(scopedApp, pool));
     },
     { prefix: '/v1/admin' },
   );

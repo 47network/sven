@@ -27,6 +27,14 @@ export class ProactiveSubscriber {
 
     void this.processSubscription(sub);
 
+    // Economy digest events — bridges autonomous revenue alerts into
+    // the proactive notification pipeline
+    const econSub = this.nc.subscribe('sven.economy.digest');
+    this.subs.push(econSub);
+    this.logger.info('NATS subscriber started', { subject: 'sven.economy.digest' });
+
+    void this.processEconomyDigest(econSub);
+
     // Reload trigger on config change
     const reloadSub = this.nc.subscribe('sven.proactive.reload');
     this.subs.push(reloadSub);
@@ -71,6 +79,75 @@ export class ProactiveSubscriber {
       } catch (err) {
         this.logger.error('Failed to process proactive event', {
           subject: msg.subject,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+  }
+
+  /**
+   * Process economy digest messages and convert them into proactive events.
+   * The digest contains treasury balance, automaton decisions, and revenue
+   * milestones — each mapped to the appropriate economy trigger category.
+   */
+  private async processEconomyDigest(sub: Subscription): Promise<void> {
+    for await (const msg of sub) {
+      try {
+        const data = jc.decode(msg.data) as Record<string, unknown>;
+
+        // Map economy digest fields to proactive events
+        const events: ProactiveEvent[] = [];
+
+        // Balance warning
+        if (typeof data.balance === 'number' && typeof data.min_threshold === 'number') {
+          if (data.balance < data.min_threshold) {
+            events.push({
+              event_id: crypto.randomUUID(),
+              occurred_at: new Date().toISOString(),
+              category: 'economy_balance_warning' as ProactiveEvent['category'],
+              severity: 'warning',
+              data: data,
+              organization_id: (data.organization_id as string) || null,
+            });
+          }
+        }
+
+        // Automaton retiring
+        if (data.decision === 'retire') {
+          events.push({
+            event_id: crypto.randomUUID(),
+            occurred_at: new Date().toISOString(),
+            category: 'economy_automaton_retiring' as ProactiveEvent['category'],
+            severity: 'warning',
+            data: data,
+            organization_id: (data.organization_id as string) || null,
+          });
+        }
+
+        // Revenue milestone
+        if (data.milestone) {
+          events.push({
+            event_id: crypto.randomUUID(),
+            occurred_at: new Date().toISOString(),
+            category: 'economy_revenue_milestone' as ProactiveEvent['category'],
+            severity: 'info',
+            data: data,
+            organization_id: (data.organization_id as string) || null,
+          });
+        }
+
+        for (const event of events) {
+          const result = await this.engine.evaluate(event);
+          if (result.should_notify) {
+            await this.engine.dispatch(event, result);
+            this.logger.info('Economy digest event dispatched', {
+              event_id: event.event_id,
+              category: event.category,
+            });
+          }
+        }
+      } catch (err) {
+        this.logger.error('Failed to process economy digest', {
           error: err instanceof Error ? err.message : String(err),
         });
       }

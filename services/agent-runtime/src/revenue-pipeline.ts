@@ -1,5 +1,10 @@
 // ---------------------------------------------------------------------------
-// Revenue Pipeline Engine (I.3)
+// Revenue Pipeline Engine (I.3) — DEPRECATED in-memory shim
+// ---------------------------------------------------------------------------
+// ⚠️  Deprecated: use `RevenuePipelineRepository` from
+// `./revenue-pipeline-repo` for production. This file remains only for
+// local/testing scaffolding and will be removed once every consumer has
+// migrated. New code MUST NOT import from this module.
 // ---------------------------------------------------------------------------
 // Connects revenue sources to the treasury engine.
 // Manages pipelines: service marketplace, product deployment,

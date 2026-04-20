@@ -84,6 +84,70 @@ export function registerRevenueRoutes(app: FastifyInstance, pool: pg.Pool) {
     return reply.send({ success: true, data: result.rows[0] });
   });
 
+  /* -------- Single pipeline + embedded events -------- */
+
+  app.get<{ Params: { id: string } }>('/revenue/pipelines/:id', async (request, reply) => {
+    const orgId = (request as any).orgId as string;
+    const pipelineId = (request.params as any).id;
+
+    const pRes = await pool.query(
+      `SELECT id, org_id, name, type, status, config, metrics,
+              created_at, updated_at, last_revenue_at
+       FROM revenue_pipelines WHERE id = $1 AND org_id = $2 LIMIT 1`,
+      [pipelineId, orgId],
+    );
+    if (pRes.rowCount === 0) return reply.status(404).send({ success: false, error: { code: 'NOT_FOUND' } });
+
+    const pipeline = pRes.rows[0];
+
+    const eRes = await pool.query(
+      `SELECT id, source, amount, fees, net_amount, currency, metadata, created_at
+       FROM revenue_events WHERE pipeline_id = $1 ORDER BY created_at DESC LIMIT 20`,
+      [pipelineId],
+    );
+
+    return reply.send({ success: true, data: { ...pipeline, recentEvents: eRes.rows } });
+  });
+
+  /* -------- Seed pipeline summary -------- */
+
+  app.get('/revenue/pipelines/seed-summary', async (request, reply) => {
+    const orgId = (request as any).orgId as string;
+
+    const seedCount = await pool.query(
+      `SELECT COUNT(*)::int AS n
+       FROM revenue_pipelines
+       WHERE org_id = $1 AND status = 'active'
+         AND config->'typeConfig'->>'seed' = 'true'`,
+      [orgId],
+    );
+
+    const totalActive = await pool.query(
+      `SELECT COUNT(*)::int AS n FROM revenue_pipelines WHERE org_id = $1 AND status = 'active'`,
+      [orgId],
+    );
+
+    const last24h = await pool.query(
+      `SELECT COALESCE(SUM(e.net_amount), 0)::numeric AS net,
+              COUNT(*)::int AS events
+       FROM revenue_events e
+       JOIN revenue_pipelines p ON p.id = e.pipeline_id
+       WHERE p.org_id = $1 AND e.created_at >= NOW() - INTERVAL '24 hours'`,
+      [orgId],
+    );
+
+    const row24 = last24h.rows[0] || {};
+    return reply.send({
+      success: true,
+      data: {
+        seedPipelines: Number(seedCount.rows[0]?.n || 0),
+        totalActive: Number(totalActive.rows[0]?.n || 0),
+        last24hNet: Number(row24.net || 0),
+        last24hEvents: Number(row24.events || 0),
+      },
+    });
+  });
+
   /* -------- Revenue Events -------- */
 
   app.get('/revenue/events', async (request, reply) => {

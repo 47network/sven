@@ -1,0 +1,3 @@
+export interface AgentPlossConfig { id: string; agent_id: string; tracker_name: string; target_host: string; probe_interval_sec: number; burst_count: number; acceptable_loss_pct: number; alert_consecutive: number; metadata: Record<string, unknown>; created_at: string; updated_at: string; }
+export interface AgentPlossResult { id: string; config_id: string; packets_sent: number; packets_received: number; packets_lost: number; loss_pct: number; burst_id: string | null; probed_at: string; }
+export interface AgentPlossTrend { id: string; config_id: string; period_start: string; period_end: string; avg_loss_pct: number; max_loss_pct: number; total_probes: number; degraded_count: number; created_at: string; }

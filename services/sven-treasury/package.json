@@ -1,0 +1,31 @@
+{
+  "name": "@sven/sven-treasury",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sven Treasury Service — HTTP + NATS surface around @sven/treasury. Real money in/out for the autonomous economy: double-entry ledger, approval tiers (auto/notify/approve), Base L2 crypto wallet, per-org caps.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@sven/shared": "workspace:*",
+    "@sven/treasury": "workspace:*",
+    "fastify": "^5.8.5",
+    "nats": "^2.29.3",
+    "pg": "^8.20.0",
+    "uuid": "^10.0.0",
+    "viem": "^2.21.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "catalog:"
+  }
+}

@@ -49,6 +49,9 @@ import {
   BarChart3,
   TrendingUp,
   Server,
+  Wallet,
+  DollarSign,
+  ShoppingBag,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import SidebarBrand from './sidebar/SidebarBrand';
@@ -117,6 +120,15 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/trading', label: 'Trading Dashboard', icon: TrendingUp, roles: ['admin', 'operator'] },
       { href: '/trading-credentials', label: 'Exchange Keys', icon: KeyRound, roles: ['admin'] },
       { href: '/trading-brokers', label: 'Brokers', icon: Server, roles: ['admin', 'operator'] },
+    ],
+  },
+  {
+    label: 'Economy',
+    roles: ['admin', 'operator'],
+    items: [
+      { href: '/revenue-analytics', label: 'Revenue Analytics', icon: DollarSign, roles: ['admin', 'operator'] },
+      { href: '/orders', label: 'Order Management', icon: ShoppingBag, roles: ['admin', 'operator'] },
+      { href: '/automatons', label: 'Automatons', icon: Bot, roles: ['admin', 'operator'] },
     ],
   },
   {

@@ -1,0 +1,54 @@
+{
+  "name": "@sven/treasury",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sven treasury — double-entry ledger, approval tiers, crypto wallet providers (Base L2 via viem). Powers the autonomous economy: revenue in, compute/upgrade spend out, human-notified thresholds, emergency freeze.",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./ledger": {
+      "types": "./src/ledger/index.ts",
+      "import": "./dist/ledger/index.js",
+      "default": "./dist/ledger/index.js"
+    },
+    "./approval": {
+      "types": "./src/approval/index.ts",
+      "import": "./dist/approval/index.js",
+      "default": "./dist/approval/index.js"
+    },
+    "./wallet": {
+      "types": "./src/wallet/index.ts",
+      "import": "./dist/wallet/index.js",
+      "default": "./dist/wallet/index.js"
+    },
+    "./providers/base-l2": {
+      "types": "./src/providers/base-l2.ts",
+      "import": "./dist/providers/base-l2.js",
+      "default": "./dist/providers/base-l2.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@sven/shared": "workspace:*",
+    "pg": "^8.20.0",
+    "uuid": "^10.0.0",
+    "viem": "^2.21.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/pg": "^8.20.0",
+    "@types/uuid": "^10.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.5",
+    "typescript": "catalog:"
+  }
+}

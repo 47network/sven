@@ -5,6 +5,18 @@
     "rootDir": "./src",
     "module": "commonjs",
     "moduleResolution": "node",
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "baseUrl": ".",
+    "paths": {
+      "@sven/shared": ["../../packages/shared/src/index.ts"],
+      "@sven/shared/*": ["../../packages/shared/src/*"],
+      "@sven/compute-mesh": ["../../packages/compute-mesh/src/index.ts"],
+      "@sven/compute-mesh/*": ["../../packages/compute-mesh/src/*"],
+      "@sven/treasury": ["../../packages/treasury/src/index.ts"],
+      "@sven/treasury/*": ["../../packages/treasury/src/*"]
+    },
     "types": ["node", "jest"],
     "typeRoots": ["../../node_modules/@types", "../../node_modules"]
   },

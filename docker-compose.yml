@@ -470,6 +470,15 @@ services:
       - NATS_URL=${NATS_URL}
       - OLLAMA_URL=${OLLAMA_URL}
       - NODE_ENV=${NODE_ENV:-production}
+      # ── Autonomous Economy — Lifecycle Scheduler ──
+      - SVEN_LIFECYCLE_ENABLED=${SVEN_LIFECYCLE_ENABLED:-0}
+      - SVEN_LIFECYCLE_ORG_ID=${SVEN_LIFECYCLE_ORG_ID:-default}
+      - SVEN_LIFECYCLE_INTERVAL_MS=${SVEN_LIFECYCLE_INTERVAL_MS:-600000}
+      - SVEN_LIFECYCLE_STUB_COST_PER_DAY_USD=${SVEN_LIFECYCLE_STUB_COST_PER_DAY_USD:-0.50}
+      - SVEN_AUTO_PUBLISH_ENABLED=${SVEN_AUTO_PUBLISH_ENABLED:-0}
+      - TREASURY_URL=${TREASURY_URL:-http://sven-treasury:9477}
+      - MARKETPLACE_API=${MARKETPLACE_API:-http://sven-marketplace:9478}
+      - EIDOLON_API=${EIDOLON_API:-http://sven-eidolon:9479}
     networks:
       - core
       - monitoring
@@ -1810,6 +1819,130 @@ services:
     depends_on:
       gateway-api:
         condition: service_healthy
+    logging: *default-logging
+
+  # ── Treasury Service (Autonomous Economy Ledger) ───────────────────
+  sven-treasury:
+    build:
+      context: .
+      dockerfile: services/sven-treasury/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - TREASURY_PORT=9477
+      - TREASURY_CHAIN_NETWORK=${TREASURY_CHAIN_NETWORK:-base-sepolia}
+      - BASE_RPC_URL=${BASE_RPC_URL:-https://sepolia.base.org}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - ECONOMY_API_TOKEN=${ECONOMY_API_TOKEN}
+      - ECONOMY_ADMIN_TOKEN=${ECONOMY_ADMIN_TOKEN}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://market.sven.systems,https://eidolon.sven.systems}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9477:9477"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:9477/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Marketplace Service (market.sven.systems) ──────────────────────
+  sven-marketplace:
+    build:
+      context: .
+      dockerfile: services/sven-marketplace/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - MARKETPLACE_PORT=9478
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - MARKETPLACE_CHECKOUT_SUCCESS_URL=${MARKETPLACE_CHECKOUT_SUCCESS_URL:-https://market.sven.systems/checkout/success}
+      - MARKETPLACE_CHECKOUT_CANCEL_URL=${MARKETPLACE_CHECKOUT_CANCEL_URL:-https://market.sven.systems/checkout/cancel}
+      - ECONOMY_API_TOKEN=${ECONOMY_API_TOKEN}
+      - ECONOMY_ADMIN_TOKEN=${ECONOMY_ADMIN_TOKEN}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://market.sven.systems,https://eidolon.sven.systems}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9478:9478"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:9478/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Eidolon Service (eidolon.sven.systems 3D City) ─────────────────
+  sven-eidolon:
+    build:
+      context: .
+      dockerfile: services/sven-eidolon/Dockerfile
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NATS_URL=${NATS_URL}
+      - EIDOLON_PORT=9479
+      - ECONOMY_API_TOKEN=${ECONOMY_API_TOKEN}
+      - ECONOMY_ADMIN_TOKEN=${ECONOMY_ADMIN_TOKEN}
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://market.sven.systems,https://eidolon.sven.systems}
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "9479:9479"
+    networks:
+      - core
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:9479/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging: *default-logging
+
+  # ── Marketplace UI (market.sven.systems frontend) ──────────────────
+  marketplace-ui:
+    build:
+      context: .
+      dockerfile: apps/marketplace-ui/Dockerfile
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_MARKETPLACE_API=http://sven-marketplace:9478
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "3002:3000"
+    networks:
+      - core
+    depends_on:
+      sven-marketplace:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:3000/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     logging: *default-logging
 
 networks:

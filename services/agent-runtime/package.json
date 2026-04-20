@@ -14,6 +14,7 @@
   "dependencies": {
     "@sven/compute-mesh": "workspace:*",
     "@sven/shared": "workspace:*",
+    "@sven/treasury": "workspace:*",
     "nats": "^2.29.3",
     "pg": "^8.20.0",
     "uuid": "^10.0.0",

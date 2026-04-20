@@ -1,0 +1,87 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for Sven.
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a feature!
+        Please describe the problem you're trying to solve and the ideal solution.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: Describe the problem or pain point this feature would address.
+      placeholder: I find it frustrating when …
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe how you'd like this to work.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you considered any workarounds or alternative approaches?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of Sven would this affect?
+      options:
+        - Gateway API
+        - Admin UI
+        - Canvas UI
+        - Agent Runtime
+        - Skill Runner
+        - Channel Adapter
+        - CLI
+        - Mobile App
+        - Desktop App
+        - RAG Pipeline
+        - New Component
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Expected impact
+      options:
+        - Minor improvement
+        - Moderate improvement
+        - Major improvement
+        - Critical / blocking
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, mockups, links, or anything else helpful.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission checklist
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I am willing to submit a PR for this feature.
+          required: false

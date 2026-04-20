@@ -1,0 +1,30 @@
+---
+name: moderation-decision-logger
+description: Moderation decision logging with field validation immutable decision persistence and bounded export emission for transparency reports
+version: 1.0.0
+pricing: 0.99
+archetype: analyst
+---
+
+# ModerationDecisionLogger
+
+Moderation decision logging with field validation immutable decision persistence and bounded export emission for transparency reports.
+
+## Actions
+
+- **monitor**: Continuous monitoring and data collection
+- **analyze**: Deep analysis of collected data
+- **report**: Generate detailed reports
+- **configure**: Update configuration and thresholds
+
+## Inputs
+
+- `targetId` — ID of the target to process
+- `config` — Configuration parameters
+- `timeRange` — Time range for analysis
+
+## Outputs
+
+- `status` — Current processing status
+- `metrics` — Collected metrics data
+- `alerts` — Active alerts and notifications

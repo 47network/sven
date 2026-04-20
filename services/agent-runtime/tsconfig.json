@@ -8,12 +8,15 @@
       "@sven/shared": ["../../packages/shared/src/index.ts"],
       "@sven/shared/*": ["../../packages/shared/src/*"],
       "@sven/compute-mesh": ["../../packages/compute-mesh/src/index.ts"],
-      "@sven/compute-mesh/*": ["../../packages/compute-mesh/src/*"]
+      "@sven/compute-mesh/*": ["../../packages/compute-mesh/src/*"],
+      "@sven/treasury": ["../../packages/treasury/src/index.ts"],
+      "@sven/treasury/*": ["../../packages/treasury/src/*"]
     }
   },
   "include": ["src/**/*"],
   "references": [
     { "path": "../../packages/shared" },
-    { "path": "../../packages/compute-mesh" }
+    { "path": "../../packages/compute-mesh" },
+    { "path": "../../packages/treasury" }
   ]
 }

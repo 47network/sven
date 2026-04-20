@@ -1,0 +1,89 @@
+# ---------------------------------------------------------------------------
+# Dependabot — automated dependency security updates
+# ---------------------------------------------------------------------------
+version: 2
+
+updates:
+  # ── Node.js (pnpm) — root workspace ──────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Bucharest
+    open-pull-requests-limit: 10
+    reviewers:
+      - "47network/core"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "deps"
+    groups:
+      typescript:
+        patterns:
+          - "typescript"
+          - "@types/*"
+      testing:
+        patterns:
+          - "jest"
+          - "@jest/*"
+          - "ts-jest"
+          - "playwright"
+          - "@playwright/*"
+      fastify:
+        patterns:
+          - "fastify"
+          - "@fastify/*"
+      lint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "prettier"
+
+  # ── GitHub Actions ───────────────────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Bucharest
+    open-pull-requests-limit: 5
+    reviewers:
+      - "47network/core"
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+
+  # ── Docker (compose files) ───────────────────────────────────────────────
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Bucharest
+    open-pull-requests-limit: 5
+    reviewers:
+      - "47network/core"
+    labels:
+      - "dependencies"
+      - "infrastructure"
+    commit-message:
+      prefix: "docker"
+
+  # ── Nix flake inputs ────────────────────────────────────────────────────
+  - package-ecosystem: nix
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "nix"
+    commit-message:
+      prefix: "nix"
