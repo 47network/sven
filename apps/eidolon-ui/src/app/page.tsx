@@ -10,6 +10,7 @@ const CityScene = dynamic(
   { ssr: false },
 );
 import { EventFeed } from '@/components/EventFeed';
+import { WorldPulsePanel } from '@/components/WorldPulsePanel';
 import { useEidolonEvents } from '@/hooks/useEidolonEvents';
 import { fetchSnapshot, type EidolonBuilding, type EidolonSnapshot } from '@/lib/api';
 
@@ -75,6 +76,10 @@ export default function EidolonPage() {
           ))}
         </div>
       </header>
+
+      <aside className="absolute top-20 left-4 z-10">
+        <WorldPulsePanel world={snapshot?.world ?? null} />
+      </aside>
 
       <aside className="absolute bottom-4 left-4 z-10 w-80 space-y-3">
         <InspectorPanel building={selected} />

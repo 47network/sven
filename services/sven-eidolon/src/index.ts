@@ -115,7 +115,7 @@ async function main(): Promise<void> {
     reply.code(500).send({ error: 'internal_error' });
   });
 
-  await registerSnapshotRoute(app, repo);
+  await registerSnapshotRoute(app, repo, writeRepo);
   await registerEventsRoute(app, bus);
   await registerWorldRoutes(app, writeRepo, scheduler);
 

@@ -80,12 +80,54 @@ export interface EidolonParcel {
   acquiredAt: string;
 }
 
+export interface EidolonWorldTick {
+  id: string;
+  tickNo: number;
+  orgId: string;
+  startedAt: string;
+  completedAt: string | null;
+  agentsProcessed: number;
+  stateChanges: number;
+  interactions: number;
+  businessRuns: number;
+  revenueEurCents: number;
+  tokensCredited: number;
+  errors: number;
+}
+
+export interface EidolonInteraction {
+  id: string;
+  agentA: string;
+  agentB: string;
+  location: string;
+  topic: string;
+  message: string;
+  influencedDecision: boolean;
+  createdAt: string;
+}
+
+export interface EidolonWorldOverview {
+  latestTick: EidolonWorldTick | null;
+  recentTicks: EidolonWorldTick[];
+  recentInteractions: EidolonInteraction[];
+  agentRuntime: {
+    total: number;
+    withState: number;
+    stateCounts: Record<string, number>;
+  };
+  businesses: {
+    total: number;
+    statusCounts: Record<string, number>;
+  };
+}
+
 export interface EidolonSnapshot {
   generatedAt: string;
   buildings: EidolonBuilding[];
   citizens: EidolonCitizen[];
   parcels: EidolonParcel[];
   treasury: EidolonTreasurySummary;
+  world?: EidolonWorldOverview | null;
   meta: {
     version: string;
     districts: string[];
