@@ -1,14 +1,14 @@
 'use client';
 
 import DOMPurify from 'isomorphic-dompurify';
-import React from 'react';
+import React, { memo } from 'react';
 
 type Props = {
     html: string;
     onInteract: (e: React.MouseEvent<HTMLDivElement>) => void;
 };
 
-export default function A2uiPanel({ html, onInteract }: Props) {
+const A2uiPanel = memo(function A2uiPanel({ html, onInteract }: Props) {
     if (!html) return null;
 
     const sanitizedHtml = DOMPurify.sanitize(html);
@@ -25,4 +25,6 @@ export default function A2uiPanel({ html, onInteract }: Props) {
             />
         </div>
     );
-}
+});
+
+export default A2uiPanel;
