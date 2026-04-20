@@ -147,6 +147,6 @@ jobs:
           path: out/provenance
 
       - name: Attest desktop checksum manifest provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: out/provenance/desktop-tauri-sha256.txt
