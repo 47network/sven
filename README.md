@@ -18,11 +18,6 @@ One platform that runs your entire AI stack — agents, voice, RAG, document int
 ---
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Build](https://github.com/47network/sven/actions/workflows/deployment-pipeline.yml/badge.svg)](https://github.com/47network/sven/actions)
-[![Security](https://github.com/47network/sven/actions/workflows/security-baseline.yml/badge.svg)](https://github.com/47network/sven/actions)
-[![Flutter CI](https://github.com/47network/sven/actions/workflows/flutter-user-app-ci.yml/badge.svg)](https://github.com/47network/sven/actions)
-[![E2E](https://github.com/47network/sven/actions/workflows/parity-e2e.yml/badge.svg)](https://github.com/47network/sven/actions)
-[![Release Gates](https://github.com/47network/sven/actions/workflows/release-gates-sync.yml/badge.svg)](https://github.com/47network/sven/actions)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue)](CHANGELOG.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -114,32 +109,32 @@ It is not a chatbot. It is not a wrapper around an LLM API. It is a **full-stack
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
-║                            Clients                                ║
-║  Admin UI  ║  Canvas UI  ║  Flutter App  ║  Tauri Desktop  ║  WC  ║
+║                            Clients                               ║
+║  Admin UI  ║  Canvas UI  ║  Flutter App  ║  Tauri Desktop  ║  WC ║
 ╠═══════════════════════════╦═══════════════════════════════════════╣
-║                           ║  HTTPS / WebSocket / REST             ║
+║                           ║  HTTPS / WebSocket / REST            ║
 ╠═══════════════════════════╩═══════════════════════════════════════╣
-║                        Gateway API                                ║
-║  JWT Auth · Rate Limiting · Multi-agent Routing · Message Queue   ║
-╠══════════╦══════════╦══════════╦══════════════════════════════════╣
-║  Agent   ║  Skill   ║   RAG    ║  Workflow + Scheduler Executor   ║
-║  Runtime ║  Runner  ║ Indexer  ║                                  ║
-║ (LLM +   ║ (gVisor) ║ (OS +    ║                                  ║
-║  tools)  ║          ║  pgvec)  ║                                  ║
-╠══════════╩══════════╩══════════╩══════════════════════════════════╣
-║  Compute Mesh  │  Model Router  │  Security Toolkit               ║
-║  Document Intel │  Marketing Intel │  Proactive Notifier           ║
-║  Quantum Sim   │  Notification Service │  Registry Worker          ║
-╠═══════════════════════════════════════════════════════════════════╣
-║  PostgreSQL  │  NATS JetStream  │  OpenSearch  │  LiteLLM         ║
-║  SearXNG     │  Keycloak SSO    │  Faster-Whisper STT             ║
-║  Piper TTS   │  Wake-Word       │  Egress Proxy                   ║
-╠═══════════════════════════════════════════════════════════════════╣
-║                   Messaging Adapters (20)                         ║
-║  Slack · Teams · Telegram · Discord · WhatsApp · Signal           ║
-║  Matrix · iMessage · IRC · Nostr · Twitch · Line · Zalo           ║
-║  Feishu · Nextcloud · Mattermost · Tlon · WebChat · VoiceCall     ║
-╚═══════════════════════════════════════════════════════════════════╝
+║                        Gateway API                               ║
+║  JWT Auth · Rate Limiting · Multi-agent Routing · Message Queue  ║
+╠══════════╦══════════╦══════════╦═════════════════════════════════╣
+║  Agent   ║  Skill   ║   RAG    ║  Workflow + Scheduler Executor  ║
+║  Runtime ║  Runner  ║ Indexer  ║                                 ║
+║ (LLM +   ║ (gVisor) ║ (OS +    ║                                 ║
+║  tools)  ║          ║  pgvec)  ║                                 ║
+╠══════════╩══════════╩══════════╩═════════════════════════════════╣
+║  Compute Mesh  │  Model Router  │  Security Toolkit              ║
+║  Document Intel │  Marketing Intel │  Proactive Notifier          ║
+║  Quantum Sim   │  Notification Service │  Registry Worker         ║
+╠══════════════════════════════════════════════════════════════════╣
+║  PostgreSQL  │  NATS JetStream  │  OpenSearch  │  LiteLLM        ║
+║  SearXNG     │  Keycloak SSO    │  Faster-Whisper STT            ║
+║  Piper TTS   │  Wake-Word       │  Egress Proxy                  ║
+╠══════════════════════════════════════════════════════════════════╣
+║                   Messaging Adapters (20)                        ║
+║  Slack · Teams · Telegram · Discord · WhatsApp · Signal          ║
+║  Matrix · iMessage · IRC · Nostr · Twitch · Line · Zalo          ║
+║  Feishu · Nextcloud · Mattermost · Tlon · WebChat · VoiceCall    ║
+╚══════════════════════════════════════════════════════════════════╝
 ```
 
 ---
@@ -213,9 +208,9 @@ sven/
 | Canvas UI | 3001 | Real-time chat surface |
 | Compute Mesh | 9470 | Distributed workload orchestration |
 | Model Router | 9471 | LLM inference routing |
-| Security Toolkit | 9472 | Security scanning & audit |
+| Security Toolkit | 9472 | Security scanning and audit |
 | Document Intel | 9473 | Document processing pipeline |
-| Marketing Intel | 9474 | Competitive & marketing analytics |
+| Marketing Intel | 9474 | Competitive and marketing analytics |
 | Proactive Notifier | 9475 | Autonomous notifications |
 | Quantum Sim | 9476 | Quantum circuit simulation |
 
@@ -236,8 +231,8 @@ sven/
 ### 1 · Clone
 
 ```bash
-git clone https://github.com/47network/sven.git
-cd sven
+git clone https://git.sven.systems/47network/thesven.git
+cd thesven
 ```
 
 ### 2 · Configure
@@ -313,58 +308,28 @@ All configuration is environment-variable driven. Use [`.env.example`](.env.exam
 
 | | | | |
 |:---|:---|:---|:---|
-| 💬 **Slack** | 🟦 **Microsoft Teams** | ✈️ **Telegram** | 🎮 **Discord** |
-| 🟩 **WhatsApp** | 🔵 **Signal** | 🟪 **Matrix** (E2EE) | 🔵 **Google Chat** |
-| 🍎 **iMessage** | 🔷 **Mattermost** | 🖥️ **IRC** | 🔑 **Nostr** |
-| 🎥 **Twitch** | 🟢 **Line** | 🇻🇳 **Zalo** | 🪶 **Feishu** |
-| ☁️ **Nextcloud Talk** | 🌊 **Tlon** | 🌐 **WebChat** | 📞 **Voice Call** |
+| Slack | Microsoft Teams | Telegram | Discord |
+| WhatsApp | Signal | Matrix (E2EE) | Google Chat |
+| iMessage | Mattermost | IRC | Nostr |
+| Twitch | Line | Zalo | Feishu |
+| Nextcloud Talk | Tlon | WebChat | Voice Call |
 
 ---
 
 ## 🚀 Use Cases
 
-Sven is a general-purpose AI platform. Here are some of the ways it is being used:
-
 | Scale | Use Case | Key Services |
 |:---|:---|:---|
-| **Personal** | AI assistant across all your messaging apps with private memory per conversation | Agent Runtime, Memory, 20 Adapters |
-| **Home** | Voice-controlled hub — "Hey Sven" from any room, 100% local | Wake Word, Whisper STT, Piper TTS, Mirror Agent |
+| **Personal** | AI assistant across all messaging apps with private memory | Agent Runtime, Memory, 20 Adapters |
+| **Home** | Voice-controlled hub — wake word, 100% local | Wake Word, Whisper STT, Piper TTS, Mirror Agent |
 | **Team** | Private team AI — shared knowledge base, per-member memory, SSO | Multi-tenancy, RAG, Keycloak SSO, RBAC |
-| **Enterprise** | On-prem AI platform — multi-tenant, compliance audit trail, canary deploys | All services, observability stack, runbook library |
-| **Research** | Quantum algorithm exploration, circuit simulation, portfolio optimisation | Quantum Sim, Compute Mesh |
+| **Enterprise** | On-prem AI platform — multi-tenant, compliance audit trail, canary deploys | All services, observability stack |
+| **Research** | Quantum algorithm exploration, circuit simulation | Quantum Sim, Compute Mesh |
 | **Security** | Automated SAST, secret scanning, dependency audit, pen-test orchestration | Security Toolkit |
 | **Content** | Document processing at scale — OCR, entity extraction, PII redaction | Document Intel |
 | **Marketing** | Competitive intelligence, brand monitoring, campaign analytics | Marketing Intel |
-| **DevOps** | Distributed compute orchestration, GPU fleet management, model routing | Compute Mesh, Model Router |
-| **Knowledge** | Index Git repos, NAS, notes apps — cross-source semantic search | RAG Indexer, Git/NAS/Notes Ingestors |
-
----
-
-## 🆚 How Sven Compares
-
-Sven occupies a unique position in the self-hosted AI space. Most open-source projects solve one problem well — a chat agent, a voice pipeline, a RAG engine, a deployment framework. Sven integrates all of these into a single, deployable platform.
-
-**Where Sven excels:**
-
-| Strength | What it means |
-|:---|:---|
-| **Breadth** | Agents, voice, RAG, document processing, security scanning, compute orchestration, quantum simulation, marketing analytics — one deployment, one codebase |
-| **Production readiness** | Structured logging, distributed tracing, health endpoints, migration scripts, rollback procedures, runbook library, canary deploys |
-| **Enterprise features** | Multi-tenancy, RBAC, SSO, billing, usage metering, audit trail — not afterthoughts, core architecture |
-| **Client surfaces** | Native Flutter mobile app, Tauri desktop app, web admin, real-time canvas, embeddable widget, 20 messaging adapters |
-| **Privacy** | Every component runs locally. LLM inference, search, STT, TTS, vector DB — nothing phones home |
-| **Extensibility** | 80+ sandboxed skills, dynamic tool creation at runtime, skill marketplace with versioning |
-
-**Where other projects may be stronger:**
-
-| Area | Honest assessment |
-|:---|:---|
-| **Agent framework depth** | Projects like Agent Zero and AutoGPT focus exclusively on agent reasoning loops and may offer more sophisticated planning, reflection, and multi-step reasoning out of the box. Sven prioritises breadth over agent-loop depth |
-| **Community size** | Sven is young (v0.1.0). Established projects have larger communities, more battle-tested edge cases, and more third-party integrations |
-| **Simplicity** | Sven's 47+ services mean a steeper learning curve. If you only need a CLI agent or a simple chatbot, a focused tool is a better fit |
-| **Cutting-edge research** | Sven is an engineering platform, not a research project. It integrates proven patterns rather than pushing the frontier of agent cognition |
-
-> Sven is not trying to replace any single project. It is trying to be the **platform layer** that ties agents, tools, infrastructure, and user interfaces together into something you can actually deploy and operate at scale.
+| **DevOps** | Distributed compute orchestration, GPU fleet management | Compute Mesh, Model Router |
+| **Knowledge** | Cross-source semantic search — Git repos, NAS, notes apps | RAG Indexer, Ingestors |
 
 ---
 
@@ -401,8 +366,6 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 <div align="center">
 
-[![Star on GitHub](https://img.shields.io/github/stars/47network/sven?style=for-the-badge&logo=github&label=Star)](https://github.com/47network/sven)
-
-**[MIT](LICENSE) © 2026 [47network](https://github.com/47network)**
+**[MIT](LICENSE) © 2026 [47Network](https://the47network.com)**
 
 </div>
