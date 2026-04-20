@@ -108,6 +108,7 @@ const DEFAULT_CONFIG: Omit<CoordinatorConfig, 'dispatchFn'> = {
 export class CoordinatorSession {
   readonly sessionId: string;
   private tasks: Map<string, CoordinatorTask> = new Map();
+  private runningCount = 0;
   private scratchpad: ScratchpadEntry[] = [];
   private config: CoordinatorConfig;
   private deadlineTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
@@ -156,11 +157,7 @@ export class CoordinatorSession {
     const dispatching: Promise<void>[] = [];
 
     while (pending.length > 0 && !this.aborted) {
-      const runningCount = Array.from(this.tasks.values()).filter(
-        (t) => t.status === 'dispatched' || t.status === 'running',
-      ).length;
-
-      const slotsAvailable = this.config.maxConcurrentWorkers - runningCount;
+      const slotsAvailable = this.config.maxConcurrentWorkers - this.runningCount;
       if (slotsAvailable <= 0) break;
 
       const batch = pending.splice(0, slotsAvailable);
@@ -187,6 +184,7 @@ export class CoordinatorSession {
   private async dispatchTask(task: CoordinatorTask): Promise<void> {
     try {
       task.status = 'dispatched';
+      this.runningCount++;
       task.updatedAt = Date.now();
 
       // Set deadline timer
@@ -210,6 +208,9 @@ export class CoordinatorSession {
     const task = this.tasks.get(taskId);
     if (!task || task.status === 'completed' || task.status === 'cancelled') return;
 
+    if (task.status === 'dispatched' || task.status === 'running') {
+      this.runningCount--;
+    }
     task.status = 'completed';
     task.result = result;
     task.updatedAt = Date.now();
@@ -228,6 +229,9 @@ export class CoordinatorSession {
     const task = this.tasks.get(taskId);
     if (!task || task.status === 'completed' || task.status === 'cancelled') return;
 
+    if (task.status === 'dispatched' || task.status === 'running') {
+      this.runningCount--;
+    }
     task.status = 'failed';
     task.error = error;
     task.updatedAt = Date.now();
@@ -250,6 +254,9 @@ export class CoordinatorSession {
     if (!task) return;
     if (task.status === 'completed' || task.status === 'failed' || task.status === 'cancelled') return;
 
+    if (task.status === 'dispatched' || task.status === 'running') {
+      this.runningCount--;
+    }
     task.status = 'timed_out';
     task.error = 'Task exceeded deadline';
     task.updatedAt = Date.now();
@@ -265,13 +272,15 @@ export class CoordinatorSession {
   private dispatchNextPending(): void {
     if (this.aborted) return;
 
-    const runningCount = Array.from(this.tasks.values()).filter(
-      (t) => t.status === 'dispatched' || t.status === 'running',
-    ).length;
+    if (this.runningCount >= this.config.maxConcurrentWorkers) return;
 
-    if (runningCount >= this.config.maxConcurrentWorkers) return;
-
-    const nextPending = Array.from(this.tasks.values()).find((t) => t.status === 'pending');
+    let nextPending: CoordinatorTask | undefined;
+    for (const t of this.tasks.values()) {
+      if (t.status === 'pending') {
+        nextPending = t;
+        break;
+      }
+    }
     if (nextPending) {
       this.dispatchTask(nextPending);
     }
@@ -322,6 +331,9 @@ export class CoordinatorSession {
 
     for (const [taskId, task] of this.tasks) {
       if (task.status === 'pending' || task.status === 'dispatched') {
+        if (task.status === 'dispatched' || task.status === 'running') {
+          this.runningCount--;
+        }
         task.status = 'cancelled';
         task.error = reason;
         task.updatedAt = Date.now();
