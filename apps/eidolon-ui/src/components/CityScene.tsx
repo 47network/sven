@@ -24,7 +24,6 @@ function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
   const parcels = snapshot?.parcels ?? [];
   const agentStates = snapshot?.world?.agentStates ?? null;
   const { getGlowBoost } = useEventGlow(events);
-  const worldTime = useWorldTime();
 
   const districtLabels = useMemo(
     () => [
@@ -119,6 +118,7 @@ function CityContent({ snapshot, selectedId, onSelect, events }: Props) {
 }
 
 export function CityScene({ snapshot, selectedId, onSelect, events }: Props) {
+  const worldTime = useWorldTime();
   return (
     <Canvas
       shadows

@@ -12,12 +12,41 @@
 // for Romanian operators via formatBucharestTime().
 // ---------------------------------------------------------------------------
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { formatBucharestTime } from '@/lib/time';
-import type { EidolonWorldOverview } from '@/lib/api';
+import type { EidolonWorldOverview, EidolonWorldTick } from '@/lib/api';
 
 interface Props {
   world: EidolonWorldOverview | null | undefined;
+}
+
+// ---------------------------------------------------------------------------
+// TickSparkline — dual-series mini-chart (revenue €, interactions) over the
+// last N world ticks. Pure SVG, fixed 160×28 viewbox, no external deps.
+// Renders nothing when fewer than 2 ticks are available.
+// ---------------------------------------------------------------------------
+function TickSparkline({ ticks }: { ticks: EidolonWorldTick[] }) {
+  // Older-first ordering for left-to-right time flow.
+  const ordered = useMemo(() => [...ticks].reverse().slice(-24), [ticks]);
+  if (ordered.length < 2) return null;
+  const w = 160;
+  const h = 28;
+  const pad = 1;
+  const maxRev = Math.max(1, ...ordered.map((t) => t.revenueEurCents));
+  const maxInt = Math.max(1, ...ordered.map((t) => t.interactions));
+  const xStep = (w - pad * 2) / (ordered.length - 1);
+  const toLine = (vals: number[], max: number) =>
+    vals
+      .map((v, i) => `${pad + i * xStep},${pad + (h - pad * 2) * (1 - v / max)}`)
+      .join(' ');
+  const revPts = toLine(ordered.map((t) => t.revenueEurCents), maxRev);
+  const intPts = toLine(ordered.map((t) => t.interactions), maxInt);
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-label="recent ticks" role="img">
+      <polyline fill="none" stroke="#7c3aed" strokeWidth={1} points={intPts} opacity={0.55} />
+      <polyline fill="none" stroke="#22d3ee" strokeWidth={1.2} points={revPts} />
+    </svg>
+  );
 }
 
 const STATE_LABELS: Record<string, string> = {
@@ -46,6 +75,9 @@ function relativeAge(iso: string | null): string {
 }
 
 export function WorldPulsePanel({ world }: Props) {
+  // Tracks which interaction row is expanded to show full message + participants.
+  // Local component state — no parent wiring needed.
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const stateRows = useMemo(() => {
     if (!world) return [];
     const entries = Object.entries(world.agentRuntime.stateCounts ?? {});
@@ -102,6 +134,15 @@ export function WorldPulsePanel({ world }: Props) {
             </div>
           </div>
         )}
+        {world.recentTicks.length >= 2 && (
+          <div className="mt-1.5 flex items-center justify-between">
+            <TickSparkline ticks={world.recentTicks} />
+            <div className="flex flex-col items-end gap-0.5 text-[9px] uppercase tracking-wider">
+              <span className="text-[#22d3ee]">rev</span>
+              <span className="text-[#7c3aed]">talks</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {stateRows.length > 0 && (
@@ -133,19 +174,43 @@ export function WorldPulsePanel({ world }: Props) {
         <div>
           <div className="text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-1">recent talk</div>
           <ul className="space-y-1">
-            {recent.map((it) => (
-              <li key={it.id} className="text-[11px] leading-snug">
-                <div className="flex justify-between text-gray-500 text-[9px] uppercase tracking-wider">
-                  <span>{it.topic.replace(/_/g, ' ')}</span>
-                  <span title="Romanian time (Europe/Bucharest)">
-                    {formatBucharestTime(it.createdAt)}
-                  </span>
-                </div>
-                <div className="text-gray-200 truncate" title={it.message}>
-                  {it.message}
-                </div>
-              </li>
-            ))}
+            {recent.map((it) => {
+              const open = expandedId === it.id;
+              return (
+                <li key={it.id} className="text-[11px] leading-snug">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedId(open ? null : it.id)}
+                    aria-expanded={open}
+                    className="w-full text-left rounded px-1 py-0.5 hover:bg-white/5 focus-visible:outline focus-visible:outline-1 focus-visible:outline-brand-400"
+                  >
+                    <div className="flex justify-between text-gray-500 text-[9px] uppercase tracking-wider">
+                      <span>
+                        {open ? '▾' : '▸'} {it.topic.replace(/_/g, ' ')}
+                        {it.influencedDecision ? ' · ★' : ''}
+                      </span>
+                      <span title="Romanian time (Europe/Bucharest)">
+                        {formatBucharestTime(it.createdAt)}
+                      </span>
+                    </div>
+                    <div
+                      className={open ? 'text-gray-200 whitespace-pre-wrap' : 'text-gray-200 truncate'}
+                      title={open ? undefined : it.message}
+                    >
+                      {it.message}
+                    </div>
+                    {open && (
+                      <div className="mt-1 text-[10px] text-gray-500">
+                        <span className="text-gray-300">{it.agentA}</span>
+                        <span className="mx-1">↔</span>
+                        <span className="text-gray-300">{it.agentB}</span>
+                        {it.location ? <span className="ml-2">@ {it.location}</span> : null}
+                      </div>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

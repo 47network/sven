@@ -11,6 +11,7 @@ const CityScene = dynamic(
 );
 import { EventFeed } from '@/components/EventFeed';
 import { WorldPulsePanel } from '@/components/WorldPulsePanel';
+import { CitizenStripPanel } from '@/components/CitizenStripPanel';
 import { useEidolonEvents } from '@/hooks/useEidolonEvents';
 import { fetchSnapshot, type EidolonBuilding, type EidolonSnapshot } from '@/lib/api';
 
@@ -77,8 +78,12 @@ export default function EidolonPage() {
         </div>
       </header>
 
-      <aside className="absolute top-20 left-4 z-10">
+      <aside className="absolute top-20 left-4 z-10 space-y-3">
         <WorldPulsePanel world={snapshot?.world ?? null} />
+        <CitizenStripPanel
+          citizens={snapshot?.citizens ?? []}
+          agentStates={snapshot?.world?.agentStates ?? null}
+        />
       </aside>
 
       <aside className="absolute bottom-4 left-4 z-10 w-80 space-y-3">
