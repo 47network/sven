@@ -18,6 +18,7 @@ export async function registerInviteRoutes(app: FastifyInstance, pool: pg.Pool) 
   const validRoles = new Set(['admin', 'operator', 'user']);
 
   // ─── POST /invites ─── Create an invite token (admin/owner only)
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.post('/invites', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request: any, reply) => {
     const orgId = String(request.orgId || '').trim();
     if (!orgId) {
@@ -89,6 +90,7 @@ export async function registerInviteRoutes(app: FastifyInstance, pool: pg.Pool) 
   });
 
   // ─── GET /invites ─── List invites for current org
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.get('/invites', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request: any, reply) => {
     const orgId = String(request.orgId || '').trim();
     if (!orgId) {
@@ -119,6 +121,7 @@ export async function registerInviteRoutes(app: FastifyInstance, pool: pg.Pool) 
   });
 
   // ─── GET /invites/:id ─── Get single invite details
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.get('/invites/:id', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request: any, reply) => {
     const orgId = String(request.orgId || '').trim();
     if (!orgId) {
@@ -162,6 +165,7 @@ export async function registerInviteRoutes(app: FastifyInstance, pool: pg.Pool) 
   });
 
   // ─── DELETE /invites/:id ─── Revoke an invite
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.delete('/invites/:id', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request: any, reply) => {
     const orgId = String(request.orgId || '').trim();
     if (!orgId) {

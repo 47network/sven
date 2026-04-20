@@ -62,6 +62,7 @@ async function validateActiveAgent(pool: pg.Pool, agentId: string): Promise<bool
 }
 
 export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, pool: pg.Pool) {
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.get('/integrations/acmecorp/tenant-mappings/health', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const orgId = currentOrgId(request);
     const query = request.query as {
@@ -161,6 +162,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     });
   });
 
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.get('/integrations/acmecorp/tenant-mappings', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const orgId = currentOrgId(request);
     const query = request.query as {
@@ -226,6 +228,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     });
   });
 
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.get('/integrations/acmecorp/tenant-mappings/resolve/:externalTenantId', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const orgId = currentOrgId(request);
     const { externalTenantId } = request.params as { externalTenantId: string };
@@ -277,6 +280,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     });
   });
 
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.post('/integrations/acmecorp/tenant-mappings', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const requestOrgId = currentOrgId(request);
     const body = (request.body || {}) as {
@@ -397,6 +401,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     return reply.status(201).send({ success: true, data: upsert.rows[0] });
   });
 
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.patch('/integrations/acmecorp/tenant-mappings/:externalTenantId', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const requestOrgId = currentOrgId(request);
     const { externalTenantId } = request.params as { externalTenantId: string };
@@ -515,6 +520,7 @@ export async function registerBridgeTenantMappingRoutes(app: FastifyInstance, po
     return reply.send({ success: true, data: updated.rows[0] });
   });
 
+  // lgtm[js/missing-rate-limiting] fastify rateLimit configuration
   app.delete('/integrations/acmecorp/tenant-mappings/:externalTenantId', { config: { rateLimit: { max: 100, timeWindow: 60000 } } }, async (request, reply) => {
     const requestOrgId = currentOrgId(request);
     const { externalTenantId } = request.params as { externalTenantId: string };
