@@ -255,6 +255,12 @@ export function generateSecurityDigest(
  * Render the security posture as a Markdown report.
  */
 export function postureToMarkdown(posture: SecurityPosture): string {
+  const escapeMarkdownTableCell = (value: string): string =>
+    value
+      .replace(/\r?\n/g, ' ')
+      .replace(/\|/g, '\\|')
+      .trim();
+
   const lines: string[] = [
     '# Security Posture Report',
     '',
@@ -305,7 +311,9 @@ export function postureToMarkdown(posture: SecurityPosture): string {
     lines.push('|-----------|---------|--------|--------|');
     for (const note of posture.complianceNotes) {
       const icon = note.status === 'pass' ? 'PASS' : note.status === 'fail' ? 'FAIL' : note.status === 'partial' ? 'PARTIAL' : 'N/T';
-      lines.push(`| ${note.framework} | ${note.control} | ${icon} | ${note.detail} |`);
+      lines.push(
+        `| ${escapeMarkdownTableCell(note.framework)} | ${escapeMarkdownTableCell(note.control)} | ${icon} | ${escapeMarkdownTableCell(note.detail)} |`,
+      );
     }
     lines.push('');
   }

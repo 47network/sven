@@ -281,5 +281,22 @@ describe('Security Report Generator', () => {
       expect(markdown).toContain('## Compliance');
       expect(markdown).toContain('| OWASP | A03:2021-Injection | PASS | No injection vulnerabilities detected |');
     });
+
+    it('should escape compliance table cells to prevent markdown row injection', () => {
+      const posture = {
+        ...generateSecurityPosture({}),
+        complianceNotes: [
+          {
+            framework: 'OWASP|A',
+            control: 'A03\nInjection',
+            status: 'fail',
+            detail: 'value|with|pipes\nand newline',
+          },
+        ],
+      };
+
+      const markdown = postureToMarkdown(posture);
+      expect(markdown).toContain('| OWASP\\|A | A03 Injection | FAIL | value\\|with\\|pipes and newline |');
+    });
   });
 });
