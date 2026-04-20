@@ -183,7 +183,7 @@ export function generateSecurityPosture(opts: {
     framework: 'SOC 2',
     control: 'CC6.1-Secret Management',
     status: opts.secrets ? (opts.secrets.clean ? 'pass' : 'fail') : 'not-tested',
-    detail: opts.secrets?.clean ? 'No secrets in source code' : `${opts.secrets?.secretsFound ?? 0} secret(s) found`,
+    detail: opts.secrets ? (opts.secrets.clean ? 'No secrets in source code' : `${opts.secrets.secretsFound} secret(s) found`) : 'Secret scan not run',
   });
 
   // SOC 2 - Vulnerability Management

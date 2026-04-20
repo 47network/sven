@@ -169,6 +169,14 @@ describe('Security Report Generator', () => {
         'Run secret scanning to validate that no credentials or keys are committed.',
       );
     });
+
+    it('should mark SOC2 secret management as not-tested when secret scan is missing', () => {
+      const posture = generateSecurityPosture({});
+      const secretNote = posture.complianceNotes.find((c) => c.control === 'CC6.1-Secret Management');
+
+      expect(secretNote?.status).toBe('not-tested');
+      expect(secretNote?.detail).toBe('Secret scan not run');
+    });
   });
 
   describe('generateSecurityDigest', () => {
