@@ -259,7 +259,7 @@ export function postureToMarkdown(posture: SecurityPosture): string {
     value
       .replace(/\\/g, '\\\\')
       .replace(/\r?\n/g, ' ')
-      .replace(/\|/g, '\\|')
+      .replace(/\|/g, '&#124;')
       .trim();
 
   const lines: string[] = [

@@ -296,7 +296,7 @@ describe('Security Report Generator', () => {
       };
 
       const markdown = postureToMarkdown(posture);
-      expect(markdown).toContain('| OWASP\\|A | A03 Injection | FAIL | value\\|with\\|pipes and newline\\\\path |');
+      expect(markdown).toContain('| OWASP&#124;A | A03 Injection | FAIL | value&#124;with&#124;pipes and newline\\\\path |');
     });
   });
 });
