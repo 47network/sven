@@ -48,6 +48,15 @@ interface StripeEvent {
       payment_intent?: string;
       amount_total?: number;
       currency?: string;
+      // charge.refunded payloads include a paginated list of refund objects.
+      refunds?: {
+        data?: Array<{
+          id: string;
+          reason?: string;
+          amount?: number;
+          status?: string;
+        }>;
+      };
     };
   };
 }

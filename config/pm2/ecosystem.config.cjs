@@ -195,5 +195,82 @@ module.exports = {
       apiUrl: misiuniApiUrl,
       standaloneServerEnvVar: 'SVEN_MISIUNI_UI_STANDALONE_SERVER',
     }),
+    createNextUiApp({
+      name: 'sven-marketplace-ui',
+      appDir: 'apps/marketplace-ui',
+      port: process.env.MARKETPLACE_UI_PORT || '3310',
+      apiUrl: process.env.SVEN_MARKETPLACE_API_URL || webApiUrl,
+      standaloneServerEnvVar: 'SVEN_MARKETPLACE_UI_STANDALONE_SERVER',
+    }),
+    createNextUiApp({
+      name: 'sven-eidolon-ui',
+      appDir: 'apps/eidolon-ui',
+      port: process.env.EIDOLON_UI_PORT || '3311',
+      apiUrl: process.env.SVEN_EIDOLON_API_URL || webApiUrl,
+      standaloneServerEnvVar: 'SVEN_EIDOLON_UI_STANDALONE_SERVER',
+    }),
+    {
+      name: 'sven-marketplace',
+      cwd: 'services/sven-marketplace',
+      script: 'dist/index.js',
+      interpreter: nodeExe,
+      env: {
+        NODE_ENV: 'production',
+        MARKETPLACE_PORT: process.env.MARKETPLACE_PORT || '9478',
+        MARKETPLACE_HOST: '0.0.0.0',
+        DATABASE_URL:
+          soakRuntime.databaseUrl ||
+          process.env.SVEN_RUNTIME_DATABASE_URL ||
+          process.env.DATABASE_URL ||
+          'postgresql://sven:sven-dev-47@127.0.0.1:5432/sven',
+        NATS_URL: soakRuntime.natsUrl || process.env.SVEN_RUNTIME_NATS_URL || process.env.NATS_URL || 'nats://127.0.0.1:59530',
+      },
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 2000,
+      time: true,
+    },
+    {
+      name: 'sven-eidolon',
+      cwd: 'services/sven-eidolon',
+      script: 'dist/index.js',
+      interpreter: nodeExe,
+      env: {
+        NODE_ENV: 'production',
+        EIDOLON_PORT: process.env.EIDOLON_PORT || '9479',
+        EIDOLON_HOST: '0.0.0.0',
+        DATABASE_URL:
+          soakRuntime.databaseUrl ||
+          process.env.SVEN_RUNTIME_DATABASE_URL ||
+          process.env.DATABASE_URL ||
+          'postgresql://sven:sven-dev-47@127.0.0.1:5432/sven',
+        NATS_URL: soakRuntime.natsUrl || process.env.SVEN_RUNTIME_NATS_URL || process.env.NATS_URL || 'nats://127.0.0.1:59530',
+      },
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 2000,
+      time: true,
+    },
+    {
+      name: 'sven-treasury',
+      cwd: 'services/sven-treasury',
+      script: 'dist/index.js',
+      interpreter: nodeExe,
+      env: {
+        NODE_ENV: 'production',
+        TREASURY_PORT: process.env.TREASURY_PORT || '9477',
+        TREASURY_HOST: '127.0.0.1',
+        DATABASE_URL:
+          soakRuntime.databaseUrl ||
+          process.env.SVEN_RUNTIME_DATABASE_URL ||
+          process.env.DATABASE_URL ||
+          'postgresql://sven:sven-dev-47@127.0.0.1:5432/sven',
+        NATS_URL: soakRuntime.natsUrl || process.env.SVEN_RUNTIME_NATS_URL || process.env.NATS_URL || 'nats://127.0.0.1:59530',
+      },
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 2000,
+      time: true,
+    },
   ],
 };

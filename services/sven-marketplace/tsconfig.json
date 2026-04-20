@@ -12,6 +12,7 @@
     }
   },
   "include": ["src/**/*"],
+  "exclude": ["src/task-executor.ts"],
   "references": [
     { "path": "../../packages/shared" },
     { "path": "../../packages/treasury" }

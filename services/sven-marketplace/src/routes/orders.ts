@@ -51,14 +51,8 @@ export function registerOrderRoutes(app: FastifyInstance, repo: MarketplaceRepos
     }
   });
 
-  app.get('/v1/market/orders', async (req, reply) => {
-    const parsed = ListQuery.safeParse(req.query);
-    if (!parsed.success) {
-      return reply.status(400).send({ success: false, error: { code: 'BAD_QUERY', message: parsed.error.message } });
-    }
-    const orders = await repo.listOrders(parsed.data);
-    return reply.send({ success: true, data: { orders } });
-  });
+  // NOTE: GET /v1/market/orders (buyer-scoped order history) lives in routes/public.ts.
+  // Admin-wide listing is exposed at GET /v1/market/admin/orders below.
 
   app.get('/v1/market/orders/:id', async (req, reply) => {
     const id = (req.params as { id: string }).id;

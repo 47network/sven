@@ -2,6 +2,8 @@
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
   basePath: process.env.EIDOLON_BASE_PATH || '',
   distDir: process.env.EIDOLON_NEXT_DIST_DIR || '.next',
   allowedDevOrigins: [

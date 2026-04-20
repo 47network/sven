@@ -545,30 +545,37 @@ export class MarketplaceRepository {
       await client.query('COMMIT');
 
       // Treasury credit outside txn so its own transaction is independent.
-      // Wrapped in retry for cross-service resilience.
-      try {
-        const tx = await withRetry(
-          () => this.ledger.credit({
-            orgId: listing.orgId,
-            accountId: listing.payoutAccountId,
-            amount: existing.netToSeller,
-            currency: existing.currency,
-            source: `marketplace:${existing.paymentMethod}`,
-            sourceRef: orderId,
-            kind: 'revenue',
-            description: `Marketplace order ${orderId} for listing ${listing.slug}`,
-            metadata: { listingId: listing.id, orderId, platformFee: existing.platformFee },
-          }),
-          { maxAttempts: 3, baseDelayMs: 500, description: `credit order ${orderId}` },
-        );
-        await this.pool.query(
-          `UPDATE marketplace_orders SET settlement_tx_id=$2 WHERE id=$1`,
-          [orderId, tx.id],
-        );
-      } catch (err) {
-        logger.error('Treasury credit failed after order marked paid', {
-          orderId, err: err instanceof Error ? err.message : String(err),
+      // Wrapped in retry for cross-service resilience. Skip if no payout account.
+      if (!listing.payoutAccountId) {
+        logger.warn('Order paid but listing has no payout account; skipping treasury credit', {
+          orderId, listingId: listing.id,
         });
+      } else {
+        const payoutAccountId = listing.payoutAccountId;
+        try {
+          const tx = await withRetry(
+            () => this.ledger.credit({
+              orgId: listing.orgId,
+              accountId: payoutAccountId,
+              amount: existing.netToSeller,
+              currency: existing.currency,
+              source: `marketplace:${existing.paymentMethod}`,
+              sourceRef: orderId,
+              kind: 'revenue',
+              description: `Marketplace order ${orderId} for listing ${listing.slug}`,
+              metadata: { listingId: listing.id, orderId, platformFee: existing.platformFee },
+            }),
+            { maxAttempts: 3, baseDelayMs: 500, label: `credit order ${orderId}` },
+          );
+          await this.pool.query(
+            `UPDATE marketplace_orders SET settlement_tx_id=$2 WHERE id=$1`,
+            [orderId, tx.id],
+          );
+        } catch (err) {
+          logger.error('Treasury credit failed after order marked paid', {
+            orderId, err: err instanceof Error ? err.message : String(err),
+          });
+        }
       }
 
       logger.info('Order marked paid', { orderId, net: existing.netToSeller });
@@ -646,7 +653,7 @@ export class MarketplaceRepository {
               description: `Refund for order ${orderId}${reason ? ` — ${reason}` : ''}`,
               metadata: { listingId: listing!.id, orderId, originalNet: existing.netToSeller },
             }),
-            { maxAttempts: 3, baseDelayMs: 500, description: `refund order ${orderId}` },
+            { maxAttempts: 3, baseDelayMs: 500, label: `refund order ${orderId}` },
           );
         } catch (err) {
           logger.error('Treasury debit failed for refund', {

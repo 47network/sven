@@ -1776,12 +1776,12 @@ export type EidolonBuildingKind =
   | 'api_version_tower'
   | 'compliance_scanner'
   | 'backup_vault'
-  | 'traffic_shaper' | 'service_mesh' | 'wan_optimizer' | 'link_aggregator' | 'protocol_gateway' | 'vlan_manager' | 'network_tap' | 'flow_collector' | 'sflow_agent' | 'netflow_exporter' | 'arp_inspector' | 'packet_sniffer' | 'bandwidth_monitor' | 'latency_probe' | 'jitter_analyzer' | 'packet_loss_tracker' | 'traffic_classifier' | 'qos_enforcer' | 'acl_auditor' | 'firewall_policy' | 'port_mapper';
+  | 'traffic_shaper' | 'service_mesh' | 'wan_optimizer' | 'link_aggregator' | 'protocol_gateway' | 'vlan_manager' | 'network_tap' | 'flow_collector' | 'sflow_agent' | 'netflow_exporter' | 'arp_inspector' | 'packet_sniffer' | 'bandwidth_monitor' | 'latency_probe' | 'jitter_analyzer' | 'packet_loss_tracker' | 'traffic_classifier' | 'qos_enforcer' | 'acl_auditor' | 'firewall_policy' | 'port_mapper'
   | 'log_rotator'
   | 'ip_gatekeeper'
   | 'webhook_relay'
   | 'storage_tower'
-  | 'peering_bridge'
+  | 'peering_bridge';
 
 export interface EidolonBuilding {
   id: string;
@@ -7862,7 +7862,7 @@ export interface EidolonEvent {
 
 // ---- Deterministic layout helpers ----------------------------------------
 
-const DISTRICTS = ['market', 'revenue', 'infra', 'treasury'] as const;
+const DISTRICTS = ['market', 'revenue', 'infra', 'treasury', 'civic', 'industrial', 'infrastructure', 'residential'] as const;
 export type District = (typeof DISTRICTS)[number];
 
 export function listDistricts(): string[] {

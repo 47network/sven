@@ -1,3 +1,13 @@
+## Production Deployment — market.sven.systems + eidolon.sven.systems live
+- Real Let's Encrypt ECDSA certs issued for `market.sven.systems` and `eidolon.sven.systems` (expire 2026-07-19); host `certbot.timer` + existing deploy hook reload `sven-nginx` automatically on renewal (dry-run verified for both certs).
+- Edge VM1 nginx SNI map + port-80 server_name extended to route `market`, `eidolon`, `trading.sven.systems` to VM4 backend.
+- `config/pm2/ecosystem.config.cjs`: `MARKETPLACE_HOST` and `EIDOLON_HOST` flipped from `127.0.0.1` to `0.0.0.0` so APIs are reachable from `sven-nginx` Docker container via `host.docker.internal` (172.17.0.1) — fixes 502 with valid certs.
+- `services/sven-eidolon/src/index.ts`: added `/healthz` alias next to `/health` for k8s/probe parity.
+- `apps/eidolon-ui/src/app/page.tsx`: `CityScene` (react-three-fiber + `useWorldTime` client hook) now loaded via `next/dynamic({ ssr: false })` — fixes `ReferenceError: worldTime is not defined` SSR crash.
+- `packages/shared/src/index.ts`: namespace-scoped re-exports for `agent-archetype`, `agent-crews`, `agent-avatars`, `agent-service-domains`, `agent-collaboration` to resolve symbol collisions surfaced by production build.
+- `deploy/multi-vm/nginx/nginx.multi-vm.conf`: documents the proxy_pass entries for the two new hosts.
+- All four endpoints serve 200 over HTTPS: `market.sven.systems/{,healthz}`, `eidolon.sven.systems/{,healthz}`.
+
 ## Batches 1908-1932 — Currency Converter, Wallet Manager, Escrow Handler, Payout Scheduler, Commission Engine
 - 25 verticals (5 groups × 5): multi-currency conversion + digital wallet mgmt + escrow logic + scheduled payouts + commission calculation
 - 275 tests passing | migration timestamps 20260635450000–20260635690000

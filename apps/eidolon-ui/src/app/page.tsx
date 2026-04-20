@@ -1,8 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { CityScene } from '@/components/CityScene';
+import dynamic from 'next/dynamic';
 import { InspectorPanel } from '@/components/InspectorPanel';
+
+// CityScene uses react-three-fiber which is client-only.
+const CityScene = dynamic(
+  () => import('@/components/CityScene').then((m) => m.CityScene),
+  { ssr: false },
+);
 import { EventFeed } from '@/components/EventFeed';
 import { useEidolonEvents } from '@/hooks/useEidolonEvents';
 import { fetchSnapshot, type EidolonBuilding, type EidolonSnapshot } from '@/lib/api';

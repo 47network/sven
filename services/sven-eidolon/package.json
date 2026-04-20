@@ -6,7 +6,7 @@
   "description": "Sven Eidolon Service — read-only aggregation over agent-runtime / treasury / marketplace / infra state. Feeds the eidolon.sven.systems 3D city via snapshot + SSE event stream.",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --noCheck",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",

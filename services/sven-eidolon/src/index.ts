@@ -73,6 +73,14 @@ async function main(): Promise<void> {
     ]),
   );
 
+  // Alias for nginx upstream conventions (matches other Sven services).
+  app.get('/healthz', async () =>
+    buildHealthStatus('sven-eidolon', VERSION, [
+      { name: 'postgres', status: 'pass' },
+      { name: 'nats', status: nc ? 'pass' : 'warn' },
+    ]),
+  );
+
   // Readiness probe — verifies Postgres can execute queries
   app.get('/readyz', async (_req, reply) => {
     try {
