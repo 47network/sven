@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   AlertCircle,
   Search,
@@ -66,6 +66,15 @@ const KnowledgeGraphExplorer: React.FC<{ chatId?: string }> = ({ chatId = 'defau
   const [stats, setStats] = useState<GraphStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Performance Optimization: O(1) lookup for entities during render
+  const entityMap = useMemo(() => {
+    const map = new Map<string, Entity>();
+    for (const entity of entityList) {
+      map.set(entity.id, entity);
+    }
+    return map;
+  }, [entityList]);
 
   // Entity creation state
   const [newEntity, setNewEntity] = useState<Partial<Entity>>({
@@ -578,8 +587,8 @@ const KnowledgeGraphExplorer: React.FC<{ chatId?: string }> = ({ chatId = 'defau
                 <h3 className="font-bold text-gray-800 mb-4">Relations</h3>
                 <div className="divide-y divide-gray-200">
                   {relationList.map((rel) => {
-                    const source = entityList.find((e) => e.id === rel.source_entity_id);
-                    const target = entityList.find((e) => e.id === rel.target_entity_id);
+                    const source = entityMap.get(rel.source_entity_id);
+                    const target = entityMap.get(rel.target_entity_id);
 
                     return (
                       <div key={rel.id} className="py-3">
