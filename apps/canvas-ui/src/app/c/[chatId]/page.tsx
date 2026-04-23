@@ -154,7 +154,7 @@ export default function ChatTimelinePage() {
   const [newestMessageId, setNewestMessageId] = useState('');
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [showComposerTools, setShowComposerTools] = useState(false);
-  const [nowTick, setNowTick] = useState(() => Date.now());
+  const [isAgentStuck, setIsAgentStuck] = useState(false);
   const [feedbackByMessage, setFeedbackByMessage] = useState<Record<string, FeedbackValue>>({});
   const [optimisticMessages, setOptimisticMessages] = useState<ChatMessage[]>([]);
   const [highlightMessageId, setHighlightMessageId] = useState('');
@@ -201,11 +201,6 @@ export default function ChatTimelinePage() {
   const processing = Boolean(agentStateQuery.data?.processing);
   const lastUserAt = agentStateQuery.data?.last_user_message_at ? new Date(agentStateQuery.data.last_user_message_at).getTime() : 0;
   const lastAssistantAt = agentStateQuery.data?.last_assistant_message_at ? new Date(agentStateQuery.data.last_assistant_message_at).getTime() : 0;
-  const isAgentStuck = !isAgentPaused
-    && processing
-    && lastUserAt > 0
-    && lastUserAt > lastAssistantAt
-    && (nowTick - lastUserAt) > 30_000;
   const targetMessageId = String(searchParams.get('m') || '').trim();
   const sanitizedA2uiHtml = useMemo(() => sanitizeA2uiHtml(a2ui.html), [a2ui.html]);
 
@@ -256,9 +251,28 @@ export default function ChatTimelinePage() {
   }, [messages.length, isAtBottom]);
 
   useEffect(() => {
-    const t = window.setInterval(() => setNowTick(Date.now()), 5000);
-    return () => window.clearInterval(t);
-  }, []);
+    const shouldBeStuck = !isAgentPaused
+      && processing
+      && lastUserAt > 0
+      && lastUserAt > lastAssistantAt;
+
+    if (!shouldBeStuck) {
+      setIsAgentStuck(false);
+      return;
+    }
+
+    const elapsed = Date.now() - lastUserAt;
+    const remaining = 30_000 - elapsed;
+
+    if (remaining <= 0) {
+      setIsAgentStuck(true);
+      return;
+    }
+
+    setIsAgentStuck(false);
+    const timer = window.setTimeout(() => setIsAgentStuck(true), remaining);
+    return () => window.clearTimeout(timer);
+  }, [isAgentPaused, processing, lastUserAt, lastAssistantAt]);
 
   useEffect(() => {
     if (!targetMessageId) return;
@@ -384,14 +398,14 @@ export default function ChatTimelinePage() {
     inputRef.current?.focus();
   }
 
-  async function handleA2uiInteract(e: React.MouseEvent<HTMLDivElement>) {
+  const handleA2uiInteract = useCallback(async (e: React.MouseEvent<HTMLDivElement>) => {
     const el = (e.target as HTMLElement).closest('[data-a2ui-action]') as HTMLElement | null;
     if (!el) return;
     const eventType = el.getAttribute('data-a2ui-action') || 'click';
     let payload: Record<string, unknown> = {};
     try { payload = JSON.parse(el.getAttribute('data-a2ui-payload') || '{}'); } catch { payload = { raw: el.getAttribute('data-a2ui-payload') }; }
     try { await api.a2ui.interact(chatId, { event_type: eventType, payload }); } catch (err) { void err; }
-  }
+  }, [chatId]);
 
   async function loadOlderMessages() {
     if (loadingOlder || !hasOlder) return;
