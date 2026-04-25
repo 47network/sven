@@ -21,6 +21,7 @@ describe('Security Report Generator', () => {
       expect(posture.totalFindings).toBe(0);
       expect(posture.topRisks.length).toBe(0);
       expect(posture.complianceNotes.length).toBe(4);
+      expect(posture.secretsClean).toBe(false);
     });
 
     it('should calculate weighted average accurately', () => {
@@ -161,6 +162,21 @@ describe('Security Report Generator', () => {
       const authNote = posture.complianceNotes.find(c => c.control.includes('Auth'));
       expect(authNote?.status).toBe('pass');
     });
+
+    it('should recommend running secret scans when no secret report is provided', () => {
+      const posture = generateSecurityPosture({});
+      expect(posture.recommendations).toContain(
+        'Run secret scanning to validate that no credentials or keys are committed.',
+      );
+    });
+
+    it('should mark SOC2 secret management as not-tested when secret scan is missing', () => {
+      const posture = generateSecurityPosture({});
+      const secretNote = posture.complianceNotes.find((c) => c.control === 'CC6.1-Secret Management');
+
+      expect(secretNote?.status).toBe('not-tested');
+      expect(secretNote?.detail).toBe('Secret scan not run');
+    });
   });
 
   describe('generateSecurityDigest', () => {
@@ -272,6 +288,25 @@ describe('Security Report Generator', () => {
 
       expect(markdown).toContain('## Compliance');
       expect(markdown).toContain('| OWASP | A03:2021-Injection | PASS | No injection vulnerabilities detected |');
+    });
+
+    it('should escape compliance table cells to prevent markdown row injection', () => {
+      const expectedEscapedComplianceRow =
+        '| OWASP&#124;A | A03 Injection | FAIL | value&#124;with&#124;pipes and newline\\\\path |';
+      const posture = {
+        ...generateSecurityPosture({}),
+        complianceNotes: [
+          {
+            framework: 'OWASP|A',
+            control: 'A03\nInjection',
+            status: 'fail',
+            detail: 'value|with|pipes\nand newline\\path',
+          },
+        ],
+      };
+
+      const markdown = postureToMarkdown(posture);
+      expect(markdown).toContain(expectedEscapedComplianceRow);
     });
   });
 });

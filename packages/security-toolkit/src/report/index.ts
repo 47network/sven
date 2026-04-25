@@ -149,6 +149,7 @@ export function generateSecurityPosture(opts: {
 
   // Recommendations
   const recommendations: string[] = [];
+  if (!opts.secrets) recommendations.push('Run secret scanning to validate that no credentials or keys are committed.');
   if (opts.secrets && !opts.secrets.clean) recommendations.push('Rotate all detected secrets immediately. Remove them from source and use a secrets manager.');
   if (critical > 0) recommendations.push('Address all critical findings before next deployment.');
   if (opts.dependencies && opts.dependencies.byRisk.critical > 0) recommendations.push('Upgrade dependencies with critical CVEs.');
@@ -182,7 +183,7 @@ export function generateSecurityPosture(opts: {
     framework: 'SOC 2',
     control: 'CC6.1-Secret Management',
     status: opts.secrets ? (opts.secrets.clean ? 'pass' : 'fail') : 'not-tested',
-    detail: opts.secrets?.clean ? 'No secrets in source code' : `${opts.secrets?.secretsFound ?? 0} secret(s) found`,
+    detail: opts.secrets ? (opts.secrets.clean ? 'No secrets in source code' : `${opts.secrets.secretsFound} secret(s) found`) : 'Secret scan not run',
   });
 
   // SOC 2 - Vulnerability Management
@@ -203,7 +204,7 @@ export function generateSecurityPosture(opts: {
     mediumFindings: medium,
     lowFindings: low,
     totalFindings,
-    secretsClean: opts.secrets?.clean ?? true,
+    secretsClean: opts.secrets?.clean ?? false,
     topRisks,
     recommendations,
     complianceNotes,
@@ -254,6 +255,13 @@ export function generateSecurityDigest(
  * Render the security posture as a Markdown report.
  */
 export function postureToMarkdown(posture: SecurityPosture): string {
+  const escapeMarkdownTableCell = (value: string): string =>
+    value
+      .replace(/\\/g, '\\\\')
+      .replace(/\r?\n/g, ' ')
+      .replace(/\|/g, '&#124;')
+      .trim();
+
   const lines: string[] = [
     '# Security Posture Report',
     '',
@@ -304,7 +312,9 @@ export function postureToMarkdown(posture: SecurityPosture): string {
     lines.push('|-----------|---------|--------|--------|');
     for (const note of posture.complianceNotes) {
       const icon = note.status === 'pass' ? 'PASS' : note.status === 'fail' ? 'FAIL' : note.status === 'partial' ? 'PARTIAL' : 'N/T';
-      lines.push(`| ${note.framework} | ${note.control} | ${icon} | ${note.detail} |`);
+      lines.push(
+        `| ${escapeMarkdownTableCell(note.framework)} | ${escapeMarkdownTableCell(note.control)} | ${icon} | ${escapeMarkdownTableCell(note.detail)} |`,
+      );
     }
     lines.push('');
   }
