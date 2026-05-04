@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-05-04T03:05:05.709Z",
-  "source_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
-  "source_head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
+  "generated_at": "2026-05-04T03:05:36.642Z",
+  "source_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
+  "source_head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
   "run_snapshot": {
     "source": "actions.listWorkflowRunsForRepo",
-    "captured_at": "2026-05-04T03:05:05.073Z",
-    "branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+    "captured_at": "2026-05-04T03:05:36.046Z",
+    "branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
     "total_runs": 13
   },
   "final_dod_ci": false,
@@ -37,9 +37,9 @@
   "security_baseline_ci": false,
   "gate_provenance": {
     "final_dod_ci": {
-      "run_id": 25298943796,
-      "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "run_id": 25298960634,
+      "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": "pull_request",
       "status": "completed",
       "conclusion": "failure",
@@ -50,9 +50,9 @@
       "decision": "target_sha_completed_run"
     },
     "parity_e2e_ci": {
-      "run_id": 25298943801,
-      "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "run_id": 25298960624,
+      "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": "pull_request",
       "status": "completed",
       "conclusion": "failure",
@@ -65,7 +65,7 @@
     "parity_checklist_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -79,7 +79,7 @@
     "agent_zero_parity_verify_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": "fail",
       "conclusion": "failure",
@@ -89,12 +89,12 @@
       "gate_key": "agent_zero_parity_verify_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/agent-zero-parity-verify-latest.json",
-      "generated_at": "2026-05-04T03:05:02.209Z"
+      "generated_at": "2026-05-04T03:05:33.008Z"
     },
     "websocket_contract_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -109,7 +109,7 @@
     "mcp_server_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": "pass_with_skips",
       "conclusion": null,
@@ -119,12 +119,12 @@
       "gate_key": "mcp_server_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/mcp-server-compat-latest.json",
-      "generated_at": "2026-05-04T03:05:03.500Z"
+      "generated_at": "2026-05-04T03:05:34.396Z"
     },
     "a2a_compat_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": "pass_with_skips",
       "conclusion": null,
@@ -134,12 +134,12 @@
       "gate_key": "a2a_compat_ci",
       "decision": "derived_status_artifact",
       "source_artifact": "docs/release/status/a2a-compat-latest.json",
-      "generated_at": "2026-05-04T03:05:04.651Z"
+      "generated_at": "2026-05-04T03:05:35.639Z"
     },
     "multi_device_validation_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -154,7 +154,7 @@
     "d9_keycloak_interop_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -167,7 +167,7 @@
     "release_ops_drill_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -179,9 +179,9 @@
       "previous_gate_value": false
     },
     "mobile_auth_session_smoke_ci": {
-      "run_id": 25298943772,
-      "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "run_id": 25298960632,
+      "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": "pull_request",
       "status": "completed",
       "conclusion": "failure",
@@ -194,7 +194,7 @@
     "mobile_release_readiness_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -208,7 +208,7 @@
     "backup_restore_api_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -222,7 +222,7 @@
     "flutter_user_app_device_farm_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -235,7 +235,7 @@
     "desktop_release_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -249,7 +249,7 @@
     "ui_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -263,7 +263,7 @@
     "mobile_coverage_gate_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -277,7 +277,7 @@
     "csrf_auth_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -291,7 +291,7 @@
     "client_env_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -305,7 +305,7 @@
     "backend_capability_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -319,7 +319,7 @@
     "security_privacy_governance_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -333,7 +333,7 @@
     "privacy_admin_e2e_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -347,7 +347,7 @@
     "ops_shell_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -373,7 +373,7 @@
     "skill_quarantine_scan_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -387,7 +387,7 @@
     "security_audit_unified_ci": {
       "run_id": null,
       "head_sha": null,
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": null,
       "status": null,
       "conclusion": null,
@@ -399,9 +399,9 @@
       "previous_gate_value": false
     },
     "security_baseline_ci": {
-      "run_id": 25298943779,
-      "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-      "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+      "run_id": 25298960631,
+      "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+      "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
       "event": "pull_request",
       "status": "completed",
       "conclusion": "failure",
@@ -440,9 +440,9 @@
     "final-dod-e2e": {
       "pass": false,
       "provenance": {
-        "run_id": 25298943796,
-        "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "run_id": 25298960634,
+        "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": "pull_request",
         "status": "completed",
         "conclusion": "failure",
@@ -457,9 +457,9 @@
     "parity-e2e": {
       "pass": false,
       "provenance": {
-        "run_id": 25298943801,
-        "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "run_id": 25298960624,
+        "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": "pull_request",
         "status": "completed",
         "conclusion": "failure",
@@ -476,7 +476,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -494,7 +494,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -510,9 +510,9 @@
     "mobile-auth-session-smoke": {
       "pass": false,
       "provenance": {
-        "run_id": 25298943772,
-        "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "run_id": 25298960632,
+        "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": "pull_request",
         "status": "completed",
         "conclusion": "failure",
@@ -529,7 +529,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -547,7 +547,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -565,7 +565,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -581,9 +581,9 @@
     "gateway-coverage-gate": {
       "pass": false,
       "provenance": {
-        "run_id": 25298943785,
-        "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "run_id": 25298960637,
+        "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": "pull_request",
         "status": "completed",
         "conclusion": "failure",
@@ -600,7 +600,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -616,9 +616,9 @@
     "deployment-pipeline": {
       "pass": false,
       "provenance": {
-        "run_id": 25298942823,
-        "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "run_id": 25298959308,
+        "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": "push",
         "status": "completed",
         "conclusion": "failure",
@@ -633,9 +633,9 @@
     "env-secrets-governance": {
       "pass": false,
       "provenance": {
-        "run_id": 25298942834,
-        "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "run_id": 25298959294,
+        "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": "push",
         "status": "completed",
         "conclusion": "failure",
@@ -650,9 +650,9 @@
     "security-baseline": {
       "pass": false,
       "provenance": {
-        "run_id": 25298943779,
-        "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "run_id": 25298960631,
+        "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": "pull_request",
         "status": "completed",
         "conclusion": "failure",
@@ -669,7 +669,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -687,7 +687,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -705,7 +705,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -723,7 +723,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -741,7 +741,7 @@
       "provenance": {
         "run_id": null,
         "head_sha": null,
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": null,
         "status": null,
         "conclusion": null,
@@ -757,9 +757,9 @@
     "gateway-bridge-contract-tests": {
       "pass": false,
       "provenance": {
-        "run_id": 25298943798,
-        "head_sha": "9dbe6f9aab28b85a728a04af7413e153a8e848cf",
-        "head_branch": "dependabot/npm_and_yarn/services/agent-runtime/npm_and_yarn-6a8db57d17",
+        "run_id": 25298960633,
+        "head_sha": "4daf2e24508ba2fd02705f29acc16fb74bb1a910",
+        "head_branch": "dependabot/npm_and_yarn/packages/proactive-notifier/npm_and_yarn-dcf5cf656f",
         "event": "pull_request",
         "status": "completed",
         "conclusion": "failure",
