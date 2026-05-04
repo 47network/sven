@@ -16,7 +16,7 @@
     "@sven/shared": "workspace:*",
     "nats": "^2.29.3",
     "pg": "^8.20.0",
-    "uuid": "^10.0.0",
+    "uuid": "^14.0.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

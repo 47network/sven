@@ -15,7 +15,7 @@
     "mammoth": "^1.12.0",
     "nats": "^2.29.3",
     "pdf-parse": "^1.1.4",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@types/pdf-parse": "^1.1.5",
