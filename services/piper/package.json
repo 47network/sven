@@ -9,13 +9,13 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@fastify/static": "^9.1.1",
+    "@fastify/static": "^10.1.2",
     "@sven/shared": "workspace:*",
     "fastify": "^5.8.5",
     "nats": "^2.29.3",
     "pg": "^8.20.0",
-    "undici": "^6.25.0",
-    "uuid": "^10.0.0"
+    "undici": "^6.27.0",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.19.39",

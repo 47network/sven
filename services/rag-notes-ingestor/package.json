@@ -12,9 +12,9 @@
   "dependencies": {
     "@sven/shared": "workspace:*",
     "fast-glob": "^3.3.3",
-    "js-yaml": "^4.1.1",
+    "js-yaml": "^4.3.0",
     "nats": "^2.29.3",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
