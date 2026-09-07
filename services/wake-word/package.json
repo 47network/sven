@@ -15,8 +15,8 @@
     "nanoid": "^5.1.5",
     "nats": "^2.29.3",
     "pg": "^8.20.0",
-    "undici": "^6.25.0",
-    "uuid": "^10.0.0"
+    "undici": "^6.28.0",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
