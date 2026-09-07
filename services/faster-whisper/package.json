@@ -12,8 +12,8 @@
     "@sven/shared": "workspace:*",
     "nats": "^2.29.3",
     "pg": "^8.20.0",
-    "undici": "^6.25.0",
-    "uuid": "^10.0.0"
+    "undici": "^6.28.0",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.19.39",
